@@ -83,22 +83,19 @@ const initializeHeaders = () => {
  */
 
 watch(
-    headers,
-    () => {
-        syncHeadersWithPendingRequest();
-    },
-    { deep: true },
-);
-
-watch(
     pendingRequestData,
     (newValue, oldValue) => {
         // Only reinitialize if endpoint actually changed
-        if (newValue?.endpoint === oldValue?.endpoint) {
+        if (
+            newValue?.endpoint === oldValue?.endpoint &&
+            newValue?.method === oldValue?.method
+        ) {
             return;
         }
 
         initializeHeaders();
+
+        syncHeadersWithPendingRequest();
     },
     { deep: true },
 );
