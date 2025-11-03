@@ -36,6 +36,11 @@
         outline: none !important;
     }
 
+    .cm-tooltip {
+        background-color: var(--color-background) !important;
+        border-color: var(--color-border) !important;
+    }
+
     .gw {
         position: fixed;
         will-change: contents, height, width;
