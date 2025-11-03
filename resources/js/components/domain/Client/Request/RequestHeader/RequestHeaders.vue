@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import KeyValueParametersBuilder from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
-import { GeneratorType, RequestHeader, SourceGlobalHeaders } from '@/interfaces/http';
+import {
+    GeneratorType,
+    PendingRequest,
+    RequestHeader,
+    SourceGlobalHeaders,
+} from '@/interfaces/http';
 import { ParametersExternalContract } from '@/interfaces/ui';
 import { useConfigStore, useRequestStore, useValueGeneratorStore } from '@/stores';
 import { computed, onBeforeMount, ref, watch } from 'vue';
@@ -14,17 +19,7 @@ const headers = ref<RequestHeader[]>([]);
 
 const pendingRequestData = computed(() => requestStore.pendingRequestData);
 
-const globalHeaders = computed(() => {
-    return configStore.headers.map(
-        (globalHeader: SourceGlobalHeaders): RequestHeader => ({
-            key: globalHeader.header,
-            value:
-                globalHeader.type === 'generator'
-                    ? generateValue(globalHeader.value as GeneratorType)
-                    : globalHeader.value,
-        }),
-    );
-});
+let globalHeaders: RequestHeader[] = [];
 
 /**
  * Converts RequestHeader[] to ParameterContractShape[] for the KeyValueParameters component.
@@ -70,12 +65,15 @@ const syncHeadersWithPendingRequest = () => {
     );
 };
 
-const initializeHeaders = () => {
-    // TODO [Enhancement] De-dupe the list.
-    headers.value = [
-        ...globalHeaders.value,
-        ...(pendingRequestData.value?.headers ?? []),
-    ];
+const initializeHeaders = (previousPendingData: PendingRequest | null = null) => {
+    const previousHeaders = previousPendingData?.headers ?? [];
+    const previousHeaderKeys = previousHeaders.map((header: RequestHeader) => header.key);
+
+    const missingGlobalHeaders = globalHeaders.filter(
+        (header: RequestHeader) => !previousHeaderKeys.includes(header.key),
+    );
+
+    headers.value = [...missingGlobalHeaders, ...previousHeaders];
 };
 
 /*
@@ -95,7 +93,7 @@ watch(
             return;
         }
 
-        initializeHeaders();
+        initializeHeaders(oldValue);
     },
     { deep: true },
 );
@@ -105,6 +103,16 @@ watch(
  */
 
 onBeforeMount(() => {
+    globalHeaders = configStore.headers.map(
+        (globalHeader: SourceGlobalHeaders): RequestHeader => ({
+            key: globalHeader.header,
+            value:
+                globalHeader.type === 'generator'
+                    ? generateValue(globalHeader.value as GeneratorType)
+                    : globalHeader.value,
+        }),
+    );
+
     initializeHeaders();
 });
 </script>
