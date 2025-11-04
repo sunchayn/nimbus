@@ -740,6 +740,9 @@ export const PROPERTY_NAME_PATTERNS: Array<{
     },
     { pattern: /^(slug)$/i, generatorId: 'slug' },
 
+    // System
+    { pattern: /^(version|v|semver)$/i, generatorId: 'semver' },
+
     // Other
     {
         pattern: /^(page)$/i,
