@@ -149,6 +149,7 @@ export const useRequestBuilderStore = defineStore('_requestBuilder', () => {
             supportedRoutes: availableRoutesForEndpoint,
             routeDefinition: route,
             isProcessing: false,
+            wasExecuted: false,
             durationInMs: 0,
         };
     };

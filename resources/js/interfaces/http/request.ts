@@ -101,6 +101,9 @@ export interface PendingRequest {
 
     /** Request execution duration in milliseconds */
     durationInMs?: number;
+
+    /** Whether the request was executed at least once */
+    wasExecuted?: boolean;
 }
 
 export interface Request {

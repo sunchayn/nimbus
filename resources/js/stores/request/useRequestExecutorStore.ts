@@ -65,6 +65,7 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
             }
 
             requestData.isProcessing = false;
+            requestData.wasExecuted = true;
         };
 
         try {

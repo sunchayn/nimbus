@@ -54,6 +54,15 @@ const status = computed(() => {
     return lastLog.value.response.status ?? STATUS.EMPTY;
 });
 
+const size = computed(() =>
+    prettyBytes(
+        pendingRequestData.value?.wasExecuted
+            ? (lastLog.value?.response?.sizeInBytes ?? 0)
+            : 0, // <- When a new endpoint is initialized, we reset the size as well.
+        { space: false },
+    ),
+);
+
 const duration = computed(() => {
     return prettyMs(
         // If there's a pending request that's processing, use its duration
@@ -66,10 +75,6 @@ const duration = computed(() => {
         },
     );
 });
-
-const size = computed(() =>
-    prettyBytes(lastLog.value?.response?.sizeInBytes ?? 0, { space: false }),
-);
 
 const readableTime = computed(() => {
     if (lastLog.value?.response === undefined) {
