@@ -82,6 +82,8 @@ const initializeHeaders = () => {
  * Watchers.
  */
 
+watch(headers, () => syncHeadersWithPendingRequest(), { deep: true });
+
 watch(
     pendingRequestData,
     (newValue, oldValue) => {
@@ -94,8 +96,6 @@ watch(
         }
 
         initializeHeaders();
-
-        syncHeadersWithPendingRequest();
     },
     { deep: true },
 );
