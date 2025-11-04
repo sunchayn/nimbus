@@ -38,6 +38,13 @@ export const useRequestStore = defineStore('request', () => {
         route: Parameters<typeof builderStore.initializeRequest>[0],
         supportedRoutes: Parameters<typeof builderStore.initializeRequest>[1],
     ) => {
+        if (
+            route.endpoint === pendingRequestData.value?.endpoint &&
+            route.method === pendingRequestData.value?.method
+        ) {
+            return;
+        }
+
         // Cancel ongoing request.
         executorStore.cancelCurrentRequest();
 

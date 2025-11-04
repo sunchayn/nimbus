@@ -43,6 +43,18 @@ describe('useRequestStore', () => {
 
     beforeEach(() => {
         store = useRequestStore();
+        // Reset builder/executor mocks and state between tests
+        mockBuilderStore.pendingRequestData = null;
+        mockBuilderStore.initializeRequest.mockReset();
+        mockBuilderStore.updateRequestMethod.mockReset();
+        mockBuilderStore.updateRequestEndpoint.mockReset();
+        mockBuilderStore.updateRequestHeaders.mockReset();
+        mockBuilderStore.updateRequestBody.mockReset();
+        mockBuilderStore.updateQueryParameters.mockReset();
+        mockBuilderStore.updateAuthorization.mockReset();
+        mockBuilderStore.getRequestUrl.mockReset();
+        mockExecutorStore.cancelCurrentRequest.mockReset();
+        mockExecutorStore.executeRequestWithTiming.mockReset();
     });
 
     describe('initial state', () => {
@@ -119,6 +131,93 @@ describe('useRequestStore', () => {
             expect(mockBuilderStore.initializeRequest).toHaveBeenCalledWith(
                 mockRoute,
                 mockSupportedRoutes,
+            );
+        });
+
+        it('should no-op when route method and endpoint are unchanged', () => {
+            const sameRoute: RouteDefinition = {
+                method: 'GET',
+                endpoint: '/api/users',
+                shortEndpoint: '/api/users',
+                schema: {
+                    shape: {
+                        'x-name': 'root',
+                        'x-required': false,
+                    },
+                    extractionErrors: null,
+                },
+            };
+
+            mockBuilderStore.pendingRequestData = {
+                method: 'GET',
+                endpoint: '/api/users',
+            };
+
+            const supported = [sameRoute];
+
+            store.initializeRequest(sameRoute, supported);
+
+            expect(mockExecutorStore.cancelCurrentRequest).not.toHaveBeenCalled();
+            expect(mockBuilderStore.initializeRequest).not.toHaveBeenCalled();
+        });
+
+        it('should reinitialize when method changes but endpoint stays the same', () => {
+            const route: RouteDefinition = {
+                method: 'POST',
+                endpoint: '/api/users',
+                shortEndpoint: '/api/users',
+                schema: {
+                    shape: {
+                        'x-name': 'root',
+                        'x-required': false,
+                    },
+                    extractionErrors: null,
+                },
+            };
+
+            mockBuilderStore.pendingRequestData = {
+                method: 'GET',
+                endpoint: '/api/users',
+            };
+
+            const supported = [route];
+
+            store.initializeRequest(route, supported);
+
+            expect(mockExecutorStore.cancelCurrentRequest).toHaveBeenCalled();
+            expect(mockBuilderStore.initializeRequest).toHaveBeenCalledWith(
+                route,
+                supported,
+            );
+        });
+
+        it('should reinitialize when endpoint changes but method stays the same', () => {
+            const route: RouteDefinition = {
+                method: 'GET',
+                endpoint: '/api/accounts',
+                shortEndpoint: '/api/accounts',
+                schema: {
+                    shape: {
+                        'x-name': 'root',
+                        'x-required': false,
+                    },
+                    extractionErrors: null,
+                },
+            };
+
+            mockBuilderStore.pendingRequestData = {
+                method: 'GET',
+                endpoint: '/api/users',
+            };
+
+            const supported = [route];
+
+            store.initializeRequest(route, supported);
+
+            expect(mockExecutorStore.cancelCurrentRequest).toHaveBeenCalled();
+            expect(mockBuilderStore.initializeRequest).toHaveBeenCalledWith(
+                route,
+                supported,
             );
         });
     });
