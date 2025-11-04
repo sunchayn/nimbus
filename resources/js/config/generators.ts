@@ -11,6 +11,7 @@ import {
     CreditCardIcon,
     DatabaseIcon,
     DollarSignIcon,
+    FileCogIcon,
     FileIcon,
     FileTextIcon,
     FingerprintIcon,
@@ -22,16 +23,15 @@ import {
     LanguagesIcon,
     MailIcon,
     MapPinIcon,
+    NetworkIcon,
     HashIcon as NumberIcon,
     PercentIcon,
     PhoneCallIcon,
     PhoneIcon,
+    ShellIcon,
     ClockIcon as TimeIcon,
     TypeIcon,
     UserIcon,
-    NetworkIcon,
-    ShellIcon,
-    FileCogIcon,
 } from 'lucide-vue-next';
 
 /**
