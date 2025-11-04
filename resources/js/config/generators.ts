@@ -30,6 +30,8 @@ import {
     TypeIcon,
     UserIcon,
     NetworkIcon,
+    ShellIcon,
+    FileCogIcon,
 } from 'lucide-vue-next';
 
 /**
@@ -50,6 +52,7 @@ export const generatorCategories = [
     { id: 'company', name: 'Company', icon: BuildingIcon },
     { id: 'identifiers', name: 'Identifiers', icon: CreditCardIcon },
     { id: 'data', name: 'Data', icon: BarChart3Icon },
+    { id: 'system', name: 'System', icon: ShellIcon },
 ];
 
 /**
@@ -549,6 +552,28 @@ const dataGenerators: ValueGenerator[] = [
 ];
 
 /**
+ * System generators for creating various system values.
+ */
+const systemGenerators: ValueGenerator[] = [
+    {
+        id: 'semver',
+        name: 'Semantic Version',
+        description: 'Generate a semantic version',
+        category: { id: 'system', name: 'System' },
+        generate: () => faker.system.semver(),
+        icon: FingerprintIcon,
+    },
+    {
+        id: 'extension',
+        name: 'File Extension',
+        description: 'Generate a file extension',
+        category: { id: 'system', name: 'System' },
+        generate: () => faker.system.fileExt(),
+        icon: FileCogIcon,
+    },
+];
+
+/**
  * All available value generators organized by category.
  *
  * This array contains all generators from all categories,
@@ -566,6 +591,7 @@ export const allValueGenerators: ValueGenerator[] = [
     ...companyGenerators,
     ...identifierGenerators,
     ...dataGenerators,
+    ...systemGenerators,
 ];
 
 /**
