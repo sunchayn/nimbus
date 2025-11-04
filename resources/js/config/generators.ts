@@ -29,6 +29,7 @@ import {
     ClockIcon as TimeIcon,
     TypeIcon,
     UserIcon,
+    NetworkIcon,
 } from 'lucide-vue-next';
 
 /**
@@ -413,6 +414,22 @@ const internetGenerators: ValueGenerator[] = [
         generate: config => faker.internet.password(config ?? {}),
         icon: GlobeIcon,
     },
+    {
+        id: 'ipv4',
+        name: 'IP V4',
+        description: 'Generate a random IP v4',
+        category: { id: 'internet', name: 'Internet' },
+        generate: () => faker.internet.ipv4(),
+        icon: NetworkIcon,
+    },
+    {
+        id: 'ipv6',
+        name: 'IP V6',
+        description: 'Generate a random IP v6',
+        category: { id: 'internet', name: 'Internet' },
+        generate: () => faker.internet.ipv6(),
+        icon: NetworkIcon,
+    },
 ];
 
 /**
@@ -630,6 +647,8 @@ export const PROPERTY_NAME_PATTERNS: Array<{
     { pattern: /^(domain|domain[-_]?name)$/i, generatorId: 'domain' },
     { pattern: /^(username|user[-_]?name|login)$/i, generatorId: 'username' },
     { pattern: /^(password|pass|pwd)$/i, generatorId: 'password' },
+    { pattern: /^(ip|ip[-_]?v4)$/i, generatorId: 'ipv4' },
+    { pattern: /^(ip[-_]?v6)$/i, generatorId: 'ipv6' },
 
     // Database
     { pattern: /^(.+[-_])?(image|file|blob)s?$/i, generatorId: 'dataUri' },
