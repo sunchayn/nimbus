@@ -28,6 +28,8 @@ defineOptions({
     name: 'SettingsPage',
 });
 
+const VERSION = 'v0.2.0-alpha';
+
 /*
  * Stores.
  */
@@ -169,6 +171,17 @@ const copyPublishCommand = async () => {
                                         </AppPopover>
                                         and edit the values directly.
                                     </small>
+                                    <div class="my-2 text-xs">
+                                        <div
+                                            class="bg-subtle-background inline-flex items-center space-x-2 rounded px-1.5 py-0.5 font-mono"
+                                        >
+                                            <span>{{ VERSION }}</span>
+                                            <CopyButton
+                                                :on-click="() => copy(VERSION)"
+                                                :copied="copied"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                                 <ConfigReadonlySection />
                             </div>
