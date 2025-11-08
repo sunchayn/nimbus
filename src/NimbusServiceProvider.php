@@ -53,5 +53,19 @@ class NimbusServiceProvider extends PackageServiceProvider
         }
 
         parent::boot();
+
+        $this->tagAlongsideLaravelAssetes();
+    }
+
+    /**
+     * Laravel assets are configured by default in Laravel to be published post update.
+     * We always want to force-publish the assets with Nimbus, so let's tag alongside them.
+     */
+    private function tagAlongsideLaravelAssetes(): void
+    {
+        $vendorAssets = $this->package->basePath('/../resources/dist');
+        $appAssets = public_path("vendor/{$this->package->shortName()}");
+
+        $this->publishes([$vendorAssets => $appAssets], "laravel-assets");
     }
 }
