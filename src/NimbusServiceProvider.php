@@ -64,7 +64,7 @@ class NimbusServiceProvider extends PackageServiceProvider
     private function tagAlongsideLaravelAssetes(): void
     {
         $vendorAssets = $this->package->basePath('/../resources/dist');
-        $appAssets = public_path("vendor/{$this->package->shortName()}");
+        $appAssets = public_path('vendor/' . $this->package->shortName());
 
         $this->publishes([$vendorAssets => $appAssets], "laravel-assets");
     }
