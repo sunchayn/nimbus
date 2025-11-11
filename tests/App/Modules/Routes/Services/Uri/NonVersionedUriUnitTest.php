@@ -52,6 +52,12 @@ class NonVersionedUriUnitTest extends TestCase
             'expectedResource' => 'users',
         ];
 
+        yield 'uri with composed routesPrefix' => [
+            'value' => '/web/api/users',
+            'routesPrefix' => 'web/api',
+            'expectedResource' => 'users',
+        ];
+
         yield 'uri with routesPrefix and multiple segments' => [
             'value' => '/api/users/123',
             'routesPrefix' => 'api',

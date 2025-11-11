@@ -201,6 +201,12 @@ class VersionedUriUnitTest extends TestCase
             'expectedResource' => 'users',
         ];
 
+        yield 'versioned uri with composed prefix extracts resource' => [
+            'value' => '/cms/api/v1/users',
+            'routesPrefix' => 'cms/api',
+            'expectedResource' => 'users',
+        ];
+
         yield 'versioned uri with multiple segments extracts first resource' => [
             'value' => '/v1/users/123/profile',
             'routesPrefix' => '',
