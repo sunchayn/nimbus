@@ -68,6 +68,24 @@ return [
         */
 
         'versioned' => false,
+
+        /*
+          |--------------------------------------------------------------------------
+          | API Base URL
+          |--------------------------------------------------------------------------
+          |
+          | This value defines the base URL that Nimbus will use when relaying
+          | API requests from the UI. It is useful in cases where your API is
+          | hosted on a different domain, port, or subpath than the UI itself.
+          |
+          | If left null, Nimbus will automatically use the same host and scheme
+          | as the incoming request that triggered the relay. This is the
+          | recommended default for most deployments where the API and UI share
+          | the same origin.
+          |
+          */
+
+        'apiBaseUrl' => null,
     ],
 
     /*
