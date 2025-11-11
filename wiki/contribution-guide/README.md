@@ -361,9 +361,9 @@ composer run setup
 
 #### 3. Start a Web Server
 
-**Important:** The relay endpoint requires a real web server. Do not use `php artisan serve`.
+**Important:** The relay endpoint requires a real web server by default. Using `php artisan serve` alone won't work out of the box (check [#3.1](#31-using-it-without-a-real-server) for instructions on how to make it work).
 
-**Options:**
+**Suggeted Options:**
 - **Laravel Herd** - Recommended for macOS.
 - **Laravel Sail** - Docker-based environment.
 - **Valet** - Nginx-based for macOS.
@@ -372,6 +372,27 @@ composer run setup
 **Why not the built-in server?**
 
 PHP's built-in server is single-threaded. When the relay endpoint makes a request back to the application, it creates a deadlock where the server waits for itself to respond.
+
+#### 3.1. Using it without a real server
+
+If you need to run Nimbus without a dedicated web server, you can still use php artisan serve with a two-server setup.
+
+A. In the nimbus-dev directory, start the main development process:
+```bash
+composer dev
+```
+
+B. In a separate terminal tab (or windo), start another PHP server:
+```bash
+php artisan serve
+```
+
+C. Once both are running, open your config/nimbus.php file and set the routes.apiBaseUrl value to the URL of the second server (the one started with php artisan serve).
+
+```php
+// Example.
+'apiBaseUrl' => 'http://127.0.0.1:8000',
+```
 
 #### 4. Run Frontend Development Server
 
