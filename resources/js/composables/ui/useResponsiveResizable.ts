@@ -10,7 +10,7 @@ export function useResponsiveResizable(
 ): { thresholds: ComputedRef[] } {
     const elementWidth: Ref<number> = ref(
         // @ts-expect-error it is a mess to annotate the element properly.
-        element.value?.$el?.contentRect.with ?? window.screen.width,
+        element.value?.$el?.contentRect.width ?? window.screen.width,
     );
 
     // @ts-expect-error it is a mess to annotate the element properly.
