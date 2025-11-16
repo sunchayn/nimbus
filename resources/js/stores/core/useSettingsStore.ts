@@ -44,7 +44,7 @@ export const useSettingsStore = defineStore('settings', () => {
      */
     const loadPreferences = () => {
         try {
-            const stored = localStorage.getItem(STORAGE_KEY);
+            const stored = window.localStorage.getItem(STORAGE_KEY);
 
             if (stored) {
                 const parsed = JSON.parse(stored);
@@ -59,7 +59,7 @@ export const useSettingsStore = defineStore('settings', () => {
 
     const savePreferences = () => {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences.value));
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences.value));
         } catch (error) {
             console.error('Failed to save preferences:', error);
         }
