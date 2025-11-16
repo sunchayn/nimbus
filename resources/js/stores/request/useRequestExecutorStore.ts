@@ -1,5 +1,6 @@
 import { useHttpClient } from '@/composables/request/useHttpClient';
 import { ErrorPlainResponse, PendingRequest } from '@/interfaces/http';
+import { useRequestsHistoryStore } from '@/stores';
 import {
     createRequestTimer,
     generateErrorRequestLog,
@@ -7,7 +8,6 @@ import {
 } from '@/utils/request';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { useRequestsHistoryStore } from './useRequestsHistoryStore';
 
 /**
  * Store for managing request execution and timing.

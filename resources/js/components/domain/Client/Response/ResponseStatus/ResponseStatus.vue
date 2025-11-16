@@ -128,10 +128,10 @@ const cancelRequest = () => {
                 />
                 <div class="w-8 border-b border-zinc-200"></div>
                 <span class="text-xs">
-                    <span>{{ duration }}</span>
+                    <span data-testid="response-status-duration">{{ duration }}</span>
                     <template v-if="!pendingRequestData?.isProcessing">
                         <span class="text-color-muted mx-1 text-xs">/</span>
-                        <span>{{ size }}</span>
+                        <span data-testid="response-status-size">{{ size }}</span>
                     </template>
                 </span>
             </div>

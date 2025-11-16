@@ -1,138 +1,146 @@
 import ResponseStatus from '@/components/domain/Client/Response/ResponseStatus/ResponseStatus.vue';
 import { STATUS } from '@/interfaces/http';
-import { mountWithPlugins } from '@/tests/_utils/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { computed, reactive, ref } from 'vue';
+import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
+import { fireEvent } from '@testing-library/vue';
+import { beforeEach, describe, expect, it, MockedFunction, vi } from 'vitest';
+import { nextTick, Reactive, reactive } from 'vue';
 
-// Mock child to expose received props for assertions
-vi.mock(
-    '@/components/domain/Client/Response/ResponseStatus/ResponseStatusCode.vue',
-    () => ({
-        default: {
-            name: 'ResponseStatusCode',
-            props: ['status', 'response'],
-            template:
-                '<div data-testid="status-code" :data-status="status">{{ status }}</div>',
-        },
-    }),
-);
-
-// Mock stores used via '@/stores'
-const mockRequestStore = reactive({
-    pendingRequestData: computed(() => mockPendingRequest.value),
+const mockRequestStore: Reactive<{
+    pendingRequestData: object | null;
+    cancelCurrentRequest: MockedFunction<unknown>;
+}> = reactive({
+    pendingRequestData: null,
     cancelCurrentRequest: vi.fn(),
 });
 
-const mockHistoryStore = reactive({
-    lastLog: ref<any>(null), // eslint-disable-line @typescript-eslint/no-explicit-any
+const mockRequestsHistoryStore: Reactive<{
+    lastLog: object | null;
+}> = reactive({
+    lastLog: null,
 });
 
-const mockPendingRequest = ref<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+vi.mock('@/stores', async importOriginal => {
+    const actual = await importOriginal<object>();
 
-vi.mock('@/stores', () => ({
-    useRequestStore: () => mockRequestStore,
-    useRequestsHistoryStore: () => mockHistoryStore,
-}));
+    return {
+        ...actual,
+        useRequestStore: () => mockRequestStore,
+        useRequestsHistoryStore: () => mockRequestsHistoryStore,
+    };
+});
 
 describe('ResponseStatus', () => {
     beforeEach(() => {
-        mockPendingRequest.value = null;
-        mockHistoryStore.lastLog = ref(null);
-        mockRequestStore.cancelCurrentRequest.mockReset();
+        mockRequestStore.pendingRequestData = null;
+        mockRequestsHistoryStore.lastLog = null;
+        mockRequestStore.cancelCurrentRequest.mockClear();
     });
 
-    it('shows PENDING status and cancel button while processing', () => {
-        mockPendingRequest.value = { isProcessing: true, durationInMs: 1234 };
-        const wrapper = mountWithPlugins(ResponseStatus);
+    it('shows pending status and cancel option while processing', async () => {
+        mockRequestStore.pendingRequestData = { isProcessing: true, durationInMs: 1234 };
 
-        const statusCode = wrapper.get('[data-testid="status-code"]');
-        expect(statusCode.attributes()['data-status']).toBe(String(STATUS.PENDING));
+        renderWithProviders(ResponseStatus);
 
-        // Cancel button visible
-        const cancel = wrapper.find('button');
-        expect(cancel.exists()).toBe(true);
+        expect(screen.queryByTestId('response-badge')).toBeNull();
+
+        expect(screen.getByTestId('pending-request-spinner')).toBeInTheDocument();
+
+        expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
     });
 
-    it('shows EMPTY when no last response and not processing', () => {
-        mockPendingRequest.value = { isProcessing: false, durationInMs: 0 };
-        const wrapper = mountWithPlugins(ResponseStatus);
-
-        const statusCode = wrapper.get('[data-testid="status-code"]');
-        expect(statusCode.attributes()['data-status']).toBe(String(STATUS.EMPTY));
-    });
-
-    it('derives status from last response when available', () => {
-        mockPendingRequest.value = {
+    it('shows empty status when nothing processed yet', async () => {
+        mockRequestStore.pendingRequestData = {
             isProcessing: false,
             durationInMs: 0,
-            wasExecuted: true,
-        };
-        mockHistoryStore.lastLog = ref({ response: { status: 201, sizeInBytes: 1024 } });
-        const wrapper = mountWithPlugins(ResponseStatus);
-
-        const statusCode = wrapper.get('[data-testid="status-code"]');
-        expect(statusCode.attributes()['data-status']).toBe('201');
-
-        expect(wrapper.text()).toMatch(/1.02kB/);
-    });
-
-    it('resets size to 0 when request not executed (new endpoint)', () => {
-        mockPendingRequest.value = {
-            isProcessing: false,
-            wasExecuted: false,
-            durationInMs: 0,
-        };
-        mockHistoryStore.lastLog = ref({ response: { sizeInBytes: 12345 } });
-        const wrapper = mountWithPlugins(ResponseStatus);
-
-        // Expects "0B" formatting from pretty-bytes with { space: false }
-        expect(wrapper.text()).toMatch(/0B/);
-    });
-
-    it('uses pending duration when processing, otherwise last log duration', () => {
-        // Processing case
-        mockPendingRequest.value = {
-            isProcessing: true,
-            durationInMs: 1500,
             wasExecuted: false,
         };
-        mockHistoryStore.lastLog = ref({ durationInMs: 9999 });
-        let wrapper = mountWithPlugins(ResponseStatus);
-        expect(wrapper.text()).toMatch(/1\.50s/);
 
-        // Completed case
-        mockPendingRequest.value = {
+        renderWithProviders(ResponseStatus);
+
+        await nextTick();
+
+        expect(screen.getByTestId('response-status-text')).toHaveTextContent(
+            String(STATUS.EMPTY),
+        );
+    });
+
+    it('derives status details from last successful log', async () => {
+        mockRequestStore.pendingRequestData = {
             isProcessing: false,
-            durationInMs: 2500,
             wasExecuted: true,
         };
-        mockHistoryStore.lastLog = ref({
+
+        mockRequestsHistoryStore.lastLog = {
             durationInMs: 3000,
-            response: { timestamp: 1700000000, status: STATUS.SUCCESS },
-        });
-        wrapper = mountWithPlugins(ResponseStatus);
-        expect(wrapper.text()).toMatch(/2\.50s/); // <- it prirotizes the one from the pending request.
+            response: {
+                statusCode: 201,
+                statusText: 'Created',
+                sizeInBytes: 4096,
+                timestamp: Math.floor(Date.now() / 1000),
+            },
+        };
+
+        renderWithProviders(ResponseStatus);
+
+        await nextTick();
+
+        expect(screen.getByTestId('response-status-badge')).toHaveTextContent(
+            '201 - Created',
+        );
+
+        expect(screen.getByTestId('response-status-size')).toHaveTextContent('4.1kB');
+
+        expect(screen.getByTestId('response-status-duration')).toHaveTextContent('3.00s');
     });
 
-    it('shows readable time text when last response exists', () => {
-        mockPendingRequest.value = { isProcessing: false, durationInMs: 0 };
-        mockHistoryStore.lastLog = ref({
-            response: { timestamp: Math.floor(Date.now() / 1000) },
-        });
-        const wrapper = mountWithPlugins(ResponseStatus);
+    it('resets size to zero when request was not executed', async () => {
+        mockRequestStore.pendingRequestData = {
+            isProcessing: false,
+            wasExecuted: false,
+            durationInMs: 0,
+        };
 
-        // The content is time-ago text; assert non-empty text region where it renders
-        const small = wrapper.find('small');
-        expect(small.exists()).toBe(true);
-        expect((small.text() ?? '').length).toBeGreaterThan(0);
+        mockRequestsHistoryStore.lastLog = {
+            response: { sizeInBytes: 12345, timestamp: Math.floor(Date.now() / 1000) },
+        };
+
+        renderWithProviders(ResponseStatus);
+
+        await nextTick();
+
+        expect(screen.getByText(/0B/)).toBeInTheDocument();
+    });
+
+    it('shows relative timestamp when last log exists', async () => {
+        mockRequestStore.pendingRequestData = {
+            isProcessing: false,
+            durationInMs: 0,
+            wasExecuted: true,
+        };
+
+        mockRequestsHistoryStore.lastLog = {
+            response: { timestamp: Math.floor(Date.now() / 1000) },
+        };
+
+        renderWithProviders(ResponseStatus);
+
+        await nextTick();
+
+        const timestamp = screen.getByText(
+            (content, element) => element?.tagName === 'SMALL',
+        );
+        expect(timestamp.textContent?.length ?? 0).toBeGreaterThan(0);
     });
 
     it('cancels request when cancel button clicked', async () => {
-        mockPendingRequest.value = { isProcessing: true, durationInMs: 0 };
-        const wrapper = mountWithPlugins(ResponseStatus);
+        mockRequestStore.pendingRequestData = { isProcessing: true, durationInMs: 0 };
 
-        const btn = wrapper.get('button');
-        await btn.trigger('click');
+        renderWithProviders(ResponseStatus);
+
+        await nextTick();
+
+        await fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+
         expect(mockRequestStore.cancelCurrentRequest).toHaveBeenCalled();
     });
 });

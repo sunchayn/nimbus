@@ -21,8 +21,12 @@ const lastLog = computed(() => historyStore.lastLog);
 <template>
     <div :class="cn('bg-background flex h-full flex-col', props.class)">
         <ResponseStatus class="border-b" />
-        <ResponseViewerEmptyState v-if="!lastLog" />
-        <ResponseViewerInternalError v-else-if="lastLog.error" :error="lastLog.error" />
-        <ResponseViewerResponse v-else />
+        <ResponseViewerEmptyState v-if="!lastLog" data-testid="response-empty" />
+        <ResponseViewerInternalError
+            v-else-if="lastLog.error"
+            data-testid="response-error"
+            :error="lastLog.error"
+        />
+        <ResponseViewerResponse v-else data-testid="response-content" />
     </div>
 </template>

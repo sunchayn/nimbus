@@ -1,134 +1,189 @@
 import RequestHeaders from '@/components/domain/Client/Request/RequestHeader/RequestHeaders.vue';
-import { mountWithPlugins } from '@/tests/_utils/test-utils';
+import { AuthorizationType } from '@/interfaces/generated';
+import { GeneratorType, PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
+import { renderWithProviders } from '@/tests/_utils/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, reactive, ref } from 'vue';
 
-// Mocks for stores consumed via '@/stores' barrel
-const mockRequestStore = reactive({
-    pendingRequestData: ref<any>(null), // eslint-disable-line @typescript-eslint/no-explicit-any
-    updateRequestHeaders: vi.fn(),
-});
-
 const mockConfigStore = reactive({
     headers: [
-        {
-            header: 'X-Global',
-            type: 'raw',
-            value: 'foo',
-        },
+        { header: 'X-Global', type: 'raw', value: 'foo' },
+        { header: 'X-Generated', type: 'generator', value: GeneratorType.Email },
     ],
 });
 
-const mockValueGeneratorStore = reactive({
-    generateValue: vi.fn(),
+const generateValue = vi.fn(() => 'generated@example.com');
+
+const mockRequestStore = reactive({
+    pendingRequestData: ref<PendingRequest | null>(null),
+    updateRequestHeaders: vi.fn(),
 });
 
-vi.mock('@/stores', () => ({
-    useRequestStore: () => mockRequestStore,
-    useConfigStore: () => mockConfigStore,
-    useValueGeneratorStore: () => mockValueGeneratorStore,
-}));
+vi.mock('@/stores', async importOriginal => {
+    const actual = await importOriginal<object>();
 
-describe('RequestHeaders.vue', () => {
+    return {
+        ...actual,
+        useRequestStore: () => mockRequestStore,
+        useConfigStore: () => mockConfigStore,
+        useValueGeneratorStore: () => ({
+            generateValue,
+        }),
+    };
+});
+
+const renderComponent = () => renderWithProviders(RequestHeaders);
+
+const setPendingRequest = (request: PendingRequest | null) => {
+    mockRequestStore.pendingRequestData = ref(request);
+};
+
+describe('RequestHeaders', () => {
     beforeEach(() => {
-        mockRequestStore.pendingRequestData = ref<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
-        mockRequestStore.updateRequestHeaders.mockReset();
+        generateValue.mockClear();
+
+        mockConfigStore.headers = [
+            { header: 'X-Global', type: 'raw', value: 'foo' },
+            { header: 'X-Generated', type: 'generator', value: GeneratorType.Email },
+        ];
+
+        setPendingRequest({
+            method: 'GET',
+            endpoint: 'api/users',
+            headers: [],
+            body: {},
+            payloadType: RequestBodyTypeEnum.EMPTY,
+            schema: {
+                shape: {
+                    'x-name': 'root',
+                    'x-required': false,
+                },
+                extractionErrors: null,
+            },
+            queryParameters: [],
+            authorization: { type: AuthorizationType.None },
+            supportedRoutes: [],
+            routeDefinition: {
+                method: 'GET',
+                endpoint: 'api/users',
+                schema: {
+                    shape: {
+                        'x-name': 'root',
+                        'x-required': false,
+                    },
+                    extractionErrors: null,
+                },
+                shortEndpoint: 'api/users',
+            },
+            isProcessing: false,
+            wasExecuted: false,
+            durationInMs: 0,
+        });
+
+        mockRequestStore.updateRequestHeaders.mockClear();
     });
 
-    it('re-initializes and syncs headers when endpoint and method changes', async () => {
-        mountWithPlugins(RequestHeaders);
-
-        // Simulate initial pending request on endpoint with method GET and no headers set in store
-        mockRequestStore.pendingRequestData = ref({
-            method: 'GET',
-            endpoint: '/api/users',
-            headers: [],
-        });
+    it('initializes headers with global defaults and syncs them to the store', async () => {
+        renderComponent();
 
         await nextTick();
 
-        // Change only the method (same endpoint). This should re-initialize headers and sync to store.
-        const callsBefore = mockRequestStore.updateRequestHeaders.mock.calls.length;
-
-        mockRequestStore.pendingRequestData = ref({
-            method: 'POST',
-            endpoint: '/api/users',
-            headers: [],
-        });
-
-        await nextTick();
-
-        // Expect updateRequestHeaders called with the global header present
-        expect(mockRequestStore.updateRequestHeaders.mock.calls.length).toBeGreaterThan(
-            callsBefore,
+        expect(mockRequestStore.updateRequestHeaders).toHaveBeenCalledWith(
+            expect.arrayContaining([
+                expect.objectContaining({ key: 'X-Global', value: 'foo' }),
+                expect.objectContaining({
+                    key: 'X-Generated',
+                    value: 'generated@example.com',
+                }),
+            ]),
         );
+        expect(generateValue).toHaveBeenCalledWith('email');
+    });
 
-        const lastCallArgs = mockRequestStore.updateRequestHeaders.mock.calls.at(-1)?.[0];
+    it('reinitializes headers when the request method changes', async () => {
+        renderComponent();
 
-        expect(Array.isArray(lastCallArgs)).toBe(true);
+        await nextTick();
 
-        expect(lastCallArgs).toEqual(
+        mockRequestStore.updateRequestHeaders.mockClear();
+
+        setPendingRequest({
+            ...mockRequestStore.pendingRequestData!,
+            method: 'PUT', // <- Different method that the original one.
+            headers: [],
+        });
+
+        await nextTick();
+
+        expect(mockRequestStore.updateRequestHeaders).toHaveBeenCalledWith(
             expect.arrayContaining([
                 expect.objectContaining({ key: 'X-Global', value: 'foo' }),
             ]),
         );
     });
 
-    it('re-initializes and syncs headers when only endpoint changes', async () => {
-        mountWithPlugins(RequestHeaders);
+    it('reinitializes headers when the request endpoint changes', async () => {
+        renderComponent();
 
-        // Seed initial state
-        mockRequestStore.pendingRequestData = ref({
-            method: 'GET',
-            endpoint: '/api/users',
+        await nextTick();
+
+        mockRequestStore.updateRequestHeaders.mockClear();
+
+        setPendingRequest({
+            ...mockRequestStore.pendingRequestData!,
+            endpoint: 'api/accounts',
             headers: [],
         });
+
         await nextTick();
 
-        const callsBefore = mockRequestStore.updateRequestHeaders.mock.calls.length;
-
-        // Change endpoint only (method remains the same)
-        mockRequestStore.pendingRequestData = {
-            method: 'GET',
-            endpoint: '/api/accounts',
-            headers: [],
-        };
-        await nextTick();
-
-        expect(mockRequestStore.updateRequestHeaders.mock.calls.length).toBeGreaterThan(
-            callsBefore,
-        );
-
-        const args = mockRequestStore.updateRequestHeaders.mock.calls.at(-1)?.[0];
-        expect(Array.isArray(args)).toBe(true);
-        expect(args).toEqual(
+        expect(mockRequestStore.updateRequestHeaders).toHaveBeenCalledWith(
             expect.arrayContaining([
                 expect.objectContaining({ key: 'X-Global', value: 'foo' }),
             ]),
         );
     });
 
-    it('does not re-initialize when endpoint and method are unchanged', async () => {
-        mountWithPlugins(RequestHeaders);
+    it('does not reinitialize when method and endpoint stay the same', async () => {
+        renderComponent();
 
-        mockRequestStore.pendingRequestData = ref({
-            method: 'GET',
-            endpoint: '/api/users',
+        await nextTick();
+
+        mockRequestStore.updateRequestHeaders.mockClear();
+
+        setPendingRequest({
+            ...mockRequestStore.pendingRequestData!,
             headers: [],
         });
+
         await nextTick();
 
-        const callsBefore = mockRequestStore.updateRequestHeaders.mock.calls.length;
+        expect(mockRequestStore.updateRequestHeaders).not.toHaveBeenCalled();
+    });
 
-        // Re-emit the same values (new object but same endpoint and method)
-        mockRequestStore.pendingRequestData = {
-            method: 'GET',
-            endpoint: '/api/users',
+    it('merges existing request headers with global ones when changing endpoints', async () => {
+        mockRequestStore.pendingRequestData.headers = [
+            { key: 'X-Existing', value: '123' },
+            { key: 'X-Global', value: 'custom' },
+        ];
+
+        renderComponent();
+
+        mockRequestStore.updateRequestHeaders.mockClear();
+
+        setPendingRequest({
+            ...mockRequestStore.pendingRequestData!,
+            method: 'PUT', // <- Different method that the original one to re-trigger th.
             headers: [],
-        };
+        });
+
         await nextTick();
 
-        // No additional sync should have occurred
-        expect(mockRequestStore.updateRequestHeaders.mock.calls.length).toBe(callsBefore);
+        expect(mockRequestStore.updateRequestHeaders).toHaveBeenCalledWith(
+            expect.arrayContaining([
+                expect.objectContaining({ key: 'X-Existing', value: '123' }),
+                expect.objectContaining({ key: 'X-Global', value: 'custom' }),
+            ]),
+        );
     });
 });

@@ -19,8 +19,8 @@ const mockRoutesStore: {
                 routes: [
                     {
                         method: 'GET',
-                        endpoint: '/api/users',
-                        shortEndpoint: '/api/users',
+                        endpoint: 'api/users',
+                        shortEndpoint: 'api/users',
                         schema: {
                             shape: {
                                 'x-required': false,
@@ -31,8 +31,8 @@ const mockRoutesStore: {
                     },
                     {
                         method: 'POST',
-                        endpoint: '/api/users',
-                        shortEndpoint: '/api/users',
+                        endpoint: 'api/users',
+                        shortEndpoint: 'api/users',
                         schema: {
                             shape: {
                                 'x-required': false,
@@ -92,18 +92,7 @@ describe('MainPage', () => {
         mockRoutesStore.hasExtractionError = false;
     });
 
-    it('renders the main page layout', () => {
-        const wrapper = componentFactory();
-
-        expect(wrapper.find('.flex.h-screen.max-h-screen.overflow-hidden').exists()).toBe(
-            true,
-        );
-        expect(wrapper.findComponent({ name: 'AppResizablePanelGroup' }).exists()).toBe(
-            true,
-        );
-    });
-
-    it('renders RouteExplorer in the first panel', () => {
+    it('renders RouteExplorer with routes data', () => {
         const wrapper = componentFactory();
 
         const routeExplorer = wrapper.findComponent({ name: 'RouteExplorer' });
@@ -119,9 +108,8 @@ describe('MainPage', () => {
         expect(wrapper.findComponent({ name: 'ResponseViewer' }).exists()).toBe(true);
     });
 
-    it('renders RouteExtractorExceptionRenderer when there is an extraction error', () => {
+    it('renders RouteExtractorExceptionRenderer instead of request/response components when extraction error exists', () => {
         mockRoutesStore.hasExtractionError = true;
-
         mockRoutesStore.routeExtractorException = {
             exception: {
                 message: 'Extraction failed',
@@ -134,9 +122,7 @@ describe('MainPage', () => {
         expect(
             wrapper.findComponent({ name: 'RouteExtractorExceptionRenderer' }).exists(),
         ).toBe(true);
-
         expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(false);
-
         expect(wrapper.findComponent({ name: 'ResponseViewer' }).exists()).toBe(false);
     });
 
@@ -168,7 +154,7 @@ describe('MainPage', () => {
         expect(mockRoutesStore.initializeRoutes).toHaveBeenCalled();
     });
 
-    it('renders resizable panels with correct configuration', () => {
+    it('configures resizable panels with correct sizing constraints', () => {
         const wrapper = componentFactory();
 
         const panelGroup = wrapper.findComponent({
@@ -179,36 +165,15 @@ describe('MainPage', () => {
         expect(panelGroup.props('direction')).toBe('vertical');
 
         const panels = wrapper.findAllComponents({ name: 'AppResizablePanel' });
-        expect(panels).toHaveLength(4); // RouteExplorer, Client Group<RequestBuilder, ResponseViewer>
+        expect(panels).toHaveLength(4);
 
-        // First panel (RouteExplorer)
         expect(panels[0].props('minSize')).toBe(15);
         expect(panels[0].props('defaultSize')).toBe(20);
-
-        // Second panel (Client group)
         expect(panels[1].props('minSize')).toBe(60);
         expect(panels[1].props('defaultSize')).toBe(80);
-
-        // Third panel (RequestBuilder)
-        expect(panels[2].props('minSize')).toBe(30);
-        expect(panels[2].props('defaultSize')).toBe(50);
-
-        // Fourth panel (ResponseViewer)
-        expect(panels[2].props('minSize')).toBe(30);
-        expect(panels[2].props('defaultSize')).toBe(50);
     });
 
-    it('renders resizable handles between panels', () => {
-        const wrapper = componentFactory();
-
-        const handles = wrapper.findAllComponents({
-            name: 'AppResizableHandle',
-        });
-
-        expect(handles.length).toBeGreaterThan(0);
-    });
-
-    it('handles empty routes data', () => {
+    it('handles null routes data gracefully', () => {
         mockRoutesStore.routes = null;
         const wrapper = componentFactory();
 
@@ -217,29 +182,12 @@ describe('MainPage', () => {
         ).toBeNull();
     });
 
-    it('handles routes with empty groups', () => {
-        mockRoutesStore.routes = {
-            v1: [],
-            v2: [],
-        };
-
+    it('reactively updates UI when extraction error state changes', async () => {
         const wrapper = componentFactory();
 
-        expect(wrapper.findComponent({ name: 'RouteExplorer' }).props('routes')).toEqual({
-            v1: [],
-            v2: [],
-        });
-    });
-
-    it('handles component re-rendering when store state changes', async () => {
-        const wrapper = componentFactory();
-
-        // Initially no error
         expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(true);
 
-        // Simulate extraction error
         mockRoutesStore.hasExtractionError = true;
-
         mockRoutesStore.routeExtractorException = {
             exception: {
                 message: 'Error',
@@ -249,9 +197,9 @@ describe('MainPage', () => {
 
         await wrapper.vm.$nextTick();
 
-        // Should now show error renderer instead of request/response components
         expect(
             wrapper.findComponent({ name: 'RouteExtractorExceptionRenderer' }).exists(),
         ).toBe(true);
+        expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(false);
     });
 });

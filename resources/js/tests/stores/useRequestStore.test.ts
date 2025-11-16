@@ -78,7 +78,7 @@ describe('useRequestStore', () => {
         it('should delegate pendingRequestData to builder store', () => {
             const mockRequestData = {
                 method: 'GET',
-                endpoint: '/api/users',
+                endpoint: 'api/users',
                 headers: [],
                 body: {},
                 payloadType: RequestBodyTypeEnum.EMPTY,
@@ -113,8 +113,8 @@ describe('useRequestStore', () => {
         it('should initialize request and reset execution', () => {
             const mockRoute: RouteDefinition = {
                 method: 'GET',
-                endpoint: '/api/users',
-                shortEndpoint: '/api/users',
+                endpoint: 'api/users',
+                shortEndpoint: 'api/users',
                 schema: {
                     shape: {
                         'x-name': 'root',
@@ -137,8 +137,8 @@ describe('useRequestStore', () => {
         it('should no-op when route method and endpoint are unchanged', () => {
             const sameRoute: RouteDefinition = {
                 method: 'GET',
-                endpoint: '/api/users',
-                shortEndpoint: '/api/users',
+                endpoint: 'api/users',
+                shortEndpoint: 'api/users',
                 schema: {
                     shape: {
                         'x-name': 'root',
@@ -150,7 +150,7 @@ describe('useRequestStore', () => {
 
             mockBuilderStore.pendingRequestData = {
                 method: 'GET',
-                endpoint: '/api/users',
+                endpoint: 'api/users',
             };
 
             const supported = [sameRoute];
@@ -164,8 +164,8 @@ describe('useRequestStore', () => {
         it('should reinitialize when method changes but endpoint stays the same', () => {
             const route: RouteDefinition = {
                 method: 'POST',
-                endpoint: '/api/users',
-                shortEndpoint: '/api/users',
+                endpoint: 'api/users',
+                shortEndpoint: 'api/users',
                 schema: {
                     shape: {
                         'x-name': 'root',
@@ -177,7 +177,7 @@ describe('useRequestStore', () => {
 
             mockBuilderStore.pendingRequestData = {
                 method: 'GET',
-                endpoint: '/api/users',
+                endpoint: 'api/users',
             };
 
             const supported = [route];
@@ -194,8 +194,8 @@ describe('useRequestStore', () => {
         it('should reinitialize when endpoint changes but method stays the same', () => {
             const route: RouteDefinition = {
                 method: 'GET',
-                endpoint: '/api/accounts',
-                shortEndpoint: '/api/accounts',
+                endpoint: 'api/accounts',
+                shortEndpoint: 'api/accounts',
                 schema: {
                     shape: {
                         'x-name': 'root',
@@ -207,7 +207,7 @@ describe('useRequestStore', () => {
 
             mockBuilderStore.pendingRequestData = {
                 method: 'GET',
-                endpoint: '/api/users',
+                endpoint: 'api/users',
             };
 
             const supported = [route];
@@ -277,7 +277,7 @@ describe('useRequestStore', () => {
         it('should execute current request when pendingRequestData exists', () => {
             const mockRequestData = {
                 method: 'GET',
-                endpoint: '/api/users',
+                endpoint: 'api/users',
                 headers: [],
                 body: {},
                 payloadType: RequestBodyTypeEnum.EMPTY,
@@ -342,8 +342,8 @@ describe('useRequestStore', () => {
         it('should handle complete request lifecycle', () => {
             const mockRoute: RouteDefinition = {
                 method: 'POST',
-                endpoint: '/api/users',
-                shortEndpoint: '/api/users',
+                endpoint: 'api/users',
+                shortEndpoint: 'api/users',
                 schema: {
                     shape: {
                         'x-name': 'root',
@@ -369,7 +369,7 @@ describe('useRequestStore', () => {
             // Execute request
             mockBuilderStore.pendingRequestData = {
                 method: 'PUT',
-                endpoint: '/api/users/1',
+                endpoint: 'api/users/1',
             };
 
             store.executeCurrentRequest();

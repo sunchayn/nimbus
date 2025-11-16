@@ -30,6 +30,7 @@ const indicatorColor = computed<string>(() => {
 <template>
     <Spinner
         v-if="props.status === STATUS.PENDING"
+        data-testid="pending-request-spinner"
         class="text-accent-foreground size-4 animate-spin"
     />
     <AppRoundIndicator v-else :class="indicatorColor" />

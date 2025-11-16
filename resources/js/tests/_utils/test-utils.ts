@@ -1,14 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
+import userEvent from '@testing-library/user-event';
+import { render, RenderOptions, screen } from '@testing-library/vue';
+import type { MountingOptions } from '@vue/test-utils';
 import { mount, VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { Component } from 'vue';
 import { createRouter, createWebHistory, Router } from 'vue-router';
 
-/*
- * Custom test utilities for consistent Vue component testing.
- * Provides common setup patterns and helper functions.
- */
+export interface RenderWithProvidersOptions extends RenderOptions<unknown> {
+    router?: Router;
+}
 
 export function createMockRouter(): Router {
     return createRouter({
@@ -33,31 +33,59 @@ export function createMockRouter(): Router {
     });
 }
 
-/**
- * Mount a Vue component with common test setup.
- * Includes Pinia store, router, and global stubs.
- */
-export function mountWithPlugins(
+export function renderWithProviders(
     component: Component,
-    options: any = {},
-): VueWrapper<any> {
+    options: RenderWithProvidersOptions = {},
+) {
     const pinia = createPinia();
     setActivePinia(pinia);
 
-    const router = createMockRouter();
+    const router = options.router ?? createMockRouter();
+
+    return {
+        user: userEvent.setup(),
+        ...render(component, {
+            ...options,
+            global: {
+                ...(options.global ?? {}),
+                plugins: [...(options.global?.plugins ?? []), pinia, router],
+                stubs: {
+                    keepAlive: true,
+                    Transition: true,
+                    Teleport: true,
+                    'router-link': true,
+                    'router-view': true,
+                    ...(options.global?.stubs ?? {}),
+                },
+            },
+        }),
+    };
+}
+
+export function mountWithPlugins(
+    component: Component,
+    options: MountingOptions<unknown> & { router?: Router } = {},
+): VueWrapper<unknown> {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+
+    const router = options.router ?? createMockRouter();
 
     return mount(component, {
+        ...options,
         global: {
-            plugins: [pinia, router],
+            ...(options.global ?? {}),
+            plugins: [...(options.global?.plugins ?? []), pinia, router],
             stubs: {
+                keepAlive: true,
+                Transition: true,
+                Teleport: true,
                 'router-link': true,
                 'router-view': true,
-                'keep-alive': true,
-                transition: true,
-                'transition-group': true,
-                teleport: true,
+                ...(options.global?.stubs ?? {}),
             },
         },
-        ...options,
     });
 }
+
+export { screen };

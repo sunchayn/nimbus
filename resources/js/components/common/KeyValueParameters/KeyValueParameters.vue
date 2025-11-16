@@ -242,7 +242,11 @@ const shouldShowGeneratorIcon = (index: number, parameter: ExtendedParameter) =>
                     />
                 </div>
 
-                <div v-else class="flex items-center justify-center px-2">
+                <div
+                    v-else
+                    class="flex items-center justify-center px-2"
+                    data-testid="delete-button"
+                >
                     <AppTooltipWrapper
                         value="Delete"
                         :on-click="() => handleDeleteParameter(index)"

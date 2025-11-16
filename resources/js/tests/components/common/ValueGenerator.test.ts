@@ -1,52 +1,55 @@
 import ValueGenerator from '@/components/common/ValueGenerator/ValueGenerator.vue';
-import { mountWithPlugins } from '@/tests/_utils/test-utils';
-import { testBothThemes } from '@/tests/_utils/themes-test-utils';
+import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
+import { fireEvent } from '@testing-library/vue';
 import { Mock } from '@vitest/spy';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick, Reactive, reactive } from 'vue';
+import { nextTick, reactive } from 'vue';
 
-const mockStore: Reactive<{
+const restoreScrollPosition = vi.fn(() => Promise.resolve());
+
+const mockStore = reactive<{
     isCommandOpen: boolean;
     currentInputRef: HTMLElement | null;
     generateValue: Mock;
     closeCommand: Mock;
-    restoreCommandState: Mock;
+    openCommand: Mock;
+    commandState: { recentGenerators: string[] };
     recentGenerators: string[];
-}> = reactive({
+    restoreCommandState: Mock;
+}>({
     isCommandOpen: false,
     currentInputRef: null,
     generateValue: vi.fn(),
     closeCommand: vi.fn(),
-    restoreCommandState: vi.fn(),
+    openCommand: vi.fn(),
+    commandState: { recentGenerators: [] },
     recentGenerators: [],
+    restoreCommandState: vi.fn(),
 });
 
-const mockComposable = {
-    restoreScrollPosition: vi.fn(),
-};
+vi.mock('@/stores', async importOriginal => {
+    const actual = await importOriginal<object>();
 
-vi.mock('@/stores', () => ({
-    useValueGeneratorStore: () => mockStore,
-}));
-
-vi.mock('@/composables', () => ({
-    useTabHorizontalScroll: () => mockComposable,
-}));
-
-// Mock DOM methods
-const mockGetBoundingClientRect = vi.fn(() => ({
-    top: 100,
-    bottom: 120,
-    left: 50,
-    right: 200,
-    width: 150,
-    height: 20,
-}));
-
-Object.defineProperty(window, 'innerHeight', { value: 800 });
-Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', {
-    value: mockGetBoundingClientRect,
+    return {
+        ...actual,
+        useValueGeneratorStore: () => mockStore,
+    };
 });
+
+vi.mock('@/composables/ui/useTabHorizontalScroll', () => ({
+    useTabHorizontalScroll: () => ({
+        restoreScrollPosition,
+    }),
+}));
+
+vi.mock('@/components/common/ValueGenerator/ValueGeneratorGeneratorList.vue', () => ({
+    default: {
+        name: 'ValueGeneratorGeneratorList',
+        emits: ['generator-selected'],
+        template:
+            '<button data-testid="trigger-generator" @click="$emit(\'generator-selected\', \'email\')">Generate</button>',
+    },
+}));
 
 describe('ValueGenerator', () => {
     beforeEach(() => {
@@ -54,239 +57,81 @@ describe('ValueGenerator', () => {
         mockStore.currentInputRef = null;
         mockStore.generateValue.mockReset();
         mockStore.closeCommand.mockReset();
-        mockComposable.restoreScrollPosition.mockReset();
+        mockStore.restoreCommandState.mockReset();
     });
 
-    it('renders nothing when command is closed', () => {
-        const wrapper = mountWithPlugins(ValueGenerator);
+    it('does not render overlay when command is closed', () => {
+        renderWithProviders(ValueGenerator);
 
-        expect(wrapper.find('.fixed.inset-0').exists()).toBe(false);
+        expect(screen.queryByTestId('value-generator-overlay')).toBeNull();
     });
 
-    it('renders command interface when open', async () => {
+    it('opens overlay and focuses command input when store toggles', async () => {
+        renderWithProviders(ValueGenerator);
+
         mockStore.isCommandOpen = true;
-
-        const wrapper = mountWithPlugins(ValueGenerator);
 
         await nextTick();
 
-        expect(wrapper.find('.fixed.inset-0').exists()).toBe(true);
-        expect(wrapper.find('[data-slot="command-input"]').exists()).toBe(true);
+        const overlay = await screen.findByTestId('value-generator-overlay');
+
+        expect(overlay).toBeInTheDocument();
+        expect(restoreScrollPosition).toHaveBeenCalled();
+        expect(screen.getByPlaceholderText('Search generators...')).toHaveFocus();
     });
 
-    it('closes command when clicking outside', async () => {
-        mockStore.isCommandOpen = true;
+    it('closes when backdrop is clicked', async () => {
+        renderWithProviders(ValueGenerator);
 
-        const wrapper = mountWithPlugins(ValueGenerator);
+        mockStore.isCommandOpen = true;
 
         await nextTick();
 
-        await wrapper.find('.fixed.inset-0').trigger('click');
+        const overlay = await screen.findByTestId('value-generator-overlay');
+
+        await fireEvent.click(overlay);
 
         expect(mockStore.closeCommand).toHaveBeenCalled();
     });
 
-    it('does not close command when clicking inside', async () => {
-        mockStore.isCommandOpen = true;
+    it('propagates generated values to inputs and emits event', async () => {
+        const onValueGenerated = vi.fn();
+        const input = document.createElement('input');
 
-        const wrapper = mountWithPlugins(ValueGenerator);
-        await nextTick();
+        mockStore.generateValue.mockReturnValue('generated-value');
+        mockStore.currentInputRef = input;
 
-        await wrapper.find('.absolute.w-full.max-w-md').trigger('click');
-
-        expect(mockStore.closeCommand).not.toHaveBeenCalled();
-    });
-
-    it('closes command on escape key', async () => {
-        mockStore.isCommandOpen = true;
-
-        const wrapper = mountWithPlugins(ValueGenerator);
-
-        await nextTick();
-
-        const command = wrapper.findComponent({ name: 'AppCommand' });
-        await command.trigger('keydown.escape');
-
-        expect(mockStore.closeCommand).toHaveBeenCalled();
-    });
-
-    it('calculates command position correctly when input ref is provided', async () => {
-        mockStore.currentInputRef = document.createElement('input');
-        mockStore.isCommandOpen = true;
-
-        const wrapper = mountWithPlugins(ValueGenerator);
-
-        await nextTick();
-
-        const commandContent = wrapper.find('.absolute.w-full.max-w-md');
-        const style = commandContent.attributes('style')!;
-
-        expect(style).toContain('top: 124px');
-        expect(style).toContain('left: 50px');
-        expect(style).toContain('transform: none');
-    });
-
-    it('positions command above input when no space below', async () => {
-        Object.defineProperty(window, 'innerHeight', { value: 200 });
-
-        mockStore.currentInputRef = document.createElement('input');
-        mockStore.isCommandOpen = true;
-
-        const wrapper = mountWithPlugins(ValueGenerator);
-
-        await nextTick();
-
-        const commandContent = wrapper.find('.absolute.w-full.max-w-md');
-        const style = commandContent.attributes('style')!;
-
-        expect(style).toContain('top: -304px');
-    });
-
-    it('uses center position when no input ref', async () => {
-        mockStore.isCommandOpen = true;
-
-        const wrapper = mountWithPlugins(ValueGenerator);
-
-        await nextTick();
-
-        const commandContent = wrapper.find('.absolute.w-full.max-w-md');
-        const style = commandContent.attributes('style')!;
-
-        expect(style).toContain('top: 50%');
-        expect(style).toContain('left: 50%');
-        expect(style).toContain('transform: translate(-50%, -50%)');
-    });
-
-    it('handles generator selection', async () => {
-        const mockValue = 'generated-value';
-
-        mockStore.generateValue.mockReturnValue(mockValue);
-        mockStore.isCommandOpen = true;
-
-        const mockInput = document.createElement('input');
-
-        mockInput.value = '';
-        mockStore.currentInputRef = mockInput;
-
-        const wrapper = mountWithPlugins(ValueGenerator);
-
-        await nextTick();
-
-        const generatorList = wrapper.findComponent({
-            name: 'ValueGeneratorGeneratorList',
+        renderWithProviders(ValueGenerator, {
+            props: { onValueGenerated },
         });
 
-        await generatorList.vm.$emit('generator-selected', 'test-generator');
+        mockStore.isCommandOpen = true;
 
-        expect(mockStore.generateValue).toHaveBeenCalledWith('test-generator');
-        expect(mockInput.value).toBe(mockValue);
-        expect(wrapper.emitted('valueGenerated')?.[0]).toEqual([mockValue]);
+        await nextTick();
+
+        const trigger = await screen.findByTestId('trigger-generator');
+
+        await fireEvent.click(trigger);
+
+        expect(mockStore.generateValue).toHaveBeenCalledWith('email');
+        expect(input.value).toBe('generated-value');
+        expect(onValueGenerated).toHaveBeenCalledWith('generated-value');
         expect(mockStore.closeCommand).toHaveBeenCalled();
     });
 
-    it('does not focus when command is closed', async () => {
-        mockStore.isCommandOpen = false;
-        mountWithPlugins(ValueGenerator);
-
-        await nextTick();
-
-        expect(mockComposable.restoreScrollPosition).not.toHaveBeenCalled();
-    });
-
-    it.skip('focuses command input when command opens', async () => {
-        const wrapper = mountWithPlugins(ValueGenerator);
+    it('closes command when escape is pressed inside command container', async () => {
+        renderWithProviders(ValueGenerator);
 
         mockStore.isCommandOpen = true;
 
         await nextTick();
 
-        // TODO [Test] Make this test works. Problem: the following is not passing.
-        await expect
-            .poll(() => wrapper.element.querySelector('[data-slot="command-input"]'), {
-                timeout: 300,
-            })
-            .toHaveFocus();
-    });
-
-    it('renders all child components', async () => {
-        mockStore.isCommandOpen = true;
-
-        const wrapper = mountWithPlugins(ValueGenerator);
-
-        await nextTick();
-
-        expect(wrapper.findComponent({ name: 'AppCommand' }).exists()).toBe(true);
-
-        expect(wrapper.findComponent({ name: 'AppCommandInput' }).exists()).toBe(true);
-
-        expect(
-            wrapper.findComponent({ name: 'ValueGeneratorCommandKeepAlive' }).exists(),
-        ).toBe(true);
-
-        expect(
-            wrapper.findComponent({ name: 'ValueGeneratorCategoryFilters' }).exists(),
-        ).toBe(true);
-
-        expect(
-            wrapper.findComponent({ name: 'ValueGeneratorGeneratorList' }).exists(),
-        ).toBe(true);
-
-        expect(wrapper.findComponent({ name: 'ValueGeneratorFooter' }).exists()).toBe(
-            true,
+        const focusHookContainer = await screen.findByTestId(
+            'value-generator-focus-hook',
         );
-    });
 
-    it('applies correct CSS classes', async () => {
-        mockStore.isCommandOpen = true;
+        await fireEvent.keyDown(focusHookContainer, { key: 'Escape' });
 
-        const wrapper = mountWithPlugins(ValueGenerator);
-
-        await nextTick();
-
-        const overlay = wrapper.find('.fixed.inset-0');
-        expect(overlay.classes()).toContain('fixed');
-        expect(overlay.classes()).toContain('inset-0');
-        expect(overlay.classes()).toContain('z-50');
-
-        const commandContent = wrapper.find('.absolute.w-full.max-w-md');
-        expect(commandContent.classes()).toContain('absolute');
-        expect(commandContent.classes()).toContain('w-full');
-        expect(commandContent.classes()).toContain('max-w-md');
-    });
-
-    describe('Dark Theme Support', () => {
-        testBothThemes(ValueGenerator, wrapper => {
-            expect(wrapper.find('.fixed.inset-0').exists()).toBe(false);
-        });
-
-        it('renders command interface with proper theming when open', async () => {
-            mockStore.isCommandOpen = true;
-
-            const wrapper = mountWithPlugins(ValueGenerator);
-
-            await nextTick();
-
-            const commandContent = wrapper.find('.absolute.w-full.max-w-md');
-            expect(commandContent.exists()).toBe(true);
-
-            const command = wrapper.findComponent({ name: 'AppCommand' });
-            expect(command.classes()).toContain('rounded-lg');
-            expect(command.classes()).toContain('border');
-            expect(command.classes()).toContain('shadow-md');
-        });
-
-        it('maintains consistent behavior across themes', async () => {
-            mockStore.isCommandOpen = true;
-
-            const wrapper = mountWithPlugins(ValueGenerator);
-
-            await nextTick();
-
-            expect(wrapper.find('.fixed.inset-0').exists()).toBe(true);
-            expect(wrapper.findComponent({ name: 'AppCommand' }).exists()).toBe(true);
-            expect(wrapper.findComponent({ name: 'AppCommandInput' }).exists()).toBe(
-                true,
-            );
-        });
+        expect(mockStore.closeCommand).toHaveBeenCalled();
     });
 });

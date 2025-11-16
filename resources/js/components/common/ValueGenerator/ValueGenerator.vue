@@ -125,12 +125,19 @@ watch(
         <div
             v-if="store.isCommandOpen"
             class="fixed inset-0 z-50"
+            data-testid="value-generator-overlay"
             @click="store.closeCommand"
         >
-            <div class="absolute w-full max-w-md" :style="commandPosition" @click.stop>
+            <div
+                class="absolute w-full max-w-md"
+                :style="commandPosition"
+                data-testid="value-generator-command"
+                @click.stop
+            >
                 <AppCommand
                     class="rounded-lg border shadow-md"
                     data-ValueGenerator-focus-hook
+                    data-testid="value-generator-focus-hook"
                     @keydown.escape="store.closeCommand"
                 >
                     <AppCommandInput

@@ -20,7 +20,7 @@ vi.mock('@/stores', () => ({
 }));
 
 const defaultPendingRequest = {
-    endpoint: '/api/users',
+    endpoint: 'api/users',
     method: 'POST' as const,
     queryParameters: [],
     authorization: {},
@@ -61,7 +61,7 @@ describe('useHttpClient', () => {
 
         const request: PendingRequest = {
             ...defaultPendingRequest,
-            endpoint: '/api/users',
+            endpoint: 'api/users',
             authorization: {
                 type: AuthorizationType.None,
             },
@@ -82,7 +82,7 @@ describe('useHttpClient', () => {
 
         const request: PendingRequest = {
             ...defaultPendingRequest,
-            endpoint: '///api/users',
+            endpoint: '//api/users',
             authorization: {
                 type: AuthorizationType.None,
             },
@@ -96,7 +96,7 @@ describe('useHttpClient', () => {
     it('should create relay payload correctly', async () => {
         const request: PendingRequest = {
             ...defaultPendingRequest,
-            endpoint: '/api/users',
+            endpoint: 'api/users',
             authorization: { type: AuthorizationType.Bearer, value: 'abc123' },
             body: {
                 POST: {
@@ -168,7 +168,7 @@ describe('useHttpClient', () => {
 
         const request: PendingRequest = {
             ...defaultPendingRequest,
-            endpoint: '/api/users',
+            endpoint: 'api/users',
             authorization: { type: AuthorizationType.Bearer, value: 'abc123' },
         };
 
@@ -449,18 +449,18 @@ describe('useHttpClient', () => {
         expect(isExecuting.value).toBe(false);
     });
 
-    it.skip('should handle body memoization correctly', () => {
+    it('extracts correct body payload based on request method', async () => {
         const { executeRequest } = useHttpClient();
 
         const request: PendingRequest = {
             ...defaultPendingRequest,
+            method: 'POST',
             authorization: {
                 type: AuthorizationType.None,
             },
             body: {
                 POST: {
                     json: JSON.stringify({ name: 'John' }),
-                    'plain-text': 'foobar',
                 },
                 PUT: {
                     json: JSON.stringify({ name: 'Jane' }),
@@ -480,10 +480,10 @@ describe('useHttpClient', () => {
             }),
         });
 
-        executeRequest(request);
+        await executeRequest(request);
 
-        // The body should be extracted correctly based on method and payloadType
-        // TODO [Test] this test is incomplete, assert memoization properly.
         expect(mockedAxios.post).toHaveBeenCalled();
+        const formDataCall = mockedAxios.post.mock.calls[0][1] as FormData;
+        expect(formDataCall).toBeInstanceOf(FormData);
     });
 });
