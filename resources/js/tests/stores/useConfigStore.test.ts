@@ -1,9 +1,7 @@
 import { useConfigStore } from '@/stores/core/useConfigStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-    NimbusConfig
-} from "../../../types/global";
+import { NimbusConfig } from '../../../types/global';
 
 declare global {
     interface Window {

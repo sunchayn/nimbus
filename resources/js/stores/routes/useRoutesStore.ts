@@ -50,7 +50,7 @@ export const useRoutesStore = defineStore('routes', () => {
 
     const initializeRoutes = async () => {
         routeExtractorException.value = parseRouteExtractionException(
-            window.Nimbus?.routeExtractorException as string ?? null,
+            (window.Nimbus?.routeExtractorException as string) ?? null,
         );
 
         await fetchAvailableRoutes();

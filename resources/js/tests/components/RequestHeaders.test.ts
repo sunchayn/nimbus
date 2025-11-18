@@ -3,12 +3,7 @@ import { AuthorizationType } from '@/interfaces/generated';
 import { GeneratorType, PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
 import { renderWithProviders } from '@/tests/_utils/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-    nextTick,
-    reactive,
-    Ref,
-    ref
-} from 'vue';
+import { nextTick, reactive, ref } from 'vue';
 
 const mockConfigStore = reactive({
     headers: [

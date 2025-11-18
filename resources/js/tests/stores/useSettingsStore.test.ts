@@ -35,7 +35,9 @@ describe('useSettingsStore', () => {
 
         await nextTick();
 
-        expect(JSON.parse(window.localStorage?.getItem(STORAGE_KEY) ?? '{}').theme).toBe('dark');
+        expect(JSON.parse(window.localStorage?.getItem(STORAGE_KEY) ?? '{}').theme).toBe(
+            'dark',
+        );
     });
 
     it('resets preferences to defaults', async () => {

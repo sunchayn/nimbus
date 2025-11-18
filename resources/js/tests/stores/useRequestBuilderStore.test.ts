@@ -1,3 +1,4 @@
+import { AuthorizationContract } from '@/interfaces';
 import { AuthorizationType } from '@/interfaces/generated';
 import { PendingRequest, RequestBodyTypeEnum, RequestHeader } from '@/interfaces/http';
 import { RouteDefinition } from '@/interfaces/routes';
@@ -5,9 +6,6 @@ import { useRequestBuilderStore } from '@/stores/request/useRequestBuilderStore'
 import { createPinia, setActivePinia } from 'pinia';
 import { describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
-import {
-    AuthorizationContract
-} from "@/interfaces";
 
 const preferences = reactive({
     autoRefreshRoutes: true,
@@ -126,7 +124,10 @@ describe('useRequestBuilderStore', () => {
             GET: { [RequestBodyTypeEnum.JSON]: '{}' },
         };
         const params = [{ key: 'page', value: '1' }];
-        const auth: AuthorizationContract = { type: AuthorizationType.Bearer, value: 'token' };
+        const auth: AuthorizationContract = {
+            type: AuthorizationType.Bearer,
+            value: 'token',
+        };
 
         store.updateRequestHeaders(headers);
         store.updateRequestBody(body);

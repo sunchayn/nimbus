@@ -43,8 +43,8 @@ const createPendingRequest = (): PendingRequest => ({
                     'x-name': 'name',
                     'x-required': false,
                     type: 'string',
-                }
-            }
+                },
+            },
         },
         extractionErrors: null,
     },
@@ -64,8 +64,8 @@ const createPendingRequest = (): PendingRequest => ({
                         'x-name': 'name',
                         'x-required': false,
                         type: 'string',
-                    }
-                }
+                    },
+                },
             },
             extractionErrors: null,
         },

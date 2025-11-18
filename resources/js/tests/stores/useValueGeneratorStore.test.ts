@@ -1,11 +1,9 @@
 import { ValueGenerator } from '@/interfaces/ui';
 import { useValueGeneratorStore } from '@/stores/generators/useValueGeneratorStore';
+import { Mock } from '@vitest/spy';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { computed, reactive, ref } from 'vue';
-import {
-    Mock
-} from "@vitest/spy";
 
 const generators: ValueGenerator[] = [
     {
