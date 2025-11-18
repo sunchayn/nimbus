@@ -1,0 +1,32 @@
+name: run-types-check
+
+on:
+  push:
+    paths:
+      - '**.ts'
+      - '**.js'
+      - '.github/workflows/types-check.yml'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        if: ${{ !env.ACT }}
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run type:check
