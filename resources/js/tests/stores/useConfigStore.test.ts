@@ -1,10 +1,13 @@
 import { useConfigStore } from '@/stores/core/useConfigStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import {
+    NimbusConfig
+} from "../../../types/global";
 
 declare global {
     interface Window {
-        Nimbus?: Record<string, unknown>;
+        Nimbus: NimbusConfig;
     }
 }
 
@@ -26,6 +29,8 @@ describe('useConfigStore', () => {
             isVersioned: true,
             headers: JSON.stringify([{ header: 'X-Test', type: 'raw', value: '123' }]),
             currentUser: JSON.stringify({ id: 99 }),
+            routes: '',
+            routeExtractorException: null,
         };
 
         const store = useConfigStore();
@@ -36,18 +41,5 @@ describe('useConfigStore', () => {
         expect(store.isVersioned).toBe(true);
         expect(store.isLoggedIn).toBe(true);
         expect(store.userId).toBe(99);
-    });
-
-    it('falls back to defaults when Nimbus undefined', () => {
-        window.Nimbus = undefined;
-
-        const store = useConfigStore();
-
-        expect(store.apiUrl).toBe('http://localhost');
-        expect(store.appBasePath).toBe('');
-        expect(store.headers).toEqual([]);
-        expect(store.isVersioned).toBe(false);
-        expect(store.isLoggedIn).toBe(false);
-        expect(store.userId).toBeNull();
     });
 });

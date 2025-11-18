@@ -5,6 +5,9 @@ import { useRequestBuilderStore } from '@/stores/request/useRequestBuilderStore'
 import { createPinia, setActivePinia } from 'pinia';
 import { describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
+import {
+    AuthorizationContract
+} from "@/interfaces";
 
 const preferences = reactive({
     autoRefreshRoutes: true,
@@ -80,7 +83,10 @@ describe('useRequestBuilderStore', () => {
             ...baseRoute,
             method: 'POST',
             schema: {
-                shape: {},
+                shape: {
+                    'x-name': 'root',
+                    'x-required': false,
+                },
                 extractionErrors: null,
             },
         };
@@ -120,7 +126,7 @@ describe('useRequestBuilderStore', () => {
             GET: { [RequestBodyTypeEnum.JSON]: '{}' },
         };
         const params = [{ key: 'page', value: '1' }];
-        const auth = { type: AuthorizationType.Bearer, value: 'token' };
+        const auth: AuthorizationContract = { type: AuthorizationType.Bearer, value: 'token' };
 
         store.updateRequestHeaders(headers);
         store.updateRequestBody(body);

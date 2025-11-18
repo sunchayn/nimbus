@@ -1,7 +1,10 @@
 import ResponseViewer from '@/components/domain/Client/Response/ResponseViewer.vue';
 import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { reactive } from 'vue';
+import {
+    Reactive,
+    reactive
+} from 'vue';
 
 vi.mock('@/components/domain/Client/Response/ResponseStatus/ResponseStatus.vue', () => ({
     default: {
@@ -32,7 +35,10 @@ vi.mock('@/components/domain/Client/Response/ResponseViewerResponse.vue', () => 
     },
 }));
 
-const mockRequestHistoryStore = reactive({
+const mockRequestHistoryStore: Reactive<{
+    logs: Array<object> | [],
+    lastLog: object | null,
+}> = reactive({
     logs: [],
     lastLog: null,
 });
@@ -59,7 +65,12 @@ describe('ResponseViewer', () => {
     });
 
     it('renders error component when last log contains error', () => {
-        mockRequestHistoryStore.logs = [{ error: { message: 'Something went wrong' } }];
+        mockRequestHistoryStore.logs = [
+            {
+                error: { message: 'Something went wrong' },
+            },
+        ];
+
         mockRequestHistoryStore.lastLog = mockRequestHistoryStore.logs[0];
 
         renderWithProviders(ResponseViewer);

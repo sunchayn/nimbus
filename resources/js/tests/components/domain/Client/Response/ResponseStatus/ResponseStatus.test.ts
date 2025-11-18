@@ -7,7 +7,7 @@ import { nextTick, Reactive, reactive } from 'vue';
 
 const mockRequestStore: Reactive<{
     pendingRequestData: object | null;
-    cancelCurrentRequest: MockedFunction<unknown>;
+    cancelCurrentRequest: MockedFunction<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }> = reactive({
     pendingRequestData: null,
     cancelCurrentRequest: vi.fn(),

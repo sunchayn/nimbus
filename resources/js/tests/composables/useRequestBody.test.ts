@@ -35,13 +35,41 @@ const createPendingRequest = (): PendingRequest => ({
     body: {},
     payloadType: RequestBodyTypeEnum.JSON,
     schema: {
-        shape: { properties: { name: { type: 'string' } } },
+        shape: {
+            'x-name': 'root',
+            'x-required': true,
+            properties: {
+                name: {
+                    'x-name': 'name',
+                    'x-required': false,
+                    type: 'string',
+                }
+            }
+        },
         extractionErrors: null,
     },
     queryParameters: [],
     authorization: { type: AuthorizationType.None },
     supportedRoutes: [],
-    routeDefinition: null,
+    routeDefinition: {
+        method: 'POST',
+        endpoint: 'api/users',
+        shortEndpoint: 'api/users',
+        schema: {
+            shape: {
+                'x-name': 'root',
+                'x-required': true,
+                properties: {
+                    name: {
+                        'x-name': 'name',
+                        'x-required': false,
+                        type: 'string',
+                    }
+                }
+            },
+            extractionErrors: null,
+        },
+    },
     isProcessing: false,
     wasExecuted: false,
     durationInMs: 0,

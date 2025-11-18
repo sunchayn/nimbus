@@ -19,7 +19,7 @@ export const useConfigStore = defineStore('config', () => {
         ? JSON.parse(window.Nimbus.headers as string)
         : [];
     const currentUser = window.Nimbus?.currentUser
-        ? JSON.parse(window.Nimbus.currentUser)
+        ? JSON.parse(window.Nimbus.currentUser as string)
         : null;
 
     // Derived values

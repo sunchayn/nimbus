@@ -60,10 +60,10 @@ describe('generateCurlCommand', () => {
     });
 
     it('flags special authorization types', () => {
-        const request = {
+        const request: PendingRequest = {
             ...requestBase,
             authorization: { type: AuthorizationType.Impersonate, value: 1 },
-        };
+        } as PendingRequest;
 
         const { hasSpecialAuth } = generateCurlCommand(
             request,

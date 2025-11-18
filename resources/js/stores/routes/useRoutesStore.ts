@@ -28,7 +28,7 @@ export const useRoutesStore = defineStore('routes', () => {
         error.value = null;
 
         try {
-            const source = window.Nimbus.routes;
+            const source = window.Nimbus?.routes ?? '[]';
 
             if (typeof source !== 'string') {
                 routes.value = null;
@@ -50,7 +50,7 @@ export const useRoutesStore = defineStore('routes', () => {
 
     const initializeRoutes = async () => {
         routeExtractorException.value = parseRouteExtractionException(
-            window.Nimbus.routeExtractorException,
+            window.Nimbus?.routeExtractorException as string ?? null,
         );
 
         await fetchAvailableRoutes();
