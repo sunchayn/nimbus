@@ -6,7 +6,7 @@ set -euo pipefail
 # CONFIGURATION
 # --------------------------------------
 
-REPO_URL="git@github.com:sunchayn/nimbus-dev.git"
+REPO_URL="https://github.com/sunchayn/nimbus-dev.git"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_DIR="$SCRIPT_DIR/.workdir"
