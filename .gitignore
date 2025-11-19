@@ -17,3 +17,11 @@ _ide_helper_models.php
 **/*/.DS_Store
 tools/phpstan/build
 resources/dist/hot
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
