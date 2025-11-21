@@ -12,17 +12,26 @@ use Sunchayn\Nimbus\Modules\Routes\Extractor\SchemaExtractor;
 use Sunchayn\Nimbus\Modules\Routes\Extractor\Strategies\ExtractorStrategyContract;
 use Sunchayn\Nimbus\Modules\Routes\Extractor\Strategies\FormRequestExtractorStrategy;
 use Sunchayn\Nimbus\Modules\Routes\Extractor\Strategies\InlineRequestValidatorExtractorStrategy;
+use Sunchayn\Nimbus\Modules\Routes\Extractor\Strategies\SpatieDataObjectExtractorStrategy;
 use Sunchayn\Nimbus\Modules\Routes\ValueObjects\ExtractableRoute;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
 
 #[CoversClass(SchemaExtractor::class)]
 class SchemaExtractorUnitTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        Mockery::close();
+
+        parent::tearDown();
+    }
+
     public function test_it_initialize_extractor_correctly(): void
     {
         // Arrange
 
         $formRequestExtractorStrategyMock = Mockery::mock(FormRequestExtractorStrategy::class);
+        $spatieDataObjectExtractorStrategyMock = Mockery::mock(SpatieDataObjectExtractorStrategy::class);
         $inlineRequestValidatorExtractorStrategyMock = Mockery::mock(InlineRequestValidatorExtractorStrategy::class);
         $containerMock = Mockery::mock(Container::class);
 
@@ -30,6 +39,7 @@ class SchemaExtractorUnitTest extends TestCase
             $containerMock,
             implementations: [
                 FormRequestExtractorStrategy::class => $formRequestExtractorStrategyMock,
+                SpatieDataObjectExtractorStrategy::class => $spatieDataObjectExtractorStrategyMock,
                 InlineRequestValidatorExtractorStrategy::class => $inlineRequestValidatorExtractorStrategyMock,
             ],
         );
@@ -42,11 +52,13 @@ class SchemaExtractorUnitTest extends TestCase
 
         $strategies = invade($schemaExtractor)->strategies;
 
-        $this->assertCount(2, $strategies);
+        $this->assertCount(3, $strategies);
 
         $this->assertSame($formRequestExtractorStrategyMock, $strategies[0]);
 
-        $this->assertSame($inlineRequestValidatorExtractorStrategyMock, $strategies[1]);
+        $this->assertSame($spatieDataObjectExtractorStrategyMock, $strategies[1]);
+
+        $this->assertSame($inlineRequestValidatorExtractorStrategyMock, $strategies[2]);
     }
 
     public function test_it_extracts_using_the_matching_strategy(): void
