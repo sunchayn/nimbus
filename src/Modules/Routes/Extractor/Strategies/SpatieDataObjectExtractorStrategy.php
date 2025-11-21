@@ -29,6 +29,7 @@ class SpatieDataObjectExtractorStrategy implements ExtractorStrategyContract
         if (! class_exists(\Spatie\LaravelData\Data::class)) {
             return false;
         }
+
         // @codeCoverageIgnoreEnd
 
         foreach ($extractableRoute->parameters as $parameter) {
