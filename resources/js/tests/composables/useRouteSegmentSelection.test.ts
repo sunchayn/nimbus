@@ -100,7 +100,10 @@ describe('useRouteSegmentSelection', () => {
             mockInput.selectionStart = 12; // Inside {id}
 
             const event = new MouseEvent('click', { bubbles: true });
-            Object.defineProperty(event, 'target', { value: mockInput, enumerable: true });
+            Object.defineProperty(event, 'target', {
+                value: mockInput,
+                enumerable: true,
+            });
 
             handleClick(event);
             await nextTick();
@@ -116,7 +119,10 @@ describe('useRouteSegmentSelection', () => {
             mockInput.selectionStart = 10; // <- At the {
 
             const event = new MouseEvent('click', { bubbles: true });
-            Object.defineProperty(event, 'target', { value: mockInput, enumerable: true });
+            Object.defineProperty(event, 'target', {
+                value: mockInput,
+                enumerable: true,
+            });
 
             handleClick(event);
             await nextTick();
@@ -132,7 +138,10 @@ describe('useRouteSegmentSelection', () => {
             mockInput.selectionStart = 17; // <- At the }
 
             const event = new MouseEvent('click', { bubbles: true });
-            Object.defineProperty(event, 'target', { value: mockInput, enumerable: true });
+            Object.defineProperty(event, 'target', {
+                value: mockInput,
+                enumerable: true,
+            });
 
             handleClick(event);
             await nextTick();
@@ -149,7 +158,10 @@ describe('useRouteSegmentSelection', () => {
             mockInput.selectionStart = 11; // <- Inside 123
 
             const event = new MouseEvent('click', { bubbles: true });
-            Object.defineProperty(event, 'target', { value: mockInput, enumerable: true });
+            Object.defineProperty(event, 'target', {
+                value: mockInput,
+                enumerable: true,
+            });
 
             handleClick(event);
             await nextTick();
@@ -166,7 +178,10 @@ describe('useRouteSegmentSelection', () => {
             // Click on first replaced segment (123)
             mockInput.selectionStart = 11;
             let event = new MouseEvent('click', { bubbles: true });
-            Object.defineProperty(event, 'target', { value: mockInput, enumerable: true });
+            Object.defineProperty(event, 'target', {
+                value: mockInput,
+                enumerable: true,
+            });
 
             handleClick(event);
             await nextTick();
@@ -176,7 +191,10 @@ describe('useRouteSegmentSelection', () => {
             // Click on second replaced segment (456)
             mockInput.selectionStart = 21;
             event = new MouseEvent('click', { bubbles: true });
-            Object.defineProperty(event, 'target', { value: mockInput, enumerable: true });
+            Object.defineProperty(event, 'target', {
+                value: mockInput,
+                enumerable: true,
+            });
 
             handleClick(event);
             await nextTick();
@@ -192,7 +210,10 @@ describe('useRouteSegmentSelection', () => {
             mockInput.selectionStart = 4; // <- Inside "users"
 
             const event = new MouseEvent('click', { bubbles: true });
-            Object.defineProperty(event, 'target', { value: mockInput, enumerable: true });
+            Object.defineProperty(event, 'target', {
+                value: mockInput,
+                enumerable: true,
+            });
 
             handleClick(event);
             await nextTick();
@@ -209,7 +230,10 @@ describe('useRouteSegmentSelection', () => {
             mockInput.selectionStart = 12; // <- Inside {newId}
 
             const event = new MouseEvent('click', { bubbles: true });
-            Object.defineProperty(event, 'target', { value: mockInput, enumerable: true });
+            Object.defineProperty(event, 'target', {
+                value: mockInput,
+                enumerable: true,
+            });
 
             handleClick(event);
             await nextTick();
@@ -225,7 +249,10 @@ describe('useRouteSegmentSelection', () => {
             mockInput.selectionStart = 10; // <- At the start of 123
 
             const event = new MouseEvent('click', { bubbles: true });
-            Object.defineProperty(event, 'target', { value: mockInput, enumerable: true });
+            Object.defineProperty(event, 'target', {
+                value: mockInput,
+                enumerable: true,
+            });
 
             handleClick(event);
             await nextTick();
@@ -241,7 +268,10 @@ describe('useRouteSegmentSelection', () => {
             mockInput.selectionStart = 13; // <- At end of 123
 
             const event = new MouseEvent('click', { bubbles: true });
-            Object.defineProperty(event, 'target', { value: mockInput, enumerable: true });
+            Object.defineProperty(event, 'target', {
+                value: mockInput,
+                enumerable: true,
+            });
 
             handleClick(event);
             await nextTick();
@@ -257,7 +287,10 @@ describe('useRouteSegmentSelection', () => {
             mockInput.selectionStart = 11; // <- Inside {}
 
             const event = new MouseEvent('click', { bubbles: true });
-            Object.defineProperty(event, 'target', { value: mockInput, enumerable: true });
+            Object.defineProperty(event, 'target', {
+                value: mockInput,
+                enumerable: true,
+            });
 
             handleClick(event);
             await nextTick();
@@ -281,13 +314,13 @@ describe('useRouteSegmentSelection', () => {
             const mockInputWithoutSelection = document.createElement('input');
             Object.defineProperty(mockInputWithoutSelection, 'selectionStart', {
                 value: null,
-                enumerable: true
+                enumerable: true,
             });
 
             const event = new MouseEvent('click', { bubbles: true });
             Object.defineProperty(event, 'target', {
                 value: mockInputWithoutSelection,
-                enumerable: true
+                enumerable: true,
             });
 
             expect(() => handleClick(event)).not.toThrow();

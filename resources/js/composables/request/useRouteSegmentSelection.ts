@@ -98,6 +98,7 @@ export function useRouteSegmentSelection(
                 return -1;
             }
         }
+
         return -1;
     };
 
@@ -114,6 +115,7 @@ export function useRouteSegmentSelection(
                 return -1;
             }
         }
+
         return -1;
     };
 
@@ -124,7 +126,10 @@ export function useRouteSegmentSelection(
      * @param cursorPos - Current cursor position
      * @returns Segment position or null if not found
      */
-    const findBraceSegment = (text: string, cursorPos: number): SegmentPosition | null => {
+    const findBraceSegment = (
+        text: string,
+        cursorPos: number,
+    ): SegmentPosition | null => {
         const openingBracePos = findOpeningBracePosition(text, cursorPos);
 
         if (openingBracePos === -1) {
@@ -155,7 +160,8 @@ export function useRouteSegmentSelection(
             const segmentStart = charCount;
             const segmentEnd = charCount + segmentLength;
 
-            const isCursorInSegment = cursorPos >= segmentStart && cursorPos <= segmentEnd;
+            const isCursorInSegment =
+                cursorPos >= segmentStart && cursorPos <= segmentEnd;
 
             if (isCursorInSegment) {
                 return i;
@@ -170,7 +176,10 @@ export function useRouteSegmentSelection(
     /**
      * Calculates the start and end positions of a segment by its index.
      */
-    const getSegmentPosition = (text: string, segmentIndex: number): SegmentPosition | null => {
+    const getSegmentPosition = (
+        text: string,
+        segmentIndex: number,
+    ): SegmentPosition | null => {
         const segments = text.split('/');
 
         if (segmentIndex >= segments.length) {
@@ -196,7 +205,10 @@ export function useRouteSegmentSelection(
      * @param cursorPos - Current cursor position
      * @returns Segment position or null if not found
      */
-    const findOriginalVariableSegment = (text: string, cursorPos: number): SegmentPosition | null => {
+    const findOriginalVariableSegment = (
+        text: string,
+        cursorPos: number,
+    ): SegmentPosition | null => {
         const segmentIndex = findSegmentIndexAtCursor(text, cursorPos);
 
         if (segmentIndex === null) {
@@ -240,6 +252,7 @@ export function useRouteSegmentSelection(
 
         if (braceSegment) {
             selectRange(input, braceSegment);
+
             return;
         }
 
