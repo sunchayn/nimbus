@@ -2,19 +2,64 @@
 
 set -euo pipefail
 
+print_help() {
+    cat <<EOF
+Usage: $(basename "$0") [OPTIONS]
+
+Options:
+  --workdir=PATH       Path to the work directory (default: .workdir)
+  --port1=PORT         Port for the main PHP server (default: 8000)
+  --port2=PORT         Port for the secondary PHP server (default: 8001)
+  --help               Display this help message and exit
+
+Examples:
+  $(basename "$0")
+  $(basename "$0") --workdir=custom_workdir
+  $(basename "$0") --workdir=custom_workdir --port1=9000 --port2=9001
+EOF
+    exit 0
+}
+
 # --------------------------------------
 # CONFIGURATION
 # --------------------------------------
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET_DIR="$SCRIPT_DIR/.workdir"
-
-# Server ports (default values can be overridden by positional arguments)
-PORT1="${1:-8000}"
-PORT2="${2:-8001}"
-
-# Maximum time allowed for server startup
+WORKDIR_PATH=".workdir"
+PORT1=8000
+PORT2=8001
 SERVER_TIMEOUT=15
+
+# --------------------------------------
+# PARSE OPTIONS
+# --------------------------------------
+
+for arg in "$@"; do
+    case $arg in
+        --workdir=*)
+            WORKDIR_PATH="${arg#*=}"
+            shift
+            ;;
+        --port1=*)
+            PORT1="${arg#*=}"
+            shift
+            ;;
+        --port2=*)
+            PORT2="${arg#*=}"
+            shift
+            ;;
+        --help)
+            print_help
+            ;;
+        *)
+            echo "Unknown option: $arg"
+            echo "Use --help to see usage."
+            exit 1
+            ;;
+    esac
+done
+
+TARGET_DIR="$SCRIPT_DIR/$WORKDIR_PATH"
 
 # --------------------------------------
 # HELPER FUNCTIONS

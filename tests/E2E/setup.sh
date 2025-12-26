@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Note: this is meant for the CI job.
+# If you want to run PW locally, you either make sure the current branch is up to date with remote.
+# Or, you skip running setup.sh and directly use the launch script after setting the local dev repository
+# e.g. `bash tests/E2E/launch.sh --workdir=../../../nimbus-dev`.
 
 set -euo pipefail
 
@@ -10,6 +14,7 @@ REPO_URL="https://github.com/sunchayn/nimbus-dev.git"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_DIR="$SCRIPT_DIR/.workdir"
+BRANCH_NAME="$(git branch --show-current)"
 
 # --------------------------------------
 # REPOSITORY SETUP
@@ -34,7 +39,10 @@ cd "$TARGET_DIR"
 
 # Install PHP dependencies.
 if command -v composer >/dev/null 2>&1; then
-    composer install --no-progress --ansi
+    # Set current nimbus's version
+    php "$SCRIPT_DIR/install-current-nimbus-branch.php" "$BRANCH_NAME"
+
+    composer update sunchayn/nimbus --no-progress --ansi
 else
     echo "Composer is not installed. Aborting."
     exit 1
