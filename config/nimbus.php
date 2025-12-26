@@ -85,7 +85,7 @@ return [
           |
           */
 
-        'apiBaseUrl' => null,
+        'api_base_url' => null,
     ],
 
     /*

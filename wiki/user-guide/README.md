@@ -347,7 +347,7 @@ return [
 | **`allowed_envs`** | Environments where Nimbus is enabled. Avoid production for security reasons. | `['local', 'staging']` | `['testing', 'local']` |
 | **`routes.prefix`** | The base path used to detect application routes. Only routes starting with this prefix are analyzed. | `'api'` | `'api/v1'` |
 | **`routes.versioned`** | Enables version parsing for routes like `/api/v1/...`. | `false` | `true` |
-| **`routes.apiBaseUrl`** | The base URL used when Nimbus relays API requests from the UI. Useful when the API runs on a different domain or port. If set to null, Nimbus will default to the same host and scheme as the incoming request.| null | `http://127.0.0.1:8001` |
+| **`routes.api_base_url`** | The base URL used when Nimbus relays API requests from the UI. Useful when the API runs on a different domain or port. If set to null, Nimbus will default to the same host and scheme as the incoming request.| null | `http://127.0.0.1:8001` |
 | **`auth.guard`** | The Laravel guard used for the API requests authentication. | `'api'` | `'web'` |
 | **`auth.special.injector`** | Injector class used to attach authentication credentials to outgoing requests. Must implement `SpecialAuthenticationInjectorContract`. | `RememberMeCookieInjector::class` | `TymonJwtTokenInjector::class` |
 | **`headers`** | Global headers applied to all outgoing requests. Supports static values or enum generators. | `[]` | `['x-request-id' => GlobalHeaderGeneratorTypeEnum::UUID]` |

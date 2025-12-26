@@ -36,7 +36,7 @@
         'headers' => isset($headers) ? json_encode($headers) : null,
         'routeExtractorException' => isset($routeExtractorException) ? json_encode($routeExtractorException) : null,
         'isVersioned' => config('nimbus.routes.versioned'),
-        'apiBaseUrl' => config('nimbus.routes.apiBaseUrl', request()->getSchemeAndHttpHost()),
+        'apiBaseUrl' => config('nimbus.routes.api_base_url', request()->getSchemeAndHttpHost()),
         'currentUser' => isset($currentUser) ? json_encode($currentUser) : null,
     ]);
 
