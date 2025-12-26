@@ -57,14 +57,15 @@ echo "Using branch name: $BRANCH_NAME"
 # REPOSITORY SETUP
 # --------------------------------------
 
-# Reset the working directory to a clean state.
+echo "Resetting working directory at $TARGET_DIR..."
 rm -rf "$TARGET_DIR"
-mkdir "$TARGET_DIR"
+mkdir -p "$TARGET_DIR"
 
-# Clone repository into a temporary location, then move it into place.
+echo "Cloning Nimbus repository into temporary directory..."
 TEMP_DIR="$(mktemp -d)"
 git clone "$REPO_URL" "$TEMP_DIR"
 
+echo "Syncing repository to target directory..."
 rsync -a --delete "$TEMP_DIR"/ "$TARGET_DIR"/
 rm -rf "$TEMP_DIR"
 
@@ -74,14 +75,24 @@ cd "$TARGET_DIR"
 # DEPENDENCY INSTALLATION
 # --------------------------------------
 
-# Install PHP dependencies.
+# Install PHP dependencies
 if command -v composer >/dev/null 2>&1; then
-    # Set current nimbus's version
+    echo "Setting current Nimbus branch in composer..."
     php "$SCRIPT_DIR/install-current-nimbus-branch.php" "$BRANCH_NAME"
 
+    echo "Installing/updating nimbus PHP package..."
     composer update sunchayn/nimbus --no-progress --ansi
 else
     echo "Composer is not installed. Aborting."
+    exit 1
+fi
+
+# Install Node dependencies
+if command -v npm >/dev/null 2>&1; then
+    echo "Installing Node.js dependencies..."
+    npm install
+else
+    echo "npm is not installed. Aborting."
     exit 1
 fi
 
@@ -90,24 +101,21 @@ fi
 # --------------------------------------
 
 ENV_FILE="$TARGET_DIR/.env"
-rm -f ENV_FILE
+echo "Setting up environment file..."
+rm -f "$ENV_FILE"
 cp "$SCRIPT_DIR/.env.template" "$ENV_FILE"
-
-# Install Node dependencies.
-if command -v npm >/dev/null 2>&1; then
-    npm install
-else
-    echo "npm is not installed. Aborting."
-    exit 1
-fi
 
 # --------------------------------------
 # APPLICATION BOOTSTRAP
 # --------------------------------------
 
-# Run migrations against a local SQLite database.
+echo "Bootstrapping application..."
+
+# Run migrations against a local SQLite database
 touch database/database.sqlite
 php artisan migrate --force
 
-# Publish Nimbus-related frontend assets.
+# Publish Nimbus-related frontend assets
 php artisan vendor:publish --tag=nimbus-assets
+
+echo "Setup complete. Ready for E2E tests or further local usage."
