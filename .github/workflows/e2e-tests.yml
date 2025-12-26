@@ -19,7 +19,7 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install JS dependencies
         run: npm ci
 
       - name: Setup PHP
