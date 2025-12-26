@@ -48,8 +48,16 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      - name: Determine branch for E2E setup
+        id: branch
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "branch_name=${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
+          else
+            echo "branch_name=base" >> $GITHUB_OUTPUT
+
       - name: Setup E2E test repo
-        run: bash tests/E2E/setup.sh
+        run: bash tests/E2E/setup.sh "${{ steps.branch.outputs.branch_name }}"
 
       - name: Run Playwright tests
         run: bash tests/E2E/launch.sh & (sleep 5 && npm run test:e2e)
