@@ -9,11 +9,11 @@ if ($branchName === null || $branchName === '') {
     exit(1);
 }
 
-$composerFilePath = __DIR__ . '/.workdir/composer.json';
+$composerFilePath = __DIR__.'/.workdir/composer.json';
 $packageName = 'sunchayn/nimbus';
 $localPackagePath = '../../';
 
-if (!file_exists($composerFilePath)) {
+if (! file_exists($composerFilePath)) {
     fwrite(STDERR, "Error: composer.json not found.\n");
     exit(1);
 }
@@ -29,7 +29,7 @@ $composerJson = json_decode(
  */
 $composerJson['repositories'] ??= [];
 
-if (!is_array($composerJson['repositories'])) {
+if (! is_array($composerJson['repositories'])) {
     fwrite(STDERR, "Error: repositories must be an array.\n");
     exit(1);
 }
@@ -53,7 +53,7 @@ foreach ($composerJson['repositories'] as $repository) {
 /**
  * Append the repository only if it does not already exist.
  */
-if (!$pathRepositoryAlreadyDefined) {
+if (! $pathRepositoryAlreadyDefined) {
     $composerJson['repositories'][] = [
         'type' => 'path',
         'url' => $localPackagePath,
@@ -68,7 +68,7 @@ if (!$pathRepositoryAlreadyDefined) {
  */
 $composerJson['require'] ??= [];
 
-if (!array_key_exists($packageName, $composerJson['require'])) {
+if (! array_key_exists($packageName, $composerJson['require'])) {
     fwrite(
         STDERR,
         "Error: Package '{$packageName}' is not present in require.\n"
@@ -89,7 +89,7 @@ file_put_contents(
     json_encode(
         $composerJson,
         JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
-    ) . PHP_EOL
+    ).PHP_EOL
 );
 
 echo "composer.json updated successfully.\n";
