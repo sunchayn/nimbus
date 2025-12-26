@@ -1,7 +1,8 @@
+import { ParametersExternalContract } from '@/interfaces';
 import { AuthorizationContract } from '@/interfaces/auth/authorization';
 import { AuthorizationType } from '@/interfaces/generated';
 import { PendingRequest, RequestBodyTypeEnum, RequestHeader } from '@/interfaces/http';
-import { buildRequestUrl } from './request-url-builder';
+import { buildRequestUrl } from '@/utils';
 
 /**
  * Result of cURL command generation.
@@ -21,16 +22,18 @@ export function generateCurlCommand(
     request: PendingRequest,
     baseUrl: string,
 ): CurlGenerationResult {
+    const { queryParameters, requestBody } =
+        getEffectiveQueryParametersAndBodyValue(request);
+
     const methodPart = buildHttpMethodPart(request.method);
-    // TODO [Bug] Properly create the url when the method is GET (body becomes query params).
-    const urlPart = buildRequestUrlPart(request, baseUrl);
+    const fullUrl = buildRequestUrl(baseUrl, request.endpoint, queryParameters);
     const headerParts = buildRequestHeaderParts(request);
     const authPart = buildAuthorizationHeaderPart(request.authorization);
-    const bodyParts = getRequestBodyParts(request);
+    const bodyParts = buildRequestBodyParts(requestBody);
 
     const command = ['curl']
         .concat(methodPart ? [methodPart] : [])
-        .concat([urlPart])
+        .concat([`"${fullUrl}"`])
         .concat(headerParts)
         .concat(authPart ? [authPart] : [])
         .concat(bodyParts)
@@ -39,6 +42,36 @@ export function generateCurlCommand(
     return {
         command: command,
         hasSpecialAuth: requiresSpecialAuthorization(request.authorization),
+    };
+}
+
+function getEffectiveQueryParametersAndBodyValue(request: PendingRequest): {
+    queryParameters: ParametersExternalContract[];
+    requestBody: FormData | string | null;
+} {
+    const requestBody = getRequestEffectiveBody(request);
+
+    const isGetRequest = request.method.toLowerCase() === 'get';
+
+    // In GET requests, we want to move the body content to query parameters and discard the body.
+    if (isGetRequest) {
+        const requestBodyKeyValuePairs = transformRequestBodyToKeyValuePairs(
+            requestBody,
+            request.payloadType,
+        );
+
+        return {
+            queryParameters: [
+                ...request.queryParameters,
+                ...convertKeyValuePairsToQueryParameters(requestBodyKeyValuePairs),
+            ],
+            requestBody: null,
+        };
+    }
+
+    return {
+        queryParameters: request.queryParameters,
+        requestBody: requestBody,
     };
 }
 
@@ -54,15 +87,6 @@ function buildHttpMethodPart(method: string): string | null {
     }
 
     return `-X ${upperMethod}`;
-}
-
-/**
- * Builds request URL part.
- */
-function buildRequestUrlPart(request: PendingRequest, baseUrl: string): string {
-    const fullUrl = buildRequestUrl(baseUrl, request.endpoint, request.queryParameters);
-
-    return `"${fullUrl}"`;
 }
 
 /**
@@ -102,17 +126,14 @@ function buildAuthorizationHeaderPart(
     return `-H "${authHeader}"`;
 }
 
-/**
- * Builds request body parts.
- */
-function getRequestBodyParts(request: PendingRequest): string[] {
-    const bodyData = extractRequestBody(request);
-
-    if (bodyData === null) {
-        return [];
-    }
-
-    return bodyData;
+function convertKeyValuePairsToQueryParameters(
+    keyValuePairs: Record<string, string>,
+): ParametersExternalContract[] {
+    return Object.entries(keyValuePairs).map(([key, value]) => ({
+        type: 'text',
+        key,
+        value,
+    }));
 }
 
 /**
@@ -167,7 +188,7 @@ function buildBasicAuthHeader(authValue: {
     return `Authorization: Basic ${credentials}`;
 }
 
-function extractRequestBody(request: PendingRequest): string[] | null {
+function getRequestEffectiveBody(request: PendingRequest): FormData | string | null {
     const bodyData = request.body;
 
     const methodBodies = bodyData[request.method];
@@ -182,43 +203,62 @@ function extractRequestBody(request: PendingRequest): string[] | null {
         return null;
     }
 
-    return formatBodyValue(body, request.payloadType);
+    return body;
+}
+
+/**
+ * Builds request body parts.
+ */
+function buildRequestBodyParts(requestBody: FormData | string | null): string[] {
+    if (requestBody === null) {
+        return [];
+    }
+
+    return convertBodyValueToRequestParts(requestBody);
+}
+
+function transformRequestBodyToKeyValuePairs(
+    bodyValue: string | FormData | null,
+    payloadType: RequestBodyTypeEnum,
+): Record<string, string> {
+    if (bodyValue === null) {
+        return {};
+    }
+
+    if (typeof bodyValue === 'string' && payloadType === RequestBodyTypeEnum.JSON) {
+        return JSON.parse(bodyValue);
+    }
+
+    if (bodyValue instanceof FormData) {
+        return Object.fromEntries(
+            Array.from(bodyValue.entries()).map(([key, value]) => [
+                key,
+                value instanceof File ? `@${value}` : value,
+            ]),
+        );
+    }
+
+    return bodyValue.split('\n').reduce<Record<string, string>>(function (
+        carry,
+        bodyLine,
+    ) {
+        const { 0: key, 1: value } = bodyLine.split('=');
+
+        carry[key] = value;
+
+        return carry as Record<string, string>;
+    }, {}) as Record<string, string>;
 }
 
 /**
  * Formats body value based on payload type.
  */
-function formatBodyValue(
-    bodyValue: string | FormData | null,
-    payloadType: RequestBodyTypeEnum,
-): string[] | null {
-    switch (payloadType) {
-        case RequestBodyTypeEnum.JSON:
-            return typeof bodyValue === 'string' ? [bodyValue] : null;
-
-        case RequestBodyTypeEnum.FORM_DATA:
-            return formatFormDataValue(bodyValue);
-
-        case RequestBodyTypeEnum.PLAIN_TEXT:
-            return typeof bodyValue === 'string' ? [bodyValue] : null;
-
-        case RequestBodyTypeEnum.EMPTY:
-            return null;
-
-        default:
-            return null;
-    }
-}
-
-/**
- * Formats form data value for cURL command.
- */
-function formatFormDataValue(bodyValue: string | FormData | null): string[] | null {
-    if (bodyValue instanceof FormData) {
-        return convertFormDataToCUrlFields(bodyValue);
+function convertBodyValueToRequestParts(bodyValue: string | FormData): string[] {
+    if (typeof bodyValue === 'string') {
+        return [`-d ${bodyValue}`];
     }
 
-    return null;
+    return convertFormDataToCUrlFields(bodyValue);
 }
 
 /**
@@ -227,10 +267,10 @@ function formatFormDataValue(bodyValue: string | FormData | null): string[] | nu
 function convertFormDataToCUrlFields(formData: FormData): string[] {
     return Array.from(formData.entries()).map(([key, value]) => {
         if (value instanceof File) {
-            return `${key}=@${value.name}`;
+            return `-F ${key}=@${value.name}`;
         }
 
-        return `${key}=${value}`;
+        return `-F ${key}=${value}`;
     });
 }
 

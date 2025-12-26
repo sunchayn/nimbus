@@ -44,7 +44,7 @@ const requestBase: PendingRequest = {
 };
 
 describe('generateCurlCommand', () => {
-    it('builds curl command with method, headers, and body', () => {
+    it('builds curl command with method, headers, and body [POST]', () => {
         const { command, hasSpecialAuth } = generateCurlCommand(
             requestBase,
             'https://api.example.com',
@@ -56,6 +56,76 @@ describe('generateCurlCommand', () => {
         expect(command).toContain('-H "Authorization: Bearer token"');
         expect(command).toContain('-H "Accept: application/json"');
         expect(command).toContain('{"name":"Jane"}');
+        expect(hasSpecialAuth).toBe(false);
+    });
+
+    it('builds curl command with method, headers, and body [GET]', () => {
+        const getRequestBase = Object.assign({}, requestBase);
+
+        getRequestBase.method = 'GET';
+
+        getRequestBase.body.GET = getRequestBase.body.POST;
+
+        const { command, hasSpecialAuth } = generateCurlCommand(
+            getRequestBase,
+            'https://api.example.com',
+        );
+
+        expect(command).toContain('curl');
+        expect(command).toContain('"https://api.example.com/users?page=1&name=Jane"');
+        expect(command).toContain('-H "Authorization: Bearer token"');
+        expect(command).toContain('-H "Accept: application/json"');
+        expect(hasSpecialAuth).toBe(false);
+    });
+
+    it('builds curl command with method, headers, and nested body [POST]', () => {
+        const getRequestBase = Object.assign({}, requestBase);
+
+        getRequestBase.body.POST = {
+            [RequestBodyTypeEnum.JSON]: JSON.stringify({
+                user: { firstName: 'Jane', lastName: 'Doe' },
+                username: 'foobar',
+            }),
+        };
+
+        const { command, hasSpecialAuth } = generateCurlCommand(
+            getRequestBase,
+            'https://api.example.com',
+        );
+
+        expect(command).toContain('curl');
+        expect(command).toContain('"https://api.example.com/users?page=1');
+        expect(command).toContain('-H "Authorization: Bearer token"');
+        expect(command).toContain('-H "Accept: application/json"');
+        expect(command).toContain(
+            '{"user":{"firstName":"Jane","lastName":"Doe"},"username":"foobar"}',
+        );
+        expect(hasSpecialAuth).toBe(false);
+    });
+
+    it('builds curl command with method, headers, and nested body [GET]', () => {
+        const getRequestBase = Object.assign({}, requestBase);
+
+        getRequestBase.method = 'GET';
+
+        getRequestBase.body.GET = {
+            [RequestBodyTypeEnum.JSON]: JSON.stringify({
+                user: { firstName: 'Jane', lastName: 'Doe' },
+                username: 'foobar',
+            }),
+        };
+
+        const { command, hasSpecialAuth } = generateCurlCommand(
+            getRequestBase,
+            'https://api.example.com',
+        );
+
+        expect(command).toContain('curl');
+        expect(command).toContain(
+            '"https://api.example.com/users?page=1&user%5BfirstName%5D=Jane&user%5BlastName%5D=Doe&username=foobar"',
+        );
+        expect(command).toContain('-H "Authorization: Bearer token"');
+        expect(command).toContain('-H "Accept: application/json"');
         expect(hasSpecialAuth).toBe(false);
     });
 

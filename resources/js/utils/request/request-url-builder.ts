@@ -25,8 +25,34 @@ export function buildRequestUrl(
             return;
         }
 
-        url.searchParams.append(parameter.key, parameter.value);
+        appendQueryParam(url.searchParams, parameter.key, parameter.value);
     });
 
     return url.toString();
+}
+
+/**
+ * Recursively flattens an object into query parameters using bracket notation.
+ */
+function appendQueryParam(
+    searchParams: URLSearchParams,
+    key: string,
+    value: unknown,
+): void {
+    if (value === null || value === undefined) {
+        return;
+    }
+
+    if (Array.isArray(value)) {
+        // Append each array element with [] notation
+        value.forEach(item => appendQueryParam(searchParams, `${key}[]`, item));
+    } else if (typeof value === 'object') {
+        // Recursively handle nested objects
+        Object.entries(value).forEach(([subKey, subValue]) => {
+            appendQueryParam(searchParams, `${key}[${subKey}]`, subValue);
+        });
+    } else {
+        // Primitive value: append directly
+        searchParams.append(key, String(value));
+    }
 }
