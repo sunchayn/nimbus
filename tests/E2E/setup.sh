@@ -14,7 +14,44 @@ REPO_URL="https://github.com/sunchayn/nimbus-dev.git"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_DIR="$SCRIPT_DIR/.workdir"
-BRANCH_NAME="$(git branch --show-current)"
+
+# --------------------------------------
+# HELPER FUNCTIONS
+# --------------------------------------
+
+print_help() {
+    cat <<EOF
+Usage: $(basename "$0") BRANCH_NAME
+
+Arguments:
+  BRANCH_NAME        Name of the Nimbus branch to set up and install. Required.
+
+Notes:
+  - Intended for CI usage. For local Playwright runs, you can skip setup.sh and run launch.sh
+    with a local dev repository:
+      bash tests/E2E/launch.sh --workdir=../../../nimbus-dev
+EOF
+    exit 0
+}
+
+# Check for help flag
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+    print_help
+fi
+
+# --------------------------------------
+# ARGUMENT PARSING
+# --------------------------------------
+
+BRANCH_NAME="${1:-}"
+
+if [[ -z "$BRANCH_NAME" ]]; then
+    echo "Error: BRANCH_NAME argument is required."
+    echo "Usage: $0 BRANCH_NAME"
+    exit 1
+fi
+
+echo "Using branch name: $BRANCH_NAME"
 
 # --------------------------------------
 # REPOSITORY SETUP
