@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Note: this is meant for the CI job.
-# If you want to run PW locally, you either make sure the current branch is up to date with remote.
-# Or, you skip running setup.sh and directly use the launch script after setting the local dev repository
-# e.g. `bash tests/E2E/launch.sh --workdir=../../../nimbus-dev`.
+# Note: this script is intended for the CI job.
+# Local usage:
+#   - Ensure the current branch is up to date with remote, OR
+#   - Skip running setup.sh and directly use the launch script with a local dev repository
+#     e.g. `bash tests/E2E/launch.sh --workdir=../../../nimbus-dev`
 
 set -euo pipefail
 
