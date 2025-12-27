@@ -50,11 +50,15 @@ jobs:
 
       - name: Determine branch for E2E setup
         id: branch
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_HEAD: ${{ github.event.pull_request.head.ref }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "branch_name=${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            echo "branch_name=$PR_HEAD" >> $GITHUB_OUTPUT
           else
             echo "branch_name=base" >> $GITHUB_OUTPUT
+          fi
 
       - name: Setup E2E test repo
         run: bash tests/E2E/setup.sh "${{ steps.branch.outputs.branch_name }}"
