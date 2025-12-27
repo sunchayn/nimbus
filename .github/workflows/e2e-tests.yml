@@ -34,14 +34,6 @@ jobs:
       - name: Install JS dependencies
         run: npm ci
 
-      - name: Cache PHP installation
-        uses: actions/cache@v3
-        with:
-          path: ~/.php
-          key: php-8.2-${{ runner.os }}
-          restore-keys: |
-            php-8.2-${{ runner.os }}-
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
