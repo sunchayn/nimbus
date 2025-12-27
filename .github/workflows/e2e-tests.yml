@@ -41,7 +41,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-browsers-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          key: playwright-browsers-${{ runner.os }}-v1
           restore-keys: |
             playwright-browsers-${{ runner.os }}-
 
