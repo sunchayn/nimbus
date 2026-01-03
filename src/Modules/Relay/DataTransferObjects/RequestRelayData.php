@@ -2,6 +2,7 @@
 
 namespace Sunchayn\Nimbus\Modules\Relay\DataTransferObjects;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayRequest;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\AuthorizationCredentials;
@@ -13,6 +14,7 @@ readonly class RequestRelayData
     /**
      * @param  array<string, string>  $headers
      * @param  array<string, mixed>  $body
+     * @param  array<string, string|null>  $queryParameters
      */
     public function __construct(
         public string $method,
@@ -21,6 +23,7 @@ readonly class RequestRelayData
         public array $headers,
         public array $body,
         public ParameterBag $cookies,
+        public array $queryParameters = [],
     ) {}
 
     public static function fromRelayApiRequest(NimbusRelayRequest $nimbusRelayRequest): self
@@ -50,9 +53,14 @@ readonly class RequestRelayData
             fn () => $headers->put('User-Agent', (string) $nimbusRelayRequest->userAgent()),
         );
 
+        [
+            'endpoint' => $endpoint,
+            'queryParameters' => $queryParameters,
+        ] = self::extractAndRemoveQueryParametersFromEndpoint($data['endpoint']);
+
         return new self(
             method: strtolower($data['method']),
-            endpoint: $data['endpoint'],
+            endpoint: $endpoint,
             authorization: array_key_exists('authorization', $data)
                 ? new AuthorizationCredentials(
                     type: AuthorizationTypeEnum::from($data['authorization']['type']),
@@ -62,6 +70,47 @@ readonly class RequestRelayData
             headers: $headers->mapWithKeys(fn (mixed $value, string $key): array => [strtolower($key) => $value])->all(),
             body: $nimbusRelayRequest->getBody(),
             cookies: $nimbusRelayRequest->cookies,
+            queryParameters: $queryParameters,
         );
+    }
+
+    /**
+     * @return array{endpoint: string, queryParameters: array<string, string|null>}
+     */
+    private static function extractAndRemoveQueryParametersFromEndpoint(string $endpoint): array
+    {
+        $urlParts = parse_url($endpoint);
+
+        if (! $urlParts) {
+            return [
+                'endpoint' => $endpoint,
+                'queryParameters' => [],
+            ];
+        }
+
+        $cleanEndpoint = (array_key_exists('scheme', $urlParts) ? $urlParts['scheme'].'://' : '')
+            .(array_key_exists('host', $urlParts) ? $urlParts['host'] : '')
+            .(array_key_exists('port', $urlParts) ? ':'.$urlParts['port'] : '')
+            .(array_key_exists('path', $urlParts) ? $urlParts['path'] : '');
+
+        $queryParameters = array_key_exists('query', $urlParts)
+            ? Arr::mapWithKeys(
+                explode('&', $urlParts['query']),
+                static function (string $query): array {
+                    $parts = explode('=', $query);
+
+                    if (count($parts) !== 2) {
+                        return [];
+                    }
+
+                    return [$parts[0] => $parts[1]];
+                },
+            )
+            : [];
+
+        return [
+            'endpoint' => $cleanEndpoint,
+            'queryParameters' => $queryParameters,
+        ];
     }
 }

@@ -66,22 +66,25 @@ class RequestRelayAction
     {
         $contentType = $requestRelayData->headers['content-type'] ?? self::DEFAULT_CONTENT_TYPE;
 
-        $headers = Arr::except(
-            $requestRelayData->headers,
-            [
-                // The Laravel HTTP client automatically sets a Content-Type header when sending requests.
-                // To prevent duplicate Content-Type headers, we explicitly remove any user-supplied value.
-                'content-type',
-            ],
-        );
+        $queryParameters = $requestRelayData->queryParameters;
+        $requestBody = $requestRelayData->body;
+
+        if (in_array($requestRelayData->method, ['get', 'head'])) {
+            $queryParameters = array_merge(
+                $queryParameters,
+                $requestBody,
+            );
+
+            $requestBody = [];
+        }
 
         // SSL verification is disabled to support development environments with self-signed certificates.
         return Http::withoutVerifying()
-            ->withHeaders($headers)
+            ->withHeaders($requestRelayData->headers)
+            ->withQueryParameters($queryParameters)
             ->when(
-                in_array($requestRelayData->method, ['get', 'head']),
-                callback: fn (PendingRequest $pendingRequest) => $pendingRequest->withQueryParameters($requestRelayData->body),
-                default: fn (PendingRequest $pendingRequest) => $pendingRequest->withBody(
+                $requestBody !== [],
+                fn (PendingRequest $pendingRequest) => $pendingRequest->withBody(
                     json_encode($requestRelayData->body) ?: throw new RuntimeException('Cannot parse body.'),
                     contentType: $contentType,
                 ),

@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 #[CoversClass(RelayedRequestResponseData::class)]
 class RequestRelayActionFunctionalTest extends TestCase
 {
-    private const ENDPOINT = 'https:://localhost/api/test-endpoint';
+    private const ENDPOINT = 'https://localhost/api/test-endpoint';
 
     #[TestWith([200, 'OK'])]
     #[TestWith([404, 'Not Found'])]
@@ -50,7 +50,7 @@ class RequestRelayActionFunctionalTest extends TestCase
             endpoint: self::ENDPOINT,
             authorization: $authorizationCredentials = $this->getRandomAuthorizationCredentials(),
             headers: [
-                'Content-Type' => 'application/json',
+                'Content-Type' => fake()->mimeType(),
                 'X-Custom-Header' => $customHeaderValue = uniqid(),
             ],
             body: ['test' => 'data'],
@@ -161,6 +161,149 @@ class RequestRelayActionFunctionalTest extends TestCase
         );
     }
 
+    #[TestWith(['get'])]
+    #[TestWith(['head'])]
+    public function test_it_merges_body_into_query_parameters_for_get_and_head_requests(string $method): void
+    {
+        // Arrange
+
+        $bodyData = ['filter' => 'active', 'sort' => 'desc'];
+
+        $queryParameters = ['page' => '1', 'limit' => '10'];
+
+        $requestData = new RequestRelayData(
+            method: $method,
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: ['X-Custom-Header' => 'test'],
+            body: $bodyData,
+            cookies: new ParameterBag,
+            queryParameters: $queryParameters,
+        );
+
+        // Anticipate
+
+        Http::fake(function (Request $request) use ($bodyData, $queryParameters) {
+            // Assert that body data is merged into query parameters
+            $expectedQueryParams = array_merge($queryParameters, $bodyData);
+
+            foreach ($expectedQueryParams as $key => $value) {
+                if (! str_contains($request->url(), "{$key}={$value}")) {
+                    return Http::response(['error' => 'Missing query parameter'], 400);
+                }
+            }
+
+            // Assert that the request body is empty
+            if (! empty($request->body())) {
+                return Http::response(['error' => 'Body should be empty'], 400);
+            }
+
+            return Http::response([
+                'success' => true,
+            ]);
+        });
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertEquals(200, $response->statusCode);
+
+        $this->assertEquals(
+            [
+                'success' => true,
+            ],
+            $response->body->body,
+        );
+    }
+
+    public function test_it_sends_json_body_by_default(): void
+    {
+        // Arrange
+
+        $bodyData = ['user' => 'john', 'action' => 'login'];
+
+        $requestData = new RequestRelayData(
+            method: 'post',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [], // <- Content-Type is missing => Json by default.
+            body: $bodyData,
+            cookies: new ParameterBag,
+        );
+
+        // Anticipate
+
+        Http::fake(function (Request $request) use ($bodyData) {
+            $requestBody = json_decode($request->body(), true);
+
+            return Http::response([
+                'receivedBody' => $requestBody,
+                'bodyMatches' => $requestBody === $bodyData,
+            ], 200);
+        });
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertTrue($response->body->body['bodyMatches'], 'POST body should be sent as JSON');
+
+        $this->assertEquals($bodyData, $response->body->body['receivedBody']);
+    }
+
+    public function test_it_url_decodes_cookie_values(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'get',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: [],
+            cookies: new ParameterBag,
+        );
+
+        $encodedValue = urlencode('test value with spaces');
+
+        $stubHeaders = [
+            'Set-Cookie' => [
+                "testCookie={$encodedValue}; Path=/; HttpOnly",
+            ],
+        ];
+
+        // Anticipate
+
+        Http::fake(fn () => Http::response(['success' => true], 200, $stubHeaders));
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertCount(1, $response->cookies);
+
+        $this->assertEquals('test value with spaces', $response->cookies[0]->toArray()['value']['raw']);
+    }
+
     /*
      * Helpers.
      */
@@ -183,6 +326,22 @@ class RequestRelayActionFunctionalTest extends TestCase
                 value: CookieValuePrefix::create($cookieName, app('encrypter')->getKey()).$rawValue,
                 serialize: false,
             );
+    }
+
+    private function mockAuthorizationHandler(): void
+    {
+        $dummyAuthorizationHandler = $this->mock(
+            AuthorizationHandler::class,
+            fn (MockInterface $mock) => $mock->shouldReceive('authorize')
+                ->andReturnArg(0),
+        );
+
+        $this->mock(
+            AuthorizationHandlerFactory::class,
+            fn (MockInterface $mock) => $mock
+                ->shouldReceive('create')
+                ->andReturn($dummyAuthorizationHandler),
+        );
     }
 
     /*
