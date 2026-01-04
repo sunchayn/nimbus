@@ -10,7 +10,7 @@ use Illuminate\Contracts\Support\Arrayable;
 readonly class ParsedClosureResultDto implements Arrayable
 {
     public function __construct(
-        public ?string $signature,
+        public string $signature,
         public ?string $className,
         public ?string $thisReference,
     ) {}

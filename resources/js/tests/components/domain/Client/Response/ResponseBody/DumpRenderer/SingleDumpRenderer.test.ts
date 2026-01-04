@@ -124,7 +124,7 @@ const createConstDump = (value: boolean | null): ConstDump => ({
 });
 
 const createClosureDump = (
-    signature: string | null = null,
+    signature: string = 'Closure()',
     className: string | null = null,
     thisValue: string | null = null,
 ): ClosureDump => ({
@@ -211,7 +211,11 @@ describe('SingleDumpRenderer', () => {
         });
 
         it('renders ClosureDumpRenderer for closure type', async () => {
-            const dump = createClosureDump('Application $app', 'MyClass', 'thisValue');
+            const dump = createClosureDump(
+                'Closure(Application $app)',
+                'MyClass',
+                'thisValue',
+            );
 
             renderWithProviders(SingleDumpRenderer, {
                 props: { dump },

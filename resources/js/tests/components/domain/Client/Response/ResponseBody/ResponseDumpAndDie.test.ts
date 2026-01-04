@@ -1,5 +1,5 @@
 import type { DumpValue } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
-import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDieAndDump.vue';
+import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDumpAndDie.vue';
 import { DumpValueType } from '@/interfaces/generated/dump-value-types';
 import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
 import { fireEvent } from '@testing-library/vue';
@@ -82,7 +82,7 @@ const createStringDump = (value: string): DumpValue => ({
     value,
 });
 
-describe('ResponseDieAndDump', () => {
+describe('ResponseDumpAndDie', () => {
     beforeEach(() => {
         vi.useFakeTimers();
     });

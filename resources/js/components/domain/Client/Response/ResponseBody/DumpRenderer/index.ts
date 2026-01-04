@@ -21,7 +21,7 @@ export interface ObjectDump {
 export interface ClosureDump {
     type: DumpValueType.Closure;
     value: {
-        signature: string | null;
+        signature: string;
         class: string | null;
         this: string | null;
     };

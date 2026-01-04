@@ -101,14 +101,19 @@ class VarDumpParser
             return DumpValueTypeEnum::Array;
         }
 
-        // Closure (must check before object to avoid confusion)
+        // Closure (must check before object to avoid confusion with named objects)
         if (preg_match('/^<span class="?sf-dump-note[^>]*>Closure\([^)]*\)<\/span>/s', $html)) {
             return DumpValueTypeEnum::Closure;
         }
 
-        // Named object: ClassName {
-        if (preg_match('/^<span class="?sf-dump-note[^>]*>[^<]*<\/span>\s*\{/s', $html)) {
-            return DumpValueTypeEnum::Object;
+        // Named Objects (e.g. : ClassName {), or Closures.
+        if (preg_match('/^<span class="?sf-dump-note[^>]*>[^<]*<\/span>\s*\{/s', $html, $matches)) {
+            // If there are parenthesis in the matched portion (the beginning of the html) then it is a Closure.
+            // e.g. <span class="sf-dump-note sf-dump-ellipsization" title="Illuminate\Foundation\Application::environment(...$environments)"></span> {
+            // e.g. <span class=sf-dump-note>Illuminate\Foundation\Application::environment(...$environments)</span> {
+            return preg_match('/^.+\([^)]*\)/s', $matches[0])
+                ? DumpValueTypeEnum::Closure
+                : DumpValueTypeEnum::Object;
         }
 
         // Runtime object: {<a...>
@@ -169,6 +174,8 @@ class VarDumpParser
 
         // Extract content between { and }
         if (! preg_match('/\{<a class=sf-dump-ref[^>]*>[^<]+<\/a><samp[^>]+>(.+)<\/samp>}\n?$/s', $html, $match)) {
+            // Sometimes items are not listed when a certain depth is reached.
+            // e.g. Symfony\Component\Routing\CompiledRoute {#369 …8}
             return new ParsedObjectResultDto(className: $className, properties: []);
         }
 
@@ -208,7 +215,11 @@ class VarDumpParser
         }
 
         // Extract content within <samp> tags
-        preg_match('/^<span\b[^>]*class=sf-dump-note[^>]*>\s*array:\d+\s*<\/span>\s*\[\s*<samp\b[^>]*>(.*?)<\/samp>]$/s', $html, $match);
+        if (! preg_match('/^<span\b[^>]*class=sf-dump-note[^>]*>\s*array:\d+\s*<\/span>\s*\[\s*<samp\b[^>]*>(.*?)<\/samp>]$/s', $html, $match)) {
+            // Sometimes items are not listed when a certain depth is reached.
+            // e.g. +methods: array:2 [ …2]
+            return new ParsedArrayResultDto(items: [], numericallyIndexed: true);
+        }
 
         $content = trim($match[1], "\n");
 
@@ -290,22 +301,26 @@ class VarDumpParser
      */
     private function parseClosure(string $html): ParsedClosureResultDto
     {
-        $signature = null;
+        $signature = 'CLosure()';
         $className = null;
         $thisReference = null;
 
-        // Extract signature from Closure(...)
-        if (preg_match('/^<span class="?sf-dump-note[^>]*>Closure\(([^)]+)\)/s', $html, $match)) {
+        // Extract signature from between span tags.
+        if (preg_match('/^<span[^>]*>([^<]+)/', $html, $match)) {
+            $signature = trim($match[1]);
+        }
+        // Extract signature from the title
+        elseif (preg_match('/^<span[^>]*title="([^"\n]+)/', $html, $match)) {
             $signature = trim($match[1]);
         }
 
         // Extract class context
-        if (preg_match('/<span [^>]*class=sf-dump-meta\s*>class<\/span>:\s*"?<span [^>]*title="([^"\n]+)/s', $html, $match)) {
+        if (preg_match('/<span [^>]*class=sf-dump-meta\s*>class<\/span>:\s*"?<span [^>]*title="([^"\n]+)/', $html, $match)) {
             $className = trim($match[1]);
         }
 
         // Extract this reference
-        if (preg_match('/<span [^>]*class=sf-dump-meta\s*>this<\/span>:\s*"?<span [^>]*title="([^"\n]+)/s', $html, $match)) {
+        if (preg_match('/<span [^>]*class=sf-dump-meta\s*>this<\/span>:\s*"?<span [^>]*title="([^"\n]+)/', $html, $match)) {
             $thisReference = trim($match[1]);
         }
 

@@ -99,7 +99,7 @@ test("Dump and Die visualization sanity checklist", async ({ page }) => {
     await page.waitForTimeout(300); // <- Wait for next tick.
     await page.getByTestId("endpoint-input").click();
     await page.getByRole("button", { name: "Send ( )" }).click();
-    await expect(page.getByLabel("Response")).toMatchAriaSnapshot(`
+    await expect(page.getByTestId("dump-value-content")).toMatchAriaSnapshot(`
     - 'button /Illuminate\\\\Foundation\\\\Application: \\d+ properties/ [expanded]':
       - img
     - 'button /#resolved: array: \\d+ items/':
@@ -148,7 +148,7 @@ test("Dump and Die visualization sanity checklist", async ({ page }) => {
       - img
     - 'button "#afterResolvingAttributeCallbacks: []" [disabled]':
       - img
-    - 'button "#environmentResolver: {}" [disabled]':
+    - 'button "#environmentResolver: Illuminate\\\\Foundation\\\\Application::environment(...$environments)"':
       - img
     - text: "/#basePath: \\"\\\\/Volumes\\\\/Dev\\\\/nimbus-dev\\" \\\\(\\\\d+\\\\)/"
     - 'button "#registeredCallbacks: []" [disabled]':

@@ -48,11 +48,7 @@ const isNestable: ComputedRef<boolean> = computed(
 
 const nestableNodeSummary: ComputedRef<string> = computed(() => {
     if (props.dump.type === DumpValueType.Closure) {
-        if ((props.dump as ClosureDump).value.signature === null) {
-            return 'Closure()';
-        }
-
-        return 'Closure(' + (props.dump as ClosureDump).value.signature + ')';
+        return (props.dump as ClosureDump).value.signature;
     }
 
     if (props.dump.type === DumpValueType.Object) {
