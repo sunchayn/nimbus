@@ -70,6 +70,16 @@ echo "Syncing repository to target directory..."
 rsync -a --delete "$TEMP_DIR"/ "$TARGET_DIR"/
 rm -rf "$TEMP_DIR"
 
+# Build Nimbus dev assets
+if command -v npm >/dev/null 2>&1; then
+    echo "Installing Node.js dependencies for Nimbus..."
+    npm install
+    npm run build:dev
+else
+    echo "npm is not installed. Aborting."
+    exit 1
+fi
+
 cd "$TARGET_DIR"
 
 # --------------------------------------
