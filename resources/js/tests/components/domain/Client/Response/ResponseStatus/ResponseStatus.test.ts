@@ -43,7 +43,9 @@ describe('ResponseStatus', () => {
 
         expect(screen.queryByTestId('response-badge')).toBeNull();
 
-        expect(screen.getByTestId('pending-request-spinner')).toBeInTheDocument();
+        expect(
+            screen.getByTestId("response-status-indicator"),
+        ).toBeInTheDocument();
 
         expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
     });
