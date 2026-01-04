@@ -53,6 +53,7 @@ class VarDumpParser
 
     /**
      * Extract individual dump sections from HTML
+     *
      * @return array<array-key, string>
      */
     private function extractDumpSections(string $html): array
