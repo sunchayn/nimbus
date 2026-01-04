@@ -6,13 +6,13 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Str;
 use Sunchayn\Nimbus\Modules\Relay\Parsers\VarDumpParser\VarDumpParser;
 
-class DieAndDumpResponse extends Response
+class DumpAndDieResponse extends Response
 {
-    public const DIE_AND_DUMP_STATUS_CODE = 999;
+    public const DUMP_AND_DIE_STATUS_CODE = 999;
 
     public function getStatusCode(): int
     {
-        return self::DIE_AND_DUMP_STATUS_CODE;
+        return self::DUMP_AND_DIE_STATUS_CODE;
     }
 
     /**

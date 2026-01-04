@@ -23,7 +23,7 @@ use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
 use Sunchayn\Nimbus\Modules\Relay\Parsers\VarDumpParser\DataTransferObjects\ParseResultDto;
 use Sunchayn\Nimbus\Modules\Relay\Parsers\VarDumpParser\VarDumpParser;
-use Sunchayn\Nimbus\Modules\Relay\Responses\DieAndDumpResponse;
+use Sunchayn\Nimbus\Modules\Relay\Responses\DumpAndDieResponse;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
 use Sunchayn\Nimbus\Tests\TestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -31,7 +31,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 #[CoversClass(RequestRelayAction::class)]
 #[CoversClass(RequestRelayData::class)]
 #[CoversClass(RelayedRequestResponseData::class)]
-#[CoversClass(DieAndDumpResponse::class)]
+#[CoversClass(DumpAndDieResponse::class)]
 class RequestRelayActionFunctionalTest extends TestCase
 {
     private const ENDPOINT = 'https://localhost/api/test-endpoint';
@@ -310,7 +310,7 @@ class RequestRelayActionFunctionalTest extends TestCase
         $this->assertEquals('test value with spaces', $response->cookies[0]->toArray()['value']['raw']);
     }
 
-    public function test_it_parses_die_and_dump_responses(): void
+    public function test_it_parses_dump_and_die_responses(): void
     {
         // Arrange
 
@@ -366,7 +366,7 @@ class RequestRelayActionFunctionalTest extends TestCase
 
         // Assert
 
-        $this->assertEquals(DieAndDumpResponse::DIE_AND_DUMP_STATUS_CODE, $response->statusCode);
+        $this->assertEquals(DumpAndDieResponse::DUMP_AND_DIE_STATUS_CODE, $response->statusCode);
 
         $this->assertEquals(
             [

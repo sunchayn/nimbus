@@ -14,7 +14,7 @@ use RuntimeException;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\Handlers\AuthorizationHandlerFactory;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
-use Sunchayn\Nimbus\Modules\Relay\Responses\DieAndDumpResponse;
+use Sunchayn\Nimbus\Modules\Relay\Responses\DumpAndDieResponse;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
@@ -27,7 +27,7 @@ class RequestRelayAction
 
     public const NON_STANDARD_STATUS_CODES = [
         419 => 'Method Not Allowed',
-        DieAndDumpResponse::DIE_AND_DUMP_STATUS_CODE => 'dd()',
+        DumpAndDieResponse::DUMP_AND_DIE_STATUS_CODE => 'dd()',
     ];
 
     public function __construct(
@@ -162,6 +162,6 @@ class RequestRelayAction
             return $response;
         }
 
-        return new DieAndDumpResponse($response->toPsrResponse());
+        return new DumpAndDieResponse($response->toPsrResponse());
     }
 }

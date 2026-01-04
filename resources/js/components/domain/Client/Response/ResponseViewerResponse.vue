@@ -11,7 +11,7 @@ import ResponseHeaders from '@/components/domain/Client/Response/ResponseHeaders
 import { STATUS } from '@/interfaces/http';
 import { useRequestsHistoryStore, useRequestStore } from '@/stores';
 import { computed } from 'vue';
-import ResponseDieAndDump from './ResponseBody/ResponseDieAndDump.vue';
+import ResponseDumpAndDie from './ResponseBody/ResponseDumpAndDie.vue';
 
 const historyStore = useRequestsHistoryStore();
 const requestStore = useRequestStore();
@@ -43,7 +43,7 @@ const pendingRequestData = computed(() => requestStore.pendingRequestData);
                     :content="lastLog?.response?.body ?? ''"
                 />
 
-                <ResponseDieAndDump
+                <ResponseDumpAndDie
                     v-else
                     :raw-content="lastLog?.response?.body ?? '[]'"
                 />

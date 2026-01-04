@@ -1,5 +1,5 @@
 import type { DumpValue } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
-import ResponseDieAndDump from '@/components/domain/Client/Response/ResponseBody/ResponseDieAndDump.vue';
+import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDieAndDump.vue';
 import { DumpValueType } from '@/interfaces/generated/dump-value-types';
 import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
 import { fireEvent } from '@testing-library/vue';
@@ -101,7 +101,7 @@ describe('ResponseDieAndDump', () => {
                 [createStringDump('test')],
             );
 
-            renderWithProviders(ResponseDieAndDump, {
+            renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot) },
             });
 
@@ -118,7 +118,7 @@ describe('ResponseDieAndDump', () => {
                 [createStringDump('test')],
             );
 
-            renderWithProviders(ResponseDieAndDump, {
+            renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot) },
             });
 
@@ -135,7 +135,7 @@ describe('ResponseDieAndDump', () => {
                 createStringDump('second'),
             ]);
 
-            const { rerender } = renderWithProviders(ResponseDieAndDump, {
+            const { rerender } = renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot1) },
             });
 
@@ -153,7 +153,7 @@ describe('ResponseDieAndDump', () => {
         it('handles invalid JSON gracefully', async () => {
             const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-            renderWithProviders(ResponseDieAndDump, {
+            renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: 'invalid json' },
             });
 
@@ -171,7 +171,7 @@ describe('ResponseDieAndDump', () => {
                 createStringDump('test'),
             ]);
 
-            renderWithProviders(ResponseDieAndDump, {
+            renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot) },
             });
 
@@ -191,7 +191,7 @@ describe('ResponseDieAndDump', () => {
                 dumps: [createStringDump('test')],
             };
 
-            renderWithProviders(ResponseDieAndDump, {
+            renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot) },
             });
 
@@ -208,7 +208,7 @@ describe('ResponseDieAndDump', () => {
                 [],
             );
 
-            renderWithProviders(ResponseDieAndDump, {
+            renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot) },
             });
 
@@ -219,7 +219,7 @@ describe('ResponseDieAndDump', () => {
         });
 
         it('handles null/undefined selected dump (info state)', async () => {
-            renderWithProviders(ResponseDieAndDump, {
+            renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify({ id: '1', dumps: [] }) },
             });
 
@@ -239,7 +239,7 @@ describe('ResponseDieAndDump', () => {
                 createStringDump('test'),
             ]);
 
-            renderWithProviders(ResponseDieAndDump, {
+            renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot) },
             });
 
@@ -261,7 +261,7 @@ describe('ResponseDieAndDump', () => {
                 createStringDump('second'),
             ]);
 
-            const { rerender } = renderWithProviders(ResponseDieAndDump, {
+            const { rerender } = renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot1) },
             });
 
@@ -290,7 +290,7 @@ describe('ResponseDieAndDump', () => {
                 createStringDump('second'),
             ]);
 
-            const { rerender } = renderWithProviders(ResponseDieAndDump, {
+            const { rerender } = renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot1) },
             });
 
@@ -311,7 +311,7 @@ describe('ResponseDieAndDump', () => {
                 createStringDump('second'),
             ]);
 
-            const { rerender } = renderWithProviders(ResponseDieAndDump, {
+            const { rerender } = renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot1) },
             });
 
@@ -342,7 +342,7 @@ describe('ResponseDieAndDump', () => {
                 createStringDump('second'),
             ]);
 
-            const { rerender } = renderWithProviders(ResponseDieAndDump, {
+            const { rerender } = renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot1) },
             });
 
@@ -370,7 +370,7 @@ describe('ResponseDieAndDump', () => {
                 createStringDump('second'),
             ]);
 
-            const { rerender, emitted } = renderWithProviders(ResponseDieAndDump, {
+            const { rerender, emitted } = renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot1) },
             });
 
@@ -402,7 +402,7 @@ describe('ResponseDieAndDump', () => {
                 createStringDump('second'),
             ]);
 
-            const { rerender, emitted } = renderWithProviders(ResponseDieAndDump, {
+            const { rerender, emitted } = renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot1) },
             });
 
@@ -437,7 +437,7 @@ describe('ResponseDieAndDump', () => {
                 createStringDump('third'),
             ]);
 
-            const { rerender } = renderWithProviders(ResponseDieAndDump, {
+            const { rerender } = renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot1) },
             });
 
@@ -481,7 +481,7 @@ describe('ResponseDieAndDump', () => {
                 createStringDump('second'),
             ]);
 
-            const { rerender } = renderWithProviders(ResponseDieAndDump, {
+            const { rerender } = renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot1) },
             });
 
@@ -508,7 +508,7 @@ describe('ResponseDieAndDump', () => {
         });
 
         it('handles deletion when no dump selected (early return)', async () => {
-            renderWithProviders(ResponseDieAndDump, {
+            renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify({ id: '1', dumps: [] }) },
             });
 
@@ -528,7 +528,7 @@ describe('ResponseDieAndDump', () => {
                 createStringDump('third'),
             ]);
 
-            renderWithProviders(ResponseDieAndDump, {
+            renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot) },
             });
 
@@ -544,7 +544,7 @@ describe('ResponseDieAndDump', () => {
                 createStringDump('second'),
             ]);
 
-            renderWithProviders(ResponseDieAndDump, {
+            renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot) },
             });
 
@@ -560,7 +560,7 @@ describe('ResponseDieAndDump', () => {
                 dump,
             ]);
 
-            renderWithProviders(ResponseDieAndDump, {
+            renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: JSON.stringify(snapshot) },
             });
 
