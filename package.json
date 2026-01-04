@@ -7,7 +7,7 @@
         "type:check": "vue-tsc --noEmit --project ./resources/tsconfig.json",
         "vite": "vite --config vite.config.js",
         "build": "npm run type:check && npm run vite -- build && cp -a ./resources/dist-static/. ./resources/dist",
-        "build:dev": "npm run vite -- build --watch --mode=development",
+        "build:dev": "npm run vite -- build --mode=development && cp -a ./resources/dist-static/. ./resources/dist",
         "dev": "npm run vite -- dev",
         "test": "vitest --config resources/js/tests/vitest.config.js",
         "test:ui": "npm run test -- --ui",
