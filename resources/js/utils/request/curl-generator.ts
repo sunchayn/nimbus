@@ -255,7 +255,7 @@ function transformRequestBodyToKeyValuePairs(
  */
 function convertBodyValueToRequestParts(bodyValue: string | FormData): string[] {
     if (typeof bodyValue === 'string') {
-        return [`-d ${bodyValue}`];
+        return [`-d '${bodyValue}'`];
     }
 
     return convertFormDataToCUrlFields(bodyValue);

@@ -55,7 +55,7 @@ describe('generateCurlCommand', () => {
         expect(command).toContain('"https://api.example.com/users?page=1"');
         expect(command).toContain('-H "Authorization: Bearer token"');
         expect(command).toContain('-H "Accept: application/json"');
-        expect(command).toContain('{"name":"Jane"}');
+        expect(command).toContain('\'{"name":"Jane"}\'');
         expect(hasSpecialAuth).toBe(false);
     });
 
@@ -98,7 +98,7 @@ describe('generateCurlCommand', () => {
         expect(command).toContain('-H "Authorization: Bearer token"');
         expect(command).toContain('-H "Accept: application/json"');
         expect(command).toContain(
-            '{"user":{"firstName":"Jane","lastName":"Doe"},"username":"foobar"}',
+            '\'{"user":{"firstName":"Jane","lastName":"Doe"},"username":"foobar"}\'',
         );
         expect(hasSpecialAuth).toBe(false);
     });
