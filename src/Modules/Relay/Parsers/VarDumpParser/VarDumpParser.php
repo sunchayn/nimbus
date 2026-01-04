@@ -102,7 +102,7 @@ class VarDumpParser
         }
 
         // Closure (must check before object to avoid confusion)
-        if (preg_match('/^<span class="?sf-dump-note[^>]*>Closure\([^)]*\)<\/span>/', $html)) {
+        if (preg_match('/^<span class="?sf-dump-note[^>]*>Closure\([^)]*\)<\/span>/s', $html)) {
             return DumpValueTypeEnum::Closure;
         }
 
@@ -117,23 +117,23 @@ class VarDumpParser
         }
 
         // String value
-        if (preg_match('/^"<span\b[^>]*class=sf-dump-str\b/', $html)) {
+        if (preg_match('/^"<span\b[^>]*class=sf-dump-str\b/s', $html)) {
             return DumpValueTypeEnum::String;
         }
 
+        // Uninitialized property (must be before const check).
+        if (preg_match('/^<span [^>]* title="Uninitialized property">/s', $html)) {
+            return DumpValueTypeEnum::Uninitialized;
+        }
+
         // Boolean or null constants
-        if (preg_match('/^<span\b[^>]*class=sf-dump-const[^>]*>\s*(true|false|null)\s*<\/span>/si', $html)) {
+        if (preg_match('/^<span\b[^>]*class=sf-dump-const\b/s', $html)) {
             return DumpValueTypeEnum::Constant;
         }
 
         // Numeric value
-        if (preg_match('/^<span\b[^>]*class=sf-dump-num\b/', $html)) {
+        if (preg_match('/^<span\b[^>]*class=sf-dump-num\b/s', $html)) {
             return DumpValueTypeEnum::Number;
-        }
-
-        // Uninitialized property
-        if (preg_match('/^<span [^>]* title="Uninitialized property">/', $html)) {
-            return DumpValueTypeEnum::Uninitialized;
         }
 
         return DumpValueTypeEnum::Unknown;
@@ -174,11 +174,6 @@ class VarDumpParser
 
         $content = trim($match[1], "\n");
 
-        // Check if content is effectively empty
-        if ($content === '' || $content === '0') {
-            return new ParsedObjectResultDto(className: $className, properties: []);
-        }
-
         // Normalize indentation to simplify parsing
         $content = $this->normalizeIndentation($content);
 
@@ -213,16 +208,9 @@ class VarDumpParser
         }
 
         // Extract content within <samp> tags
-        if (! preg_match('/^<span\b[^>]*class=sf-dump-note[^>]*>\s*array:\d+\s*<\/span>\s*\[\s*<samp\b[^>]*>(.*?)<\/samp>]$/s', $html, $match)) {
-            return new ParsedArrayResultDto(items: [], numericallyIndexed: true);
-        }
+        preg_match('/^<span\b[^>]*class=sf-dump-note[^>]*>\s*array:\d+\s*<\/span>\s*\[\s*<samp\b[^>]*>(.*?)<\/samp>]$/s', $html, $match);
 
         $content = trim($match[1], "\n");
-
-        // Check if content is effectively empty
-        if ($content === '' || $content === '0') {
-            return new ParsedArrayResultDto(items: [], numericallyIndexed: true);
-        }
 
         // Normalize indentation
         $content = $this->normalizeIndentation($content);

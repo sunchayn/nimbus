@@ -71,6 +71,12 @@ class VarDumpParserUnitTest extends TestCase
             'expectedValue' => '',
         ];
 
+        yield 'undefined string value' => [
+            'html' => '<pre class=sf-dump>"<span class=sf-dump-str title="0 characters">"</pre>',
+            'expectedType' => DumpValueTypeEnum::String->value,
+            'expectedValue' => '',
+        ];
+
         yield 'string with special characters' => [
             'html' => '<pre class=sf-dump>"<span class=sf-dump-str title="5 characters">&lt;div&gt;</span>"</pre>',
             'expectedType' => DumpValueTypeEnum::String->value,
@@ -108,6 +114,12 @@ class VarDumpParserUnitTest extends TestCase
             'expectedValue' => 0,
         ];
 
+        yield 'undefined number value' => [
+            'html' => '<pre class=sf-dump><span class=sf-dump-num></span></pre>',
+            'expectedType' => DumpValueTypeEnum::Number->value,
+            'expectedValue' => 0,
+        ];
+
         yield 'negative integer' => [
             'html' => '<pre class=sf-dump><span class=sf-dump-num>-42</span></pre>',
             'expectedType' => DumpValueTypeEnum::Number->value,
@@ -141,6 +153,12 @@ class VarDumpParserUnitTest extends TestCase
 
         yield 'null value' => [
             'html' => '<pre class=sf-dump><span class=sf-dump-const>null</span><span style="color: #A0A0A0;"> // test.php:10</span></pre>',
+            'expectedType' => DumpValueTypeEnum::Constant->value,
+            'expectedValue' => null,
+        ];
+
+        yield 'undefined const value' => [
+            'html' => '<pre class=sf-dump><span class=sf-dump-const></span><span style="color: #A0A0A0;"> // test.php:10</span></pre>',
             'expectedType' => DumpValueTypeEnum::Constant->value,
             'expectedValue' => null,
         ];
@@ -313,11 +331,11 @@ HTML,
 
     public static function objectStructuresProvider(): Generator
     {
-        yield 'object with public properties' => [
+        yield 'object with public properties (and improper indentation)' => [
             'html' => <<<'HTML'
 <pre class=sf-dump><span class=sf-dump-note>App\Models\User</span> {<a class=sf-dump-ref>#123</a><samp data-depth=1 class=sf-dump-expanded>
-  +<span class=sf-dump-public title="Public property">id</span>: <span class=sf-dump-num>1</span>
-  +<span class=sf-dump-public title="Public property">name</span>: "<span class=sf-dump-str title="4 characters">John</span>"
++<span class=sf-dump-public title="Public property">id</span>: <span class=sf-dump-num>1</span>
++<span class=sf-dump-public title="Public property">name</span>: "<span class=sf-dump-str title="4 characters">John</span>"
 </samp>}</pre>
 HTML,
             'expectedClass' => 'App\Models\User',
@@ -1219,6 +1237,7 @@ HTML,
   -<span class=sf-dump-private title="Private property defined in class:&#10;`Symfony\Component\HttpFoundation\Request`">isHostValid</span>: <span class=sf-dump-const>true</span>
   -<span class=sf-dump-private title="Private property defined in class:&#10;`Symfony\Component\HttpFoundation\Request`">isForwardedValid</span>: <span class=sf-dump-const>true</span>
   -<span class=sf-dump-private title="Private property defined in class:&#10;`Symfony\Component\HttpFoundation\Request`">isSafeContentPreferred</span>: <span class=sf-dump-const title="Uninitialized property">? bool</span>
+  -<span class=sf-dump-private title="Private property defined in class:&#10;`Symfony\Component\HttpFoundation\Request`">undefinedUninitialized</span>: <span class=sf-dump-const title="Uninitialized property"></span>
   -<span class=sf-dump-private title="Private property defined in class:&#10;`Symfony\Component\HttpFoundation\Request`">trustedValuesCache</span>: []
   -<span class=sf-dump-private title="Private property defined in class:&#10;`Symfony\Component\HttpFoundation\Request`">isIisRewrite</span>: <span class=sf-dump-const>false</span>
   #<span class=sf-dump-protected title="Protected property">json</span>: <span class="sf-dump-note sf-dump-ellipsization" title="Symfony\Component\HttpFoundation\InputBag
@@ -1564,6 +1583,7 @@ HTML,
                 'isHostValid' => ['visibility' => 'private', 'value' => ['type' => DumpValueTypeEnum::Constant->value, 'value' => true]],
                 'isForwardedValid' => ['visibility' => 'private', 'value' => ['type' => DumpValueTypeEnum::Constant->value, 'value' => true]],
                 'isSafeContentPreferred' => ['visibility' => 'private', 'value' => ['type' => DumpValueTypeEnum::Uninitialized->value, 'value' => '? bool']],
+                'undefinedUninitialized' => ['visibility' => 'private', 'value' => ['type' => DumpValueTypeEnum::Uninitialized->value, 'value' => 'undefined']],
                 'trustedValuesCache' => [
                     'visibility' => 'private',
                     'value' => [
