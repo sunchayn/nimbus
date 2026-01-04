@@ -27,5 +27,9 @@ export const getStatusGroup = (statusCode: number): STATUS => {
         return STATUS.SERVER_ERROR;
     }
 
+    if (statusCode === 999) {
+        return STATUS.DUMP_AND_DIE;
+    }
+
     return STATUS.OTHER;
 };

@@ -13,12 +13,12 @@ const props = defineProps<ResponseStatusCodeProps>();
 
 <template>
     <div class="flex items-center space-x-2">
-        <StatusIndicator :status="props.status" />
+        <StatusIndicator :status="props.status" data-testid="response-status-indicator" />
         <span class="text-xs text-nowrap" data-testid="response-status-text">
             {{ props.status }}
         </span>
         <AppBadge
-            v-if="props.response"
+            v-if="props.response && props.status !== STATUS.DUMP_AND_DIE"
             variant="outline"
             class="text-nowrap"
             data-testid="response-status-badge"
@@ -27,7 +27,7 @@ const props = defineProps<ResponseStatusCodeProps>();
             {{ props.response.statusText }}
         </AppBadge>
         <AppBadge
-            v-else-if="props.status !== STATUS.EMPTY"
+            v-else-if="props.status === STATUS.PENDING"
             variant="outline"
             class="text-nowrap"
         >

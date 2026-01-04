@@ -35,7 +35,7 @@ const props = defineProps({
                     </span>
                 </AppSidebarMenuButton>
             </AppCollapsibleTrigger>
-            <AppCollapsibleContent>
+            <AppCollapsibleContent class="overflow-hidden">
                 <AppSidebarMenuSub>
                     <slot />
                 </AppSidebarMenuSub>

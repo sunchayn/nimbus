@@ -19,6 +19,7 @@ const variants = {
     [STATUS.SERVER_ERROR]: 'text-rose-500',
     [STATUS.OTHER]: 'text-zinc-500',
     [STATUS.EMPTY]: 'text-zinc-900',
+    [STATUS.DUMP_AND_DIE]: 'text-violet-600',
     [STATUS.PENDING]: '',
 };
 

@@ -7,15 +7,17 @@ use GuzzleHttp\Cookie\SetCookie;
 use Illuminate\Container\Container;
 use Illuminate\Cookie\CookieValuePrefix;
 use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Http\Response;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\Handlers\AuthorizationHandlerFactory;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
+use Sunchayn\Nimbus\Modules\Relay\Responses\DieAndDumpResponse;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class RequestRelayAction
 {
@@ -25,6 +27,7 @@ class RequestRelayAction
 
     public const NON_STANDARD_STATUS_CODES = [
         419 => 'Method Not Allowed',
+        DieAndDumpResponse::DIE_AND_DUMP_STATUS_CODE => 'dd()',
     ];
 
     public function __construct(
@@ -44,10 +47,7 @@ class RequestRelayAction
 
         $start = hrtime(true);
 
-        $response = $pendingRequest->send(
-            method: $requestRelayData->method,
-            url: $requestRelayData->endpoint,
-        );
+        $response = $this->sendPendingRequest($pendingRequest, $requestRelayData);
 
         $durationInMs = $this->calculateDuration($start);
 
@@ -142,8 +142,26 @@ class RequestRelayAction
      */
     private function getStatusTextFromCode(int $statusCode): string
     {
-        $statusCodeToTextMapping = Response::$statusTexts + self::NON_STANDARD_STATUS_CODES;
+        $statusCodeToTextMapping = SymfonyResponse::$statusTexts + self::NON_STANDARD_STATUS_CODES;
 
         return $statusCodeToTextMapping[$statusCode] ?? 'Non-standard Status Code.';
+    }
+
+    private function sendPendingRequest(PendingRequest $pendingRequest, RequestRelayData $requestRelayData): Response
+    {
+        $response = $pendingRequest->send(
+            method: $requestRelayData->method,
+            url: $requestRelayData->endpoint,
+        );
+
+        if (! $response->serverError()) {
+            return $response;
+        }
+
+        if (! str_contains($response->body(), 'Sfdump = window.Sfdump')) {
+            return $response;
+        }
+
+        return new DieAndDumpResponse($response->toPsrResponse());
     }
 }

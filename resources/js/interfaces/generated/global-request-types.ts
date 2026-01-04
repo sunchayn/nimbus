@@ -3,7 +3,7 @@
  * Don't update it manually, otherwise, your changes will be lost.
  * To update the file run `php bin/intellisense`.
  *
- * Generated at: 2025-09-22T17:58:32+00:00.
+ * Generated at: 2026-01-02T00:36:13+00:00.
  */
 
 export enum GeneratorType {

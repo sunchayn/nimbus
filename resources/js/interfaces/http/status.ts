@@ -7,4 +7,5 @@ export enum STATUS {
     EMPTY = 'No request yet',
     PENDING = 'Pending',
     OTHER = 'Other',
+    DUMP_AND_DIE = 'Dump & Die',
 }

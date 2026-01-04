@@ -162,6 +162,7 @@ const populateCurlCommandExporterDialog = () => {
                 v-model="endpoint"
                 class="h-full flex-1 rounded-none border-0 text-xs shadow-none focus:ring-0 focus-visible:ring-0"
                 placeholder="<endpoint>"
+                data-testid="endpoint-input"
                 @click="autoSelectRouteVariableSegmentWhenApplicable"
                 @keydown="executeCurrentRequestWhenEnterIsPressed"
             />

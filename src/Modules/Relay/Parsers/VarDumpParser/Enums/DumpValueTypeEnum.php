@@ -1,0 +1,22 @@
+<?php
+
+namespace Sunchayn\Nimbus\Modules\Relay\Parsers\VarDumpParser\Enums;
+
+enum DumpValueTypeEnum: string
+{
+    case Object = 'object';
+
+    case Array = 'array';
+
+    case String = 'string';
+
+    case Constant = 'constant';
+
+    case Uninitialized = 'uninitialized';
+
+    case Number = 'number';
+
+    case Closure = 'closure';
+
+    case Unknown = 'unknown';
+}
