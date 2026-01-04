@@ -83,7 +83,7 @@ fi
 cd "$TARGET_DIR"
 
 # --------------------------------------
-# DEPENDENCY INSTALLATION
+# DEPENDENCY INSTALLATION (Inside Nimbus-Dev repository)
 # --------------------------------------
 
 # Install PHP dependencies
@@ -108,7 +108,7 @@ else
 fi
 
 # --------------------------------------
-# ENVIRONMENT SETUP
+# ENVIRONMENT SETUP (Inside Nimbus-Dev repository)
 # --------------------------------------
 
 ENV_FILE="$TARGET_DIR/.env"
@@ -117,7 +117,7 @@ rm -f "$ENV_FILE"
 cp "$SCRIPT_DIR/.env.template" "$ENV_FILE"
 
 # --------------------------------------
-# APPLICATION BOOTSTRAP
+# APPLICATION BOOTSTRAP (Inside Nimbus-Dev repository)
 # --------------------------------------
 
 echo "Bootstrapping application..."
@@ -129,4 +129,4 @@ php artisan migrate --force
 # Publish Nimbus-related frontend assets
 php artisan vendor:publish --tag=nimbus-assets
 
-echo "Setup complete. Ready for E2E tests or further local usage."
+echo "Setup complete. Ready for E2E tests."

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("Die and Dump visualization sanity checklist", async ({ page }) => {
+test("Dump and Die visualization sanity checklist", async ({ page }) => {
     // Note: Generated with Playwright codegen.
 
     await page.goto("http://127.0.0.1:8000/demo/");
