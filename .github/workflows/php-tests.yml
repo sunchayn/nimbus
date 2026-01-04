@@ -9,6 +9,7 @@ on:
       - 'composer.json'
       - 'composer.lock'
   push:
+    branches: [ base ]
     paths:
       - '**.php'
       - '.github/workflows/php-tests.yml'

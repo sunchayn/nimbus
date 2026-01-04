@@ -9,6 +9,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
   push:
+    branches: [ base ]
     paths:
       - '**.ts'
       - '**.js'
