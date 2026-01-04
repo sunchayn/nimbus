@@ -16,7 +16,8 @@ This guide covers everything you need to know about using Nimbus to test and exp
     - [Route Explorer](#route-explorer)
     - [Request Builder](#request-builder)
     - [Response Viewer](#response-viewer)
-    - [Cookie Inspection](#cookie-inspection)
+        - [Cookie Inspection](#cookie-inspection)
+        - [Dump and Die Responses](#dump-and-die-responses)
 - [Authentication](#authentication)
     - [Session-Based Authentication](#session-based-authentication)
     - [Bearer Tokens](#bearer-tokens)
@@ -172,7 +173,7 @@ The Response Viewer displays detailed information about API responses.
 - Copy response body to clipboard.
 - Pretty-printed JSON for readability.
 
-### Cookie Inspection
+#### Cookie Inspection
 
 View and decrypt Laravel session cookies with ease.
 
@@ -185,6 +186,23 @@ The raw values as observed in the `Set-Cookie` headers from the response.
 
 **Decrypted Cookies:**
 Automatic decryption of Laravel encrypted cookies.
+
+#### Dump and Die Responses
+
+When a `dd()` response is detected. Nimbus will switch to a rich `dd` response viewer where you can navigate the dump(s) as a JSON object.
+
+![DD Viewer](./assets/dd-viewer.png)
+
+You can also see the file name and line shown under the tabs (e.g. `app/Http/Controllers/Demo/DumpAndDieController.php:140
+`) which is the source that made these dumps.
+
+_Note: dumps are only sticky for connectives `dd` responses, having a non-`dd` response will earse the history._
+
+##### Dumps withing the same debug window
+
+When keep sending `dd` responses, the previous values can still be accessed via pagination. You can always delete the unwanted ones.
+
+![DD Viewer Pagination](./assets/dd-viewer-pagination.png)
 
 ---
 
