@@ -15,6 +15,7 @@ REPO_URL="https://github.com/sunchayn/nimbus-dev.git"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_DIR="$SCRIPT_DIR/.workdir"
+ROOT_DIR="$SCRIPT_DIR/../../"
 
 # --------------------------------------
 # HELPER FUNCTIONS
@@ -70,16 +71,6 @@ echo "Syncing repository to target directory..."
 rsync -a --delete "$TEMP_DIR"/ "$TARGET_DIR"/
 rm -rf "$TEMP_DIR"
 
-# Build Nimbus dev assets
-if command -v npm >/dev/null 2>&1; then
-    echo "Installing Node.js dependencies for Nimbus..."
-    npm install
-    npm run build:dev
-else
-    echo "npm is not installed. Aborting."
-    exit 1
-fi
-
 cd "$TARGET_DIR"
 
 # --------------------------------------
@@ -126,7 +117,17 @@ echo "Bootstrapping application..."
 touch database/database.sqlite
 php artisan migrate --force
 
+# --------------------------------------
+# Publish Nimbus-related frontend assets from the current branch.
+# --------------------------------------
+
+cd "$ROOT_DIR"
+
+echo "Building dev assets for Nimbus..."
+npm install
+npm run build:dev
+
 # Publish Nimbus-related frontend assets
-php artisan vendor:publish --tag=nimbus-assets
+cp -a "$ROOT_DIR/resources/dist/." "$TARGET_DIR/public/vendor/nimbus/"
 
 echo "Setup complete. Ready for E2E tests."
