@@ -1,5 +1,6 @@
 import type { NumberDump } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
 import NumberDumpRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/NumberDumpRenderer.vue';
+import { DumpValueType } from '@/interfaces/generated/dump-value-types';
 import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
@@ -7,7 +8,7 @@ import { nextTick } from 'vue';
 describe('NumberDumpRenderer', () => {
     it('renders number value correctly', async () => {
         const dump: NumberDump = {
-            type: 'number',
+            type: DumpValueType.Number,
             value: 42,
         };
 
@@ -22,7 +23,7 @@ describe('NumberDumpRenderer', () => {
 
     it('handles positive numbers', async () => {
         const dump: NumberDump = {
-            type: 'number',
+            type: DumpValueType.Number,
             value: 123,
         };
 
@@ -37,7 +38,7 @@ describe('NumberDumpRenderer', () => {
 
     it('handles negative numbers', async () => {
         const dump: NumberDump = {
-            type: 'number',
+            type: DumpValueType.Number,
             value: -42,
         };
 
@@ -52,7 +53,7 @@ describe('NumberDumpRenderer', () => {
 
     it('handles zero', async () => {
         const dump: NumberDump = {
-            type: 'number',
+            type: DumpValueType.Number,
             value: 0,
         };
 
@@ -67,7 +68,7 @@ describe('NumberDumpRenderer', () => {
 
     it('handles decimal numbers', async () => {
         const dump: NumberDump = {
-            type: 'number',
+            type: DumpValueType.Number,
             value: 3.14159,
         };
 
@@ -82,7 +83,7 @@ describe('NumberDumpRenderer', () => {
 
     it('handles very large numbers', async () => {
         const dump: NumberDump = {
-            type: 'number',
+            type: DumpValueType.Number,
             value: 1e20,
         };
 
@@ -97,7 +98,7 @@ describe('NumberDumpRenderer', () => {
 
     it('handles very small numbers', async () => {
         const dump: NumberDump = {
-            type: 'number',
+            type: DumpValueType.Number,
             value: 1e-10,
         };
 
@@ -112,7 +113,7 @@ describe('NumberDumpRenderer', () => {
 
     it('applies correct CSS classes', async () => {
         const dump: NumberDump = {
-            type: 'number',
+            type: DumpValueType.Number,
             value: 42,
         };
 
@@ -129,7 +130,7 @@ describe('NumberDumpRenderer', () => {
 
     it('handles Infinity', async () => {
         const dump: NumberDump = {
-            type: 'number',
+            type: DumpValueType.Number,
             value: Infinity,
         };
 
@@ -144,7 +145,7 @@ describe('NumberDumpRenderer', () => {
 
     it('handles -Infinity', async () => {
         const dump: NumberDump = {
-            type: 'number',
+            type: DumpValueType.Number,
             value: -Infinity,
         };
 
@@ -159,7 +160,7 @@ describe('NumberDumpRenderer', () => {
 
     it('handles NaN', async () => {
         const dump: NumberDump = {
-            type: 'number',
+            type: DumpValueType.Number,
             value: NaN,
         };
 
