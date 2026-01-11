@@ -66,6 +66,7 @@ describe('uniquePersistenceKey', () => {
 describe('clearPersistentKeys', () => {
     let uniquePersistenceKey: (key: string) => string;
     let clearPersistentKeys: () => void;
+    let localStorageRemoveSpy: MockInstance;
 
     beforeEach(async () => {
         // Reset modules to clear the internal keys array
@@ -76,9 +77,10 @@ describe('clearPersistentKeys', () => {
         uniquePersistenceKey = module.uniquePersistenceKey;
         clearPersistentKeys = module.clearPersistentKeys;
 
-        // Mock localStorage
         localStorageRemoveSpy = vi.fn();
+
         global.localStorage = {
+            // @ts-expect-error it is a mock.
             removeItem: localStorageRemoveSpy,
             setItem: vi.fn(),
             getItem: vi.fn(),
