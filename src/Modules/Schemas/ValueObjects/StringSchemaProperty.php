@@ -51,7 +51,7 @@ class StringSchemaProperty implements SchemaPropertyInterface
             'type' => $this->getType()->value,
         ];
 
-        if ($this->stringFormat !== null) {
+        if ($this->stringFormat instanceof \Sunchayn\Nimbus\Modules\Schemas\Enums\StringFormat) {
             $properties['format'] = $this->stringFormat->value;
         }
 

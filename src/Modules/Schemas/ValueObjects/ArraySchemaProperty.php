@@ -56,7 +56,7 @@ class ArraySchemaProperty implements SchemaPropertyInterface
             'type' => $this->getType()->value,
         ];
 
-        if ($this->schemaProperty !== null) {
+        if ($this->schemaProperty instanceof \Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface) {
             $properties['items'] = $this->schemaProperty->toJsonSchema();
         }
 

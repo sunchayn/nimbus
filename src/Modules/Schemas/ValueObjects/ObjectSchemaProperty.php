@@ -54,7 +54,7 @@ class ObjectSchemaProperty implements SchemaPropertyInterface
             'type' => $this->getType()->value,
         ];
 
-        if ($this->schema !== null && ! $this->schema->isEmpty()) {
+        if ($this->schema instanceof \Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema && ! $this->schema->isEmpty()) {
             $result['properties'] = $this->schema->toPropertiesArray();
             $result['required'] = $this->schema->getRequiredProperties();
         }
