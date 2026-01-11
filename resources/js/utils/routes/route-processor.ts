@@ -1,6 +1,6 @@
 import { RouteExtractorException } from '@/interfaces';
 import { RouteDefinition, RoutesGroup } from '@/interfaces/routes/routes';
-import { JsonSchema } from '@/interfaces/schema/shape';
+import type { JSONSchema7 } from 'json-schema';
 
 /**
  * Source route configuration from window.Nimbus.routes
@@ -10,7 +10,7 @@ export interface SourceRouteConfig {
     uri: string;
     shortUri: string;
     methods: string[];
-    schema: JsonSchema;
+    schema: JSONSchema7;
     extractionError: string | null;
 }
 

@@ -37,12 +37,8 @@ const baseRoute: RouteDefinition = {
     shortEndpoint: 'users',
     schema: {
         shape: {
-            'x-name': 'root',
-            'x-required': true,
             properties: {
                 name: {
-                    'x-name': 'name',
-                    'x-required': false,
                     type: 'string',
                 },
             },
@@ -81,10 +77,7 @@ describe('useRequestBuilderStore', () => {
             ...baseRoute,
             method: 'POST',
             schema: {
-                shape: {
-                    'x-name': 'root',
-                    'x-required': false,
-                },
+                shape: {},
                 extractionErrors: null,
             },
         };

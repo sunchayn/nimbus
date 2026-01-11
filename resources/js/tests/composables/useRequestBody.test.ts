@@ -36,12 +36,8 @@ const createPendingRequest = (): PendingRequest => ({
     payloadType: RequestBodyTypeEnum.JSON,
     schema: {
         shape: {
-            'x-name': 'root',
-            'x-required': true,
             properties: {
                 name: {
-                    'x-name': 'name',
-                    'x-required': false,
                     type: 'string',
                 },
             },
@@ -57,12 +53,8 @@ const createPendingRequest = (): PendingRequest => ({
         shortEndpoint: 'api/users',
         schema: {
             shape: {
-                'x-name': 'root',
-                'x-required': true,
                 properties: {
                     name: {
-                        'x-name': 'name',
-                        'x-required': false,
                         type: 'string',
                     },
                 },

@@ -22,10 +22,7 @@ const mockRoutesStore: {
                         endpoint: 'api/users',
                         shortEndpoint: 'api/users',
                         schema: {
-                            shape: {
-                                'x-required': false,
-                                'x-name': 'root',
-                            },
+                            shape: {},
                             extractionErrors: null,
                         },
                     },
@@ -34,10 +31,7 @@ const mockRoutesStore: {
                         endpoint: 'api/users',
                         shortEndpoint: 'api/users',
                         schema: {
-                            shape: {
-                                'x-required': false,
-                                'x-name': 'root',
-                            },
+                            shape: {},
                             extractionErrors: null,
                         },
                     },

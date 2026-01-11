@@ -25,7 +25,7 @@ use Sunchayn\Nimbus\Modules\Routes\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\Builders\SchemaBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
-use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 use Sunchayn\Nimbus\Tests\App\Modules\Routes\Extractors\Stubs\SpatieDataObjectStub;
 
 #[CoversClass(SpatieDataObjectExtractorStrategy::class)]
@@ -169,7 +169,7 @@ class SpatieDataObjectExtractorStrategyUnitTest extends TestCase
             ->andReturn($spatieDataValidationRulesResolverMock);
 
         $responseSchemaStub = new Schema(properties: [
-            new SchemaProperty(
+            new StringSchemaProperty(
                 name: '::property::',
             ),
         ]);

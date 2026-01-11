@@ -23,7 +23,7 @@ use Sunchayn\Nimbus\Modules\Routes\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\Builders\SchemaBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
-use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 use Sunchayn\Nimbus\Tests\App\Modules\Routes\Extractors\Stubs\FormRequestStub;
 use Sunchayn\Nimbus\Tests\App\Modules\Routes\Extractors\Stubs\FormRequestWithDifferentRulesStub;
 use Sunchayn\Nimbus\Tests\App\Modules\Routes\Extractors\Stubs\FormRequestWithExceptionStub;
@@ -160,7 +160,7 @@ class FormRequestExtractorStrategyUnitTest extends TestCase
         // Anticipate
 
         $responseSchemaStub = new Schema(properties: [
-            new SchemaProperty(
+            new StringSchemaProperty(
                 name: '::property::',
             ),
         ]);
@@ -331,7 +331,7 @@ HTML,
         // Anticipate
 
         $responseSchemaStub = new Schema(properties: [
-            new SchemaProperty(
+            new StringSchemaProperty(
                 name: '::property::',
             ),
         ]);

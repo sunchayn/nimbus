@@ -3,7 +3,7 @@ import {
     fallbackExtensions,
     jsonExtensions,
 } from '@/components/domain/CodeEditor/extensions';
-import { JsonSchema } from '@/interfaces/schema/shape';
+import type { JSONSchema7 } from 'json-schema';
 import { PrimitiveProps } from 'reka-ui';
 import { computed, HTMLAttributes } from 'vue';
 import { Codemirror } from 'vue-codemirror';
@@ -14,7 +14,7 @@ interface CodeEditorProps extends PrimitiveProps {
     language: 'json' | 'plain';
     readonly?: boolean;
     disabled?: boolean;
-    validationSchema?: JsonSchema;
+    validationSchema?: JSONSchema7;
 }
 
 const props = withDefaults(defineProps<CodeEditorProps>(), {

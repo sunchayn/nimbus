@@ -5,27 +5,26 @@ namespace Sunchayn\Nimbus\Modules\Schemas\ValueObjects;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 use Sunchayn\Nimbus\Modules\Routes\ValueObjects\RulesExtractionError;
+use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
 
 /**
- * @phpstan-import-type SchemaPropertyShape from SchemaProperty
- *
  * @phpstan-type SchemaShape array{
  *      '$schema': 'https://json-schema.org/draft/2020-12/schema',
  *      type: 'object',
- *      properties: array<string, SchemaPropertyShape>,
+ *      properties: array<string, array<string, mixed>>,
  *      required: string[],
  *      additionalProperties: false,
  *  }
  *
- * @implements Arrayable<string, SchemaPropertyShape>
+ * @implements Arrayable<string, mixed>
  */
 class Schema implements Arrayable
 {
-    /** @var SchemaProperty[] */
+    /** @var SchemaPropertyInterface[] */
     public readonly array $properties;
 
     /**
-     * @param  SchemaProperty[]  $properties
+     * @param  SchemaPropertyInterface[]  $properties
      */
     public function __construct(
         array $properties,
@@ -52,20 +51,33 @@ class Schema implements Arrayable
     public function getRequiredProperties(): array
     {
         return collect($this->properties)
-            ->filter(fn (SchemaProperty $schemaProperty): bool => $schemaProperty->required)
-            ->map(fn (SchemaProperty $schemaProperty): string => $schemaProperty->name)
+            ->filter(fn (SchemaPropertyInterface $schemaProperty): bool => $schemaProperty->isRequired())
+            ->map(fn (SchemaPropertyInterface $schemaProperty): string => $schemaProperty->getName())
             ->values()
             ->all();
     }
 
-    public function toArray(): array
+    /**
+     * Convert properties to JSON Schema format (for nested objects).
+     *
+     * This method is used when serializing object properties to JSON Schema.
+     * It produces a map of property names to their JSON Schema representations.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function toPropertiesArray(): array
     {
         return Arr::mapWithKeys(
             $this->properties,
-            fn (SchemaProperty $schemaProperty): array => [
-                $schemaProperty->name => $schemaProperty->toArray(),
+            fn (SchemaPropertyInterface $schemaProperty): array => [
+                $schemaProperty->getName() => $schemaProperty->toJsonSchema(),
             ]
         );
+    }
+
+    public function toArray(): array
+    {
+        return $this->toJsonSchema();
     }
 
     /**
@@ -74,14 +86,14 @@ class Schema implements Arrayable
      * Generates a complete JSON Schema object with all necessary metadata
      * that can be used directly by JSON Schema validators and editors.
      *
-     * @return SchemaShape
+     * @return array<string, mixed>
      */
     public function toJsonSchema(): array
     {
         return [
             '$schema' => 'https://json-schema.org/draft/2020-12/schema',
             'type' => 'object',
-            'properties' => $this->toArray(),
+            'properties' => $this->toPropertiesArray(),
             'required' => $this->getRequiredProperties(),
             'additionalProperties' => false,
         ];

@@ -1,6 +1,6 @@
 import { RouteDefinition } from '@/interfaces/routes/routes';
-import { JsonSchema } from '@/interfaces/schema/shape';
 import { useRoutesStore } from '@/stores';
+import type { JSONSchema7 } from 'json-schema';
 import { computed, ComputedRef } from 'vue';
 
 export interface RouteStatistics {
@@ -16,7 +16,7 @@ export interface RouteWithError {
     resource: string;
     version: string;
     schema: {
-        shape: JsonSchema;
+        shape: JSONSchema7;
         extractionErrors: string;
     };
 }

@@ -4,17 +4,16 @@ namespace Sunchayn\Nimbus\Modules\Schemas\RulesMapper\Processors;
 
 use BackedEnum;
 use Illuminate\Validation\Rules\Enum;
+use Sunchayn\Nimbus\Modules\Schemas\Enums\SchemaPropertyType;
 use UnitEnum;
 
 /**
  * Processes `Enum` validation rules to extract enum values for schema generation.
- *
- * @phpstan-import-type SchemaPropertyEnumShape from \Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty
  */
 class EnumRuleProcessor
 {
     /**
-     * @return array{type: 'string', enum: SchemaPropertyEnumShape|null}
+     * @return array{type: SchemaPropertyType, enum: ?non-empty-array<array-key, scalar>}
      */
     public static function process(Enum $rule): array
     {
@@ -22,7 +21,7 @@ class EnumRuleProcessor
         $enumClass = invade($rule)->type; // @phpstan-ignore-line
 
         if (! enum_exists($enumClass)) {
-            return ['type' => 'string', 'enum' => null];
+            return ['type' => SchemaPropertyType::STRING, 'enum' => null];
         }
 
         $values = array_map(
@@ -31,9 +30,9 @@ class EnumRuleProcessor
         );
 
         if ($values === []) {
-            return ['type' => 'string', 'enum' => null];
+            return ['type' => SchemaPropertyType::STRING, 'enum' => null];
         }
 
-        return ['type' => 'string', 'enum' => $values];
+        return ['type' => SchemaPropertyType::STRING, 'enum' => $values];
     }
 }

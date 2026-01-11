@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RequestBodyTypeEnum } from '@/interfaces/http';
-import { JsonSchema } from '@/interfaces/schema/shape';
+import type { JSONSchema7 } from 'json-schema';
 import RequestBodyFormData from './RequestBodyFormData.vue';
 import RequestBodyFormNone from './RequestBodyFormNone.vue';
 import RequestBodyJson from './RequestBodyJson.vue';
@@ -9,7 +9,7 @@ import RequestBodyPlainText from './RequestBodyPlainText.vue';
 interface RequestBodyContentProps {
     payloadType: RequestBodyTypeEnum;
     payload: FormData | string | null;
-    schema?: JsonSchema;
+    schema?: JSONSchema7;
 }
 
 defineProps<RequestBodyContentProps>();

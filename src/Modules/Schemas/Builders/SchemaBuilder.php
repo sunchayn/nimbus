@@ -7,11 +7,13 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Sunchayn\Nimbus\Modules\Routes\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
+use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
 use Sunchayn\Nimbus\Modules\Schemas\Enums\RulesFieldType;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ArraySchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\FieldPath;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ObjectSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\PathSegment;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
-use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty;
 
 /**
  * Converts Laravel validation rules into JSON Schema structures.
@@ -45,7 +47,7 @@ class SchemaBuilder
     }
 
     /**
-     * @return array<string, SchemaProperty>
+     * @return array<string, SchemaPropertyInterface>
      */
     private function buildProperties(Ruleset $ruleset): array
     {
@@ -96,9 +98,9 @@ class SchemaBuilder
     /**
      * Adds a simple array property (e.g., "tags.*" => "string").
      *
-     * @param  array<string, SchemaProperty>  $properties
+     * @param  array<string, SchemaPropertyInterface>  $properties
      * @param  NormalizedRulesShape  $rules
-     * @return array<string, SchemaProperty>
+     * @return array<string, SchemaPropertyInterface>
      */
     private function addSimpleArrayProperty(FieldPath $fieldPath, array $rules, array $properties): array
     {
@@ -116,11 +118,10 @@ class SchemaBuilder
             rules: $rules,
         );
 
-        $properties[$arrayName] = new SchemaProperty(
+        $properties[$arrayName] = new ArraySchemaProperty(
             name: $arrayName,
-            type: 'array',
-            required: $existingProperty->required ?? false,
-            itemsSchema: $schemaProperty,
+            required: $existingProperty?->isRequired() ?? false,
+            schemaProperty: $schemaProperty,
         );
 
         return $properties;
@@ -134,9 +135,9 @@ class SchemaBuilder
      * - "users.*.email" → array of objects with email property
      * - "company.teams.*.members.*.name" → deeply nested arrays
      *
-     * @param  array<string, SchemaProperty>  $properties
+     * @param  array<string, SchemaPropertyInterface>  $properties
      * @param  NormalizedRulesShape  $rules
-     * @return array<string, SchemaProperty>
+     * @return array<string, SchemaPropertyInterface>
      */
     private function addDotNotationStructure(FieldPath $fieldPath, array $rules, array $properties): array
     {
@@ -190,10 +191,10 @@ class SchemaBuilder
      * @param  PathSegment[]  $segments
      */
     private function buildNestedStructure(
-        SchemaProperty $schemaProperty,
+        SchemaPropertyInterface $schemaProperty,
         array $segments,
         array $rules
-    ): SchemaProperty {
+    ): SchemaPropertyInterface {
         if ($segments === []) {
             return $schemaProperty;
         }
@@ -214,20 +215,22 @@ class SchemaBuilder
      * @param  PathSegment[]  $segments
      */
     private function convertPropertyToArray(
-        SchemaProperty $schemaProperty,
+        SchemaPropertyInterface $schemaProperty,
         array $segments,
         array $rules
-    ): SchemaProperty {
-        $itemObject = $schemaProperty->itemsSchema ?? $this->createEmptyObject(name: 'item');
+    ): SchemaPropertyInterface {
+        // Get existing item schema if this is already an array, otherwise create new empty object
+        $itemObject = ($schemaProperty instanceof ArraySchemaProperty)
+            ? $schemaProperty->getItemsSchema() ?? $this->createEmptyObject(name: 'item')
+            : $this->createEmptyObject(name: 'item');
 
         // Build the item structure from remaining segments.
         $itemSchema = $this->buildNestedStructure($itemObject, $segments, $rules);
 
-        return new SchemaProperty(
-            name: $schemaProperty->name,
-            type: 'array',
-            required: $schemaProperty->required,
-            itemsSchema: $itemSchema,
+        return new ArraySchemaProperty(
+            name: $schemaProperty->getName(),
+            required: $schemaProperty->isRequired(),
+            schemaProperty: $itemSchema,
         );
     }
 
@@ -238,25 +241,28 @@ class SchemaBuilder
      * @param  PathSegment[]  $remainingSegments
      */
     private function addPropertyToStructure(
-        SchemaProperty $schemaProperty,
+        SchemaPropertyInterface $schemaProperty,
         PathSegment $pathSegment,
         array $remainingSegments,
         array $rules
-    ): SchemaProperty {
+    ): SchemaPropertyInterface {
         $propertyName = $pathSegment->value;
 
-        $existingSchema = $schemaProperty->propertiesSchema ?? new Schema([]);
+        // Get existing schema from object property
+        $existingSchema = ($schemaProperty instanceof ObjectSchemaProperty)
+            ? $schemaProperty->getPropertiesSchema() ?? new Schema([])
+            : new Schema([]);
 
-        /** @var Collection<string, SchemaProperty> $properties */
-        $properties = Collection::make($existingSchema->properties)->keyBy('name');
+        /** @var Collection<string, SchemaPropertyInterface> $properties */
+        $properties = Collection::make($existingSchema->properties)->keyBy(fn ($p): string => $p->getName());
 
         // If this is a leaf, build the final property with rules.
         if ($pathSegment->isLeaf) {
             $newProperty = $this->propertyBuilder->buildPropertyFromRules($propertyName, $rules);
 
-            $properties->put($newProperty->name, $newProperty);
+            $properties->put($newProperty->getName(), $newProperty);
 
-            return $this->rebuildObjectPropertyWithNewSchema($schemaProperty, $properties->all());
+            return $this->rebuildObjectPropertyWithNewSchema($schemaProperty, $properties->values()->all());
         }
 
         // Otherwise, create/get intermediate object and recurse.
@@ -265,40 +271,36 @@ class SchemaBuilder
 
         $updatedProperty = $this->buildNestedStructure($intermediateProperty, $remainingSegments, $rules);
 
-        $properties->put($updatedProperty->name, $updatedProperty);
+        $properties->put($updatedProperty->getName(), $updatedProperty);
 
-        return $this->rebuildObjectPropertyWithNewSchema($schemaProperty, $properties->all());
+        return $this->rebuildObjectPropertyWithNewSchema($schemaProperty, $properties->values()->all());
     }
 
     /**
      * Rebuilds a property with updated child properties.
      *
-     * @param  SchemaProperty[]  $properties
+     * @param  SchemaPropertyInterface[]  $properties
      */
     private function rebuildObjectPropertyWithNewSchema(
-        SchemaProperty $schemaProperty,
+        SchemaPropertyInterface $schemaProperty,
         array $properties
-    ): SchemaProperty {
-        return new SchemaProperty(
-            name: $schemaProperty->name,
-            type: 'object',
-            required: $schemaProperty->required,
-            format: $schemaProperty->format,
-            enum: $schemaProperty->enum,
-            propertiesSchema: new Schema($properties),
+    ): SchemaPropertyInterface {
+        return new ObjectSchemaProperty(
+            name: $schemaProperty->getName(),
+            required: $schemaProperty->isRequired(),
+            schema: new Schema($properties),
         );
     }
 
     /**
      * Creates an empty object property.
      */
-    private function createEmptyObject(string $name): SchemaProperty
+    private function createEmptyObject(string $name): SchemaPropertyInterface
     {
-        return new SchemaProperty(
+        return new ObjectSchemaProperty(
             name: $name,
-            type: 'object',
             required: false,
-            propertiesSchema: new Schema([])
+            schema: new Schema([])
         );
     }
 }

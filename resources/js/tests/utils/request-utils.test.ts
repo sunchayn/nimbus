@@ -17,12 +17,8 @@ describe('request-utils', () => {
             shortEndpoint: 'users',
             schema: {
                 shape: {
-                    'x-name': 'root',
-                    'x-required': false,
                     properties: {
                         name: {
-                            'x-name': 'name',
-                            'x-required': false,
                             type: 'string',
                         },
                     },
@@ -40,10 +36,7 @@ describe('request-utils', () => {
             endpoint: 'users',
             shortEndpoint: 'users',
             schema: {
-                shape: {
-                    'x-name': 'root',
-                    'x-required': false,
-                },
+                shape: {},
                 extractionErrors: null,
             },
         } as RouteDefinition);
@@ -61,8 +54,6 @@ describe('request-utils', () => {
             body: {},
             schema: {
                 shape: {
-                    'x-name': 'root',
-                    'x-required': false,
                     properties: {},
                 },
                 extractionErrors: null,
@@ -76,10 +67,7 @@ describe('request-utils', () => {
                 endpoint: 'users',
                 shortEndpoint: 'users',
                 schema: {
-                    shape: {
-                        'x-name': 'root',
-                        'x-required': false,
-                    },
+                    shape: {},
                     extractionErrors: null,
                 },
             },

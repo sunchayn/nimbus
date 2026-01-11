@@ -1,11 +1,11 @@
 import { jsonLinter } from '@/components/domain/CodeEditor/jsonLinter';
-import { JsonSchema } from '@/interfaces/schema/shape';
 import { json } from '@codemirror/lang-json';
 import { lintGutter } from '@codemirror/lint';
 import { EditorState } from '@codemirror/state';
 import { jsonSchema } from 'codemirror-json-schema';
+import type { JSONSchema7 } from 'json-schema';
 
-export const jsonExtensions = (readonly: boolean, schema: JsonSchema | undefined) => {
+export const jsonExtensions = (readonly: boolean, schema: JSONSchema7 | undefined) => {
     const extensions = commonExtensions(readonly);
 
     extensions.push(json());

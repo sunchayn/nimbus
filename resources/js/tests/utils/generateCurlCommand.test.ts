@@ -17,10 +17,7 @@ const requestBase: PendingRequest = {
     },
     payloadType: RequestBodyTypeEnum.JSON,
     schema: {
-        shape: {
-            'x-name': 'root',
-            'x-required': false,
-        },
+        shape: {},
         extractionErrors: null,
     },
     queryParameters: [{ key: 'page', value: '1' }],
@@ -31,10 +28,7 @@ const requestBase: PendingRequest = {
         endpoint: 'users',
         shortEndpoint: 'users',
         schema: {
-            shape: {
-                'x-name': 'root',
-                'x-required': false,
-            },
+            shape: {},
             extractionErrors: null,
         },
     },

@@ -109,13 +109,13 @@ export function useRequestBody() {
         }
 
         // If we don't have the value memoized, we make up a new placeholder initial state.
-        const JsonSchema = pendingRequestData.value?.schema?.shape;
+        const JSONSchema7 = pendingRequestData.value?.schema?.shape;
 
-        if (!JsonSchema) {
+        if (!JSONSchema7) {
             return null;
         }
 
-        const placeholderPayload = generatePlaceholderPayloadFn(JsonSchema);
+        const placeholderPayload = generatePlaceholderPayloadFn(JSONSchema7);
 
         // Store and return the serialized payload
         return serializeSchemaPayload(placeholderPayload, payloadType.value);

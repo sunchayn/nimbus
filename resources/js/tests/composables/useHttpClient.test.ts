@@ -28,10 +28,7 @@ const defaultPendingRequest = {
     body: {},
     payloadType: RequestBodyTypeEnum.JSON,
     schema: {
-        shape: {
-            'x-required': false,
-            'x-name': 'root',
-        },
+        shape: {},
         extractionErrors: null,
     },
     supportedRoutes: [],
@@ -40,10 +37,7 @@ const defaultPendingRequest = {
         method: 'get',
         shortEndpoint: 'foobar',
         schema: {
-            shape: {
-                'x-required': false,
-                'x-name': 'root',
-            },
+            shape: {},
             extractionErrors: null,
         },
     },

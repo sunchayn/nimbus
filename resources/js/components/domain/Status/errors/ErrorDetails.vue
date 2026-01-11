@@ -3,7 +3,7 @@ import AppPanelStateContainer from '@/components/base/AppPanelStateContainer.vue
 import { AppBadge } from '@/components/base/badge';
 import { AppScrollArea } from '@/components/base/scroll-area';
 import HttpVerbLabel from '@/components/domain/HttpVerbLabel/HttpVerbLabel.vue';
-import { JsonSchema } from '@/interfaces/schema/shape';
+import type { JSONSchema7 } from 'json-schema';
 
 /*
  * Interfaces.
@@ -15,7 +15,7 @@ interface RouteWithError {
     resource: string;
     version: string;
     schema: {
-        shape: JsonSchema;
+        shape: JSONSchema7;
         extractionErrors: string;
     };
 }

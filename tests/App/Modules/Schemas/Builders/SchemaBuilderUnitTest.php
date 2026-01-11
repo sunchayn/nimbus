@@ -2,8 +2,6 @@
 
 namespace Sunchayn\Nimbus\Tests\App\Modules\Schemas\Builders;
 
-namespace Sunchayn\Nimbus\Tests\App\Modules\Schemas\Builders;
-
 use Generator;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -16,12 +14,19 @@ use stdClass;
 use Sunchayn\Nimbus\Modules\Schemas\Builders\PropertyBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\Builders\SchemaBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
+use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
+use Sunchayn\Nimbus\Modules\Schemas\Enums\StringFormat;
 use Sunchayn\Nimbus\Modules\Schemas\RulesMapper\Processors\EnumRuleProcessor;
 use Sunchayn\Nimbus\Modules\Schemas\RulesMapper\Processors\InRuleProcessor;
 use Sunchayn\Nimbus\Modules\Schemas\RulesMapper\RuleToSchemaMapper;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ArraySchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\BooleanSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\FieldPath;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\IntegerSchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\NumberSchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ObjectSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
-use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 use Sunchayn\Nimbus\Tests\App\Modules\Schemas\Builders\Stubs\StatusEnumStub;
 
 #[CoversClass(SchemaBuilder::class)]
@@ -74,14 +79,14 @@ class SchemaBuilderUnitTest extends TestCase
             ],
             'expectedSchema' => new Schema(
                 properties: [
-                    new SchemaProperty(name: 'name', type: 'string', required: true, format: null, itemsSchema: null, propertiesSchema: null),
-                    new SchemaProperty(name: 'email', type: 'string', required: true, format: 'email', itemsSchema: null, propertiesSchema: null),
-                    new SchemaProperty(name: 'age', type: 'integer', required: false, format: null, itemsSchema: null, propertiesSchema: null, minimum: 18, maximum: 99),
-                    new SchemaProperty(name: 'statuses', type: 'string', required: true, format: null, enum: ['inactive', 'active'], itemsSchema: null, propertiesSchema: null),
-                    new SchemaProperty(name: 'statuses_v2', type: 'string', required: true, format: null, enum: ['inactive', 'active'], itemsSchema: null, propertiesSchema: null),
-                    new SchemaProperty(name: 'role', type: 'integer', required: true, format: null, enum: [1, 2, 3, 4], itemsSchema: null, propertiesSchema: null),
-                    new SchemaProperty(name: 'role_v2', type: 'integer', required: true, format: null, enum: [1, 2, 3, 4], itemsSchema: null, propertiesSchema: null),
-                    new SchemaProperty(name: 'role_2', type: 'integer', required: true, format: null, enum: [2, 3], itemsSchema: null, propertiesSchema: null),
+                    new StringSchemaProperty(name: 'name', required: true),
+                    new StringSchemaProperty(name: 'email', required: true, stringFormat: StringFormat::EMAIL),
+                    new IntegerSchemaProperty(name: 'age', required: false, minimum: 18, maximum: 99),
+                    new StringSchemaProperty(name: 'statuses', required: true, enum: ['inactive', 'active']),
+                    new StringSchemaProperty(name: 'statuses_v2', required: true, enum: ['inactive', 'active']),
+                    new IntegerSchemaProperty(name: 'role', required: true, enum: [1, 2, 3, 4]),
+                    new IntegerSchemaProperty(name: 'role_v2', required: true, enum: [1, 2, 3, 4]),
+                    new IntegerSchemaProperty(name: 'role_2', required: true, enum: [2, 3]),
                 ],
                 extractionError: null,
             ),
@@ -94,16 +99,13 @@ class SchemaBuilderUnitTest extends TestCase
             ],
             'expectedSchema' => new Schema(
                 properties: [
-                    new SchemaProperty(
+                    new ObjectSchemaProperty(
                         name: 'user',
-                        type: 'object',
                         required: false,
-                        format: null,
-                        itemsSchema: null,
-                        propertiesSchema: new Schema(
+                        schema: new Schema(
                             properties: [
-                                new SchemaProperty(name: 'name', type: 'string', required: true, format: null, itemsSchema: null, propertiesSchema: null),
-                                new SchemaProperty(name: 'email', type: 'string', required: true, format: 'email', itemsSchema: null, propertiesSchema: null),
+                                new StringSchemaProperty(name: 'name', required: true),
+                                new StringSchemaProperty(name: 'email', required: true, stringFormat: StringFormat::EMAIL),
                             ],
                             extractionError: null,
                         ),
@@ -120,20 +122,13 @@ class SchemaBuilderUnitTest extends TestCase
             ],
             'expectedSchema' => new Schema(
                 properties: [
-                    new SchemaProperty(
+                    new ArraySchemaProperty(
                         name: 'tags',
-                        type: 'array',
                         required: false,
-                        format: null,
-                        itemsSchema: new SchemaProperty(
+                        schemaProperty: new StringSchemaProperty(
                             name: 'tag', // <- Singular value of parent property `tags`.
-                            type: 'string',
                             required: false,
-                            format: null,
-                            itemsSchema: null,
-                            propertiesSchema: null,
                         ),
-                        propertiesSchema: null,
                     ),
                 ],
                 extractionError: null,
@@ -148,41 +143,28 @@ class SchemaBuilderUnitTest extends TestCase
             ],
             'expectedSchema' => new Schema(
                 properties: [
-                    new SchemaProperty(
+                    new ArraySchemaProperty(
                         name: 'persons',
-                        type: 'array',
                         required: true,
-                        format: null,
-                        itemsSchema: new SchemaProperty(
+                        schemaProperty: new ObjectSchemaProperty(
                             name: 'item',
-                            type: 'object',
                             required: false,
-                            format: null,
-                            itemsSchema: null,
-                            propertiesSchema: new Schema(
+                            schema: new Schema(
                                 properties: [
-                                    new SchemaProperty(
+                                    new StringSchemaProperty(
                                         name: 'email',
-                                        type: 'string',
                                         required: false,
-                                        format: 'email',
-                                        itemsSchema: null,
-                                        propertiesSchema: null,
+                                        stringFormat: StringFormat::EMAIL,
                                     ),
-                                    new SchemaProperty(
+                                    new StringSchemaProperty(
                                         name: 'username',
-                                        type: 'string',
                                         required: false,
-                                        format: null,
-                                        itemsSchema: null,
-                                        propertiesSchema: null,
-                                        maximum: 20,
+                                        maxLength: 20,
                                     ),
                                 ],
                                 extractionError: null,
                             )
                         ),
-                        propertiesSchema: null,
                     ),
                 ],
                 extractionError: null,
@@ -199,11 +181,11 @@ class SchemaBuilderUnitTest extends TestCase
             ],
             'expectedSchema' => new Schema(
                 properties: [
-                    new SchemaProperty(name: 'id', type: 'string', required: true, format: 'uuid', itemsSchema: null, propertiesSchema: null),
-                    new SchemaProperty(name: 'name', type: 'string', required: true, format: null, itemsSchema: null, propertiesSchema: null),
-                    new SchemaProperty(name: 'age', type: 'integer', required: false, format: null, itemsSchema: null, propertiesSchema: null),
-                    new SchemaProperty(name: 'is_active', type: 'boolean', required: false, format: null, itemsSchema: null, propertiesSchema: null),
-                    new SchemaProperty(name: 'salary', type: 'number', required: false, format: null, itemsSchema: null, propertiesSchema: null),
+                    new StringSchemaProperty(name: 'id', required: true, stringFormat: StringFormat::UUID),
+                    new StringSchemaProperty(name: 'name', required: true),
+                    new IntegerSchemaProperty(name: 'age', required: false),
+                    new BooleanSchemaProperty(name: 'is_active', required: false),
+                    new NumberSchemaProperty(name: 'salary', required: false),
                 ],
                 extractionError: null,
             ),
@@ -223,39 +205,27 @@ class SchemaBuilderUnitTest extends TestCase
             ],
             'expectedSchema' => new Schema(
                 properties: [
-                    new SchemaProperty(
+                    new ObjectSchemaProperty(
                         name: 'company',
-                        type: 'object',
                         required: false,
-                        format: null,
-                        itemsSchema: null,
-                        propertiesSchema: new Schema(
+                        schema: new Schema(
                             properties: [
-                                new SchemaProperty(
+                                new ObjectSchemaProperty(
                                     name: 'department',
-                                    type: 'object',
                                     required: false,
-                                    format: null,
-                                    itemsSchema: null,
-                                    propertiesSchema: new Schema(
+                                    schema: new Schema(
                                         properties: [
-                                            new SchemaProperty(
+                                            new ObjectSchemaProperty(
                                                 name: 'team',
-                                                type: 'object',
                                                 required: false,
-                                                format: null,
-                                                itemsSchema: null,
-                                                propertiesSchema: new Schema(
+                                                schema: new Schema(
                                                     properties: [
-                                                        new SchemaProperty(
+                                                        new ObjectSchemaProperty(
                                                             name: 'member',
-                                                            type: 'object',
                                                             required: false,
-                                                            format: null,
-                                                            itemsSchema: null,
-                                                            propertiesSchema: new Schema(
+                                                            schema: new Schema(
                                                                 properties: [
-                                                                    new SchemaProperty(name: 'name', type: 'string', required: true, format: null, itemsSchema: null, propertiesSchema: null),
+                                                                    new StringSchemaProperty(name: 'name', required: true),
                                                                 ],
                                                                 extractionError: null,
                                                             ),
@@ -276,6 +246,7 @@ class SchemaBuilderUnitTest extends TestCase
                 extractionError: null,
             ),
         ];
+
         yield 'deep nesting (array)' => [
             'rules' => [
                 'company.teams.*.members.*.member.name' => 'string',
@@ -283,62 +254,35 @@ class SchemaBuilderUnitTest extends TestCase
             ],
             'expectedSchema' => new Schema(
                 properties: [
-                    new SchemaProperty(
+                    new ObjectSchemaProperty(
                         name: 'company',
-                        type: 'object',
                         required: false,
-                        format: null,
-                        enum: null,
-                        itemsSchema: null,
-                        propertiesSchema: new Schema(
+                        schema: new Schema(
                             properties: [
-                                new SchemaProperty(
+                                new ArraySchemaProperty(
                                     name: 'teams',
-                                    type: 'array',
                                     required: false,
-                                    format: null,
-                                    enum: null,
-                                    itemsSchema: new SchemaProperty(
+                                    schemaProperty: new ObjectSchemaProperty(
                                         name: 'item',
-                                        type: 'object',
                                         required: false,
-                                        format: null,
-                                        enum: null,
-                                        itemsSchema: null,
-                                        propertiesSchema: new Schema(
+                                        schema: new Schema(
                                             properties: [
-                                                new SchemaProperty(
+                                                new ArraySchemaProperty(
                                                     name: 'members',
-                                                    type: 'array',
                                                     required: true,
-                                                    format: null,
-                                                    enum: null,
-                                                    itemsSchema: new SchemaProperty(
+                                                    schemaProperty: new ObjectSchemaProperty(
                                                         name: 'item',
-                                                        type: 'object',
                                                         required: false,
-                                                        format: null,
-                                                        enum: null,
-                                                        itemsSchema: null,
-                                                        propertiesSchema: new Schema(
+                                                        schema: new Schema(
                                                             properties: [
-                                                                new SchemaProperty(
+                                                                new ObjectSchemaProperty(
                                                                     name: 'member',
-                                                                    type: 'object',
                                                                     required: false,
-                                                                    format: null,
-                                                                    enum: null,
-                                                                    itemsSchema: null,
-                                                                    propertiesSchema: new Schema(
+                                                                    schema: new Schema(
                                                                         properties: [
-                                                                            new SchemaProperty(
+                                                                            new StringSchemaProperty(
                                                                                 name: 'name',
-                                                                                type: 'string',
                                                                                 required: false,
-                                                                                format: null,
-                                                                                enum: null,
-                                                                                itemsSchema: null,
-                                                                                propertiesSchema: null,
                                                                             ),
                                                                         ],
                                                                         extractionError: null,
@@ -348,13 +292,11 @@ class SchemaBuilderUnitTest extends TestCase
                                                             extractionError: null,
                                                         ),
                                                     ),
-                                                    propertiesSchema: null,
                                                 ),
                                             ],
                                             extractionError: null,
                                         ),
                                     ),
-                                    propertiesSchema: null,
                                 ),
                             ],
                             extractionError: null,
@@ -382,7 +324,9 @@ class SchemaBuilderUnitTest extends TestCase
 
         $this->assertNotNull($property, "Property '{$propertyName}' not found");
 
-        $this->assertEquals($expectedFormat, $property->format);
+        // Access format via toJsonSchema() for compatibility with all property types
+        $propertyArray = $property->toJsonSchema();
+        $this->assertEquals($expectedFormat, $propertyArray['format'] ?? null);
     }
 
     public static function formatDetectionDataProvider(): Generator
@@ -428,7 +372,9 @@ class SchemaBuilderUnitTest extends TestCase
 
         $this->assertNotNull($property, "Property '{$propertyName}' not found");
 
-        $this->assertEquals($expectedEnum, $property->enum);
+        // Access enum via toJsonSchema() for compatibility with all property types
+        $propertyArray = $property->toJsonSchema();
+        $this->assertEquals($expectedEnum, $propertyArray['enum'] ?? null);
     }
 
     public static function enumValuesDataProvider(): Generator
@@ -450,11 +396,11 @@ class SchemaBuilderUnitTest extends TestCase
      * Helpers.
      */
 
-    private function findPropertyByName(Schema $schema, string $name): ?SchemaProperty
+    private function findPropertyByName(Schema $schema, string $name): ?SchemaPropertyInterface
     {
         return Arr::first(
             $schema->properties,
-            fn (SchemaProperty $property) => $property->name === $name,
+            fn ($property) => $property->getName() === $name,
         );
     }
 

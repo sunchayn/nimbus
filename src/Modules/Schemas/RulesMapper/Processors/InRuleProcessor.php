@@ -4,18 +4,16 @@ namespace Sunchayn\Nimbus\Modules\Schemas\RulesMapper\Processors;
 
 use BackedEnum;
 use Illuminate\Validation\Rules\In;
+use Sunchayn\Nimbus\Modules\Schemas\Enums\SchemaPropertyType;
 use UnitEnum;
 
 /**
  * Processes `In` validation rules to extract allowed values for schema generation.
- *
- * @phpstan-import-type SchemaPropertyTypesShape from \Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty
- * @phpstan-import-type SchemaPropertyEnumShape from \Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty
  */
 class InRuleProcessor
 {
     /**
-     * @return array{type: 'string'|'integer', enum: SchemaPropertyEnumShape|null}
+     * @return array{type: SchemaPropertyType::STRING | SchemaPropertyType::INTEGER, enum: ?non-empty-array<array-key, scalar>}
      */
     public static function process(In $in): array
     {
@@ -33,20 +31,20 @@ class InRuleProcessor
             $rawValues,
         );
 
-        /** @var array<array-key, scalar> $values */
+        /** @var array<array-key, scalar>|array{} $values */
         $values = array_values(
             array_filter($values), // <- Removes null values.
         );
 
         if (empty($values)) {
-            return ['type' => 'string', 'enum' => null];
+            return ['type' => SchemaPropertyType::STRING, 'enum' => null];
         }
 
         $identityValue = $values[0];
 
         $type = match (true) {
-            is_int($identityValue) => 'integer',
-            default => 'string',
+            is_int($identityValue) => SchemaPropertyType::INTEGER,
+            default => SchemaPropertyType::STRING,
         };
 
         return ['type' => $type, 'enum' => $values];

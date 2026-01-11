@@ -7,14 +7,12 @@ use Illuminate\Support\Str;
 use Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
 
 /**
- * @phpstan-import-type SchemaShape from \Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema
- *
  * @phpstan-type RouteDefinitionShape array{
  *     uri: string,
  *     shortUri: string,
  *     methods: string[],
- *     schema: SchemaShape,
- *     extractionError: string,
+ *     schema: array<string, mixed>,
+ *     extractionError: string|null,
  * }
  *
  * @extends Collection<array-key, ExtractedRoute>

@@ -18,7 +18,7 @@ use Sunchayn\Nimbus\Modules\Routes\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\Builders\SchemaBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
-use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 
 #[CoversClass(InlineRequestValidatorExtractorStrategy::class)]
 class InlineRequestValidatorExtractorStrategyUnitTest extends TestCase
@@ -89,8 +89,8 @@ class InlineRequestValidatorExtractorStrategyUnitTest extends TestCase
         // Arrange
 
         $responseSchemaStub = new Schema(properties: [
-            new SchemaProperty(name: 'name'),
-            new SchemaProperty(name: 'email'),
+            new StringSchemaProperty(name: 'name'),
+            new StringSchemaProperty(name: 'email'),
         ]);
 
         $ast = ['node' => 'value'];

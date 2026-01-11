@@ -5,6 +5,7 @@ namespace Sunchayn\Nimbus\Modules\Schemas\RulesMapper;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\In;
 use Illuminate\Validation\ValidationRuleParser;
+use Sunchayn\Nimbus\Modules\Schemas\Enums\SchemaPropertyType;
 use Sunchayn\Nimbus\Modules\Schemas\RulesMapper\Processors\EnumRuleProcessor;
 use Sunchayn\Nimbus\Modules\Schemas\RulesMapper\Processors\InRuleProcessor;
 
@@ -12,24 +13,18 @@ use Sunchayn\Nimbus\Modules\Schemas\RulesMapper\Processors\InRuleProcessor;
  * Converts Laravel validation rules into JSON Schema property definitions.
  *
  * @phpstan-import-type NormalizedRulesShape from \Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset
- * @phpstan-import-type SchemaPropertyTypesShape from \Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty
- * @phpstan-import-type SchemaPropertyFormatsShape from \Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty
- * @phpstan-import-type SchemaPropertyEnumShape from \Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty
  */
 class RuleToSchemaMapper
 {
     /**
      * Converts an array of Laravel validation rules into schema property data.
      *
-     * Laravel's validation rules are processed sequentially, with later rules
-     * potentially overriding earlier ones (e.g., 'string' then 'email').
-     *
      * @param  NormalizedRulesShape  $rules
      * @return array{
-     *    type: SchemaPropertyTypesShape,
+     *    type: SchemaPropertyType,
      *    required: bool,
-     *    format: SchemaPropertyFormatsShape|null,
-     *    enum: SchemaPropertyEnumShape|null,
+     *    format: string|null,
+     *    enum: ?non-empty-array<array-key, scalar>,
      *    minimum: ?int,
      *    maximum: ?int,
      *  }
@@ -37,7 +32,7 @@ class RuleToSchemaMapper
     public function convertRulesToBaseSchemaPropertyMetadata(array $rules): array
     {
         $shape = [
-            'type' => 'string',
+            'type' => SchemaPropertyType::STRING,
             'required' => false,
             'format' => null,
             'enum' => null,
@@ -58,13 +53,14 @@ class RuleToSchemaMapper
     /**
      * Processes individual validation rules and returns the changes to apply.
      *
-     * @return array{}|array{
-     *     type?: SchemaPropertyTypesShape,
-     *     format?: SchemaPropertyFormatsShape,
-     *     enum?: SchemaPropertyEnumShape|null,
+     * @return array{
+     *     type?: SchemaPropertyType,
+     *     format?: string,
+     *     enum?: ?non-empty-array<array-key, scalar>,
      *     minimum?: int,
      *     maximum?: int,
-     *     }
+     *     required?: bool,
+     *     }|array{}
      */
     private function processRule(mixed $rule): array
     {
@@ -82,11 +78,11 @@ class RuleToSchemaMapper
 
         return match ($ruleName) {
             'required' => ['required' => true],
-            'string' => ['type' => 'string'],
-            'integer' => ['type' => 'integer'],
-            'numeric' => ['type' => 'number'],
-            'boolean' => ['type' => 'boolean'],
-            'array' => ['type' => 'array'],
+            'string' => ['type' => SchemaPropertyType::STRING],
+            'integer' => ['type' => SchemaPropertyType::INTEGER],
+            'numeric' => ['type' => SchemaPropertyType::NUMBER],
+            'boolean' => ['type' => SchemaPropertyType::BOOLEAN],
+            'array' => ['type' => SchemaPropertyType::ARRAY],
             'email' => $this->setFormat('email'),
             'uuid' => $this->setFormat('uuid'),
             'date' => $this->setFormat('date-time'),
@@ -99,27 +95,21 @@ class RuleToSchemaMapper
     }
 
     /**
-     * Handles custom validation rule objects.
-     *
-     * Analyzes specific rule types like Enum and In to extract constraint
-     * information, falling back to string type for unknown rules.
-     *
-     * @return array{type: 'integer'|'string', enum?: SchemaPropertyEnumShape|null}
+     * @return array{type: SchemaPropertyType, enum?: ?non-empty-array<array-key, scalar>}
      */
     private function processObjectRule(object $rule): array
     {
         return match (true) {
             $rule instanceof Enum => EnumRuleProcessor::process($rule),
             $rule instanceof In => InRuleProcessor::process($rule),
-            default => ['type' => 'string'],
+            default => ['type' => SchemaPropertyType::STRING],
         };
     }
 
     /**
      * Sets the format specification for the property.
      *
-     * @param  SchemaPropertyFormatsShape  $format
-     * @return array{format: SchemaPropertyFormatsShape, type?: 'string'}
+     * @return array{format: string, type?: SchemaPropertyType}
      */
     private function setFormat(string $format): array
     {
@@ -127,20 +117,15 @@ class RuleToSchemaMapper
 
         // Email, UUID, and date-time are all string-based formats in JSON Schema
         if (in_array($format, ['email', 'uuid', 'date-time'], true)) {
-            $result['type'] = 'string';
+            $result['type'] = SchemaPropertyType::STRING;
         }
 
         return $result;
     }
 
     /**
-     * Sets enum constraints from validation rule parameters.
-     *
-     * The 'in' rule provides explicit allowed values that must be preserved
-     * in the schema for proper validation.
-     *
-     * @param  array<int, mixed>  $params
-     * @return array{enum: SchemaPropertyEnumShape}|array{}
+     * @param  array<array-key, scalar>  $params
+     * @return array{enum: non-empty-array<array-key, scalar>}|array{}
      */
     private function setEnum(array $params): array
     {

@@ -1,8 +1,8 @@
 import { AuthorizationContract } from '@/interfaces/auth/authorization';
 import { RequestHeader } from '@/interfaces/http';
 import { RouteDefinition } from '@/interfaces/routes/routes';
-import { JsonSchema } from '@/interfaces/schema/shape';
 import { ParametersExternalContract } from '@/interfaces/ui';
+import type { JSONSchema7 } from 'json-schema';
 
 export enum RequestBodyTypeEnum {
     EMPTY = 'empty',
@@ -64,7 +64,7 @@ export interface PendingRequest {
      * any errors encountered during schema extraction from routes.
      */
     schema: {
-        shape: JsonSchema;
+        shape: JSONSchema7;
         extractionErrors: string | null;
     };
 

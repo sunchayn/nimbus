@@ -60,10 +60,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: null,
                                 },
                             },
@@ -72,10 +69,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: null,
                                 },
                             },
@@ -105,10 +99,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: 'Schema error',
                                 },
                             },
@@ -117,10 +108,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: null,
                                 },
                             },
@@ -150,10 +138,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: 'Error',
                                 },
                             },
@@ -162,10 +147,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: null,
                                 },
                             },
@@ -174,10 +156,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: null,
                                 },
                             },
@@ -202,10 +181,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: null,
                                 },
                             },
@@ -221,10 +197,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/posts',
                                 shortEndpoint: 'api/posts',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: 'Error',
                                 },
                             },
@@ -264,10 +237,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: null,
                                 },
                             },
@@ -292,7 +262,6 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: { 'x-name': 'root', 'x-required': true },
                                     extractionErrors: 'Schema extraction failed',
                                 },
                             },
@@ -301,10 +270,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: null,
                                 },
                             },
@@ -322,7 +288,6 @@ describe('useRouteStatistics', () => {
                 resource: 'users',
                 version: 'v1',
                 schema: {
-                    shape: { 'x-name': 'root' },
                     extractionErrors: 'Schema extraction failed',
                 },
             });
@@ -339,10 +304,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: 'Error',
                                 },
                             },
@@ -351,10 +313,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: null,
                                 },
                             },
@@ -370,10 +329,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/posts',
                                 shortEndpoint: 'api/posts',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: 'Another error',
                                 },
                             },
@@ -400,10 +356,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: '',
                                 },
                             },

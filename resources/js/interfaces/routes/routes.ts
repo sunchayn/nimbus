@@ -1,10 +1,10 @@
-import { JsonSchema } from '@/interfaces/schema/shape';
+import type { JSONSchema7 } from 'json-schema';
 
 export type RouteDefinition = {
     endpoint: string;
     method: string;
     schema: {
-        shape: JsonSchema;
+        shape: JSONSchema7;
         extractionErrors: string | null;
     };
     shortEndpoint: string;

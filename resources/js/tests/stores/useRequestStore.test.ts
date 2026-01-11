@@ -116,10 +116,7 @@ describe('useRequestStore', () => {
                 endpoint: 'api/users',
                 shortEndpoint: 'api/users',
                 schema: {
-                    shape: {
-                        'x-name': 'root',
-                        'x-required': false,
-                    },
+                    shape: {},
                     extractionErrors: null,
                 },
             };
@@ -140,10 +137,7 @@ describe('useRequestStore', () => {
                 endpoint: 'api/users',
                 shortEndpoint: 'api/users',
                 schema: {
-                    shape: {
-                        'x-name': 'root',
-                        'x-required': false,
-                    },
+                    shape: {},
                     extractionErrors: null,
                 },
             };
@@ -167,10 +161,7 @@ describe('useRequestStore', () => {
                 endpoint: 'api/users',
                 shortEndpoint: 'api/users',
                 schema: {
-                    shape: {
-                        'x-name': 'root',
-                        'x-required': false,
-                    },
+                    shape: {},
                     extractionErrors: null,
                 },
             };
@@ -197,10 +188,7 @@ describe('useRequestStore', () => {
                 endpoint: 'api/accounts',
                 shortEndpoint: 'api/accounts',
                 schema: {
-                    shape: {
-                        'x-name': 'root',
-                        'x-required': false,
-                    },
+                    shape: {},
                     extractionErrors: null,
                 },
             };
@@ -345,10 +333,7 @@ describe('useRequestStore', () => {
                 endpoint: 'api/users',
                 shortEndpoint: 'api/users',
                 schema: {
-                    shape: {
-                        'x-name': 'root',
-                        'x-required': false,
-                    },
+                    shape: {},
                     extractionErrors: null,
                 },
             };

@@ -13,7 +13,7 @@ use Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
 use Sunchayn\Nimbus\Modules\Routes\ValueObjects\Endpoint;
 use Sunchayn\Nimbus\Modules\Routes\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
-use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 
 #[CoversClass(ExtractedRoutesCollection::class)]
 class ExtractedRoutesCollectionUnitTest extends TestCase
@@ -77,7 +77,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                     methods: ['POST'],
                     schema: new Schema(
                         properties: [
-                            new SchemaProperty(
+                            new StringSchemaProperty(
                                 name: 'type',
                             ),
                         ],
@@ -125,8 +125,6 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                                 'properties' => [
                                     'type' => [
                                         'type' => 'string',
-                                        'x-name' => 'type',
-                                        'x-required' => false,
                                     ],
                                 ],
                                 'required' => [],
@@ -193,7 +191,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                                 'additionalProperties' => false,
                             ],
                             'extractionError' => '<b>[no error message]</b><br />
-<small>'.__FILE__.'::163</small>
+<small>'.__FILE__.'::161</small>
 <p class="text-xs">[trace]</p>',
                         ],
                     ],

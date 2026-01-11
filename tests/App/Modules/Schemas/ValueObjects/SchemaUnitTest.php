@@ -9,8 +9,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Sunchayn\Nimbus\Modules\Routes\ValueObjects\RulesExtractionError;
+use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
-use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 
 #[CoversClass(Schema::class)]
 class SchemaUnitTest extends TestCase
@@ -62,7 +63,7 @@ class SchemaUnitTest extends TestCase
         ];
 
         yield 'Non-empty schema' => [
-            'schema' => new Schema(properties: [new SchemaProperty(name: 'field')]),
+            'schema' => new Schema(properties: [new StringSchemaProperty(name: 'field')]),
             'expected' => false,
         ];
     }
@@ -87,117 +88,124 @@ class SchemaUnitTest extends TestCase
     {
         yield 'empty schema' => [
             'properties' => [],
-            'expected' => [],
+            'expected' => [
+                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                'type' => 'object',
+                'properties' => [],
+                'required' => [],
+                'additionalProperties' => false,
+            ],
         ];
 
         yield 'single property' => [
             'properties' => [
-                new class(name: 'name') extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return ['type' => 'string'];
-                    }
-                },
+                self::createMockProperty('name', ['type' => 'string']),
             ],
             'expected' => [
-                'name' => ['type' => 'string'],
+                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                'type' => 'object',
+                'properties' => [
+                    'name' => ['type' => 'string'],
+                ],
+                'required' => [],
+                'additionalProperties' => false,
             ],
         ];
 
         yield 'multiple properties' => [
             'properties' => [
-                new class(name: 'name') extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return ['type' => 'string'];
-                    }
-                },
-                new class(name: 'age') extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return ['type' => 'integer'];
-                    }
-                },
+                self::createMockProperty('name', ['type' => 'string']),
+                self::createMockProperty('age', ['type' => 'integer']),
             ],
             'expected' => [
-                'name' => ['type' => 'string'],
-                'age' => ['type' => 'integer'],
+                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                'type' => 'object',
+                'properties' => [
+                    'name' => ['type' => 'string'],
+                    'age' => ['type' => 'integer'],
+                ],
+                'required' => [],
+                'additionalProperties' => false,
             ],
         ];
 
         yield 'properties with formats' => [
             'properties' => [
-                new class(name: 'email') extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return ['type' => 'string', 'format' => 'email'];
-                    }
-                },
-                new class(name: 'uuid') extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return ['type' => 'string', 'format' => 'uuid'];
-                    }
-                },
+                self::createMockProperty('email', ['type' => 'string', 'format' => 'email']),
+                self::createMockProperty('uuid', ['type' => 'string', 'format' => 'uuid']),
             ],
             'expected' => [
-                'email' => ['type' => 'string', 'format' => 'email'],
-                'uuid' => ['type' => 'string', 'format' => 'uuid'],
+                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                'type' => 'object',
+                'properties' => [
+                    'email' => ['type' => 'string', 'format' => 'email'],
+                    'uuid' => ['type' => 'string', 'format' => 'uuid'],
+                ],
+                'required' => [],
+                'additionalProperties' => false,
             ],
         ];
 
         yield 'nested object properties' => [
             'properties' => [
-                new class(name: 'user') extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return [
-                            'type' => 'object',
-                            'properties' => [
-                                'name' => ['type' => 'string'],
-                                'email' => ['type' => 'string', 'format' => 'email'],
-                            ],
-                        ];
-                    }
-                },
-            ],
-            'expected' => [
-                'user' => [
+                self::createMockProperty('user', [
                     'type' => 'object',
                     'properties' => [
                         'name' => ['type' => 'string'],
                         'email' => ['type' => 'string', 'format' => 'email'],
                     ],
+                ]),
+            ],
+            'expected' => [
+                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                'type' => 'object',
+                'properties' => [
+                    'user' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'name' => ['type' => 'string'],
+                            'email' => ['type' => 'string', 'format' => 'email'],
+                        ],
+                    ],
                 ],
+                'required' => [],
+                'additionalProperties' => false,
             ],
         ];
 
         yield 'array properties' => [
             'properties' => [
-                new class(name: 'tags') extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return [
-                            'type' => 'array',
-                            'items' => ['type' => 'string'],
-                        ];
-                    }
-                },
-            ],
-            'expected' => [
-                'tags' => [
+                self::createMockProperty('tags', [
                     'type' => 'array',
                     'items' => ['type' => 'string'],
+                ]),
+            ],
+            'expected' => [
+                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                'type' => 'object',
+                'properties' => [
+                    'tags' => [
+                        'type' => 'array',
+                        'items' => ['type' => 'string'],
+                    ],
                 ],
+                'required' => [],
+                'additionalProperties' => false,
             ],
         ];
+    }
+
+    /**
+     * Helper to create mock property for testing.
+     */
+    private static function createMockProperty(string $name, array $arrayData, bool $required = false): SchemaPropertyInterface
+    {
+        $mock = Mockery::mock(SchemaPropertyInterface::class);
+        $mock->shouldReceive('getName')->andReturn($name);
+        $mock->shouldReceive('isRequired')->andReturn($required);
+        $mock->shouldReceive('toJsonSchema')->andReturn($arrayData);
+
+        return $mock;
     }
 
     #[DataProvider('toJsonSchemaDataProvider')]
@@ -231,13 +239,7 @@ class SchemaUnitTest extends TestCase
 
         yield 'single non-required property' => [
             'properties' => [
-                new class(name: 'name') extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return ['type' => 'string'];
-                    }
-                },
+                self::createMockProperty('name', ['type' => 'string']),
             ],
             'expected' => [
                 '$schema' => 'https://json-schema.org/draft/2020-12/schema',
@@ -252,13 +254,7 @@ class SchemaUnitTest extends TestCase
 
         yield 'single required property' => [
             'properties' => [
-                new class(name: 'email', required: true) extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return ['type' => 'string', 'format' => 'email'];
-                    }
-                },
+                self::createMockProperty('email', ['type' => 'string', 'format' => 'email'], true),
             ],
             'expected' => [
                 '$schema' => 'https://json-schema.org/draft/2020-12/schema',
@@ -273,27 +269,9 @@ class SchemaUnitTest extends TestCase
 
         yield 'mixed required and optional properties' => [
             'properties' => [
-                new class(name: 'name', required: true) extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return ['type' => 'string'];
-                    }
-                },
-                new class(name: 'age') extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return ['type' => 'integer'];
-                    }
-                },
-                new class(name: 'email', required: true) extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return ['type' => 'string', 'format' => 'email'];
-                    }
-                },
+                self::createMockProperty('name', ['type' => 'string'], true),
+                self::createMockProperty('age', ['type' => 'integer']),
+                self::createMockProperty('email', ['type' => 'string', 'format' => 'email'], true),
             ],
             'expected' => [
                 '$schema' => 'https://json-schema.org/draft/2020-12/schema',
@@ -310,27 +288,9 @@ class SchemaUnitTest extends TestCase
 
         yield 'all required properties' => [
             'properties' => [
-                new class(name: 'id', required: true) extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return ['type' => 'string', 'format' => 'uuid'];
-                    }
-                },
-                new class(name: 'name', required: true) extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return ['type' => 'string'];
-                    }
-                },
-                new class(name: 'email', required: true) extends SchemaProperty
-                {
-                    public function toArray(): array
-                    {
-                        return ['type' => 'string', 'format' => 'email'];
-                    }
-                },
+                self::createMockProperty('id', ['type' => 'string', 'format' => 'uuid'], true),
+                self::createMockProperty('name', ['type' => 'string'], true),
+                self::createMockProperty('email', ['type' => 'string', 'format' => 'email'], true),
             ],
             'expected' => [
                 '$schema' => 'https://json-schema.org/draft/2020-12/schema',

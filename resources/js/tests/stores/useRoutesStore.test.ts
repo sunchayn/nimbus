@@ -85,20 +85,14 @@ describe('useRoutesStore', () => {
                             uri: '/api/users',
                             shortUri: '/api/users',
                             extractionError: null,
-                            schema: {
-                                'x-name': 'root',
-                                'x-required': false,
-                            },
+                            schema: {},
                         },
                         {
                             methods: ['POST', 'PUT'],
                             uri: '/api/users',
                             shortUri: '/api/users',
                             extractionError: null,
-                            schema: {
-                                'x-name': 'root',
-                                'x-required': false,
-                            },
+                            schema: {},
                         },
                     ],
                 },
@@ -114,10 +108,7 @@ describe('useRoutesStore', () => {
                                 endpoint: '/api/users',
                                 shortEndpoint: '/api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: null,
                                 },
                             },
@@ -126,10 +117,7 @@ describe('useRoutesStore', () => {
                                 endpoint: '/api/users',
                                 shortEndpoint: '/api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: null,
                                 },
                             },
@@ -138,10 +126,7 @@ describe('useRoutesStore', () => {
                                 endpoint: '/api/users',
                                 shortEndpoint: '/api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: null,
                                 },
                             },
@@ -150,10 +135,7 @@ describe('useRoutesStore', () => {
                                 endpoint: '/api/users',
                                 shortEndpoint: '/api/users',
                                 schema: {
-                                    shape: {
-                                        'x-name': 'root',
-                                        'x-required': false,
-                                    },
+                                    shape: {},
                                     extractionErrors: null,
                                 },
                             },

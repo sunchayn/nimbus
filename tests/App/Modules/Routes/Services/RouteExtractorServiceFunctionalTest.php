@@ -17,7 +17,7 @@ use Sunchayn\Nimbus\Modules\Routes\Factories\ExtractableRouteFactory;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
 use Sunchayn\Nimbus\Modules\Routes\ValueObjects\ExtractableRoute;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
-use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(ExtractRoutesAction::class)]
@@ -68,7 +68,7 @@ class RouteExtractorServiceFunctionalTest extends TestCase
                 ->shouldReceive('extract')
                 ->withAnyArgs()
                 ->andReturnUsing(
-                    fn (ExtractableRoute $route) => new Schema([new SchemaProperty('foobar')]),
+                    fn (ExtractableRoute $route) => new Schema([new StringSchemaProperty('foobar')]),
                 )
                 ->times(3);
         });
@@ -116,11 +116,15 @@ class RouteExtractorServiceFunctionalTest extends TestCase
 
             $this->assertEquals(
                 [
-                    'foobar' => [
-                        'type' => 'string',
-                        'x-name' => 'foobar',
-                        'x-required' => false,
+                    '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                    'type' => 'object',
+                    'properties' => [
+                        'foobar' => [
+                            'type' => 'string',
+                        ],
                     ],
+                    'required' => [],
+                    'additionalProperties' => false,
                 ],
                 $extractedRoute->schema->toArray(),
             );

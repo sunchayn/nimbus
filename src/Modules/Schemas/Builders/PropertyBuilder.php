@@ -2,8 +2,17 @@
 
 namespace Sunchayn\Nimbus\Modules\Schemas\Builders;
 
+use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
+use Sunchayn\Nimbus\Modules\Schemas\Enums\SchemaPropertyType;
+use Sunchayn\Nimbus\Modules\Schemas\Enums\StringFormat;
 use Sunchayn\Nimbus\Modules\Schemas\RulesMapper\RuleToSchemaMapper;
-use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ArraySchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\BooleanSchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\IntegerSchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\NumberSchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ObjectSchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 
 /**
  * Converts Laravel validation rules into individual schema properties.
@@ -16,7 +25,6 @@ use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\SchemaProperty;
  * Output: SchemaProperty with type="string", format="email", required=true
  *
  * @phpstan-import-type NormalizedRulesShape from \Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset
- * @phpstan-import-type SchemaPropertyFormatsShape from SchemaProperty
  */
 class PropertyBuilder
 {
@@ -27,26 +35,54 @@ class PropertyBuilder
     /**
      * @param  NormalizedRulesShape  $rules
      */
-    public function buildPropertyFromRules(string $field, array $rules): SchemaProperty
+    public function buildPropertyFromRules(string $field, array $rules): SchemaPropertyInterface
     {
         $schemaMetadata = $this->ruleToSchemaMapper->convertRulesToBaseSchemaPropertyMetadata($rules);
 
-        return new SchemaProperty(
-            name: $field,
-            type: $schemaMetadata['type'],
-            required: $schemaMetadata['required'],
-            format: $this->extractFormat($rules),
-            enum: $schemaMetadata['enum'] ?? null,
-            minimum: $schemaMetadata['minimum'],
-            maximum: $schemaMetadata['maximum'],
-        );
+        return match ($schemaMetadata['type']) {
+            SchemaPropertyType::STRING => new StringSchemaProperty(
+                name: $field,
+                required: $schemaMetadata['required'],
+                stringFormat: $this->extractFormat($rules),
+                enum: $schemaMetadata['enum'] ?? null,
+                minLength: $schemaMetadata['minimum'],
+                maxLength: $schemaMetadata['maximum'],
+            ),
+            SchemaPropertyType::INTEGER => new IntegerSchemaProperty(
+                name: $field,
+                required: $schemaMetadata['required'],
+                minimum: $schemaMetadata['minimum'],
+                maximum: $schemaMetadata['maximum'],
+                enum: $schemaMetadata['enum'] ?? null,
+            ),
+            SchemaPropertyType::NUMBER => new NumberSchemaProperty(
+                name: $field,
+                required: $schemaMetadata['required'],
+                minimum: $schemaMetadata['minimum'],
+                maximum: $schemaMetadata['maximum'],
+            ),
+            SchemaPropertyType::BOOLEAN => new BooleanSchemaProperty(
+                name: $field,
+                required: $schemaMetadata['required'],
+            ),
+            SchemaPropertyType::ARRAY => new ArraySchemaProperty(
+                name: $field,
+                required: $schemaMetadata['required'],
+                schemaProperty: null, // <- Items will be set later by SchemaBuilder if needed.
+            ),
+            SchemaPropertyType::OBJECT => new ObjectSchemaProperty(
+                name: $field,
+                required: $schemaMetadata['required'],
+                schema: new Schema([]), // <- Properties will be set later by SchemaBuilder if needed.
+            ),
+            default => throw new \InvalidArgumentException('Unsupported property type: '.$schemaMetadata['type']->value)
+        };
     }
 
     /**
      * @param  NormalizedRulesShape  $rules
-     * @return SchemaPropertyFormatsShape|null
      */
-    private function extractFormat(array $rules): ?string
+    private function extractFormat(array $rules): ?StringFormat
     {
         foreach ($rules as $rule) {
             if (! is_string($rule)) {
@@ -55,7 +91,7 @@ class PropertyBuilder
 
             $format = $this->detectFormatFromRule($rule);
 
-            if ($format !== null) {
+            if ($format instanceof \Sunchayn\Nimbus\Modules\Schemas\Enums\StringFormat) {
                 return $format;
             }
         }
@@ -63,16 +99,8 @@ class PropertyBuilder
         return null;
     }
 
-    /**
-     * @return SchemaPropertyFormatsShape|null
-     */
-    private function detectFormatFromRule(string $rule): ?string
+    private function detectFormatFromRule(string $rule): ?StringFormat
     {
-        return match ($rule) {
-            'email' => 'email',
-            'uuid' => 'uuid',
-            'date' => 'date-time',
-            default => null,
-        };
+        return StringFormat::fromRule($rule);
     }
 }

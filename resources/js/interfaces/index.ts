@@ -23,6 +23,6 @@ export { RequestBodyTypeEnum } from './http';
 
 export type { RouteDefinition, RouteExtractorException, RoutesGroup } from './routes';
 
-export type { JsonSchema } from './schema';
+export type { JSONSchema7 } from './schema';
 
 export type { ExtendedParameter, ParametersExternalContract } from './ui';

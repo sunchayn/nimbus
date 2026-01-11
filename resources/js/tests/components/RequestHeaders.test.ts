@@ -54,10 +54,7 @@ describe('RequestHeaders', () => {
             body: {},
             payloadType: RequestBodyTypeEnum.EMPTY,
             schema: {
-                shape: {
-                    'x-name': 'root',
-                    'x-required': false,
-                },
+                shape: {},
                 extractionErrors: null,
             },
             queryParameters: [],
@@ -67,10 +64,7 @@ describe('RequestHeaders', () => {
                 method: 'GET',
                 endpoint: 'api/users',
                 schema: {
-                    shape: {
-                        'x-name': 'root',
-                        'x-required': false,
-                    },
+                    shape: {},
                     extractionErrors: null,
                 },
                 shortEndpoint: 'api/users',

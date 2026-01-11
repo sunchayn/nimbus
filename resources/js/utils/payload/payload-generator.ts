@@ -5,21 +5,22 @@ import {
     PayloadObjectValue,
     PayloadPrimitive,
 } from '@/interfaces/schema/payload';
-import { JsonSchema } from '@/interfaces/schema/shape';
 import { ValueGenerator } from '@/interfaces/ui';
+import { isComplexType, isPrimitiveType, SchemaType } from '@/types/schema';
 import { faker } from '@faker-js/faker';
+import type { JSONSchema7 } from 'json-schema';
 
 /**
  * Generates random data based on schema
  */
-export function generateRandomPayload(schema: JsonSchema): PayloadObject {
+export function generateRandomPayload(schema: JSONSchema7): PayloadObject {
     return generatePayload(schema, false);
 }
 
 /**
  * Generates placeholder data based on schema
  */
-export function generatePlaceholderPayload(schema: JsonSchema): PayloadObject {
+export function generatePlaceholderPayload(schema: JSONSchema7): PayloadObject {
     return generatePayload(schema, true);
 }
 
@@ -27,7 +28,7 @@ export function generatePlaceholderPayload(schema: JsonSchema): PayloadObject {
  * Handles enum value generation
  */
 function generateEnumValue(
-    schema: JsonSchema,
+    schema: JSONSchema7,
     isPlaceholder: boolean,
 ): PayloadObjectValue {
     if (!schema.enum || schema.enum.length === 0) {
@@ -40,19 +41,21 @@ function generateEnumValue(
 }
 
 /**
- * Handles primitive type generation (string, number, boolean)
+ * Handles primitive type generation (string, number, integer, boolean)
  */
 function generatePrimitiveType(
-    schema: JsonSchema,
+    schema: JSONSchema7,
     isPlaceholder: boolean,
+    propertyName: string,
+    isRequired: boolean,
 ): PayloadObjectValue {
     switch (schema.type) {
-        case 'string':
-            return generateString(schema, isPlaceholder);
-        case 'number':
-        case 'integer':
-            return generateInteger(schema, isPlaceholder);
-        case 'boolean':
+        case SchemaType.STRING:
+            return generateString(schema, isPlaceholder, propertyName, isRequired);
+        case SchemaType.NUMBER:
+        case SchemaType.INTEGER:
+            return generateInteger(schema, isPlaceholder, propertyName);
+        case SchemaType.BOOLEAN:
             return isPlaceholder ? false : faker.datatype.boolean();
         default:
             throw new Error(`Unsupported primitive type: ${schema.type}`);
@@ -63,13 +66,13 @@ function generatePrimitiveType(
  * Handles complex type generation (array, object)
  */
 function generateComplexType(
-    schema: JsonSchema,
+    schema: JSONSchema7,
     isPlaceholder: boolean,
 ): PayloadObject | PayloadObject[] | PayloadPrimitive[] {
     switch (schema.type) {
-        case 'array':
+        case SchemaType.ARRAY:
             return generateArray(schema, isPlaceholder);
-        case 'object':
+        case SchemaType.OBJECT:
             return schema.properties ? generatePayload(schema, isPlaceholder) : {};
         default:
             throw new Error(`Unsupported complex type: ${schema.type}`);
@@ -77,31 +80,25 @@ function generateComplexType(
 }
 
 /**
- * Generates a value based on schema property type and format.
+ * Generates a value with property context (name and required status).
  */
 function generateValue(
-    schema: JsonSchema,
-    isPlaceholder: boolean = false,
+    schema: JSONSchema7,
+    isPlaceholder: boolean,
+    propertyName: string,
+    isRequired: boolean,
 ): PayloadObject | PayloadObjectValue | PayloadObject[] {
     if (schema.enum && schema.enum.length > 0) {
         return generateEnumValue(schema, isPlaceholder);
     }
 
     // Handle primitive types
-    if (
-        schema.type &&
-        typeof schema.type === 'string' &&
-        ['string', 'number', 'integer', 'boolean'].includes(schema.type)
-    ) {
-        return generatePrimitiveType(schema, isPlaceholder);
+    if (schema.type && isPrimitiveType(schema.type)) {
+        return generatePrimitiveType(schema, isPlaceholder, propertyName, isRequired);
     }
 
     // Handle complex types
-    if (
-        schema.type &&
-        typeof schema.type === 'string' &&
-        ['array', 'object'].includes(schema.type)
-    ) {
+    if (schema.type && isComplexType(schema.type)) {
         return generateComplexType(schema, isPlaceholder);
     }
 
@@ -109,7 +106,7 @@ function generateValue(
 }
 
 function generateArrayOfObjects(
-    schema: JsonSchema,
+    schema: JSONSchema7,
     isPlaceholder: boolean,
     numberOfArrayItemsToGenerate: number,
 ): PayloadObject[] {
@@ -119,13 +116,13 @@ function generateArrayOfObjects(
 }
 
 function generateArrayOfPrimitives(
-    itemsShape: JsonSchema,
+    itemsShape: JSONSchema7,
     isPlaceholder: boolean,
     numberOfArrayItemsToGenerate: number,
 ): PayloadPrimitive[] {
     const generatedItems: PayloadPrimitive[] = Array.from(
         { length: numberOfArrayItemsToGenerate },
-        () => generateValue(itemsShape, isPlaceholder),
+        () => generateValue(itemsShape, isPlaceholder, 'item', false),
     ) as PayloadPrimitive[];
 
     return generatedItems.filter(
@@ -137,12 +134,18 @@ function generateArrayOfPrimitives(
  * Generates array values (primitives or objects)
  */
 function generateArray(
-    schema: JsonSchema,
+    schema: JSONSchema7,
     isPlaceholder: boolean,
 ): PayloadPrimitive[] | PayloadObject[] {
-    const { items: itemsSchema } = schema;
+    const itemsSchema = schema.items;
 
-    if (itemsSchema === undefined) {
+    // Skip if items is not defined or not a valid schema object
+    if (
+        itemsSchema === undefined ||
+        typeof itemsSchema !== 'object' ||
+        itemsSchema === null ||
+        Array.isArray(itemsSchema)
+    ) {
         return [];
     }
 
@@ -170,16 +173,29 @@ function generateArray(
  * Generates complete payload object from schema
  */
 function generatePayload(
-    schema: JsonSchema,
+    schema: JSONSchema7,
     isPlaceholder: boolean = false,
 ): PayloadObject {
     const payload: PayloadObject = {};
 
-    if (schema.properties) {
+    if (schema.properties && typeof schema.properties === 'object') {
+        const required = schema.required || [];
+
         for (const key in schema.properties) {
             const property = schema.properties[key];
 
-            payload[key] = generateValue(property, isPlaceholder);
+            // Skip if property is not a valid schema object
+            if (
+                typeof property !== 'object' ||
+                property === null ||
+                Array.isArray(property)
+            ) {
+                continue;
+            }
+
+            const isRequired = required.includes(key);
+
+            payload[key] = generateValue(property, isPlaceholder, key, isRequired);
         }
     }
 
@@ -187,18 +203,20 @@ function generatePayload(
 }
 
 /**
- * Generates a string value based on schema definition
+ * Generates a string value with property context
  */
-function generateString(schema: JsonSchema, isPlaceholder: boolean): string {
+function generateString(
+    schema: JSONSchema7,
+    isPlaceholder: boolean,
+    propertyName: string,
+    isRequired: boolean,
+): string {
     if (isPlaceholder) {
         return '<placeholder>';
     }
 
     // Randomly return empty value for non-required fields
-    if (
-        !schema['x-required'] &&
-        Math.random() < PAYLOAD_GENERATOR_CONFIG.EMPTY_FIELD_PROBABILITY
-    ) {
+    if (!isRequired && Math.random() < PAYLOAD_GENERATOR_CONFIG.EMPTY_FIELD_PROBABILITY) {
         return '';
     }
 
@@ -214,7 +232,7 @@ function generateString(schema: JsonSchema, isPlaceholder: boolean): string {
         range.maxLength = schema.maxLength;
     }
 
-    const generatedValue = generateFromMatchingGenerator(schema, range);
+    const generatedValue = generateFromMatchingGenerator(schema, range, propertyName);
 
     if (generatedValue !== null) {
         return !(typeof generatedValue === 'string')
@@ -232,9 +250,13 @@ function generateString(schema: JsonSchema, isPlaceholder: boolean): string {
 }
 
 /**
- * Generates a string value based on schema definition
+ * Generates an integer value with property context
  */
-function generateInteger(schema: JsonSchema, isPlaceholder: boolean): number {
+function generateInteger(
+    schema: JSONSchema7,
+    isPlaceholder: boolean,
+    propertyName: string,
+): number {
     if (isPlaceholder) {
         return 0;
     }
@@ -251,7 +273,12 @@ function generateInteger(schema: JsonSchema, isPlaceholder: boolean): number {
         range.max = schema.maximum;
     }
 
-    const generatedValue = generateFromMatchingGenerator(schema, range, true);
+    const generatedValue = generateFromMatchingGenerator(
+        schema,
+        range,
+        propertyName,
+        true,
+    );
 
     if (generatedValue !== null && typeof generatedValue === 'number') {
         return generatedValue;
@@ -275,11 +302,12 @@ const FORMAT_TO_GENERATOR: Record<string, string> = {
 };
 
 /**
- * Gets the appropriate generator for a schema property
+ * Gets the appropriate generator for a schema property with context
  */
 function generateFromMatchingGenerator(
-    schema: JsonSchema,
+    schema: JSONSchema7,
     range: { min?: number; max?: number; minLength?: number; maxLength?: number } = {},
+    propertyName: string,
     shouldBeInteger: boolean = false,
 ): string | number | bigint | null {
     if (schema.format && FORMAT_TO_GENERATOR[schema.format]) {
@@ -293,13 +321,13 @@ function generateFromMatchingGenerator(
         );
     }
 
-    // Otherwise, try to guess a generator based on the property name.
+    // Try to guess a generator based on the property name
     for (const patternSettings of PROPERTY_NAME_PATTERNS) {
         if (shouldBeInteger && !patternSettings.isInteger) {
             continue;
         }
 
-        if (!patternSettings.pattern.test(schema['x-name'])) {
+        if (!patternSettings.pattern.test(propertyName)) {
             continue;
         }
 

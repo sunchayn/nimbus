@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CodeEditor from '@/components/domain/CodeEditor/CodeEditor.vue';
-import { JsonSchema } from '@/interfaces/schema/shape';
+import type { JSONSchema7 } from 'json-schema';
 
 defineProps<RequestBodyJsonProps>();
 
@@ -9,7 +9,7 @@ const model = defineModel<string>({
 });
 
 interface RequestBodyJsonProps {
-    schema: JsonSchema | undefined;
+    schema: JSONSchema7 | undefined;
 }
 </script>
 

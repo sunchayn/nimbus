@@ -3,7 +3,7 @@ import { AppButton } from '@/components/base/button';
 import { AppInput } from '@/components/base/input';
 import { AppScrollArea } from '@/components/base/scroll-area';
 import HttpVerbLabel from '@/components/domain/HttpVerbLabel/HttpVerbLabel.vue';
-import { JsonSchema } from '@/interfaces/schema/shape';
+import type { JSONSchema7 } from 'json-schema';
 import { SearchIcon, SearchXIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
@@ -17,7 +17,7 @@ interface RouteWithError {
     resource: string;
     version: string;
     schema: {
-        shape: JsonSchema;
+        shape: JSONSchema7;
         extractionErrors: string;
     };
 }

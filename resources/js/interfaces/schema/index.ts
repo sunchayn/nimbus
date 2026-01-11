@@ -4,4 +4,4 @@
 
 export type { PayloadObject, PayloadObjectValue, PayloadPrimitive } from './payload';
 
-export type { JsonSchema } from './shape';
+export type { JSONSchema7 } from './shape';
