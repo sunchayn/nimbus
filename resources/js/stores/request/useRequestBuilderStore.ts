@@ -61,10 +61,7 @@ export const useRequestBuilderStore = defineStore(
                 // For methods not defined for this endpoint, default to empty payload and schema
                 requestData.payloadType = RequestBodyTypeEnum.EMPTY;
                 requestData.schema = {
-                    shape: {
-                        'x-name': 'root',
-                        'x-required': false,
-                    },
+                    shape: {},
                     extractionErrors: null,
                 };
 

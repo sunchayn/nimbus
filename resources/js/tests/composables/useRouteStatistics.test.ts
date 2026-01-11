@@ -262,6 +262,7 @@ describe('useRouteStatistics', () => {
                                 endpoint: 'api/users',
                                 shortEndpoint: 'api/users',
                                 schema: {
+                                    shape: {},
                                     extractionErrors: 'Schema extraction failed',
                                 },
                             },
