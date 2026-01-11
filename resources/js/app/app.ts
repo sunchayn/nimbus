@@ -23,6 +23,7 @@ import { createApp } from 'vue';
  * Application Components & Configuration.
  */
 
+import { createPersistedState } from 'pinia-plugin-persistedstate';
 import App from './App.vue';
 import router from './router';
 
@@ -39,8 +40,14 @@ import router from './router';
 const app = createApp(App);
 
 // Configure application plugins
-app.use(createPinia()); // State management store
-app.use(router); // Client-side routing
+const pinia = createPinia();
+app.use(pinia);
+pinia.use(
+    createPersistedState({
+        key: (id: string) => `nimbus:${id}`,
+    }),
+);
+app.use(router);
 
 // Mount the application to the DOM
 app.mount('#app');

@@ -62,6 +62,7 @@ test("Dump and Die visualization sanity checklist", async ({ page }) => {
     await page.getByRole("button", { name: "dd" }).click();
     await page.getByRole("button", { name: "GET /" }).click();
     await page.getByRole("tab", { name: "Headers" }).click();
+    await page.getByRole("button", { name: "Add" }).click();
     const headerKey = page.getByTestId("kv-key").nth(3);
     await headerKey.fill("x-index");
 

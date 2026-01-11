@@ -32,10 +32,12 @@ const props = withDefaults(
     defineProps<{
         freeFormTypes?: boolean;
         class?: HTMLAttributes['class'];
+        persistenceKey?: string;
     }>(),
     {
         freeFormTypes: false,
         class: undefined,
+        persistenceKey: undefined,
     },
 );
 
@@ -63,7 +65,7 @@ const {
     toggleAllParametersEnabledState,
     triggerParameterDeletion,
     deleteAllParameters,
-} = useKeyValueParameters(modelRef);
+} = useKeyValueParameters(modelRef, props.persistenceKey);
 
 const { openCommand, closeCommand } = useValueGeneratorStore();
 

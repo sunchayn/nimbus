@@ -4,9 +4,10 @@ import CopyButton from '@/components/common/CopyButton.vue';
 import KeyValueDisplayList from '@/components/common/KeyValueDisplayList/KeyValueDisplayList.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import { ResponseCookie } from '@/interfaces/http';
-import { useClipboard } from '@vueuse/core';
+import { uniquePersistenceKey } from '@/utils/stores';
+import { useClipboard, useStorage } from '@vueuse/core';
 import { LockIcon, LockOpenIcon } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 
 interface ResponseCookiesProps {
     cookies: ResponseCookie[];
@@ -20,7 +21,10 @@ interface NormalizeCookieShape {
 
 const props = defineProps<ResponseCookiesProps>();
 
-const decryptedCookies = ref(false);
+const decryptedCookies = useStorage(
+    uniquePersistenceKey('response-viewer-cookies-decrypted'),
+    false,
+);
 
 defineSlots<{
     value: (props: { item: ResponseCookie }) => string | number | boolean;

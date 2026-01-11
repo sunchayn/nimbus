@@ -86,5 +86,9 @@ watch(
             <CopyButton :on-click="copyPreview" :copied="previewCopied" />
         </div>
     </div>
-    <KeyValueParametersBuilder v-model="parameters" class="flex-1" />
+    <KeyValueParametersBuilder
+        v-model="parameters"
+        class="flex-1"
+        persistence-key="pending-request-parameters"
+    />
 </template>

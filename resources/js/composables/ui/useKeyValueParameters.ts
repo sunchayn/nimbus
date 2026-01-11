@@ -1,15 +1,22 @@
 import { keyValueParametersConfig } from '@/config';
 import { ExtendedParameter, ParametersExternalContract } from '@/interfaces/ui';
-import { useCounter, watchDebounced } from '@vueuse/core';
+import { uniquePersistenceKey } from '@/utils/stores';
+import { useCounter, useStorage, watchDebounced } from '@vueuse/core';
+import { RemovableRef } from '@vueuse/shared';
 import { computed, onBeforeMount, reactive, ref, Ref } from 'vue';
 
 /**
  * Manages key-value parameter state.
  */
-export function useKeyValueParameters(model: Ref<ParametersExternalContract[]>) {
+export function useKeyValueParameters(
+    model: Ref<ParametersExternalContract[]>,
+    persistenceKey?: string,
+) {
     const { count: nextParameterId, inc: incrementParametersId } = useCounter();
 
-    const parameters = ref<ExtendedParameter[]>([]);
+    const parameters: RemovableRef<ExtendedParameter[]> | Ref<ExtendedParameter[]> =
+        persistenceKey ? useStorage(uniquePersistenceKey(persistenceKey), []) : ref([]);
+
     const isUpdatingFromParentModel = ref(false);
 
     const createParameterSkeleton = (id: number): ExtendedParameter => ({
@@ -228,10 +235,13 @@ export function useKeyValueParameters(model: Ref<ParametersExternalContract[]>) 
         },
     );
 
-    // Initialize parameters from parent model and ensure at least one empty parameter exists
+    // Initialize parameters from parent model
     onBeforeMount(() => {
         updateParametersFromParentModel();
-        addNewEmptyParameter();
+
+        if (parameters.value.length === 0) {
+            addNewEmptyParameter();
+        }
     });
 
     /*

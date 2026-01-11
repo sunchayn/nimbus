@@ -10,6 +10,8 @@ import ResponseCookies from '@/components/domain/Client/Response/ResponseCookies
 import ResponseHeaders from '@/components/domain/Client/Response/ResponseHeaders/ResponseHeaders.vue';
 import { STATUS } from '@/interfaces/http';
 import { useRequestsHistoryStore, useRequestStore } from '@/stores';
+import { uniquePersistenceKey } from '@/utils/stores';
+import { useStorage } from '@vueuse/core';
 import { computed } from 'vue';
 import ResponseDumpAndDie from './ResponseBody/ResponseDumpAndDie.vue';
 
@@ -17,6 +19,8 @@ const historyStore = useRequestsHistoryStore();
 const requestStore = useRequestStore();
 const lastLog = computed(() => historyStore.lastLog);
 const pendingRequestData = computed(() => requestStore.pendingRequestData);
+
+const tab = useStorage(uniquePersistenceKey('response-viewer-tab'), 'response');
 </script>
 
 <template>
@@ -25,7 +29,11 @@ const pendingRequestData = computed(() => requestStore.pendingRequestData);
             v-if="pendingRequestData?.isProcessing"
             class="bg-background absolute top-0 left-0 z-[100] h-full w-full animate-pulse opacity-75"
         />
-        <AppTabs default-value="response" class="mt-0 flex h-full flex-col overflow-auto">
+        <AppTabs
+            :default-value="tab"
+            class="mt-0 flex h-full flex-col overflow-auto"
+            @update:model-value="tab = $event as string"
+        >
             <div class="bg-subtle-background border-b">
                 <AppTabsList class="h-toolbar px-panel rounded-none">
                     <AppTabsTrigger value="response" label="Response" />

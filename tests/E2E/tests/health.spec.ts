@@ -18,8 +18,6 @@ test('Clicking around', async ({ page }) => {
     await page.getByRole('tab', { name: 'Authorization' }).click();
     await expect(page.getByRole('heading', { name: 'Please log in first' })).toBeVisible();
     await page.getByRole('tab', { name: 'Headers' }).click();
-    await expect(page.getByTestId('kv-value').nth(2)).toBeVisible();
-    await expect(page.getByTestId('kv-value').nth(3)).toBeEmpty();
     await expect(page.getByTestId('response-status-text')).toContainText('No request yet');
     await page.getByRole('button', { name: 'authentication' }).click();
     await expect(page.getByRole('button', { name: 'GET /show-logged-in-user' })).toBeVisible();

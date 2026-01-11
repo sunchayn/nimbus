@@ -12,6 +12,10 @@ import {
     RequestHeaders,
     RequestParameters,
 } from '@/components/domain/Client/Request';
+import { uniquePersistenceKey } from '@/utils/stores';
+import { useStorage } from '@vueuse/core';
+
+const tab = useStorage(uniquePersistenceKey('request-builder-tab'), 'body');
 </script>
 
 <template>
@@ -21,9 +25,10 @@ import {
     >
         <RequestBuilderEndpoint class="h-toolbar border-b" />
         <AppTabs
-            default-value="body"
+            :default-value="tab"
             class="mt-0 flex flex-1 flex-col overflow-hidden"
             data-testid="app-tabs-container"
+            @update:model-value="tab = $event as string"
         >
             <div class="bg-subtle-background border-b">
                 <AppTabsList class="h-toolbar px-panel rounded-none">

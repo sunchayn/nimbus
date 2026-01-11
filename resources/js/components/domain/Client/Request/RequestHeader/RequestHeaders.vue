@@ -65,15 +65,16 @@ const syncHeadersWithPendingRequest = () => {
     );
 };
 
-const initializeHeaders = (previousPendingData: PendingRequest | null = null) => {
-    const previousHeaders = previousPendingData?.headers ?? [];
-    const previousHeaderKeys = previousHeaders.map((header: RequestHeader) => header.key);
+const enrichWithGlobalHeaders = (pendingRequest: PendingRequest | null) => {
+    const currentHeaders = pendingRequest?.headers ?? [];
+
+    const currentHeaderKeys = currentHeaders.map((header: RequestHeader) => header.key);
 
     const missingGlobalHeaders = globalHeaders.filter(
-        (header: RequestHeader) => !previousHeaderKeys.includes(header.key),
+        (header: RequestHeader) => !currentHeaderKeys.includes(header.key),
     );
 
-    headers.value = [...missingGlobalHeaders, ...previousHeaders];
+    headers.value = [...missingGlobalHeaders, ...currentHeaders];
 };
 
 /*
@@ -93,7 +94,7 @@ watch(
             return;
         }
 
-        initializeHeaders(oldValue);
+        enrichWithGlobalHeaders(oldValue);
     },
     { deep: true },
 );
@@ -113,11 +114,15 @@ onBeforeMount(() => {
         }),
     );
 
-    initializeHeaders();
+    enrichWithGlobalHeaders(pendingRequestData.value);
 });
 </script>
 
 <template>
     <PanelSubHeader class="border-b">Request Headers</PanelSubHeader>
-    <KeyValueParametersBuilder ref="parametersBuilder" v-model="headersAsParameters" />
+    <KeyValueParametersBuilder
+        ref="parametersBuilder"
+        v-model="headersAsParameters"
+        persistence-key="pending-request-headers"
+    />
 </template>

@@ -14,7 +14,9 @@ import RouteExplorerVersionSelector from '@/components/domain/RoutesExplorer/Rou
 import RoutesList from '@/components/domain/RoutesExplorer/RoutesList/RoutesList.vue';
 import { RouteDefinition, RoutesGroup } from '@/interfaces/routes/routes';
 import { useConfigStore } from '@/stores';
-import { computed, ref } from 'vue';
+import { uniquePersistenceKey } from '@/utils/stores';
+import { useStorage } from '@vueuse/core';
+import { computed } from 'vue';
 
 /*
  * Props.
@@ -28,7 +30,7 @@ const props = defineProps<{
  * State.
  */
 
-const search = ref('');
+const search = useStorage(uniquePersistenceKey('routes-explorer-search-keyword'), '');
 
 const versions = computed(() => Object.keys(props.routes || []));
 

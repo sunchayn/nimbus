@@ -25,3 +25,5 @@ export {
 export { calculateScrollToElement, getScrollBounds } from './scroll';
 
 export { cn } from './ui';
+
+export { clearPersistentKeys, uniquePersistenceKey } from './stores';
