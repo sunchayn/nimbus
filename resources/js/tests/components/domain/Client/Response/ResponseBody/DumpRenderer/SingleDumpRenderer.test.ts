@@ -672,8 +672,6 @@ describe('SingleDumpRenderer', () => {
             // Should show [] for empty array
             const content = screen.getAllByTestId('collapsible-trigger')[1];
 
-            console.log(content);
-
             expect(content.textContent).toContain('[]');
         });
     });
