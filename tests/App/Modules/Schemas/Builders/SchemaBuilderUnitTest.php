@@ -178,6 +178,7 @@ class SchemaBuilderUnitTest extends TestCase
                 'age' => 'integer',
                 'is_active' => 'boolean',
                 'salary' => 'numeric',
+                'config' => 'json',
             ],
             'expectedSchema' => new Schema(
                 properties: [
@@ -186,6 +187,7 @@ class SchemaBuilderUnitTest extends TestCase
                     new IntegerSchemaProperty(name: 'age', required: false),
                     new BooleanSchemaProperty(name: 'is_active', required: false),
                     new NumberSchemaProperty(name: 'salary', required: false),
+                    new ObjectSchemaProperty(name: 'config', required: false, schema: new Schema([])),
                 ],
                 extractionError: null,
             ),

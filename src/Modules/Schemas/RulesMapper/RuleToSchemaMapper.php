@@ -83,6 +83,7 @@ class RuleToSchemaMapper
             'numeric' => ['type' => SchemaPropertyType::NUMBER],
             'boolean' => ['type' => SchemaPropertyType::BOOLEAN],
             'array' => ['type' => SchemaPropertyType::ARRAY],
+            'json' => ['type' => SchemaPropertyType::OBJECT],
             'email' => $this->setFormat('email'),
             'uuid' => $this->setFormat('uuid'),
             'date' => $this->setFormat('date-time'),
