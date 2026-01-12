@@ -22,6 +22,4 @@ enum SchemaPropertyType: string
     case ARRAY = 'array';
 
     case OBJECT = 'object';
-
-    case NULL = 'null';
 }

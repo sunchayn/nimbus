@@ -75,7 +75,6 @@ class PropertyBuilder
                 required: $schemaMetadata['required'],
                 schema: new Schema([]), // <- Properties will be set later by SchemaBuilder if needed.
             ),
-            default => throw new \InvalidArgumentException('Unsupported property type: '.$schemaMetadata['type']->value)
         };
     }
 
