@@ -3,7 +3,6 @@
 namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\Authorization\Injectors;
 
 use Illuminate\Auth\SessionGuard;
-use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
@@ -12,6 +11,7 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Request;
 use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\Injectors\RememberMeCookieInjector;
 use Sunchayn\Nimbus\Tests\TestCase;
 
@@ -20,7 +20,7 @@ class RememberMeCookieInjectorUnitTest extends TestCase
 {
     private Container $containerMock;
 
-    private ConfigRepository $configMock;
+    private ActiveApplicationResolver|MockInterface $projectManagerMock;
 
     private SessionGuard $authGuardMock;
 
@@ -33,7 +33,7 @@ class RememberMeCookieInjectorUnitTest extends TestCase
         parent::setUp();
 
         $this->containerMock = Mockery::mock(Container::class);
-        $this->configMock = Mockery::mock(ConfigRepository::class);
+        $this->projectManagerMock = Mockery::mock(ActiveApplicationResolver::class);
         $this->authGuardMock = Mockery::mock(SessionGuard::class);
         $this->userProviderMock = Mockery::mock(UserProvider::class);
         $this->encrypterMock = Mockery::mock(Encrypter::class);
@@ -360,9 +360,8 @@ class RememberMeCookieInjectorUnitTest extends TestCase
 
     private function instantiateInjector(Request $relayRequest): RememberMeCookieInjector
     {
-        $this->configMock
-            ->shouldReceive('get')
-            ->with('nimbus.auth.guard')
+        $this->projectManagerMock
+            ->shouldReceive('getAuthGuard')
             ->andReturn('web');
 
         $authManagerMock = Mockery::mock(\Illuminate\Auth\AuthManager::class);
@@ -388,7 +387,7 @@ class RememberMeCookieInjectorUnitTest extends TestCase
         return new RememberMeCookieInjector(
             relayRequest: $relayRequest,
             container: $this->containerMock,
-            configRepository: $this->configMock,
+            activeApplicationResolver: $this->projectManagerMock,
         );
     }
 

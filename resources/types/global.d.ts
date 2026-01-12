@@ -8,6 +8,8 @@ interface NimbusConfig {
     isVersioned: boolean;
     routeExtractorException: string | null;
     currentUser: string | null;
+    applications: string | null;
+    activeApplication: string | null;
 }
 
 declare global {

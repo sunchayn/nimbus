@@ -15,14 +15,19 @@ const model = defineModel<string>();
 </script>
 
 <template>
-    <AppSelect v-model="model" class="flex items-center text-sm">
+    <AppSelect v-model="model" class="flex items-center">
         <AppSelectTrigger
-            class="h-sub-toolbar w-full rounded-none border-0 border-b shadow-none focus:ring-0 focus-visible:outline-none"
+            class="px-panel w-full rounded-none border-0 text-xs shadow-none focus:ring-0 focus-visible:outline-none active:ring-0"
         >
             <AppSelectValue placeholder="Select API Version" />
         </AppSelectTrigger>
         <AppSelectContent>
-            <AppSelectItem v-for="value in versions" :key="value" :value="value">
+            <AppSelectItem
+                v-for="value in versions"
+                :key="value"
+                :value="value"
+                class="text-xs"
+            >
                 {{ value }}
             </AppSelectItem>
         </AppSelectContent>

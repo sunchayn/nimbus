@@ -13,6 +13,10 @@ class MisconfiguredValueException extends Exception
 
     public const INVALID_GUARD_INJECTOR_COMBINATION = 3;
 
+    public const INVALID_DEFAULT_APPLICATION = 4;
+
+    public const INVALID_APPLICATIONS = 5;
+
     public static function becauseSpecialAuthenticationInjectorIsInvalid(): self
     {
         return new self(
@@ -37,6 +41,22 @@ class MisconfiguredValueException extends Exception
         return new self(
             message: "The config value for `nimbus.auth.guard` doesn't work with the selected injector. ".$suggestion,
             code: self::INVALID_GUARD_INJECTOR_COMBINATION,
+        );
+    }
+
+    public static function becauseDefaultApplicationIsInvalid(string $key): self
+    {
+        return new self(
+            message: sprintf("The default application `%s` doesn't have a matching configuration.", $key),
+            code: self::INVALID_DEFAULT_APPLICATION,
+        );
+    }
+
+    public static function becauseApplicationsAreNotDefined(): self
+    {
+        return new self(
+            message: 'There are no applications defined.',
+            code: self::INVALID_APPLICATIONS,
         );
     }
 }

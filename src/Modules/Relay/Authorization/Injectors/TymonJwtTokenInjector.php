@@ -2,11 +2,11 @@
 
 namespace Sunchayn\Nimbus\Modules\Relay\Authorization\Injectors;
 
-use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Client\PendingRequest;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\Contracts\SpecialAuthenticationInjectorContract;
 
@@ -18,7 +18,7 @@ class TymonJwtTokenInjector implements SpecialAuthenticationInjectorContract
      * @throws MisconfiguredValueException
      */
     public function __construct(
-        private readonly ConfigRepository $configRepository,
+        private readonly ActiveApplicationResolver $activeApplicationResolver,
         private readonly Container $container,
     ) {
         if (! class_exists(\Tymon\JWTAuth\JWTGuard::class)) {
@@ -27,7 +27,7 @@ class TymonJwtTokenInjector implements SpecialAuthenticationInjectorContract
 
         $this->guard = $this
             ->container->make('auth')
-            ->guard(name: $this->configRepository->get('nimbus.auth.guard'));
+            ->guard(name: $this->activeApplicationResolver->getAuthGuard());
 
         if (! $this->guard instanceof \Tymon\JWTAuth\JWTGuard) {
             throw MisconfiguredValueException::becauseOfInvalidGuardInjectorCombination("Please use a `\Tymon\JWTAuth\JWTGuard` guard.");

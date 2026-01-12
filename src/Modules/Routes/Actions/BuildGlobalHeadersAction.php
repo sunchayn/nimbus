@@ -2,14 +2,14 @@
 
 namespace Sunchayn\Nimbus\Modules\Routes\Actions;
 
-use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Support\Arr;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\GlobalHeaderGeneratorTypeEnum;
 
 class BuildGlobalHeadersAction
 {
     public function __construct(
-        private readonly ConfigRepository $configRepository,
+        private readonly ActiveApplicationResolver $activeApplicationResolver,
     ) {}
 
     /**
@@ -18,7 +18,7 @@ class BuildGlobalHeadersAction
     public function execute(): array
     {
         /** @var array<array-key, mixed> $headers */
-        $headers = $this->configRepository->get('nimbus.headers');
+        $headers = $this->activeApplicationResolver->getHeaders();
 
         return array_values(
             Arr::map(

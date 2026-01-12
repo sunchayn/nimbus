@@ -5,6 +5,7 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\Authorization\Handlers;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Request;
+use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -25,11 +26,10 @@ class ImpersonateUserAuthorizationHandlerFunctionalTest extends TestCase
     {
         // Arrange
 
-        config([
-            'nimbus.auth.guard' => $guardName = fake()->word(),
-            'nimbus.auth.special.injector' => DummySpecialAuthenticationInjector::class,
-        ]);
-
+        $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class, function (MockInterface $mock) use (&$guardName) {
+            $mock->shouldReceive('getAuthGuard')->andReturn($guardName = fake()->word());
+            $mock->shouldReceive('getSpecialAuthInjector')->andReturn(DummySpecialAuthenticationInjector::class);
+        });
         $dummyAuthenticatable = new DummyAuthenticatable(id: $userId = fake()->randomNumber());
 
         $this->mockAuthManagerToUseDummyModel($userId, $dummyAuthenticatable, $guardName);

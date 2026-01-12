@@ -2,13 +2,13 @@
 
 namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\Authorization\Injectors;
 
-use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Client\PendingRequest;
 use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\Injectors\TymonJwtTokenInjector;
 use Sunchayn\Nimbus\Tests\TestCase;
@@ -16,7 +16,7 @@ use Sunchayn\Nimbus\Tests\TestCase;
 #[CoversClass(TymonJwtTokenInjector::class)]
 class TymonJwtTokenInjectorUnitTest extends TestCase
 {
-    private ConfigRepository $configMock;
+    private ActiveApplicationResolver|MockInterface $projectManagerMock;
 
     private Container $containerMock;
 
@@ -24,7 +24,7 @@ class TymonJwtTokenInjectorUnitTest extends TestCase
     {
         parent::setUp();
 
-        $this->configMock = Mockery::mock(ConfigRepository::class);
+        $this->projectManagerMock = Mockery::mock(ActiveApplicationResolver::class);
         $this->containerMock = Mockery::mock(Container::class);
     }
 
@@ -44,7 +44,7 @@ class TymonJwtTokenInjectorUnitTest extends TestCase
         // Act
 
         new TymonJwtTokenInjector(
-            configRepository: $this->configMock,
+            activeApplicationResolver: $this->projectManagerMock,
             container: $this->containerMock,
         );
     }

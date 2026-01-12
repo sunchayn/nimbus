@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route as RouteFacade;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Str;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Routes\Actions;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionException;
 
@@ -20,8 +21,15 @@ class NimbusIndexController
         Actions\BuildGlobalHeadersAction $buildGlobalHeadersAction,
         Actions\BuildCurrentUserAction $buildCurrentUserAction,
         Actions\DisableThirdPartyUiAction $disableThirdPartyUiAction,
+        ActiveApplicationResolver $activeApplicationResolver,
     ): Renderable|RedirectResponse {
         $disableThirdPartyUiAction->execute();
+
+        if (request()->has('application')) {
+            return redirect()
+                ->to(request()->fullUrlWithQuery(['application' => null]))
+                ->withCookie(cookie()->forever(ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME, request()->get('application')));
+        }
 
         Vite::useBuildDirectory('/vendor/nimbus');
         Vite::useHotFile(base_path('/vendor/sunchayn/nimbus/resources/dist/hot'));
@@ -42,6 +50,7 @@ class NimbusIndexController
         } catch (RouteExtractionException $routeExtractionException) {
             return view(self::VIEW_NAME, [ // @phpstan-ignore-line it cannot find the view.
                 'routeExtractorException' => $this->renderExtractorException($routeExtractionException),
+                'activeApplicationResolver' => $activeApplicationResolver,
             ]);
         }
 
@@ -49,6 +58,7 @@ class NimbusIndexController
             'routes' => $routes->toFrontendArray(),
             'headers' => $buildGlobalHeadersAction->execute(),
             'currentUser' => $buildCurrentUserAction->execute(),
+            'activeApplicationResolver' => $activeApplicationResolver,
         ]);
     }
 

@@ -90,10 +90,12 @@ The Route Explorer automatically discovers your Laravel API routes and organizes
 ![Routes](./assets/routes.png)
 
 **Features:**
-- Routes are grouped by resource (e.g., all user-related endpoints together).
-- Each route shows its HTTP methods.
-- Click any route to load it in the Request Builder.
-- Routes are extracted based on your configured API prefix.
+- **Search**: Quickly filter routes by endpoint path.
+- **Application Switcher**: Switch between multiple API applications (e.g., Rest API, CMS API) if configured.
+- **Version Selector**: If the active application is versioned, a version picker appears inline with the application name.
+- **Resource Groups**: Routes are automatically grouped by resource (e.g., `users`, `products`).
+- **HTTP Methods**: Each route explicitly shows its supported methods.
+- **Quick Load**: Click any route to immediately load it into the Request Builder.
 
 ### Request Builder
 
@@ -359,16 +361,44 @@ return [
 
 ### Configuration Options
 
-| Option | Description | Default | Example |
-|--------|--------------|----------|----------|
-| **`prefix`** | The URI segment under which Nimbus is accessible. | `'nimbus'` | `'api-client'` |
-| **`allowed_envs`** | Environments where Nimbus is enabled. Avoid production for security reasons. | `['local', 'staging']` | `['testing', 'local']` |
-| **`routes.prefix`** | The base path used to detect application routes. Only routes starting with this prefix are analyzed. | `'api'` | `'api/v1'` |
-| **`routes.versioned`** | Enables version parsing for routes like `/api/v1/...`. | `false` | `true` |
-| **`routes.api_base_url`** | The base URL used when Nimbus relays API requests from the UI. Useful when the API runs on a different domain or port. If set to null, Nimbus will default to the same host and scheme as the incoming request.| null | `http://127.0.0.1:8001` |
-| **`auth.guard`** | The Laravel guard used for the API requests authentication. | `'api'` | `'web'` |
-| **`auth.special.injector`** | Injector class used to attach authentication credentials to outgoing requests. Must implement `SpecialAuthenticationInjectorContract`. | `RememberMeCookieInjector::class` | `TymonJwtTokenInjector::class` |
-| **`headers`** | Global headers applied to all outgoing requests. Supports static values or enum generators. | `[]` | `['x-request-id' => GlobalHeaderGeneratorTypeEnum::UUID]` |
+| Option                                     | Description                                                                                                                                                                                                     | Default                           | Example                                                   |
+|--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|-----------------------------------------------------------|
+| **`prefix`**                               | The URI segment under which Nimbus is accessible.                                                                                                                                                               | `'nimbus'`                        | `'api-client'`                                            |
+| **`allowed_envs`**                         | Environments where Nimbus is enabled. Avoid production for security reasons.                                                                                                                                    | `['local', 'staging']`            | `['testing', 'local']`                                    |
+| **`default_application`**                   | The base default application to load when no other application is found in the storage.                                                                                                                         | n/a                               | `rest-api`                                                |
+| **`applications.*.routes.prefix`**         | The base path used to detect application routes. Only routes starting with this prefix are analyzed.                                                                                                            | `'api'`                           | `'api/v1'`                                                |
+| **`applications.*.routes.versioned`**      | Enables version parsing for routes like `/api/v1/...`.                                                                                                                                                          | `false`                           | `true`                                                    |
+| **`applications.*.routes.api_base_url`**   | The base URL used when Nimbus relays API requests from the UI. Useful when the API runs on a different domain or port. If set to null, Nimbus will default to the same host and scheme as the incoming request. | null                              | `http://127.0.0.1:8001`                                   |
+| **`applications.*.auth.guard`**            | The Laravel guard used for the API requests authentication.                                                                                                                                                     | `'api'`                           | `'web'`                                                   |
+| **`applications.*.auth.special.injector`** | Injector class used to attach authentication credentials to outgoing requests. Must implement `SpecialAuthenticationInjectorContract`.                                                                          | `RememberMeCookieInjector::class` | `TymonJwtTokenInjector::class`                            |
+| **`headers`**                              | Global headers applied to all outgoing requests. Supports static values or enum generators.                                                                                                                     | `[]`                              | `['x-request-id' => GlobalHeaderGeneratorTypeEnum::UUID]` |
+
+### Multi-Application Support
+
+Nimbus allows you to define multiple distinct application in your configuration. This is ideal for projects with multiple APIs like a REST api + CMS APIs, or different microservices within the same monolith.
+
+```php
+'applications' => [
+    'main' => [
+        'name' => 'Public API',
+        'routes' => [
+            'prefix' => 'api/v1',
+            'versioned' => false,
+        ],
+    ],
+    'admin' => [
+        'name' => 'Admin API',
+        'routes' => [
+            'prefix' => 'api/admin',
+            'versioned' => true,
+        ],
+    ],
+],
+```
+
+When multiple applications are defined, a Project Switcher appears in the sidebar, allowing you to quickly toggle between them.
+
+![Applications Switcher](./assets/applications-switcher.png)
 
 #### Special Authentication Modes
 

@@ -2,11 +2,11 @@
 
 namespace Sunchayn\Nimbus\Modules\Routes\Actions;
 
-use Illuminate\Contracts\Config\Repository;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Psr\Log\LoggerInterface;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Routes\Collections\ExtractedRoutesCollection;
 use Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionException;
@@ -29,7 +29,7 @@ class ExtractRoutesAction
         protected SchemaExtractor $schemaExtractor,
         protected ExtractableRouteFactory $routeFactory,
         protected IgnoredRoutesService $ignoredRoutesService,
-        protected Repository $config,
+        protected ActiveApplicationResolver $activeApplicationResolver,
         protected LoggerInterface $logger,
     ) {}
 
@@ -40,7 +40,7 @@ class ExtractRoutesAction
      */
     public function execute(array $routes): ExtractedRoutesCollection
     {
-        $prefix = $this->config->get('nimbus.routes.prefix');
+        $prefix = $this->activeApplicationResolver->getRoutesPrefix();
 
         $configs = collect($routes)
             ->filter(function (Route $route) use ($prefix): bool {
@@ -95,8 +95,8 @@ class ExtractRoutesAction
         return new ExtractedRoute(
             uri: Endpoint::fromRaw(
                 $route->uri(),
-                routesPrefix: $this->config->get('nimbus.routes.prefix'),
-                isVersioned: $this->config->get('nimbus.routes.versioned'),
+                routesPrefix: $this->activeApplicationResolver->getRoutesPrefix(),
+                isVersioned: $this->activeApplicationResolver->isVersioned(),
             ),
             methods: $methods,
             schema: $schema,

@@ -9,6 +9,7 @@ import {
     AppSidebarMenu,
     AppSidebarRail,
 } from '@/components/base/sidebar';
+import ApplicationSwitcher from '@/components/domain/RoutesExplorer/ApplicationSwitcher.vue';
 import RouteExplorerHeader from '@/components/domain/RoutesExplorer/RouteExplorerHeader.vue';
 import RouteExplorerVersionSelector from '@/components/domain/RoutesExplorer/RouteExplorerVersionSelector.vue';
 import RoutesList from '@/components/domain/RoutesExplorer/RoutesList/RoutesList.vue';
@@ -16,7 +17,7 @@ import { RouteDefinition, RoutesGroup } from '@/interfaces/routes/routes';
 import { useConfigStore } from '@/stores';
 import { uniquePersistenceKey } from '@/utils/stores';
 import { useStorage } from '@vueuse/core';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 /*
  * Props.
@@ -32,9 +33,22 @@ const props = defineProps<{
 
 const search = useStorage(uniquePersistenceKey('routes-explorer-search-keyword'), '');
 
-const versions = computed(() => Object.keys(props.routes || []));
+const versions = computed(() => Object.keys(props.routes || {}));
 
-const currentVersion = computed(() => versions.value[0]);
+const currentVersion = ref('');
+
+// Initialize or update current version when versions list changes (e.g. after project switch)
+watch(
+    versions,
+    newVersions => {
+        if (newVersions.length > 0 && !newVersions.includes(currentVersion.value)) {
+            currentVersion.value = newVersions[0];
+        } else if (newVersions.length === 0) {
+            currentVersion.value = '';
+        }
+    },
+    { immediate: true },
+);
 
 /*
  * Computed.
@@ -77,6 +91,10 @@ const filteredRoutes = computed(() => {
  */
 
 const configStore = useConfigStore();
+
+const hasMultipleApplications = computed(
+    () => Object.keys(configStore.applications).length > 1,
+);
 </script>
 
 <template>
@@ -89,11 +107,21 @@ const configStore = useConfigStore();
                 :disabled="routesInVersion.length === 0"
                 class="h-[calc(var(--toolbar-height)+1px)] w-full rounded-none border-0 border-b text-xs shadow-none focus:ring-0 focus-visible:ring-0"
             />
-            <RouteExplorerVersionSelector
-                v-if="configStore.isVersioned && versions.length"
-                v-model="currentVersion"
-                :versions="versions"
-            />
+            <div class="h-sub-toolbar flex items-center overflow-hidden border-b">
+                <ApplicationSwitcher v-if="hasMultipleApplications" class="flex-1" />
+                <div
+                    v-if="configStore.isVersioned && versions.length"
+                    class="h-full w-[80px] shrink-0 border-l"
+                    :class="{
+                        'flex-1': !hasMultipleApplications,
+                    }"
+                >
+                    <RouteExplorerVersionSelector
+                        v-model="currentVersion"
+                        :versions="versions"
+                    />
+                </div>
+            </div>
         </div>
         <AppSidebarContent>
             <AppSidebarGroup class="p-0">

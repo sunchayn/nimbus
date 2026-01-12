@@ -13,18 +13,34 @@ class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        config([
-            'nimbus.prefix' => 'nimbus',
-            'nimbus.routes.prefix' => 'api',
-            'nimbus.routes.versioned' => false,
-            'nimbus.headers' => [
-                'x-request-id' => 'uuid',
-                'x-session-id' => 'uuid',
-            ],
-            'force',
-        ]);
-
         Http::preventStrayRequests();
+    }
+
+    protected function getEnvironmentSetUp($app): void
+    {
+        $app['config']->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
+        $app['config']->set('nimbus.prefix', 'nimbus');
+        $app['config']->set('nimbus.default_application', 'main');
+        $app['config']->set('nimbus.applications', [
+            'main' => [
+                'name' => 'Main Application',
+                'routes' => [
+                    'prefix' => 'api',
+                    'versioned' => false,
+                ],
+                'headers' => [
+                    'x-request-id' => 'uuid',
+                    'x-session-id' => 'uuid',
+                ],
+            ],
+            'other' => [
+                'name' => 'Other Application',
+                'routes' => [
+                    'prefix' => 'other-api',
+                    'versioned' => true,
+                ],
+            ],
+        ]);
     }
 
     protected function tearDown(): void

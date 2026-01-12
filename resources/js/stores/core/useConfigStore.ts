@@ -21,6 +21,10 @@ export const useConfigStore = defineStore('config', () => {
     const currentUser = window.Nimbus?.currentUser
         ? JSON.parse(window.Nimbus.currentUser as string)
         : null;
+    const applications: Record<string, string> = window.Nimbus?.applications
+        ? JSON.parse(window.Nimbus.applications as string)
+        : {};
+    const activeApplication = window.Nimbus?.activeApplication || null;
 
     // Derived values
     const isLoggedIn = currentUser !== null;
@@ -33,5 +37,7 @@ export const useConfigStore = defineStore('config', () => {
         isVersioned,
         isLoggedIn,
         userId,
+        applications,
+        activeApplication,
     };
 });

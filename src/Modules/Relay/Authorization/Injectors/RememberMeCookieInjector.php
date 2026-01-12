@@ -2,7 +2,6 @@
 
 namespace Sunchayn\Nimbus\Modules\Relay\Authorization\Injectors;
 
-use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Guard;
@@ -15,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\Contracts\SpecialAuthenticationInjectorContract;
 
@@ -34,12 +34,12 @@ class RememberMeCookieInjector implements SpecialAuthenticationInjectorContract
     public function __construct(
         private readonly Request $relayRequest,
         private readonly Container $container,
-        ConfigRepository $configRepository,
+        ActiveApplicationResolver $activeApplicationResolver,
     ) {
         $this->encrypter = $this->container->get('encrypter');
 
         $this->authGuard = $this->container->get('auth')->guard(
-            $configRepository->get('nimbus.auth.guard'),
+            $activeApplicationResolver->getAuthGuard(),
         );
 
         if (! $this->authGuard instanceof StatefulGuard) {

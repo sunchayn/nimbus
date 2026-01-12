@@ -2,7 +2,6 @@
 
 namespace Sunchayn\Nimbus\Tests\App\Modules\Routes\Services;
 
-use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route as RouteFacade;
@@ -47,9 +46,9 @@ class RouteExtractorServiceFunctionalTest extends TestCase
     {
         // Anticipate
 
-        $this->mock(ConfigRepository::class, function (MockInterface $mock) {
-            $mock->shouldReceive('get')->with('nimbus.routes.prefix')->andReturn('api');
-            $mock->shouldReceive('get')->with('nimbus.routes.versioned')->andReturn(fake()->boolean());
+        $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class, function (MockInterface $mock) {
+            $mock->shouldReceive('getRoutesPrefix')->andReturn('api');
+            $mock->shouldReceive('isVersioned')->andReturn($this->isVersioned = fake()->boolean());
         });
 
         $routeFactoryMock = $this->mock(ExtractableRouteFactory::class, function (MockInterface $mock) {
@@ -205,10 +204,10 @@ class RouteExtractorServiceFunctionalTest extends TestCase
     {
         // Arrange
 
-        $config = $this->mock(ConfigRepository::class);
-
         RouteFacade::post('/custom/test', fn () => response()->json(['test' => true]))
             ->name('custom.test');
+
+        $activeApplicationResolverMock = $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class);
 
         $routeExtractorService = resolve(ExtractRoutesAction::class);
 
@@ -216,8 +215,8 @@ class RouteExtractorServiceFunctionalTest extends TestCase
 
         // Anticipate
 
-        $config->shouldReceive('get')->with('nimbus.routes.prefix')->andReturn('custom');
-        $config->shouldReceive('get')->with('nimbus.routes.versioned')->andReturnFalse();
+        $activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn('custom');
+        $activeApplicationResolverMock->shouldReceive('isVersioned')->andReturn(false);
 
         // Act
 
@@ -239,9 +238,9 @@ class RouteExtractorServiceFunctionalTest extends TestCase
     {
         // Anticipate
 
-        $this->mock(ConfigRepository::class, function (MockInterface $mock) {
-            $mock->shouldReceive('get')->with('nimbus.routes.prefix')->andReturn('api');
-            $mock->shouldReceive('get')->with('nimbus.routes.versioned')->andReturn(fake()->boolean());
+        $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class, function (MockInterface $mock) {
+            $mock->shouldReceive('getRoutesPrefix')->andReturn('api');
+            $mock->shouldReceive('isVersioned')->andReturn(fake()->boolean());
         });
 
         $dummyFailingException = new RuntimeException(message: $dummyFailingExceptionMessage = fake()->sentence());

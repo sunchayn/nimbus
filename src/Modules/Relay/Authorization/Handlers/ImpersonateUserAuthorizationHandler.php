@@ -2,11 +2,11 @@
 
 namespace Sunchayn\Nimbus\Modules\Relay\Authorization\Handlers;
 
-use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Client\PendingRequest;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\Concerns\UsesSpecialAuthenticationInjector;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\Exceptions\InvalidAuthorizationValueException;
@@ -20,7 +20,7 @@ class ImpersonateUserAuthorizationHandler implements AuthorizationHandler
     public function __construct(
         public readonly int $userId,
         private readonly Container $container,
-        private readonly ConfigRepository $configRepository,
+        private readonly ActiveApplicationResolver $projectManager,
     ) {
         if ($userId <= 0) {
             throw InvalidAuthorizationValueException::becauseUserIsNotFound();
@@ -28,7 +28,7 @@ class ImpersonateUserAuthorizationHandler implements AuthorizationHandler
 
         $this->userProvider = $this
             ->container->get('auth')
-            ->guard(name: config('nimbus.auth.guard'))
+            ->guard(name: $this->projectManager->getAuthGuard())
             ->getProvider();
     }
 
@@ -45,7 +45,7 @@ class ImpersonateUserAuthorizationHandler implements AuthorizationHandler
         }
 
         return $this
-            ->getInjector($this->container, $this->configRepository)
+            ->getInjector($this->container, $this->projectManager)
             ->attach($pendingRequest, $user);
     }
 }

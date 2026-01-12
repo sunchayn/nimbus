@@ -2,15 +2,16 @@
 
 namespace Sunchayn\Nimbus\Modules\Relay\Authorization\Handlers;
 
-use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Request;
 use Illuminate\Session\SessionManager;
 use Illuminate\Session\Store;
 use Illuminate\Support\Arr;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\Concerns\UsesSpecialAuthenticationInjector;
 
 /**
@@ -30,6 +31,7 @@ class CurrentUserAuthorizationHandler implements AuthorizationHandler
     public function __construct(
         private readonly Request $relayRequest,
         private readonly Container $container,
+        private readonly ActiveApplicationResolver $projectManager,
         private readonly ConfigRepository $configRepository,
     ) {
         $this->userProvider = $this->resolveUserProvider();
@@ -44,7 +46,7 @@ class CurrentUserAuthorizationHandler implements AuthorizationHandler
         }
 
         return $this
-            ->getInjector($this->container, $this->configRepository)
+            ->getInjector($this->container, $this->projectManager)
             ->attach($pendingRequest, $user);
     }
 
@@ -55,9 +57,7 @@ class CurrentUserAuthorizationHandler implements AuthorizationHandler
     {
         $authManager = $this->container->get('auth');
 
-        $guardName = $this->configRepository->get('nimbus.auth.guard');
-
-        return $authManager->guard($guardName)->getProvider();
+        return $authManager->guard($this->projectManager->getAuthGuard())->getProvider();
     }
 
     /**
@@ -86,7 +86,7 @@ class CurrentUserAuthorizationHandler implements AuthorizationHandler
         $session->setId(id: $this->extractSessionIdFromCookie($sessionCookie));
         $session->start();
 
-        $tokenPrefix = 'login_'.$this->configRepository->get('nimbus.auth.guard');
+        $tokenPrefix = 'login_'.($this->projectManager->getAuthGuard());
 
         $userId = Arr::first(
             $session->all(),

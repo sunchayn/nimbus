@@ -47,6 +47,9 @@ const mockRoutesStore: {
 const mockConfigStore = {
     apiUrl: 'https://api.example.com',
     headers: [],
+    applications: {},
+    isVersioned: false,
+    activeApplication: null,
 };
 
 const mockValueGeneratorStore = {

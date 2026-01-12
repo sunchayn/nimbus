@@ -29,6 +29,8 @@ describe('useConfigStore', () => {
             currentUser: JSON.stringify({ id: 99 }),
             routes: '',
             routeExtractorException: null,
+            applications: JSON.stringify({ main: 'Main API' }),
+            activeApplication: 'main',
         };
 
         const store = useConfigStore();
