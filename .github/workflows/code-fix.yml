@@ -2,14 +2,8 @@ name: fix-code-issues
 
 on:
   push:
-    paths:
-      - '**.php'
-      - '**.js'
-      - '**.vue'
-      - '**.ts'
-      - '**.vue'
-      - 'package.json'
-      - 'composer.json'
+    branches: [ base ]
+  pull_request:
 
 permissions:
   contents: write
@@ -26,47 +20,68 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
+      - name: Check for changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            fixable:
+              - '**.php'
+              - '**.js'
+              - '**.vue'
+              - '**.ts'
+              - 'package.json'
+              - 'composer.json'
+
       - name: Setup Node.js
+        if: steps.filter.outputs.fixable == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'npm'
 
       - name: Install npm dependencies
+        if: steps.filter.outputs.fixable == 'true'
         run: npm ci
 
       - name: Fix js styles if Eslint passes
+        if: steps.filter.outputs.fixable == 'true'
         run: npm run style:fix
 
       - name: Commit changes
-        if: ${{ !env.ACT }}
+        if: steps.filter.outputs.fixable == 'true' && !env.ACT
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "style: apply TS style fixes"
 
       - name: Setup PHP
+        if: steps.filter.outputs.fixable == 'true'
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           coverage: none
 
       - name: Install composer dependencies
+        if: steps.filter.outputs.fixable == 'true'
         uses: ramsey/composer-install@v3
 
       - name: Rector
+        if: steps.filter.outputs.fixable == 'true'
         run: composer rector
 
       - name: Commit changes
-        if: ${{ !env.ACT }}
+        if: steps.filter.outputs.fixable == 'true' && !env.ACT
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "refactor: apply rector"
 
       - name: Fix php styles
+        if: steps.filter.outputs.fixable == 'true'
         run: composer style:fix
 
       - name: Commit changes
-        if: ${{ !env.ACT }}
+        if: steps.filter.outputs.fixable == 'true' && !env.ACT
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "style: apply php style fixes"
+

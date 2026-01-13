@@ -2,12 +2,8 @@ name: run-types-check
 
 on:
   push:
-    paths:
-      - '**.ts'
-      - '**.js'
-      - '.github/workflows/types-check.yml'
-      - 'package.json'
-      - 'package-lock.json'
+    branches: [ base ]
+  pull_request:
 
 jobs:
   test:
@@ -19,14 +15,30 @@ jobs:
         if: ${{ !env.ACT }}
         uses: actions/checkout@v4
 
+      - name: Check for changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            types:
+              - '**.ts'
+              - '**.js'
+              - '.github/workflows/types-check.yml'
+              - 'package.json'
+              - 'package-lock.json'
+
       - name: Setup Node.js
+        if: steps.filter.outputs.types == 'true'
         uses: actions/setup-node@v3
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
+        if: steps.filter.outputs.types == 'true'
         run: npm ci
 
       - name: Run Type Checks
+        if: steps.filter.outputs.types == 'true'
         run: npm run type:check
+

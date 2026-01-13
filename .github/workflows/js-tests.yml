@@ -2,20 +2,8 @@ name: run-js-tests
 
 on:
   pull_request:
-    paths:
-      - '**.ts'
-      - '**.js'
-      - '.github/workflows/js-tests.yml'
-      - 'package.json'
-      - 'package-lock.json'
   push:
     branches: [ base ]
-    paths:
-      - '**.ts'
-      - '**.js'
-      - '.github/workflows/js-tests.yml'
-      - 'package.json'
-      - 'package-lock.json'
 
 jobs:
   test:
@@ -27,14 +15,30 @@ jobs:
         if: ${{ !env.ACT }}
         uses: actions/checkout@v4
 
+      - name: Check for changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            js:
+              - '**.ts'
+              - '**.js'
+              - '.github/workflows/js-tests.yml'
+              - 'package.json'
+              - 'package-lock.json'
+
       - name: Setup Node.js
+        if: steps.filter.outputs.js == 'true'
         uses: actions/setup-node@v3
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
+        if: steps.filter.outputs.js == 'true'
         run: npm ci
 
       - name: Run tests
+        if: steps.filter.outputs.js == 'true'
         run: npm run test
+

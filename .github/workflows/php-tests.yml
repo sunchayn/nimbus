@@ -2,23 +2,29 @@ name: run-php-tests
 
 on:
   pull_request:
-    paths:
-      - '**.php'
-      - '.github/workflows/php-tests.yml'
-      - '../../tests/phpunit.xml.dist'
-      - 'composer.json'
-      - 'composer.lock'
   push:
     branches: [ base ]
-    paths:
-      - '**.php'
-      - '.github/workflows/php-tests.yml'
-      - 'tests/phpunit.xml.dist'
-      - 'composer.json'
-      - 'composer.lock'
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      php: ${{ steps.filter.outputs.php }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            php:
+              - '**.php'
+              - '.github/workflows/php-tests.yml'
+              - 'tests/phpunit.xml.dist'
+              - 'composer.json'
+              - 'composer.lock'
+
   test:
+    needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 5
     strategy:
@@ -31,12 +37,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        if: ${{ !env.ACT }}
+        if: needs.changes.outputs.php == 'true' && !env.ACT
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
 
       - name: Setup PHP
+        if: needs.changes.outputs.php == 'true'
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -44,6 +51,7 @@ jobs:
           coverage: pcov
 
       - name: Cache Composer dependencies
+        if: needs.changes.outputs.php == 'true'
         uses: actions/cache@v3
         with:
           path: vendor
@@ -53,22 +61,24 @@ jobs:
             composer-${{ matrix.php }}
 
       - name: Install dependencies
+        if: needs.changes.outputs.php == 'true'
         run: |
           composer switch l:${{ matrix.laravel }} -- -- --no-interaction --no-progress --ansi
           composer dump-autoload --optimize
 
       - name: Execute tests with coverage
-        if: matrix.php == '8.3' && matrix.laravel == 12
+        if: needs.changes.outputs.php == 'true' && matrix.php == '8.3' && matrix.laravel == 12
         run: composer test:coverage-ci
 
       - name: Execute tests
-        if: matrix.php != '8.3' || matrix.laravel != 12
+        if: needs.changes.outputs.php == 'true' && (matrix.php != '8.3' || matrix.laravel != 12)
         run: composer test:parallel
 
       - name: Upload coverage reports to Codecov
-        if: matrix.php == '8.3' && matrix.laravel == 12
+        if: needs.changes.outputs.php == 'true' && matrix.php == '8.3' && matrix.laravel == 12
         uses: codecov/codecov-action@v4
         with:
           file: ./build/coverage.xml
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+

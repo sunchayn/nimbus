@@ -2,10 +2,8 @@ name: phpstan
 
 on:
   push:
-    paths:
-      - '**.php'
-      - '../../tools/phpstan/phpstan.neon.dist'
-      - '.github/workflows/phpstan.yml'
+    branches: [ base ]
+  pull_request:
 
 jobs:
   phpstan:
@@ -19,14 +17,30 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
+      - name: Check for changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            phpstan:
+              - '**.php'
+              - 'tools/phpstan/phpstan.neon.dist'
+              - '.github/workflows/phpstan.yml'
+              - 'composer.json'
+              - 'composer.lock'
+
       - name: Setup PHP
+        if: steps.filter.outputs.phpstan == 'true'
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           coverage: none
 
       - name: Install composer dependencies
+        if: steps.filter.outputs.phpstan == 'true'
         uses: ramsey/composer-install@v3
 
       - name: Run PHPStan
+        if: steps.filter.outputs.phpstan == 'true'
         run: composer phpstan
+
