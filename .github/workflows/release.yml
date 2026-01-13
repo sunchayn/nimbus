@@ -1,0 +1,68 @@
+name: release-please
+
+on:
+  push:
+    branches:
+      - base
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/release-please-action@v4
+        id: release
+        with:
+          release-type: node
+
+      # Handle the PR artifacts while the PR is open/updated
+      # The output 'pr' is only present if a release PR was created or updated.
+      - name: Checkout PR branch
+        if: ${{ steps.release.outputs.pr }}
+        uses: actions/checkout@v4
+        with:
+          # Use headBranchName from the PR object
+          ref: ${{ fromJson(steps.release.outputs.pr).headBranchName }}
+
+      - name: Setup Node
+        if: ${{ steps.release.outputs.pr }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Cache node_modules
+        if: ${{ steps.release.outputs.pr }}
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: ${{ steps.release.outputs.pr }}
+        run: npm ci
+
+      - name: Update version in Settings.vue
+        if: ${{ steps.release.outputs.pr }}
+        run: |
+          NEW_VERSION="v${{ fromJson(steps.release.outputs.pr).version }}"
+          # Use sed to replace the version line. Escaping single quotes for the sed command.
+          sed -i "s/const VERSION = '.*';/const VERSION = '$NEW_VERSION';/" resources/js/pages/Settings.vue
+
+      - name: Generate production artifacts
+        if: ${{ steps.release.outputs.pr }}
+        run: npm run build
+
+      - name: Commit and push changes
+        if: ${{ steps.release.outputs.pr }}
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "build: update production artifacts for ${{ fromJson(steps.release.outputs.pr).version }}"
+          file_pattern: "resources/dist/* resources/js/pages/Settings.vue"
+          # Ensure we push to the correct branch
+          branch: ${{ fromJson(steps.release.outputs.pr).headBranchName }}
