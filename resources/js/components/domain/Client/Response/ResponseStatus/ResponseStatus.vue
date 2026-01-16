@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { AppButton } from '@/components/base/button';
+import RequestHistory from '@/components/domain/Client/Response/ResponseStatus/History/RequestHistory.vue';
 import ResponseStatusCode from '@/components/domain/Client/Response/ResponseStatus/ResponseStatusCode.vue';
 import { PendingRequest, STATUS } from '@/interfaces/http';
 import { useRequestsHistoryStore, useRequestStore } from '@/stores';
 import { cn } from '@/utils/ui';
-import { useTimeAgo } from '@vueuse/core';
 import { RefreshCwOffIcon } from 'lucide-vue-next';
 import prettyBytes from 'pretty-bytes';
 import prettyMs from 'pretty-ms';
@@ -76,33 +76,6 @@ const duration = computed(() => {
     );
 });
 
-const readableTime = computed(() => {
-    if (lastLog.value?.response === undefined) {
-        return '';
-    }
-
-    const timestamp = new Date(lastLog.value.response.timestamp * 1000);
-    const timeAgo = useTimeAgo(timestamp);
-
-    return timeAgo.value;
-});
-
-const absoluteTime = computed(() => {
-    if (lastLog.value?.response === undefined) {
-        return '';
-    }
-
-    const timestamp = new Date(lastLog.value.response.timestamp * 1000);
-
-    return timestamp.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-});
-
 /*
  * Actions.
  */
@@ -137,9 +110,7 @@ const cancelRequest = () => {
             </div>
 
             <div v-if="!pendingRequestData?.isProcessing" class="flex items-center">
-                <small class="text-subtle text-xs" :title="absoluteTime">
-                    {{ readableTime }}
-                </small>
+                <RequestHistory />
             </div>
         </div>
 

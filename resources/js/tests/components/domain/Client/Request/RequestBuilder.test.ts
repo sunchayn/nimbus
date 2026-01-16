@@ -5,23 +5,23 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('@/components/domain/Client/Request', () => ({
     RequestBuilderEndpoint: {
         name: 'RequestBuilderEndpoint',
-        template: '<div data-testid="request-builder-endpoint">Endpoint</div>',
+        template: '<div>Endpoint</div>',
     },
     RequestParameters: {
         name: 'RequestParameters',
-        template: '<div data-testid="request-parameters">Parameters Panel</div>',
+        template: '<div>Parameters Panel</div>',
     },
     RequestBody: {
         name: 'RequestBody',
-        template: '<div data-testid="request-body">Body Panel</div>',
+        template: '<div>Body Panel</div>',
     },
     RequestAuthorization: {
         name: 'RequestAuthorization',
-        template: '<div data-testid="request-authorization">Authorization Panel</div>',
+        template: '<div>Authorization Panel</div>',
     },
     RequestHeaders: {
         name: 'RequestHeaders',
-        template: '<div data-testid="request-headers">Headers Panel</div>',
+        template: '<div>Headers Panel</div>',
     },
 }));
 

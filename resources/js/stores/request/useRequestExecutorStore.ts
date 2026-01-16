@@ -19,6 +19,7 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
     /*
      * Stores & dependencies.
      */
+
     const historyStore = useRequestsHistoryStore();
     const { executeRequest, cancelCurrentRequest } = useHttpClient();
 

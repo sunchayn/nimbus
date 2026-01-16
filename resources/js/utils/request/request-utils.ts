@@ -56,13 +56,19 @@ export function generateErrorRequestLog(
 }
 
 const pendingRequestToRequestLogEntry = function (request: PendingRequest): Request {
+    // Extract the memoized body for the current method and payload type
+    const methodBody = request.body[request.method] ?? null;
+    const currentBody = methodBody ? (methodBody[request.payloadType] ?? null) : null;
+
     return {
         method: request.method,
         endpoint: request.endpoint,
-        headers: request.headers,
-        body: null, // The Body is handled separately in execution
-        queryParameters: request.queryParameters,
+        headers: [...request.headers],
+        body: currentBody,
+        queryParameters: [...request.queryParameters],
         payloadType: request.payloadType,
+        authorization: { ...request.authorization },
+        routeDefinition: { ...request.routeDefinition },
     };
 };
 

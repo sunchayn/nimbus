@@ -1,6 +1,7 @@
-import RequestHeaders from '@/components/domain/Client/Request/RequestHeader/RequestHeaders.vue';
+import RequestHeaders from '@/components/domain/Client/Request/RequestHeaders/RequestHeaders.vue';
 import { AuthorizationType } from '@/interfaces/generated';
 import { GeneratorType, PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
+import { ParameterContract, ParameterType } from '@/interfaces/ui';
 import { renderWithProviders } from '@/tests/_utils/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, reactive, ref } from 'vue';
@@ -40,6 +41,7 @@ const setPendingRequest = (request: PendingRequest | null) => {
 
 describe('RequestHeaders', () => {
     beforeEach(() => {
+        vi.useFakeTimers();
         generateValue.mockClear();
 
         mockConfigStore.headers = [
@@ -81,103 +83,82 @@ describe('RequestHeaders', () => {
         renderComponent();
 
         await nextTick();
+        vi.advanceTimersByTime(310);
+        await nextTick();
 
         expect(mockRequestStore.updateRequestHeaders).toHaveBeenCalledWith(
             expect.arrayContaining([
-                expect.objectContaining({ key: 'X-Global', value: 'foo' }),
+                expect.objectContaining({ key: 'X-Global', value: 'foo', enabled: true }),
                 expect.objectContaining({
                     key: 'X-Generated',
                     value: 'generated@example.com',
+                    enabled: true,
                 }),
             ]),
         );
         expect(generateValue).toHaveBeenCalledWith('email');
     });
 
-    it('reinitializes headers when the request method changes', async () => {
+    it('preserves headers and does not re-inject globals when the endpoint changes', async () => {
+        // 1. Initial render populates headers from globals
         renderComponent();
 
         await nextTick();
+        vi.advanceTimersByTime(310);
+        await nextTick();
 
-        mockRequestStore.updateRequestHeaders.mockClear();
+        const firstSyncCall = vi.mocked(mockRequestStore.updateRequestHeaders).mock
+            .calls[0][0];
 
+        // 2. Simulate the store being updated with these headers
         setPendingRequest({
             ...mockRequestStore.pendingRequestData!,
-            method: 'PUT', // <- Different method that the original one.
-            headers: [],
+            headers: firstSyncCall,
         });
 
         await nextTick();
-
-        expect(mockRequestStore.updateRequestHeaders).toHaveBeenCalledWith(
-            expect.arrayContaining([
-                expect.objectContaining({ key: 'X-Global', value: 'foo' }),
-            ]),
-        );
-    });
-
-    it('reinitializes headers when the request endpoint changes', async () => {
-        renderComponent();
-
-        await nextTick();
-
         mockRequestStore.updateRequestHeaders.mockClear();
 
+        // 3. Change the endpoint
         setPendingRequest({
             ...mockRequestStore.pendingRequestData!,
-            endpoint: 'api/accounts',
-            headers: [],
+            endpoint: 'api/other-endpoint',
         });
 
         await nextTick();
-
-        expect(mockRequestStore.updateRequestHeaders).toHaveBeenCalledWith(
-            expect.arrayContaining([
-                expect.objectContaining({ key: 'X-Global', value: 'foo' }),
-            ]),
-        );
-    });
-
-    it('does not reinitialize when method and endpoint stay the same', async () => {
-        renderComponent();
-
+        vi.advanceTimersByTime(310);
         await nextTick();
 
-        mockRequestStore.updateRequestHeaders.mockClear();
-
-        setPendingRequest({
-            ...mockRequestStore.pendingRequestData!,
-            headers: [],
-        });
-
-        await nextTick();
-
+        // Should not have triggered a new update because effectiveHeaders returned currentHeaders
         expect(mockRequestStore.updateRequestHeaders).not.toHaveBeenCalled();
     });
 
-    it('merges existing request headers with global ones when changing endpoints', async () => {
-        (mockRequestStore.pendingRequestData as PendingRequest).headers = [
-            { key: 'X-Existing', value: '123' },
-            { key: 'X-Global', value: 'custom' },
+    it('prefers existing store headers over global defaults', async () => {
+        const customHeaders: ParameterContract[] = [
+            {
+                key: 'X-Custom',
+                value: 'custom-value',
+                enabled: true,
+                id: 1,
+                type: ParameterType.Text,
+            },
         ];
-
-        renderComponent();
-
-        mockRequestStore.updateRequestHeaders.mockClear();
 
         setPendingRequest({
             ...mockRequestStore.pendingRequestData!,
-            method: 'PUT', // <- Different method that the original one to re-trigger th.
-            headers: [],
+            headers: customHeaders,
         });
 
+        renderComponent();
+
+        await nextTick();
+        vi.advanceTimersByTime(310);
         await nextTick();
 
-        expect(mockRequestStore.updateRequestHeaders).toHaveBeenCalledWith(
-            expect.arrayContaining([
-                expect.objectContaining({ key: 'X-Existing', value: '123' }),
-                expect.objectContaining({ key: 'X-Global', value: 'custom' }),
-            ]),
+        // It should NOT have initialized with global headers
+        // It might sync back the custom headers if they were deep cloned internally
+        expect(mockRequestStore.updateRequestHeaders).not.toHaveBeenCalledWith(
+            expect.arrayContaining([expect.objectContaining({ key: 'X-Global' })]),
         );
     });
 });

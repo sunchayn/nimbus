@@ -122,7 +122,21 @@ watch(
 
         try {
             const newDump = JSON.parse(String(newValue)) as DumpSnapshot;
+
+            // Check if we already have this dump in our session history
+            const existingIndex = dumpSnapshots.value.findIndex(
+                dump => dump.id === newDump.id,
+            );
+
+            // If it exists, we just select it (likely a history rewind)
+            if (existingIndex !== -1) {
+                selectedDumpIndex.value = existingIndex;
+
+                return;
+            }
+
             dumpSnapshots.value = [newDump, ...dumpSnapshots.value];
+
             selectedDumpIndex.value = 0;
         } catch (error) {
             console.error('Failed to parse dump snapshot:', error);

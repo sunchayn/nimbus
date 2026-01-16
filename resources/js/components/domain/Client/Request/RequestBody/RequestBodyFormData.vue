@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import KeyValueParametersBuilder from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
-import { ParametersExternalContract } from '@/interfaces/ui';
+import { ParameterContract } from '@/interfaces/ui';
+import { ParameterType } from '@/interfaces/ui/key-value-parameters';
 import { nextTick, ref, watch } from 'vue';
 
 /*
@@ -20,7 +21,7 @@ const emit = defineEmits(['update:modelValue']);
 // A guard flag to prevent endless syncing looping between the component and parent as it will mutate its dependency.
 const isPropagatingChangesToParent = ref(false);
 
-const payload = ref<ParametersExternalContract[]>([]);
+const payload = ref<ParameterContract[]>([]);
 
 /*
  * Watchers.
@@ -51,23 +52,17 @@ watch(
     { deep: true },
 );
 
-watch(
-    payload,
-    () => {
-        isPropagatingChangesToParent.value = true;
-
-        emit('update:modelValue', convertParametersArrayToFormData(payload.value));
-    },
-    { deep: true },
-);
+const handlePayloadUpdate = (parameters: ParameterContract[]) => {
+    isPropagatingChangesToParent.value = true;
+    payload.value = parameters;
+    emit('update:modelValue', convertParametersArrayToFormData(parameters));
+};
 
 /*
  * Actions.
  */
 
-function convertParametersArrayToFormData(
-    parameters: ParametersExternalContract[],
-): FormData {
+function convertParametersArrayToFormData(parameters: ParameterContract[]): FormData {
     const formData = new FormData();
 
     for (const parameter of parameters) {
@@ -89,8 +84,8 @@ function convertParametersArrayToFormData(
     return formData;
 }
 
-function convertFormDataToParametersArray(form: FormData): ParametersExternalContract[] {
-    const parameters: ParametersExternalContract[] = [];
+function convertFormDataToParametersArray(form: FormData): ParameterContract[] {
+    const parameters: ParameterContract[] = [];
 
     form.forEach((value: FormDataEntryValue, key: string) => {
         if (value instanceof File) {
@@ -98,18 +93,20 @@ function convertFormDataToParametersArray(form: FormData): ParametersExternalCon
             // Note: File uploads are not properly tested or verified.
             // TODO [Feature] Properly support file uploads.
             parameters.push({
-                type: 'file',
+                type: ParameterType.File,
                 key: key,
                 value: value.name,
+                enabled: true,
             });
 
             return;
         }
 
         parameters.push({
-            type: 'text',
+            type: ParameterType.Text,
             key: key,
             value: value,
+            enabled: true,
         });
     });
 
@@ -118,5 +115,9 @@ function convertFormDataToParametersArray(form: FormData): ParametersExternalCon
 </script>
 
 <template>
-    <KeyValueParametersBuilder v-model="payload" :free-form-types="true" />
+    <KeyValueParametersBuilder
+        :model-value="payload"
+        :free-form-types="true"
+        @update:parameters="handlePayloadUpdate"
+    />
 </template>

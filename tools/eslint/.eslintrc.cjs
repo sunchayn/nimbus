@@ -15,7 +15,7 @@ module.exports = {
         ecmaVersion: 'latest',
         sourceType: 'module',
         parser: '@typescript-eslint/parser',
-        project:  'resources/tsconfig.json',
+        project:  'tsconfig.json',
     },
     env: {
         browser: true,

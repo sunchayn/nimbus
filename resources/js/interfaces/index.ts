@@ -25,4 +25,6 @@ export type { RouteDefinition, RouteExtractorException, RoutesGroup } from './ro
 
 export type { JSONSchema7 } from './schema';
 
-export type { ExtendedParameter, ParametersExternalContract } from './ui';
+export type { ParameterContract } from './ui';
+
+export { ParameterType } from './ui';

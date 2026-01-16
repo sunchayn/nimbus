@@ -1,5 +1,6 @@
 import { AuthorizationType } from '@/interfaces/generated';
 import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
+import { ParameterType } from '@/interfaces/ui';
 import { generateCurlCommand } from '@/utils/request';
 import { describe, expect, it } from 'vitest';
 
@@ -7,8 +8,18 @@ const requestBase: PendingRequest = {
     method: 'POST',
     endpoint: 'users',
     headers: [
-        { key: 'Authorization', value: 'Bearer token' },
-        { key: 'Accept', value: 'application/json' },
+        {
+            key: 'Authorization',
+            value: 'Bearer token',
+            enabled: true,
+            type: ParameterType.Text,
+        },
+        {
+            key: 'Accept',
+            value: 'application/json',
+            enabled: true,
+            type: ParameterType.Text,
+        },
     ],
     body: {
         POST: {
@@ -20,7 +31,9 @@ const requestBase: PendingRequest = {
         shape: {},
         extractionErrors: null,
     },
-    queryParameters: [{ key: 'page', value: '1' }],
+    queryParameters: [
+        { key: 'page', value: '1', enabled: true, type: ParameterType.Text },
+    ],
     authorization: { type: AuthorizationType.Bearer, value: 'token' },
     supportedRoutes: [],
     routeDefinition: {

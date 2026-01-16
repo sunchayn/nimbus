@@ -2,10 +2,10 @@
 import CopyButton from '@/components/common/CopyButton.vue';
 import KeyValueParametersBuilder from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
-import { ParametersExternalContract } from '@/interfaces/ui';
+import { ParameterContract } from '@/interfaces/ui';
 import { useRequestStore } from '@/stores';
-import { useClipboard, watchDebounced } from '@vueuse/core';
-import { computed, ref, watch } from 'vue';
+import { useClipboard } from '@vueuse/core';
+import { computed } from 'vue';
 
 /*
  * Stores & dependencies.
@@ -15,63 +15,28 @@ const requestStore = useRequestStore();
 const { copy, copied: previewCopied } = useClipboard();
 
 /*
- * State.
- */
-
-const parameters = ref<ParametersExternalContract[]>([]);
-
-const preview = ref<string>('');
-
-/*
  * Computed.
  */
 
 const pendingRequestData = computed(() => requestStore.pendingRequestData);
+
+const currentRequestQueryParameters = computed<ParameterContract[]>(
+    () => pendingRequestData.value?.queryParameters ?? [],
+);
+
+const handleQueryParametersUpdate = (parameters: ParameterContract[]) => {
+    requestStore.updateQueryParameters(parameters);
+};
+
+const preview = computed(() =>
+    pendingRequestData.value ? requestStore.getRequestUrl(pendingRequestData.value) : '',
+);
 
 /*
  * Actions.
  */
 
 const copyPreview = () => copy(preview.value);
-
-/*
- * Watchers.
- */
-
-watchDebounced(
-    parameters,
-    () => {
-        if (pendingRequestData.value === null) {
-            return;
-        }
-
-        requestStore.updateQueryParameters(parameters.value);
-
-        preview.value = requestStore.getRequestUrl(pendingRequestData.value);
-    },
-    { deep: true, debounce: 200 },
-);
-
-watch(
-    () => pendingRequestData.value?.endpoint,
-    (newEndpoint, oldEndpoint) => {
-        if (newEndpoint === oldEndpoint) {
-            return;
-        }
-
-        if (!pendingRequestData.value) {
-            return;
-        }
-
-        parameters.value = pendingRequestData.value.queryParameters.map(
-            (parameter: ParametersExternalContract): ParametersExternalContract => ({
-                key: parameter.key,
-                value: parameter.value,
-            }),
-        );
-    },
-    { immediate: true },
-);
 </script>
 
 <template>
@@ -87,8 +52,8 @@ watch(
         </div>
     </div>
     <KeyValueParametersBuilder
-        v-model="parameters"
+        :model-value="currentRequestQueryParameters"
         class="flex-1"
-        persistence-key="pending-request-parameters"
+        @update:parameters="handleQueryParametersUpdate"
     />
 </template>

@@ -1,9 +1,9 @@
-import { ParametersExternalContract } from '@/interfaces';
+import { ParameterContract } from '@/interfaces';
 
 /**
  * Checks if a query parameter is valid for inclusion in URLs.
  */
-export function isValidQueryParameter(parameter: ParametersExternalContract): boolean {
+export function isValidQueryParameter(parameter: ParameterContract): boolean {
     return parameter.key.trim() !== '';
 }
 
@@ -16,7 +16,7 @@ export function isValidQueryParameter(parameter: ParametersExternalContract): bo
 export function buildRequestUrl(
     baseUrl: string,
     endpoint: string,
-    queryParameters: ParametersExternalContract[],
+    queryParameters: ParameterContract[],
 ): string {
     const url = new URL(`${baseUrl}/${endpoint}`);
 

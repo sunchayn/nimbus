@@ -1,7 +1,6 @@
 import { AuthorizationContract } from '@/interfaces/auth/authorization';
-import { RequestHeader } from '@/interfaces/http';
 import { RouteDefinition } from '@/interfaces/routes/routes';
-import { ParametersExternalContract } from '@/interfaces/ui';
+import { ParameterContract } from '@/interfaces/ui';
 import type { JSONSchema7 } from 'json-schema';
 
 export enum RequestBodyTypeEnum {
@@ -24,7 +23,7 @@ export interface PendingRequest {
     endpoint: string;
 
     /** HTTP headers to include with the request */
-    headers: RequestHeader[];
+    headers: ParameterContract[];
 
     /**
      * Request body data organized by HTTP method and payload type.
@@ -52,7 +51,7 @@ export interface PendingRequest {
     };
 
     /** Query parameters to append to the request URL */
-    queryParameters: ParametersExternalContract[];
+    queryParameters: ParameterContract[];
 
     /** Currently selected payload type for the request body */
     payloadType: RequestBodyTypeEnum;
@@ -109,8 +108,10 @@ export interface PendingRequest {
 export interface Request {
     method: string;
     endpoint: string;
-    headers: RequestHeader[];
+    headers: ParameterContract[];
     body: FormData | string | null;
-    queryParameters: ParametersExternalContract[];
+    queryParameters: ParameterContract[];
     payloadType: RequestBodyTypeEnum;
+    authorization: AuthorizationContract;
+    routeDefinition: RouteDefinition;
 }

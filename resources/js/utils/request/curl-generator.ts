@@ -1,8 +1,10 @@
-import { ParametersExternalContract } from '@/interfaces';
+import { ParameterContract } from '@/interfaces';
 import { AuthorizationContract } from '@/interfaces/auth/authorization';
 import { AuthorizationType } from '@/interfaces/generated';
-import { PendingRequest, RequestBodyTypeEnum, RequestHeader } from '@/interfaces/http';
+import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
+import { ParameterType } from '@/interfaces/ui/key-value-parameters';
 import { buildRequestUrl } from '@/utils';
+import { getMimeTypeForPayloadType } from '@/utils/request/content-type-header-generator';
 
 /**
  * Result of cURL command generation.
@@ -46,7 +48,7 @@ export function generateCurlCommand(
 }
 
 function getEffectiveQueryParametersAndBodyValue(request: PendingRequest): {
-    queryParameters: ParametersExternalContract[];
+    queryParameters: ParameterContract[];
     requestBody: FormData | string | null;
 } {
     const requestBody = getRequestEffectiveBody(request);
@@ -62,7 +64,7 @@ function getEffectiveQueryParametersAndBodyValue(request: PendingRequest): {
 
         return {
             queryParameters: [
-                ...request.queryParameters,
+                ...request.queryParameters.filter(isValidParameter),
                 ...convertKeyValuePairsToQueryParameters(requestBodyKeyValuePairs),
             ],
             requestBody: null,
@@ -97,14 +99,15 @@ function buildRequestHeaderParts(request: PendingRequest): string[] {
 
     const headerParts = validHeaders.map(header => `-H "${header.key}: ${header.value}"`);
 
-    // Add Content-Type header for JSON payloads if not already present
-    if (request.payloadType === RequestBodyTypeEnum.JSON) {
+    // Add Content-Type header for payload types with MIME types if not already present
+    const mimeType = getMimeTypeForPayloadType(request.payloadType);
+    if (mimeType) {
         const hasContentType = validHeaders.some(
             header => header.key.toLowerCase() === 'content-type',
         );
 
         if (!hasContentType) {
-            headerParts.push(`-H "Content-Type: application/json"`);
+            headerParts.push(`-H "Content-Type: ${mimeType}"`);
         }
     }
 
@@ -128,9 +131,10 @@ function buildAuthorizationHeaderPart(
 
 function convertKeyValuePairsToQueryParameters(
     keyValuePairs: Record<string, string>,
-): ParametersExternalContract[] {
+): ParameterContract[] {
     return Object.entries(keyValuePairs).map(([key, value]) => ({
-        type: 'text',
+        type: ParameterType.Text,
+        enabled: true,
         key,
         value,
     }));
@@ -139,15 +143,15 @@ function convertKeyValuePairsToQueryParameters(
 /**
  * Filters headers to only include valid ones.
  */
-function getValidHeaders(request: PendingRequest): RequestHeader[] {
-    return request.headers.filter(isValidHeader);
+function getValidHeaders(request: PendingRequest): ParameterContract[] {
+    return request.headers.filter(isValidParameter);
 }
 
 /**
- * Checks if a header is valid for inclusion.
+ * Checks if a parameter is valid for inclusion.
  */
-function isValidHeader(header: RequestHeader): boolean {
-    return header.key.trim() !== '' && header.value !== null && header.value !== '';
+function isValidParameter(parameter: ParameterContract): boolean {
+    return parameter.enabled && parameter.key.trim() !== '';
 }
 
 /**

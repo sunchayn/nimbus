@@ -3,7 +3,7 @@ import { AuthorizationType } from '@/interfaces/generated';
 import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { effectScope, nextTick, reactive } from 'vue';
+import { effectScope, reactive } from 'vue';
 
 const requestStore = reactive<{
     pendingRequestData: PendingRequest | null;
@@ -112,20 +112,6 @@ describe('useRequestBody', () => {
         const payload = composable.generateCurrentPayload();
 
         expect(payload).toBe('{"cached":true}');
-    });
-
-    it('updates content-type header when payload type changes', async () => {
-        const composable = runComposable();
-
-        composable.payloadType.value = RequestBodyTypeEnum.JSON;
-
-        await nextTick();
-
-        expect(
-            requestStore.pendingRequestData?.headers.find(
-                header => header.key === 'content-type',
-            )?.value,
-        ).toBe('application/json');
     });
 
     it('autofills payload using random generator', () => {

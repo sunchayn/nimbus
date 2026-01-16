@@ -20,7 +20,7 @@
 /vendor             export-ignore
 /vite.config.js     export-ignore
 /components.json    export-ignore
-/resources/tsconfig.json      export-ignore
+/tsconfig.json      export-ignore
 /package.json       export-ignore
 /package-lock.json  export-ignore
 /CONTRIBUTING.md    export-ignore

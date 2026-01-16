@@ -2,10 +2,9 @@
  * UI-related interfaces and types
  */
 
-export type {
-    ExtendedParameter,
-    ParametersExternalContract,
-} from './key-value-parameters';
+export type { ParameterContract } from './key-value-parameters';
+
+export { ParameterType } from './key-value-parameters';
 
 export type {
     GeneratorCategory,

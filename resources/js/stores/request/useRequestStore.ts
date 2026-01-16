@@ -68,6 +68,7 @@ export const useRequestStore = defineStore('request', () => {
         updateQueryParameters: builderStore.updateQueryParameters,
         updateAuthorization: builderStore.updateAuthorization,
         getRequestUrl: builderStore.getRequestUrl,
+        restoreFromHistory: builderStore.restoreFromHistory,
 
         // Request Execution Actions (delegated to executor store)
         executeCurrentRequest: () => {

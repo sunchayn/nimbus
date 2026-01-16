@@ -2,6 +2,7 @@ import { useHttpClient } from '@/composables/request/useHttpClient';
 import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces';
 import { AuthorizationType } from '@/interfaces/generated';
 import { RelayProxyResponse } from '@/interfaces/http';
+import { ParameterType } from '@/interfaces/ui';
 import axios, { AxiosError } from 'axios';
 import { describe, expect, it, Mocked, vi } from 'vitest';
 
@@ -41,6 +42,9 @@ const defaultPendingRequest = {
             extractionErrors: null,
         },
     },
+    isProcessing: false,
+    wasExecuted: false,
+    durationInMs: 0,
 };
 
 describe('useHttpClient', () => {
@@ -60,9 +64,9 @@ describe('useHttpClient', () => {
                 type: AuthorizationType.None,
             },
             queryParameters: [
-                { key: 'page', value: '1' },
-                { key: 'limit', value: '10' },
-                { key: ' ', value: 'empty key' },
+                { key: 'page', value: '1', enabled: true, type: ParameterType.Text },
+                { key: 'limit', value: '10', enabled: true, type: ParameterType.Text },
+                { key: ' ', value: 'empty key', enabled: true, type: ParameterType.Text },
             ],
         };
 
@@ -479,5 +483,97 @@ describe('useHttpClient', () => {
         expect(mockedAxios.post).toHaveBeenCalled();
         const formDataCall = mockedAxios.post.mock.calls[0][1] as FormData;
         expect(formDataCall).toBeInstanceOf(FormData);
+    });
+
+    it('generates Content-Type header on-demand for JSON payload', async () => {
+        const { executeRequest } = useHttpClient();
+
+        const request: PendingRequest = {
+            ...defaultPendingRequest,
+            method: 'POST',
+            payloadType: RequestBodyTypeEnum.JSON,
+            headers: [
+                {
+                    key: 'Accept',
+                    value: 'application/json',
+                    enabled: true,
+                    type: ParameterType.Text,
+                },
+            ],
+            authorization: { type: AuthorizationType.None },
+            body: {
+                POST: {
+                    json: JSON.stringify({ name: 'John' }),
+                },
+            },
+        };
+
+        mockedAxios.post.mockResolvedValue({
+            data: JSON.stringify({
+                statusCode: 200,
+                statusText: 'OK',
+                headers: [],
+                body: '{}',
+                cookies: [],
+                timestamp: Date.now(),
+                duration: 100,
+            }),
+        });
+
+        await executeRequest(request);
+
+        // Verify the FormData was created with headers including Content-Type
+        expect(mockedAxios.post).toHaveBeenCalled();
+        const formDataCall = mockedAxios.post.mock.calls[0][1] as FormData;
+        expect(formDataCall).toBeInstanceOf(FormData);
+
+        // The headers are nested in FormData as headers[0][key], headers[0][value], etc.
+        // We should have 2 headers: Accept and content-type
+        expect(formDataCall.get('headers[0][key]')).toBe('Accept');
+        expect(formDataCall.get('headers[0][value]')).toBe('application/json');
+        expect(formDataCall.get('headers[1][key]')).toBe('content-type');
+        expect(formDataCall.get('headers[1][value]')).toBe('application/json');
+    });
+
+    it('does not add Content-Type header for EMPTY payload type', async () => {
+        const { executeRequest } = useHttpClient();
+
+        const request: PendingRequest = {
+            ...defaultPendingRequest,
+            method: 'POST',
+            payloadType: RequestBodyTypeEnum.EMPTY,
+            headers: [
+                {
+                    key: 'Accept',
+                    value: 'application/json',
+                    enabled: true,
+                    type: ParameterType.Text,
+                },
+            ],
+            authorization: { type: AuthorizationType.None },
+            body: {},
+        };
+
+        mockedAxios.post.mockResolvedValue({
+            data: JSON.stringify({
+                statusCode: 200,
+                statusText: 'OK',
+                headers: [],
+                body: '{}',
+                cookies: [],
+                timestamp: Date.now(),
+                duration: 100,
+            }),
+        });
+
+        await executeRequest(request);
+
+        expect(mockedAxios.post).toHaveBeenCalled();
+        const formDataCall = mockedAxios.post.mock.calls[0][1] as FormData;
+
+        // Should only have the Accept header, no Content-Type
+        expect(formDataCall.get('headers[0][key]')).toBe('Accept');
+        expect(formDataCall.get('headers[0][value]')).toBe('application/json');
+        expect(formDataCall.get('headers[1][key]')).toBeNull(); // No second header
     });
 });

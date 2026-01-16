@@ -1,19 +1,12 @@
-/**
- * The full parameter shape used internally with the UI details.
- */
-export interface ExtendedParameter {
-    id: number;
-    type: 'text' | 'file'; // <- Make an Enum.
+export interface ParameterContract {
+    id?: number;
+    type: ParameterType;
     key: string;
     value: string;
     enabled: boolean;
 }
 
-/**
- * A minimal shape used to communicate with external components.
- */
-export interface ParametersExternalContract {
-    type?: 'text' | 'file'; // <- Form Input type.
-    key: string;
-    value: string;
+export enum ParameterType {
+    Text = 'text',
+    File = 'file',
 }

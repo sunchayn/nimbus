@@ -1,22 +1,30 @@
 import ResponseStatus from '@/components/domain/Client/Response/ResponseStatus/ResponseStatus.vue';
-import { STATUS } from '@/interfaces/http';
+import { RequestLog } from '@/interfaces';
+import { AuthorizationType } from '@/interfaces/generated';
+import { PendingRequest, Request, RequestBodyTypeEnum, STATUS } from '@/interfaces/http';
 import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
 import { fireEvent } from '@testing-library/vue';
-import { beforeEach, describe, expect, it, MockedFunction, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { nextTick, Reactive, reactive } from 'vue';
 
 const mockRequestStore: Reactive<{
-    pendingRequestData: object | null;
-    cancelCurrentRequest: MockedFunction<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    pendingRequestData: Partial<PendingRequest> | null;
+    cancelCurrentRequest: Mock<() => void>;
+    restoreFromHistory: Mock<(request: Request) => void>;
 }> = reactive({
     pendingRequestData: null,
     cancelCurrentRequest: vi.fn(),
+    restoreFromHistory: vi.fn(),
 });
 
 const mockRequestsHistoryStore: Reactive<{
-    lastLog: object | null;
+    lastLog: RequestLog | null;
+    allLogs: RequestLog[];
+    setActiveLog: Mock<(index: number) => void>;
 }> = reactive({
     lastLog: null,
+    allLogs: [],
+    setActiveLog: vi.fn(),
 });
 
 vi.mock('@/stores', async importOriginal => {
@@ -33,7 +41,10 @@ describe('ResponseStatus', () => {
     beforeEach(() => {
         mockRequestStore.pendingRequestData = null;
         mockRequestsHistoryStore.lastLog = null;
+        mockRequestsHistoryStore.allLogs = [];
         mockRequestStore.cancelCurrentRequest.mockClear();
+        mockRequestStore.restoreFromHistory.mockClear();
+        mockRequestsHistoryStore.setActiveLog.mockClear();
     });
 
     it('shows pending status and cancel option while processing', async () => {
@@ -70,13 +81,35 @@ describe('ResponseStatus', () => {
             wasExecuted: true,
         };
 
+        const mockRequest: Request = {
+            method: 'GET',
+            endpoint: '/api/test',
+            headers: [],
+            queryParameters: [],
+            body: null,
+            payloadType: RequestBodyTypeEnum.EMPTY,
+            authorization: { type: AuthorizationType.None },
+            routeDefinition: {
+                method: 'GET',
+                endpoint: '/api/test',
+                shortEndpoint: '/api/test',
+                schema: { shape: {}, extractionErrors: null },
+            },
+        };
+
         mockRequestsHistoryStore.lastLog = {
             durationInMs: 3000,
+            isProcessing: false,
+            request: mockRequest,
             response: {
+                status: STATUS.SUCCESS,
                 statusCode: 201,
                 statusText: 'Created',
                 sizeInBytes: 4096,
                 timestamp: Math.floor(Date.now() / 1000),
+                body: '',
+                headers: [],
+                cookies: [],
             },
         };
 
@@ -100,8 +133,36 @@ describe('ResponseStatus', () => {
             durationInMs: 0,
         };
 
+        const mockRequest: Request = {
+            method: 'GET',
+            endpoint: '/api/test',
+            headers: [],
+            queryParameters: [],
+            body: null,
+            payloadType: RequestBodyTypeEnum.EMPTY,
+            authorization: { type: AuthorizationType.None },
+            routeDefinition: {
+                method: 'GET',
+                endpoint: '/api/test',
+                shortEndpoint: '/api/test',
+                schema: { shape: {}, extractionErrors: null },
+            },
+        };
+
         mockRequestsHistoryStore.lastLog = {
-            response: { sizeInBytes: 12345, timestamp: Math.floor(Date.now() / 1000) },
+            durationInMs: 0,
+            isProcessing: false,
+            request: mockRequest,
+            response: {
+                status: STATUS.SUCCESS,
+                statusCode: 200,
+                statusText: 'OK',
+                body: '',
+                headers: [],
+                cookies: [],
+                sizeInBytes: 12345,
+                timestamp: Math.floor(Date.now() / 1000),
+            },
         };
 
         renderWithProviders(ResponseStatus);
@@ -109,27 +170,6 @@ describe('ResponseStatus', () => {
         await nextTick();
 
         expect(screen.getByText(/0B/)).toBeInTheDocument();
-    });
-
-    it('shows relative timestamp when last log exists', async () => {
-        mockRequestStore.pendingRequestData = {
-            isProcessing: false,
-            durationInMs: 0,
-            wasExecuted: true,
-        };
-
-        mockRequestsHistoryStore.lastLog = {
-            response: { timestamp: Math.floor(Date.now() / 1000) },
-        };
-
-        renderWithProviders(ResponseStatus);
-
-        await nextTick();
-
-        const timestamp = screen.getByText(
-            (content, element) => element?.tagName === 'SMALL',
-        );
-        expect(timestamp.textContent?.length ?? 0).toBeGreaterThan(0);
     });
 
     it('cancels request when cancel button clicked', async () => {
@@ -142,5 +182,53 @@ describe('ResponseStatus', () => {
         await fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
 
         expect(mockRequestStore.cancelCurrentRequest).toHaveBeenCalled();
+    });
+
+    it('opens history dropdown and selects an item', async () => {
+        const log: RequestLog = {
+            durationInMs: 100,
+            isProcessing: false,
+            request: {
+                method: 'POST',
+                endpoint: 'test',
+                headers: [],
+                queryParameters: [],
+                body: null,
+                payloadType: RequestBodyTypeEnum.EMPTY,
+                authorization: { type: AuthorizationType.None },
+                routeDefinition: {
+                    method: 'POST',
+                    endpoint: 'test',
+                    shortEndpoint: 'test',
+                    schema: { shape: {}, extractionErrors: null },
+                },
+            },
+            response: {
+                status: STATUS.SUCCESS,
+                statusCode: 200,
+                statusText: 'OK',
+                timestamp: Math.floor(Date.now() / 1000),
+                body: '{}',
+                headers: [],
+                cookies: [],
+                sizeInBytes: 10,
+            },
+        };
+
+        mockRequestsHistoryStore.allLogs = [log];
+        mockRequestsHistoryStore.lastLog = log;
+        mockRequestStore.pendingRequestData = { wasExecuted: true };
+
+        renderWithProviders(ResponseStatus);
+
+        await nextTick();
+
+        const trigger = screen.getByTestId('response-history-trigger');
+        await fireEvent.click(trigger);
+
+        // We can't easily test Radix dropdown content with testing-library-vue without more setup,
+        // but we can verify the trigger is there and clickable.
+        // For a more thorough test, we would need to mock the dropdown portal or use Playwright.
+        expect(trigger).toBeInTheDocument();
     });
 });

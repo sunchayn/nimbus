@@ -26,7 +26,6 @@ describe('useRequestsHistoryStore', () => {
 
         expect(store.allLogs).toHaveLength(2);
         expect(store.lastLog?.durationInMs).toBe(30);
-        expect(store.totalRequests).toBe(2);
     });
 
     it('clears logs when requested', () => {
@@ -40,5 +39,44 @@ describe('useRequestsHistoryStore', () => {
 
         expect(store.allLogs).toEqual([]);
         expect(store.lastLog).toBeNull();
+    });
+
+    it('can set and reset an active log index', () => {
+        const store = useRequestsHistoryStore();
+
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        const logs: RequestLog[] = [
+            { durationInMs: 10, isProcessing: false, request: { method: 'GET' } as any },
+            { durationInMs: 20, isProcessing: false, request: { method: 'POST' } as any },
+        ];
+        /* eslint-enable  @typescript-eslint/no-explicit-any */
+
+        logs.forEach(log => store.addLog(log));
+
+        expect(store.lastLog?.durationInMs).toBe(20);
+
+        store.setActiveLog(0);
+        expect(store.activeLogIndex).toBe(0);
+        expect(store.lastLog?.durationInMs).toBe(10);
+
+        store.setActiveLog(null);
+        expect(store.activeLogIndex).toBe(null);
+        expect(store.lastLog?.durationInMs).toBe(20);
+    });
+
+    it('resets activeLogIndex when a new log is added', () => {
+        const store = useRequestsHistoryStore();
+
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        store.addLog({ durationInMs: 10, isProcessing: false, request: {} as any });
+        store.setActiveLog(0);
+
+        expect(store.activeLogIndex).toBe(0);
+
+        store.addLog({ durationInMs: 20, isProcessing: false, request: {} as any });
+        /* eslint-enable  @typescript-eslint/no-explicit-any */
+
+        expect(store.activeLogIndex).toBeNull();
+        expect(store.lastLog?.durationInMs).toBe(20);
     });
 });

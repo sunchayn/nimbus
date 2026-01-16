@@ -151,7 +151,7 @@ describe('ResponseDumpAndDie', () => {
         });
 
         it('handles invalid JSON gracefully', async () => {
-            const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+            const consoleError = vi.spyOn(console, 'error').mockImplementation(() => { });
 
             renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: 'invalid json' },
@@ -162,6 +162,36 @@ describe('ResponseDumpAndDie', () => {
             expect(consoleError).toHaveBeenCalled();
 
             consoleError.mockRestore();
+        });
+
+        it('does not duplicate dump and selects existing one on history rewind', async () => {
+            const snapshot1 = createDumpSnapshot('1', 'First', '2024-01-01 12:00:00', [
+                createStringDump('first'),
+            ]);
+            const snapshot2 = createDumpSnapshot('2', 'Second', '2024-01-01 12:01:00', [
+                createStringDump('second'),
+            ]);
+
+            const { rerender } = renderWithProviders(ResponseDumpAndDie, {
+                props: { rawContent: JSON.stringify(snapshot1) },
+            });
+
+            await nextTick();
+
+            // Receive a second dump
+            rerender({ rawContent: JSON.stringify(snapshot2) });
+            await nextTick();
+
+            expect(screen.getByText(/1 \/ 2/)).toBeInTheDocument();
+            expect(screen.getByText('Second')).toBeInTheDocument();
+
+            // Simulate history rewind back to the first dump
+            rerender({ rawContent: JSON.stringify(snapshot1) });
+            await nextTick();
+
+            // Should still have total 2 dumps, not 3.
+            expect(screen.getByText(/2 \/ 2/)).toBeInTheDocument();
+            expect(screen.getByText('First')).toBeInTheDocument();
         });
     });
 

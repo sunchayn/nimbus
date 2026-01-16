@@ -12,13 +12,18 @@
         "noEmit": true,
         "skipLibCheck": true,
         "paths": {
-            "@/*": ["./js/*"]
+            "@/*": [
+                "./resources/js/*"
+            ]
         },
-        "types": ["./types/global", "./types/vue-shims"]
+        "types": [
+            "./resources/types/global",
+            "./resources/types/vue-shims"
+        ]
     },
     "include": [
-        "js/**/*.ts",
-        "js/**/*.vue",
-        "types/**/*.d.ts"
+        "resources/js/**/*.ts",
+        "resources/js/**/*.vue",
+        "resources/types/**/*.d.ts"
     ]
 }

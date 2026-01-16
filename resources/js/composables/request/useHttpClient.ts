@@ -1,5 +1,5 @@
 import { httpClientConfig } from '@/config';
-import { ParametersExternalContract } from '@/interfaces';
+import { ParameterContract, RequestHeader } from '@/interfaces';
 import {
     HttpHeaders,
     PendingRequest,
@@ -8,6 +8,7 @@ import {
 } from '@/interfaces/http';
 import { useConfigStore } from '@/stores';
 import { convertPayloadToFormData, getStatusGroup } from '@/utils/http';
+import { generateContentTypeHeader } from '@/utils/request/content-type-header-generator';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { readonly, ref } from 'vue';
 
@@ -32,8 +33,11 @@ export function useHttpClient() {
 
         // Only append enabled parameters with non-empty keys to avoid malformed URLs
         request.queryParameters
-            .filter((parameter: ParametersExternalContract) => parameter.key.trim())
-            .forEach((parameter: ParametersExternalContract) => {
+            .filter(
+                (parameter: ParameterContract) =>
+                    parameter.enabled && parameter.key.trim(),
+            )
+            .forEach((parameter: ParameterContract) => {
                 url.searchParams.append(parameter.key, parameter.value);
             });
 
@@ -41,10 +45,27 @@ export function useHttpClient() {
     };
 
     const createRelayPayload = (request: PendingRequest) => {
+        // Generate Content-Type header just before making the request
+        // This ensures the correct header is sent without persisting it in the store
+        const headersWithContentType = generateContentTypeHeader(
+            request.payloadType,
+            request.headers
+                .filter(
+                    (parameter: ParameterContract) =>
+                        parameter.enabled && parameter.key.trim() !== '',
+                )
+                .map(
+                    (parameter): RequestHeader => ({
+                        key: parameter.key,
+                        value: parameter.value,
+                    }),
+                ),
+        );
+
         return {
             endpoint: buildRequestUrl(request),
             method: request.method,
-            headers: request.headers,
+            headers: headersWithContentType,
             authorization: request.authorization,
             body: getMemoizedBody(request),
         };

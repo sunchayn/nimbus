@@ -1,8 +1,8 @@
 import { AuthorizationContract } from '@/interfaces/auth/authorization';
 import { AuthorizationType } from '@/interfaces/generated';
-import { PendingRequest, RequestBodyTypeEnum, RequestHeader } from '@/interfaces/http';
+import { PendingRequest, Request, RequestBodyTypeEnum } from '@/interfaces/http';
 import { RouteDefinition } from '@/interfaces/routes/routes';
-import { ParametersExternalContract } from '@/interfaces/ui';
+import { ParameterContract } from '@/interfaces/ui';
 import { useConfigStore, useSettingsStore } from '@/stores';
 import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
 import { defineStore } from 'pinia';
@@ -140,14 +140,18 @@ export const useRequestBuilderStore = defineStore(
             route: RouteDefinition,
             availableRoutesForEndpoint: RouteDefinition[],
         ) => {
+            const currentHeaders = pendingRequestData.value?.headers ?? [];
+            const currentQueryParameters =
+                pendingRequestData.value?.queryParameters ?? [];
+
             pendingRequestData.value = {
                 method: route.method,
                 endpoint: route.endpoint,
-                headers: [],
+                headers: currentHeaders,
                 body: {},
                 payloadType: getDefaultPayload(route),
                 schema: route.schema,
-                queryParameters: [],
+                queryParameters: currentQueryParameters,
                 authorization: getAuthorizationForNewRequest(),
                 supportedRoutes: availableRoutesForEndpoint,
                 routeDefinition: route,
@@ -194,7 +198,7 @@ export const useRequestBuilderStore = defineStore(
         /**
          * Updates the headers array for the current request.
          */
-        const updateRequestHeaders = (headers: Array<RequestHeader>) => {
+        const updateRequestHeaders = (headers: Array<ParameterContract>) => {
             if (!pendingRequestData.value) {
                 return;
             }
@@ -216,7 +220,7 @@ export const useRequestBuilderStore = defineStore(
         /**
          * Updates the query parameters for the current request.
          */
-        const updateQueryParameters = (parameters: ParametersExternalContract[]) => {
+        const updateQueryParameters = (parameters: ParameterContract[]) => {
             if (!pendingRequestData.value) {
                 return;
             }
@@ -256,8 +260,59 @@ export const useRequestBuilderStore = defineStore(
             return buildRequestUrl(
                 configStore.apiUrl,
                 request.endpoint,
-                request.queryParameters,
+                request.queryParameters.filter(
+                    (parameter: ParameterContract) =>
+                        parameter.enabled && parameter.key.trim() !== '',
+                ),
             );
+        };
+
+        /**
+         * Restores the request builder state from a historical request.
+         */
+        const restoreFromHistory = (historicalRequest: Request) => {
+            if (!pendingRequestData.value) {
+                return;
+            }
+
+            const method = historicalRequest.method.toUpperCase();
+            const payloadType = historicalRequest.payloadType;
+
+            // Try to find and sync the route definition
+            const matchingRoute = pendingRequestData.value.supportedRoutes.find(
+                route =>
+                    route.method.toUpperCase() === method &&
+                    route.endpoint === historicalRequest.endpoint,
+            );
+
+            pendingRequestData.value = {
+                ...pendingRequestData.value,
+                method,
+                endpoint: historicalRequest.endpoint,
+                headers: historicalRequest.headers.map(h => ({ ...h })),
+                queryParameters: historicalRequest.queryParameters.map(p => ({ ...p })),
+                payloadType,
+                // Restore body into the correct slot with reactivity in mind
+                body: {
+                    ...pendingRequestData.value.body,
+                    [method]: {
+                        ...(pendingRequestData.value.body[method] ?? {}),
+                        [payloadType]: historicalRequest.body,
+                    },
+                },
+                // Restore authorization
+                authorization: {
+                    ...historicalRequest.authorization,
+                },
+                // Sync route definition and schema if matching route found
+                ...(matchingRoute
+                    ? {
+                          routeDefinition: matchingRoute,
+                          schema: matchingRoute.schema,
+                      }
+                    : {}),
+                wasExecuted: true,
+            };
         };
 
         return {
@@ -277,6 +332,7 @@ export const useRequestBuilderStore = defineStore(
             updateAuthorization,
             resetRequest,
             getRequestUrl,
+            restoreFromHistory,
         };
     },
     {

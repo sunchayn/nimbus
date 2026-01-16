@@ -23,7 +23,10 @@ const tab = useStorage(uniquePersistenceKey('request-builder-tab'), 'body');
         class="relative flex h-full max-h-full flex-1 flex-col"
         data-testid="request-builder-root"
     >
-        <RequestBuilderEndpoint class="h-toolbar border-b" />
+        <RequestBuilderEndpoint
+            class="h-toolbar border-b"
+            data-testid="request-builder-endpoint"
+        />
         <AppTabs
             :default-value="tab"
             class="mt-0 flex flex-1 flex-col overflow-hidden"
@@ -41,24 +44,28 @@ const tab = useStorage(uniquePersistenceKey('request-builder-tab'), 'body');
             <AppTabsContent
                 value="parameters"
                 class="mt-0 flex max-h-full min-h-0 flex-1 flex-col"
+                data-testid="request-parameters"
             >
                 <RequestParameters />
             </AppTabsContent>
             <AppTabsContent
                 value="body"
                 class="mt-0 flex max-h-full min-h-0 flex-1 flex-col"
+                data-testid="request-body"
             >
                 <RequestBody />
             </AppTabsContent>
             <AppTabsContent
                 value="authorization"
                 class="mt-0 flex max-h-full min-h-0 flex-1 flex-col"
+                data-testid="request-authorization"
             >
                 <RequestAuthorization />
             </AppTabsContent>
             <AppTabsContent
                 value="headers"
                 class="mt-0 flex max-h-full min-h-0 flex-1 flex-col"
+                data-testid="request-headers"
             >
                 <RequestHeaders />
             </AppTabsContent>

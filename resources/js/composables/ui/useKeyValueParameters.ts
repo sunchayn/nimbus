@@ -1,94 +1,30 @@
 import { keyValueParametersConfig } from '@/config';
-import { ExtendedParameter, ParametersExternalContract } from '@/interfaces/ui';
-import { uniquePersistenceKey } from '@/utils/stores';
-import { useCounter, useStorage, watchDebounced } from '@vueuse/core';
-import { RemovableRef } from '@vueuse/shared';
-import { computed, onBeforeMount, reactive, ref, Ref } from 'vue';
+import { ParameterContract } from '@/interfaces/ui';
+import { ParameterType } from '@/interfaces/ui/key-value-parameters';
+import { useCounter, watchDebounced } from '@vueuse/core';
+import { computed, onBeforeMount, reactive, ref, Ref, watch } from 'vue';
 
 /**
- * Manages key-value parameter state.
+ * Manages key-value parameter state with unidirectional data flow.
+ *
+ * @param modelValue - The current parameters from the parent (read-only)
+ * @param onUpdate - Callback to notify parent of parameter changes
  */
 export function useKeyValueParameters(
-    model: Ref<ParametersExternalContract[]>,
-    persistenceKey?: string,
+    modelValue: Ref<ParameterContract[]>,
+    onUpdate: (parameters: ParameterContract[]) => void,
 ) {
     const { count: nextParameterId, inc: incrementParametersId } = useCounter();
 
-    const parameters: RemovableRef<ExtendedParameter[]> | Ref<ExtendedParameter[]> =
-        persistenceKey ? useStorage(uniquePersistenceKey(persistenceKey), []) : ref([]);
+    const parameters: Ref<ParameterContract[]> = ref([]);
 
-    const isUpdatingFromParentModel = ref(false);
-
-    const createParameterSkeleton = (id: number): ExtendedParameter => ({
-        type: 'text',
+    const createParameterSkeleton = (id: number): ParameterContract => ({
+        type: ParameterType.Text,
         id,
         key: '',
         value: '',
         enabled: true,
     });
-
-    const convertExternalToInternal = (
-        external: ParametersExternalContract,
-        id: number,
-    ): ExtendedParameter => ({
-        type: external.type ?? 'text',
-        id,
-        key: external.key,
-        value: String(external.value ?? ''),
-        enabled: true,
-    });
-
-    /**
-     * Converts internal UI parameter data back to external format.
-     *
-     * Removes UI-specific properties to provide clean data for external clients.
-     */
-    const convertInternalToExternal = (
-        internal: ExtendedParameter,
-    ): ParametersExternalContract => ({
-        type: internal.type,
-        key: internal.key,
-        value: internal.value,
-    });
-
-    /**
-     * Creates a Map for efficient parameter lookup by key.
-     *
-     * Used for O(1) duplicate detection instead of O(n²) nested loops.
-     */
-    const createParameterKeyMap = (
-        parameters: ExtendedParameter[],
-    ): Map<string, ExtendedParameter> => {
-        return new Map(parameters.map(parameter => [parameter.key, parameter]));
-    };
-
-    /**
-     * Finds duplicate parameters efficiently using Map lookup.
-     *
-     * Returns parameters from incoming array that have keys matching existing parameters.
-     */
-    const findDuplicateParameters = (
-        existing: ExtendedParameter[],
-        incoming: ExtendedParameter[],
-    ): ExtendedParameter[] => {
-        const existingKeyMap = createParameterKeyMap(existing);
-
-        return incoming.filter(param => existingKeyMap.has(param.key));
-    };
-
-    /**
-     * Removes parameters with duplicate keys from existing array.
-     *
-     * Filters out parameters whose keys exist in the duplicates array.
-     */
-    const removeDuplicateParameters = (
-        existing: ExtendedParameter[],
-        duplicates: ExtendedParameter[],
-    ): ExtendedParameter[] => {
-        const duplicateKeys = new Set(duplicates.map(param => param.key));
-
-        return existing.filter(param => !duplicateKeys.has(param.key));
-    };
 
     /*
      * Deletion state management.
@@ -107,16 +43,16 @@ export function useKeyValueParameters(
      * Initiates deletion confirmation for a parameter.
      * Returns true if this is the confirmation click (second click).
      */
-    const initiateParameterDeletion = (parameterId: number): boolean => {
-        const state = deletionStatesForParameters.get(parameterId);
+    const initiateParameterDeletion = (identifier: number): boolean => {
+        const state = deletionStatesForParameters.get(identifier);
 
         if (state?.deleting) {
-            clearParameterDeletionState(parameterId);
+            clearParameterDeletionState(identifier);
 
             return true;
         }
 
-        setParameterDeletionState(parameterId);
+        setParameterDeletionState(identifier);
 
         return false;
     };
@@ -218,21 +154,91 @@ export function useKeyValueParameters(
 
     const deletingAll = computed(() => isBulkDeletionMarked());
 
-    // Sync changes back to parent model with debouncing to avoid excessive updates.
-    // Skip syncing when we are applying updates that originate from the parent model.
+    /**
+     * Reconciliation logic to update internal parameters from the parent modelValue.
+     *
+     * This replaces the current parameters with the ones from the modelValue,
+     * but tries to preserve existing IDs for keys that haven't changed to maintain reactivity/focus.
+     */
+    const updateParametersFromParentModel = (): void => {
+        const incoming = modelValue.value ?? [];
+
+        // Map current parameters by id for reconciliation
+        const currentById = new Map(
+            parameters.value.map(parameter => [parameter.id, parameter]),
+        );
+
+        const nextParameters: ParameterContract[] = incoming.map(external => {
+            const existing = currentById.get(external.id);
+
+            if (existing) {
+                // Create a new object instead of mutating the existing one
+                // This prevents shared references between history and active state
+                return {
+                    ...existing,
+                    id: external.id,
+                    key: external.key,
+                    value: external.value,
+                    type: external.type,
+                    enabled: external.enabled,
+                };
+            }
+
+            incrementParametersId();
+
+            return { id: nextParameterId.value, ...external };
+        });
+
+        // If internal state is empty, we must ensure at least one skeleton
+        if (nextParameters.length === 0) {
+            incrementParametersId();
+
+            nextParameters.push(createParameterSkeleton(nextParameterId.value));
+        }
+
+        // Only update if the resulting content is different from current internal state
+        // to avoid triggering redundant observers.
+        if (JSON.stringify(parameters.value) !== JSON.stringify(incoming)) {
+            parameters.value = nextParameters;
+        }
+    };
+
+    /**
+     * Notifies parent of parameter changes with deep cloned data.
+     * This prevents shared references and ensures unidirectional data flow.
+     */
+    const notifyParentOfChanges = (): void => {
+        // Deep clone to prevent shared references
+        const clonedParameters = parameters.value.map(p => ({
+            id: p.id,
+            type: p.type,
+            key: p.key,
+            value: p.value,
+            enabled: p.enabled,
+        }));
+
+        onUpdate(clonedParameters);
+    };
+
+    // Watch for internal changes to notify parent
     watchDebounced(
         parameters,
         () => {
-            if (isUpdatingFromParentModel.value) {
-                return;
-            }
-
-            syncParametersBackToModel();
+            notifyParentOfChanges();
         },
         {
             deep: true,
             debounce: keyValueParametersConfig.SYNC_DEBOUNCE_DELAY,
         },
+    );
+
+    // Watch for external changes to sync from parent.
+    watch(
+        modelValue,
+        () => {
+            updateParametersFromParentModel();
+        },
+        { deep: true },
     );
 
     // Initialize parameters from parent model
@@ -243,81 +249,6 @@ export function useKeyValueParameters(
             addNewEmptyParameter();
         }
     });
-
-    /*
-     * Actions.
-     */
-
-    /**
-     * Expands minimal external parameters to full internal structure for command support.
-     *
-     * Bridges external client data with internal parameter state by adding UI-specific
-     * properties like IDs, enabled state, and deletion tracking.
-     */
-    const expandExternalParameters = (
-        externalParameters: ParametersExternalContract[],
-    ): ExtendedParameter[] => {
-        return externalParameters.map(
-            (externalEntity: ParametersExternalContract): ExtendedParameter => {
-                incrementParametersId();
-
-                return convertExternalToInternal(externalEntity, nextParameterId.value);
-            },
-        );
-    };
-
-    /**
-     * Merges new parameters with existing ones, removing duplicates
-     */
-    const mergeParametersWithoutDuplicates = (
-        newParameters: ExtendedParameter[],
-        existingParameters: ExtendedParameter[],
-    ): ExtendedParameter[] => {
-        const duplicates = findDuplicateParameters(existingParameters, newParameters);
-
-        const cleanedExisting = removeDuplicateParameters(existingParameters, duplicates);
-
-        return [...newParameters, ...cleanedExisting];
-    };
-
-    /**
-     * Syncs parameters from parent model back to the component while preserving existing parameters.
-     *
-     * Parent parameters override existing ones with matching keys to prevent duplicates,
-     * but we preserve user-added parameters that don't conflict.
-     */
-    const updateParametersFromParentModel = (): void => {
-        if (!model.value?.length) {
-            return;
-        }
-
-        // Suppress outbound sync while we incorporate parent-provided parameters to prevent
-        // a feedback loop where our update triggers a debounced write back to the parent.
-        isUpdatingFromParentModel.value = true;
-
-        const newParameters = expandExternalParameters(model.value);
-
-        parameters.value = mergeParametersWithoutDuplicates(
-            newParameters,
-            parameters.value,
-        );
-
-        // Clear the suppression after the debounce window to ensure no stale writes occur.
-        window.setTimeout(() => {
-            isUpdatingFromParentModel.value = false;
-        }, keyValueParametersConfig.SYNC_DEBOUNCE_DELAY + 10);
-    };
-
-    /**
-     * Filters out empty keys and disabled items before syncing to the parent model.
-     *
-     * Ensures parent components receive only valid, enabled key-value pairs without UI-specific state.
-     */
-    const syncParametersBackToModel = (): void => {
-        model.value = parameters.value
-            .filter(parameter => parameter.key !== '' && parameter.enabled)
-            .map(convertInternalToExternal);
-    };
 
     /**
      * Adds a new empty parameter to the list for user input.
@@ -337,7 +268,7 @@ export function useKeyValueParameters(
         const shouldEnableAll = areAllParametersDisabled.value;
 
         parameters.value.forEach(
-            (parameter: ExtendedParameter) => (parameter.enabled = shouldEnableAll),
+            (parameter: ParameterContract) => (parameter.enabled = shouldEnableAll),
         );
     };
 
@@ -348,7 +279,7 @@ export function useKeyValueParameters(
      * First click marks for deletion, second click removes immediately.
      */
     const triggerParameterDeletion = (
-        parameters: ExtendedParameter[],
+        parameters: ParameterContract[],
         index: number,
     ): void => {
         const parameter = parameters[index];
@@ -357,7 +288,7 @@ export function useKeyValueParameters(
             return;
         }
 
-        const shouldDelete = initiateParameterDeletion(parameter.id);
+        const shouldDelete = initiateParameterDeletion(index);
 
         if (!shouldDelete) {
             return;

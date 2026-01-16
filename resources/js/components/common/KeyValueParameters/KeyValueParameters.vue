@@ -11,7 +11,7 @@ import {
 } from '@/components/base/select';
 import { AppSwitch } from '@/components/base/switch';
 import { useKeyValueParameters } from '@/composables/ui/useKeyValueParameters';
-import { ExtendedParameter, ParametersExternalContract } from '@/interfaces/ui';
+import { ParameterContract } from '@/interfaces/ui';
 import { useValueGeneratorStore } from '@/stores';
 import { cn } from '@/utils';
 import {
@@ -25,36 +25,35 @@ import { computed, type HTMLAttributes, ref } from 'vue';
 import AppTooltipWrapper from '../../base/tooltip/AppTooltipWrapper.vue';
 
 /*
- * Props.
+ * Props and Emits.
  */
 
 const props = withDefaults(
     defineProps<{
+        modelValue?: ParameterContract[];
         freeFormTypes?: boolean;
         class?: HTMLAttributes['class'];
-        persistenceKey?: string;
     }>(),
     {
+        modelValue: () => [],
         freeFormTypes: false,
         class: undefined,
-        persistenceKey: undefined,
     },
 );
 
-/*
- * Model.
- */
-
-const model = defineModel<ParametersExternalContract[]>();
-
-const modelRef = computed({
-    get: () => model.value ?? [],
-    set: value => (model.value = value),
-});
+const emit = defineEmits<{
+    'update:parameters': [parameters: ParameterContract[]];
+}>();
 
 /*
  * Composables.
  */
+
+const modelValueRef = computed(() => props.modelValue);
+
+const handleParametersUpdate = (parameters: ParameterContract[]) => {
+    emit('update:parameters', parameters);
+};
 
 const {
     parameters,
@@ -65,7 +64,7 @@ const {
     toggleAllParametersEnabledState,
     triggerParameterDeletion,
     deleteAllParameters,
-} = useKeyValueParameters(modelRef, props.persistenceKey);
+} = useKeyValueParameters(modelValueRef, handleParametersUpdate);
 
 const { openCommand, closeCommand } = useValueGeneratorStore();
 
@@ -116,7 +115,7 @@ const handleDeleteParameter = (index: number) => {
  * Computed Properties.
  */
 
-const shouldShowGeneratorIcon = (index: number, parameter: ExtendedParameter) => {
+const shouldShowGeneratorIcon = (index: number, parameter: ParameterContract) => {
     return focusedInputIndex.value === index && parameter.enabled;
 };
 </script>
@@ -257,7 +256,7 @@ const shouldShowGeneratorIcon = (index: number, parameter: ExtendedParameter) =>
                             class="size-4"
                             :class="{
                                 'text-rose-500 dark:text-rose-700':
-                                    isParameterMarkedForDeletion(parameter.id),
+                                    isParameterMarkedForDeletion(index),
                             }"
                         />
                     </AppTooltipWrapper>

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue";
-import { cn } from "@/utils";
-import { AppTextarea } from "@/components/base/textarea";
+import { AppTextarea } from '@/components/base/textarea';
+import { cn } from '@/utils';
+import type { HTMLAttributes } from 'vue';
 
 const props = defineProps<{
-    class?: HTMLAttributes["class"];
+    class?: HTMLAttributes['class'];
 }>();
 </script>
 
@@ -13,7 +13,7 @@ const props = defineProps<{
         data-slot="input-group-control"
         :class="
             cn(
-                'flex-1 resize-none rounded-none border-0 bg-transparent py-3 shadow-none focus-visible:ring-0 focus-visible:ring-transparent ring-offset-transparent dark:bg-transparent',
+                'flex-1 resize-none rounded-none border-0 bg-transparent py-3 shadow-none ring-offset-transparent focus-visible:ring-0 focus-visible:ring-transparent dark:bg-transparent',
                 props.class,
             )
         "

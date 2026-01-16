@@ -5,49 +5,8 @@ import {
     generateRandomPayload,
     serializeSchemaPayload,
 } from '@/utils/payload';
+import { types, TypeShape } from '@/utils/request/content-type-header-generator';
 import { computed, onMounted, ref, watch } from 'vue';
-
-/*
- * Types & interfaces.
- */
-
-interface TypeShape {
-    id: RequestBodyTypeEnum;
-    label: string;
-    autoFillable: boolean;
-    mimeType: string | null;
-}
-
-/*
- * Constants.
- */
-
-const types: TypeShape[] = [
-    {
-        id: RequestBodyTypeEnum.EMPTY,
-        label: 'Empty',
-        autoFillable: false,
-        mimeType: null,
-    },
-    {
-        id: RequestBodyTypeEnum.JSON,
-        label: 'JSON',
-        autoFillable: true,
-        mimeType: 'application/json',
-    },
-    {
-        id: RequestBodyTypeEnum.PLAIN_TEXT,
-        label: 'Plain Text',
-        autoFillable: false,
-        mimeType: 'text/plain',
-    },
-    {
-        id: RequestBodyTypeEnum.FORM_DATA,
-        label: 'Form Data',
-        autoFillable: true,
-        mimeType: 'multipart/form-data',
-    },
-];
 
 export function useRequestBody() {
     /*
@@ -119,46 +78,6 @@ export function useRequestBody() {
 
         // Store and return the serialized payload
         return serializeSchemaPayload(placeholderPayload, payloadType.value);
-    };
-
-    /**
-     * Updates the Content-Type header based on the selected payload type.
-     *
-     * Automatically manages the Content-Type header by adding, updating, or
-     * removing it based on the payload type's associated MIME type.
-     */
-    const updateContentTypeHeader = (newValue: RequestBodyTypeEnum) => {
-        if (pendingRequestData.value === null) {
-            return;
-        }
-
-        const contentTypeIndex = pendingRequestData.value.headers.findIndex(
-            (header: RequestHeader) => header.key === 'content-type',
-        );
-
-        const value =
-            types.find(contentType => contentType.id === newValue)?.mimeType ?? null;
-
-        if (contentTypeIndex !== -1) {
-            if (value === null) {
-                pendingRequestData.value.headers.splice(contentTypeIndex, 1);
-
-                return;
-            }
-
-            pendingRequestData.value.headers[contentTypeIndex].value = value;
-
-            return;
-        }
-
-        if (value === null) {
-            return;
-        }
-
-        pendingRequestData.value.headers.push({
-            key: 'content-type',
-            value: value,
-        });
     };
 
     /**
@@ -238,8 +157,6 @@ export function useRequestBody() {
         // Meaning that each tab will have its state.
         payload.value = generateCurrentPayload();
         pendingRequestData.value.payloadType = newValue;
-
-        updateContentTypeHeader(newValue);
     });
 
     watch(
@@ -288,7 +205,6 @@ export function useRequestBody() {
         // Actions
         autofill,
         generateCurrentPayload,
-        updateContentTypeHeader,
         initializePayloadTypeFromHeaders,
 
         // Constants
