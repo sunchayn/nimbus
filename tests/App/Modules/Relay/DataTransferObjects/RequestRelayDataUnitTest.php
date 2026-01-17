@@ -15,11 +15,12 @@ use Symfony\Component\HttpFoundation\InputBag;
 #[CoversClass(RequestRelayData::class)]
 class RequestRelayDataUnitTest extends TestCase
 {
-    #[DataProvider('endpointsDataProvider')]
+    #[DataProvider('relayRequestDataDataProvider')]
     public function test_it_creates_instance_from_api_request(
         string $endpoint,
         string $expectedEndpoint,
         array $expectedParameters,
+        array|string $body,
     ): void {
         // Arrange
 
@@ -51,7 +52,7 @@ class RequestRelayDataUnitTest extends TestCase
                         ['key' => 'Content-Type', 'value' => 'application/json'],
                         ['key' => 'X-Custom-Header', 'value' => '::value::'],
                     ],
-                    'body' => $body = ['test' => 'data'],
+                    'body' => $body,
                 ],
             );
 
@@ -90,48 +91,62 @@ class RequestRelayDataUnitTest extends TestCase
         );
     }
 
-    public static function endpointsDataProvider(): Generator
+    public static function relayRequestDataDataProvider(): Generator
     {
         yield 'simple path without params' => [
             'endpoint' => '/api/test',
             'expectedEndpoint' => '/api/test',
             'expectedParameters' => [],
+            'body' => ['test' => 'data'],
         ];
 
         yield 'simple path with single param' => [
             'endpoint' => '/api/test?parameter-1=value',
             'expectedEndpoint' => '/api/test',
             'expectedParameters' => ['parameter-1' => 'value'],
+            'body' => ['test' => 'data'],
         ];
 
         yield 'absolute URL without params' => [
             'endpoint' => 'https://127.0.0.1/api/test',
             'expectedEndpoint' => 'https://127.0.0.1/api/test',
             'expectedParameters' => [],
+            'body' => ['test' => 'data'],
         ];
 
         yield 'absolute URL with multiple params including broken' => [
             'endpoint' => 'https://127.0.0.1/api/test?key=1&key-2=&broken',
             'expectedEndpoint' => 'https://127.0.0.1/api/test',
             'expectedParameters' => ['key' => '1', 'key-2' => ''],
+            'body' => ['test' => 'data'],
         ];
 
         yield 'absolute URL with multiple valid params' => [
             'endpoint' => 'https://127.0.0.1/api/test?key=value&key-2=value-2',
             'expectedEndpoint' => 'https://127.0.0.1/api/test',
             'expectedParameters' => ['key' => 'value', 'key-2' => 'value-2'],
+            'body' => ['test' => 'data'],
         ];
 
         yield 'absolute URL with port and param' => [
             'endpoint' => 'https://127.0.0.1:8000/api/test?key=value',
             'expectedEndpoint' => 'https://127.0.0.1:8000/api/test',
             'expectedParameters' => ['key' => 'value'],
+            'body' => ['test' => 'data'],
         ];
 
         yield 'invalid URL with port and param' => [
             'endpoint' => 'http://:80?key=value',
             'expectedEndpoint' => 'http://:80?key=value', // parse_url failed, return as is.
             'expectedParameters' => [],
+            'body' => ['test' => 'data'],
+        ];
+
+        yield 'plain text body' => [
+            'endpoint' => '/api/test',
+            'expectedEndpoint' => '/api/test',
+            'expectedParameters' => [],
+            'body' => 'plain text content',
         ];
     }
 }

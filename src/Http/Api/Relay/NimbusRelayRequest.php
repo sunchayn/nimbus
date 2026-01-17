@@ -29,14 +29,14 @@ class NimbusRelayRequest extends FormRequest
     /**
      * @return array<string, mixed>
      */
-    public function getBody(): array
+    public function getBody(): string|array
     {
         $body = $this->validated('body') && filled($this->validated('body'))
             ? $this->validated('body')
             : [];
 
         return is_string($body)
-            ? json_decode($body, true)
+            ? json_decode($body, true) ?? $body
             : $body;
     }
 }

@@ -69,7 +69,7 @@ class RequestRelayAction
         $queryParameters = $requestRelayData->queryParameters;
         $requestBody = $requestRelayData->body;
 
-        if (in_array($requestRelayData->method, ['get', 'head'])) {
+        if (is_array($requestBody) && in_array($requestRelayData->method, ['get', 'head'])) {
             $queryParameters = array_merge(
                 $queryParameters,
                 $requestBody,
@@ -84,10 +84,17 @@ class RequestRelayAction
             ->withQueryParameters($queryParameters)
             ->when(
                 $requestBody !== [],
-                fn (PendingRequest $pendingRequest) => $pendingRequest->withBody(
-                    json_encode($requestRelayData->body) ?: throw new RuntimeException('Cannot parse body.'),
-                    contentType: $contentType,
-                ),
+                function (PendingRequest $pendingRequest) use ($requestBody, $contentType) {
+                    $body = match (true) {
+                        is_string($requestBody) => $requestBody,
+                        default => json_encode($requestBody) ?: throw new RuntimeException('Cannot parse body.'),
+                    };
+
+                    return $pendingRequest->withBody(
+                        $body,
+                        contentType: $contentType,
+                    );
+                },
             );
     }
 

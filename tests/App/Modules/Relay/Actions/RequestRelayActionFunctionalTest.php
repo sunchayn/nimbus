@@ -229,6 +229,59 @@ class RequestRelayActionFunctionalTest extends TestCase
         );
     }
 
+    #[TestWith(['get'])]
+    #[TestWith(['head'])]
+    public function test_it_does_not_merge_string_body_into_query_parameters_for_get_and_head_requests(string $method): void
+    {
+        // Arrange
+
+        $bodyData = 'plain text content';
+
+        $queryParameters = ['page' => '1'];
+
+        $requestData = new RequestRelayData(
+            method: $method,
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: $bodyData,
+            cookies: new ParameterBag,
+            queryParameters: $queryParameters,
+        );
+
+        // Anticipate
+
+        Http::fake(function (Request $request) use ($queryParameters) {
+            // Assert that the request URL contains the original query parameters
+            foreach ($queryParameters as $key => $value) {
+                if (! str_contains($request->url(), "{$key}={$value}")) {
+                    return Http::response(['error' => 'Missing query parameter'], 400);
+                }
+            }
+
+            // Assert that the request URL does NOT contain the string body
+            if (str_contains($request->url(), 'plain+text+content') || str_contains($request->url(), 'plain%20text%20content')) {
+                return Http::response(['error' => 'Body should not be in query parameters'], 400);
+            }
+
+            return Http::response([
+                'success' => true,
+            ]);
+        });
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertEquals(200, $response->statusCode);
+    }
+
     public function test_it_sends_json_body_by_default(): void
     {
         // Arrange
@@ -266,6 +319,45 @@ class RequestRelayActionFunctionalTest extends TestCase
         // Assert
 
         $this->assertTrue($response->body->body['bodyMatches'], 'POST body should be sent as JSON');
+
+        $this->assertEquals($bodyData, $response->body->body['receivedBody']);
+    }
+
+    public function test_it_relays_plain_text_body(): void
+    {
+        // Arrange
+
+        $bodyData = 'plain text content';
+
+        $requestData = new RequestRelayData(
+            method: 'post',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: ['Content-Type' => 'text/plain'],
+            body: $bodyData,
+            cookies: new ParameterBag,
+        );
+
+        // Anticipate
+
+        Http::fake(function (Request $request) use ($bodyData) {
+            return Http::response([
+                'receivedBody' => $request->body(),
+                'bodyMatches' => $request->body() === $bodyData,
+            ], 200);
+        });
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertTrue($response->body->body['bodyMatches'], 'POST body should be sent as plain text');
 
         $this->assertEquals($bodyData, $response->body->body['receivedBody']);
     }

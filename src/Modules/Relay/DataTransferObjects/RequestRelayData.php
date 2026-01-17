@@ -13,7 +13,7 @@ readonly class RequestRelayData
 {
     /**
      * @param  array<string, string>  $headers
-     * @param  array<string, mixed>  $body
+     * @param  array<string, mixed>|string  $body
      * @param  array<string, string|null>  $queryParameters
      */
     public function __construct(
@@ -21,7 +21,7 @@ readonly class RequestRelayData
         public string $endpoint,
         public AuthorizationCredentials $authorization,
         public array $headers,
-        public array $body,
+        public array|string $body,
         public ParameterBag $cookies,
         public array $queryParameters = [],
     ) {}

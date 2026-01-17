@@ -148,6 +148,28 @@ class NimbusRelayTest extends TestCase
                 cookies: [],
             ),
         ];
+
+        yield 'POST request with plain text body' => [
+            'payload' => [
+                'method' => 'POST',
+                'endpoint' => '/test-endpoint',
+                'body' => 'plain text content',
+                'headers' => [
+                    ['key' => 'Content-Type', 'value' => 'text/plain'],
+                ],
+            ],
+            'relayResponseStub' => new RelayedRequestResponseData(
+                statusCode: 200,
+                statusText: 'OK',
+                body: new PrintableResponseBody('Received plain text!'),
+                headers: [
+                    'header1' => ['value1'],
+                ],
+                durationMs: fake('en')->randomFloat(),
+                timestamp: fake('en')->dateTime()->getTimestamp(),
+                cookies: [],
+            ),
+        ];
     }
 
     #[DataProvider('validationFailureProvider')]
