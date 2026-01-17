@@ -179,7 +179,7 @@ const resetClearConfirmation = () => {
                         @click="handleClearHistory"
                     >
                         <Trash2Icon class="size-3" />
-                        `Clear History
+                        Clear History
                     </AppButton>
                     <AppInputGroup class="h-sub-toolbar">
                         <AppInputGroupInput
