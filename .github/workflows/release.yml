@@ -30,6 +30,7 @@ jobs:
         with:
           # Use headBranchName from the PR object
           ref: ${{ fromJson(steps.release.outputs.pr).headBranchName }}
+          persist-credentials: false
 
       - name: Setup Node
         if: ${{ steps.release.outputs.pr }}
