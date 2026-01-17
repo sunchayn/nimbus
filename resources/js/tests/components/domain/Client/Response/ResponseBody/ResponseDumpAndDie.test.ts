@@ -151,7 +151,7 @@ describe('ResponseDumpAndDie', () => {
         });
 
         it('handles invalid JSON gracefully', async () => {
-            const consoleError = vi.spyOn(console, 'error').mockImplementation(() => { });
+            const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
             renderWithProviders(ResponseDumpAndDie, {
                 props: { rawContent: 'invalid json' },
