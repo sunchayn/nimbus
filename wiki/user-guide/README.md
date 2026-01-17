@@ -18,6 +18,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
     - [Response Viewer](#response-viewer)
         - [Cookie Inspection](#cookie-inspection)
         - [Dump and Die Responses](#dump-and-die-responses)
+        - [Request History](#request-history)
 - [Authentication](#authentication)
     - [Session-Based Authentication](#session-based-authentication)
     - [Bearer Tokens](#bearer-tokens)
@@ -205,6 +206,28 @@ _Note: dumps are only sticky for connectives `dd` responses, having a non-`dd` r
 When keep sending `dd` responses, the previous values can still be accessed via pagination. You can always delete the unwanted ones.
 
 ![DD Viewer Pagination](./assets/dd-viewer-pagination.png)
+
+#### Request History
+
+Nimbus keeps a log of every request you send, allowing you to quickly "rewind" to a previous state.
+
+![History Viewer](./assets/history-viewer.png)
+
+**Features:**
+- **Automatic Logging**: Every execution is recorded with its timestamp, request details, and response status.
+- **Searchable Logs**: Use the search bar within the history dropdown to filter by endpoint path.
+- **Full Restoration**: Clicking any history item will restore the **entire Request Builder state**, including:
+    - HTTP Method and Endpoint
+    - Headers and Query Parameters
+    - Request Body & Payload Type
+    - Authentication settings
+- **Persistent Session**: Your history is preserved across page refreshes.
+
+**How to use:**
+1. Click on the relative timestamp (e.g., "5 minutes ago") next to the response status badge.
+2. Browse or search through your previous requests.
+3. Click a log entry to restore its state into the Request Builder.
+4. Use the "Clear History" button to purge your session logs.
 
 ---
 
