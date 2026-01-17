@@ -1,7 +1,7 @@
 import { AuthorizationContract, RouteDefinition } from '@/interfaces';
-import { ParameterType } from '@/interfaces/ui/key-value-parameters';
 import { AuthorizationType } from '@/interfaces/generated';
 import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
+import { ParameterType } from '@/interfaces/ui/key-value-parameters';
 import { useRequestStore } from '@/stores/request/useRequestStore';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
@@ -248,7 +248,9 @@ describe('useRequestStore', () => {
         });
 
         it('should delegate updateQueryParameters to builder store', () => {
-            const params = [{ type: ParameterType.Text, key: 'page', value: '1', enabled: true }];
+            const params = [
+                { type: ParameterType.Text, key: 'page', value: '1', enabled: true },
+            ];
             store.updateQueryParameters(params);
             expect(mockBuilderStore.updateQueryParameters).toHaveBeenCalledWith(params);
         });
@@ -375,11 +377,20 @@ describe('useRequestStore', () => {
         });
 
         it('should handle multiple request updates', () => {
-            const headers = [{ type: ParameterType.Text, key: 'Authorization', value: 'Bearer token', enabled: true }];
+            const headers = [
+                {
+                    type: ParameterType.Text,
+                    key: 'Authorization',
+                    value: 'Bearer token',
+                    enabled: true,
+                },
+            ];
             const body: PendingRequest['body'] = {
                 POST: { json: JSON.stringify({ name: 'test' }) },
             };
-            const params = [{ type: ParameterType.Text, key: 'page', value: '1', enabled: true }];
+            const params = [
+                { type: ParameterType.Text, key: 'page', value: '1', enabled: true },
+            ];
             const auth: AuthorizationContract = {
                 type: AuthorizationType.Bearer,
                 value: 'abc123',
