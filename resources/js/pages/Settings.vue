@@ -30,7 +30,6 @@ defineOptions({
 
 const VERSION = 'v0.3.0-alpha'; // x-release-please-version
 
-
 /*
  * Stores.
  */
