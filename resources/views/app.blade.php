@@ -41,6 +41,7 @@
             'currentUser' => isset($currentUser) ? json_encode($currentUser) : null,
             'applications' => $activeApplicationResolver->getAvailableApplications(),
             'activeApplication' => $activeApplicationResolver->getActiveApplicationKey(),
+            'sharedState' => isset($sharedState) ? $sharedState : null,
         ]);
 
         $configTag = new \Illuminate\Support\HtmlString(<<<HTML

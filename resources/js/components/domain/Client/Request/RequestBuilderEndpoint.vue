@@ -1,5 +1,13 @@
 <script setup lang="ts">
 import { AppButton } from '@/components/base/button';
+import {
+    AppDropdownMenu,
+    AppDropdownMenuContent,
+    AppDropdownMenuGroup,
+    AppDropdownMenuItem,
+    AppDropdownMenuLabel,
+    AppDropdownMenuTrigger,
+} from '@/components/base/dropdown-menu';
 import { AppInput } from '@/components/base/input';
 import {
     AppSelect,
@@ -10,15 +18,17 @@ import {
     AppSelectTrigger,
     AppSelectValue,
 } from '@/components/base/select';
-import AppTooltipWrapper from '@/components/base/tooltip/AppTooltipWrapper.vue';
 import { useRouteSegmentSelection } from '@/composables/request/useRouteSegmentSelection';
 import { RouteDefinition } from '@/interfaces/routes/routes';
-import { useConfigStore, useRequestStore } from '@/stores';
+import { useConfigStore, useRequestsHistoryStore, useRequestStore } from '@/stores';
 import { generateCurlCommand } from '@/utils/request';
+import { buildShareableUrl, encodeShareablePayload } from '@/utils/shareableLinks';
 import { cn } from '@/utils/ui';
-import { CodeXml, CornerDownLeftIcon } from 'lucide-vue-next';
+import { CodeXml, CornerDownLeftIcon, Link2, SparklesIcon } from 'lucide-vue-next';
 import { computed, HTMLAttributes, ref } from 'vue';
+import { toast } from 'vue-sonner';
 import CurlExportDialog from './CurlExportDialog.vue';
+import ShareableLinkDialog from './ShareableLinkDialog.vue';
 
 interface RequestBuilderEndpointProps {
     class?: HTMLAttributes['class'];
@@ -34,6 +44,7 @@ const availableMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
 const requestStore = useRequestStore();
 const configStore = useConfigStore();
+const historyStore = useRequestsHistoryStore();
 
 /*
  * State.
@@ -42,6 +53,9 @@ const configStore = useConfigStore();
 const showCurlDialog = ref(false);
 const curlCommand = ref('');
 const hasSpecialAuth = ref(false);
+
+const showShareableLinkDialog = ref(false);
+const shareableLink = ref('');
 
 /*
  * Computed.
@@ -121,6 +135,38 @@ const populateCurlCommandExporterDialog = () => {
     hasSpecialAuth.value = result.hasSpecialAuth;
     showCurlDialog.value = true;
 };
+
+/**
+ * Generates and shows shareable link dialog for the current request state.
+ */
+const openShareableLinkDialog = () => {
+    if (!requestStore.pendingRequestData) {
+        return;
+    }
+
+    try {
+        const lastLog = historyStore.lastLog;
+        const response = lastLog?.response;
+        const applicationKey = configStore.activeApplication ?? undefined;
+
+        const encodedPayload = encodeShareablePayload(
+            requestStore.pendingRequestData,
+            response,
+            lastLog ?? undefined,
+            applicationKey,
+        );
+
+        shareableLink.value = buildShareableUrl(configStore.appBasePath, encodedPayload);
+
+        showShareableLinkDialog.value = true;
+    } catch (error) {
+        console.error('Failed to generate shareable link:', error);
+
+        toast.error('Failed to generate shareable link', {
+            description: 'An unexpected error occurred.',
+        });
+    }
+};
 </script>
 
 <template>
@@ -177,16 +223,40 @@ const populateCurlCommandExporterDialog = () => {
                     <CornerDownLeftIcon class="size-3 px-0" />
                     )
                 </AppButton>
-                <AppTooltipWrapper value="Export cURL">
-                    <AppButton
-                        variant="outline"
-                        size="xs"
-                        :disabled="!pendingRequestData"
-                        @click="populateCurlCommandExporterDialog"
-                    >
-                        <CodeXml />
-                    </AppButton>
-                </AppTooltipWrapper>
+                <AppDropdownMenu>
+                    <AppDropdownMenuTrigger as-child>
+                        <AppButton
+                            variant="outline"
+                            size="xs"
+                            :disabled="!pendingRequestData"
+                            data-testid="request-options-button"
+                            title="Request Options"
+                        >
+                            <SparklesIcon class="size-4" />
+                        </AppButton>
+                    </AppDropdownMenuTrigger>
+                    <AppDropdownMenuContent align="end" class="w-48">
+                        <AppDropdownMenuLabel>Export</AppDropdownMenuLabel>
+                        <AppDropdownMenuGroup>
+                            <AppDropdownMenuItem
+                                class="cursor-pointer text-xs"
+                                data-testid="export-curl-option"
+                                @select="populateCurlCommandExporterDialog"
+                            >
+                                <CodeXml class="mr-2 size-2" />
+                                <span>Export to cURL</span>
+                            </AppDropdownMenuItem>
+                            <AppDropdownMenuItem
+                                class="cursor-pointer text-xs"
+                                data-testid="copy-shareable-link-option"
+                                @select="openShareableLinkDialog"
+                            >
+                                <Link2 class="mr-2 size-2" />
+                                <span>Copy Shareable Link</span>
+                            </AppDropdownMenuItem>
+                        </AppDropdownMenuGroup>
+                    </AppDropdownMenuContent>
+                </AppDropdownMenu>
             </div>
         </div>
     </div>
@@ -196,4 +266,6 @@ const populateCurlCommandExporterDialog = () => {
         :command="curlCommand"
         :has-special-auth="hasSpecialAuth"
     />
+
+    <ShareableLinkDialog v-model:open="showShareableLinkDialog" :link="shareableLink" />
 </template>

@@ -7,6 +7,7 @@ export interface RequestLog {
     request: Request;
     response?: Response;
     error?: ErrorPlainResponse;
+    importedFromShare?: boolean;
 }
 
 export type RequestLogRef = Ref<RequestLog | null>;

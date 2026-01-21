@@ -31,6 +31,7 @@ describe('useConfigStore', () => {
             routeExtractorException: null,
             applications: JSON.stringify({ main: 'Main API' }),
             activeApplication: 'main',
+            sharedState: null,
         };
 
         const store = useConfigStore();

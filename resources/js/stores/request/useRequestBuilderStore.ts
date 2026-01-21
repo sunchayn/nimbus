@@ -2,7 +2,7 @@ import { AuthorizationContract } from '@/interfaces/auth/authorization';
 import { AuthorizationType } from '@/interfaces/generated';
 import { PendingRequest, Request, RequestBodyTypeEnum } from '@/interfaces/http';
 import { RouteDefinition } from '@/interfaces/routes/routes';
-import { ParameterContract } from '@/interfaces/ui';
+import { ParameterContract, ParameterType } from '@/interfaces/ui';
 import { useConfigStore, useSettingsStore } from '@/stores';
 import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
 import { defineStore } from 'pinia';
@@ -307,11 +307,81 @@ export const useRequestBuilderStore = defineStore(
                 // Sync route definition and schema if matching route found
                 ...(matchingRoute
                     ? {
-                          routeDefinition: matchingRoute,
-                          schema: matchingRoute.schema,
-                      }
+                        routeDefinition: matchingRoute,
+                        schema: matchingRoute.schema,
+                    }
                     : {}),
                 wasExecuted: true,
+            };
+        };
+
+        /**
+         * Restores request state from a shareable link payload.
+         *
+         * This bypasses normal route initialization to directly restore
+         * all request data from the shared payload.
+         */
+        const restoreFromSharedPayload = (payload: {
+            method: string;
+            endpoint: string;
+            headers: Array<{
+                key: string;
+                value: string | number | boolean | null;
+            }>;
+            queryParameters: Array<{
+                key: string;
+                value: string;
+                type?: 'text' | 'file';
+            }>;
+            body: PendingRequest['body'];
+            payloadType: string;
+            authorization: {
+                type: string;
+                value?: string | number | { username: string; password: string };
+            };
+            durationInMs?: number;
+            wasExecuted?: boolean;
+        }) => {
+            const wasExecuted = payload.wasExecuted ?? payload.durationInMs !== undefined;
+
+            pendingRequestData.value = {
+                method: payload.method.toUpperCase(),
+                endpoint: payload.endpoint,
+                headers: payload.headers.map(header => ({
+                    key: header.key,
+                    value: String(header.value ?? ''),
+                    type: ParameterType.Text,
+                    enabled: true,
+                })),
+                body: payload.body,
+                payloadType: payload.payloadType as RequestBodyTypeEnum,
+                schema: {
+                    shape: {},
+                    extractionErrors: null,
+                },
+                queryParameters: payload.queryParameters.map(param => ({
+                    key: param.key,
+                    value: param.value,
+                    type: param.type === 'file' ? ParameterType.File : ParameterType.Text,
+                    enabled: true,
+                })),
+                authorization: {
+                    type: payload.authorization.type as AuthorizationType,
+                    value: payload.authorization.value,
+                } as AuthorizationContract,
+                supportedRoutes: [],
+                routeDefinition: {
+                    endpoint: payload.endpoint,
+                    method: payload.method.toUpperCase(),
+                    schema: {
+                        shape: {},
+                        extractionErrors: null,
+                    },
+                    shortEndpoint: payload.endpoint,
+                },
+                isProcessing: false,
+                wasExecuted,
+                durationInMs: payload.durationInMs ?? 0,
             };
         };
 
@@ -333,6 +403,7 @@ export const useRequestBuilderStore = defineStore(
             resetRequest,
             getRequestUrl,
             restoreFromHistory,
+            restoreFromSharedPayload,
         };
     },
     {

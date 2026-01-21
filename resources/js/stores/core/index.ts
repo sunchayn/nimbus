@@ -4,3 +4,4 @@
 
 export { useConfigStore } from './useConfigStore';
 export { useSettingsStore } from './useSettingsStore';
+export { useSharedStateStore } from './useSharedStateStore';

@@ -38,6 +38,9 @@
         "rector/rector": "^1.2 || ^2.2",
         "spatie/laravel-data": "^4.18"
     },
+    "suggest": {
+        "ext-zlib": "Required for shareable links feature."
+    },
     "autoload": {
         "psr-4": {
             "Sunchayn\\Nimbus\\": "src/"

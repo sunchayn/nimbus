@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Vite;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Http\Web\Controllers\NimbusIndexController;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
+use Sunchayn\Nimbus\Modules\Export\Services\ShareableLinkProcessorService;
 use Sunchayn\Nimbus\Modules\Routes\Actions\BuildCurrentUserAction;
 use Sunchayn\Nimbus\Modules\Routes\Actions\BuildGlobalHeadersAction;
 use Sunchayn\Nimbus\Modules\Routes\Actions\DisableThirdPartyUiAction;
@@ -50,12 +52,17 @@ class NimbusIndexTest extends TestCase
         $buildGlobalHeadersActionMock = $this->mock(BuildGlobalHeadersAction::class);
         $buildCurrentUserActionMock = $this->mock(BuildCurrentUserAction::class);
         $extractRoutesActionMock = $this->mock(ExtractRoutesAction::class);
+        $shareableLinkProcessorMock = $this->mock(ShareableLinkProcessorService::class);
 
         // Anticipate
 
         $buildGlobalHeadersActionMock->shouldReceive('execute')->andReturn(['::global-headers::']);
 
         $buildCurrentUserActionMock->shouldReceive('execute')->andReturn(['::current-user::']);
+
+        $shareableLinkProcessorMock->shouldReceive('process')->andReturnSelf();
+        $shareableLinkProcessorMock->shouldReceive('getTargetApplication')->andReturnNull();
+        $shareableLinkProcessorMock->shouldReceive('toFrontendState')->andReturnNull();
 
         $extractedRoutesCollectionStub = new class($expectedApplicationKey) extends ExtractedRoutesCollection
         {
@@ -84,6 +91,8 @@ class NimbusIndexTest extends TestCase
         $response->assertViewHas('headers', ['::global-headers::']);
 
         $response->assertViewHas('currentUser', ['::current-user::']);
+
+        $response->assertViewHas('sharedState', null);
 
         $response->assertViewHas('activeApplicationResolver', function ($resolver) use ($expectedApplicationKey) {
             return $resolver->getActiveApplicationKey() === $expectedApplicationKey;
@@ -146,12 +155,17 @@ class NimbusIndexTest extends TestCase
         $ignoreRoutesServiceSpy = $this->spy(IgnoredRoutesService::class);
         $buildGlobalHeadersActionSpy = $this->spy(BuildGlobalHeadersAction::class);
         $buildCurrentUserActionSpy = $this->spy(BuildCurrentUserAction::class);
+        $shareableLinkProcessorMock = $this->mock(ShareableLinkProcessorService::class);
 
         $extractionRoutesActionMock = $this->mock(ExtractRoutesAction::class);
 
         $exception = new class(message: fake()->words(asText: true), routeUri: fake()->url(), routeMethods: fake()->words(2), controllerClass: fake()->word(), controllerMethod: fake()->word(), suggestedSolution: fake()->words(asText: true)) extends RouteExtractionException {};
 
         // Anticipate
+
+        $shareableLinkProcessorMock->shouldReceive('process')->andReturnSelf();
+        $shareableLinkProcessorMock->shouldReceive('getTargetApplication')->andReturnNull();
+        $shareableLinkProcessorMock->shouldReceive('toFrontendState')->andReturnNull();
 
         $extractionRoutesActionMock->shouldReceive('execute')->andThrow($exception);
 
@@ -221,5 +235,224 @@ class NimbusIndexTest extends TestCase
             \Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME,
             'new-app',
         );
+    }
+
+    public function test_it_processes_valid_shareable_link(): void
+    {
+        // Arrange
+
+        $payload = [
+            'method' => 'GET',
+            'endpoint' => '/api/test',
+            'headers' => [],
+            'queryParameters' => [],
+            'body' => [],
+            'payloadType' => 'empty',
+            'authorization' => ['type' => 'none'],
+        ];
+
+        $encoded = base64_encode(json_encode($payload)); // <- this is dummy payload, we are mocking the interaction.
+
+        $shareableLinkProcessorMock = $this->mock(ShareableLinkProcessorService::class);
+
+        // Anticipate
+
+        $shareableLinkProcessorMock
+            ->shouldReceive('process')
+            ->with($encoded)
+            ->andReturnSelf();
+
+        $shareableLinkProcessorMock
+            ->shouldReceive('getTargetApplication')
+            ->andReturnNull();
+
+        $shareableLinkProcessorMock
+            ->shouldReceive('toFrontendState')
+            ->andReturn([
+                'payload' => $payload,
+                'routeExists' => true,
+                'error' => null,
+            ]);
+
+        // Act
+
+        $response = $this->get(route('nimbus.index', ['share' => $encoded]));
+
+        // Assert
+
+        $response->assertStatus(200);
+
+        $response->assertViewHas('sharedState', [
+            'payload' => $payload,
+            'routeExists' => true,
+            'error' => null,
+        ]);
+    }
+
+    public function test_it_handles_shareable_link_with_error(): void
+    {
+        // Arrange
+
+        $invalidPayload = 'invalid-base64-string';
+
+        $shareableLinkProcessorMock = $this->mock(ShareableLinkProcessorService::class);
+
+        // Anticipate
+
+        $shareableLinkProcessorMock
+            ->shouldReceive('process')
+            ->with($invalidPayload)
+            ->andReturnSelf();
+
+        $shareableLinkProcessorMock
+            ->shouldReceive('getTargetApplication')
+            ->andReturnNull();
+
+        $shareableLinkProcessorMock
+            ->shouldReceive('toFrontendState')
+            ->andReturn([
+                'payload' => null,
+                'routeExists' => false,
+                'error' => 'Failed to decode base64 payload',
+            ]);
+
+        // Act
+
+        $response = $this->get(route('nimbus.index', ['share' => $invalidPayload]));
+
+        // Assert
+
+        $response->assertStatus(200);
+
+        $response->assertViewHas('sharedState', function ($state) {
+            return $state['error'] === 'Failed to decode base64 payload'
+                && $state['routeExists'] === false
+                && $state['payload'] === null;
+        });
+    }
+
+    public function test_it_redirects_when_shareable_link_targets_different_application(): void
+    {
+        // Arrange
+
+        $payload = [
+            'method' => 'GET',
+            'endpoint' => '/api/test',
+            'headers' => [],
+            'queryParameters' => [],
+            'body' => [],
+            'payloadType' => 'empty',
+            'authorization' => ['type' => 'none'],
+            'applicationKey' => 'other-app',
+        ];
+
+        $encoded = base64_encode(json_encode($payload)); // <- this is dummy payload, we are mocking the interaction.
+
+        $shareableLinkProcessorMock = $this->mock(ShareableLinkProcessorService::class);
+
+        $activeApplicationResolverMock = $this->mock(ActiveApplicationResolver::class);
+
+        // Anticipate
+
+        $activeApplicationResolverMock
+            ->shouldReceive('getActiveApplicationKey')
+            ->andReturn('main-app');
+
+        $shareableLinkProcessorMock
+            ->shouldReceive('process')
+            ->with($encoded)
+            ->andReturnSelf();
+
+        $shareableLinkProcessorMock
+            ->shouldReceive('getTargetApplication')
+            ->andReturn('other-app');
+
+        // Act
+
+        $response = $this->get(route('nimbus.index', ['share' => $encoded]));
+
+        // Assert
+
+        $response->assertRedirect();
+
+        $response->assertCookie(
+            \Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME,
+            'other-app',
+        );
+    }
+
+    public function test_it_does_not_redirect_when_shareable_link_targets_same_application(): void
+    {
+        // Arrange
+
+        $payload = [
+            'method' => 'GET',
+            'endpoint' => '/api/test',
+            'headers' => [],
+            'queryParameters' => [],
+            'body' => [],
+            'payloadType' => 'empty',
+            'authorization' => ['type' => 'none'],
+            'applicationKey' => 'main-app',
+        ];
+
+        $encoded = base64_encode(json_encode($payload));
+
+        $disableThirdPartyUiActionSpy = $this->spy(DisableThirdPartyUiAction::class);
+        $buildGlobalHeadersActionMock = $this->mock(BuildGlobalHeadersAction::class);
+        $buildCurrentUserActionMock = $this->mock(BuildCurrentUserAction::class);
+        $extractRoutesActionMock = $this->mock(ExtractRoutesAction::class);
+        $shareableLinkProcessorMock = $this->mock(ShareableLinkProcessorService::class);
+        $activeApplicationResolverMock = $this->mock(ActiveApplicationResolver::class);
+
+        // Anticipate
+
+        $activeApplicationResolverMock
+            ->shouldReceive('getActiveApplicationKey')
+            ->andReturn('main-app');
+
+        $activeApplicationResolverMock->shouldReceive('isVersioned')->andReturn(false);
+        $activeApplicationResolverMock->shouldReceive('getApiBaseUrl')->andReturn('http://localhost');
+        $activeApplicationResolverMock->shouldReceive('getAvailableApplications')->andReturn('{}');
+
+        $buildGlobalHeadersActionMock->shouldReceive('execute')->andReturn(['::global-headers::']);
+        $buildCurrentUserActionMock->shouldReceive('execute')->andReturn(['::current-user::']);
+
+        $shareableLinkProcessorMock
+            ->shouldReceive('process')
+            ->with($encoded)
+            ->andReturnSelf();
+
+        $shareableLinkProcessorMock
+            ->shouldReceive('getTargetApplication')
+            ->andReturn('main-app');
+
+        $shareableLinkProcessorMock
+            ->shouldReceive('toFrontendState')
+            ->andReturn([
+                'payload' => $payload,
+                'routeExists' => true,
+                'error' => null,
+            ]);
+
+        $extractRoutesActionMock->shouldReceive('execute')->andReturn($this->mock(ExtractedRoutesCollection::class)->shouldReceive('toFrontendArray')->andReturn([])->getMock());
+
+        // Act
+
+        $response = $this->get(route('nimbus.index', ['share' => $encoded]));
+
+        // Assert
+
+        $response->assertStatus(200);
+
+        $response->assertViewIs('nimbus::app');
+
+        $response->assertViewHas('sharedState', [
+            'payload' => $payload,
+            'routeExists' => true,
+            'error' => null,
+        ]);
+
+        $disableThirdPartyUiActionSpy->shouldHaveReceived('execute')->once();
     }
 }

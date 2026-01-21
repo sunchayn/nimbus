@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import { SharedState } from '../js/interfaces/share';
 
 interface NimbusConfig {
     basePath: string;
@@ -10,6 +10,7 @@ interface NimbusConfig {
     currentUser: string | null;
     applications: string | null;
     activeApplication: string | null;
+    sharedState: SharedState | null;
 }
 
 declare global {

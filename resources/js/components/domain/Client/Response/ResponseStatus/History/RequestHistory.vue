@@ -158,7 +158,6 @@ const resetClearConfirmation = () => {
                 <small class="text-subtle text-xs" :title="absoluteTime">
                     {{ readableTime }}
                 </small>
-
                 <HistoryIcon class="size-3" />
             </AppButton>
         </AppDropdownMenuTrigger>

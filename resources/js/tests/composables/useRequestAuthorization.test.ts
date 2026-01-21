@@ -1,86 +1,102 @@
 import { useRequestAuthorization } from '@/composables/request/useRequestAuthorization';
 import { AuthorizationType } from '@/interfaces/generated';
-import { createPinia, setActivePinia } from 'pinia';
+import { useRequestStore } from '@/stores';
+import { createTestingPinia } from '@pinia/testing';
+import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { reactive } from 'vue';
-
-const pendingRequestData = reactive({
-    authorization: { type: AuthorizationType.None, value: null },
-});
-
-const updateAuthorization = vi.fn();
-
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
-
-    return {
-        ...actual,
-        useRequestStore: () => ({
-            pendingRequestData,
-            updateAuthorization,
-        }),
-    };
-});
+import { nextTick } from 'vue';
 
 describe('useRequestAuthorization', () => {
+    let requestStore: ReturnType<typeof useRequestStore>;
+
     beforeEach(() => {
-        pendingRequestData.authorization = { type: AuthorizationType.None, value: null };
-        updateAuthorization.mockClear();
+        setActivePinia(
+            createTestingPinia({
+                createSpy: vi.fn,
+                stubActions: false,
+                initialState: {
+                    _requestBuilder: {
+                        pendingRequestData: {
+                            authorization: { type: AuthorizationType.None, value: null },
+                        },
+                    },
+                },
+            }),
+        );
+
+        requestStore = useRequestStore();
     });
 
     it('initializes with current request authorization', () => {
-        setActivePinia(createPinia());
-
         const { authorization } = useRequestAuthorization();
 
         expect(authorization.value.type).toBe(AuthorizationType.None);
     });
 
-    it('switches between authorization types and restores cached state', () => {
-        setActivePinia(createPinia());
+    it('initializes with default authorization if not set in store', () => {
+        // @ts-ignore
+        requestStore.pendingRequestData = null;
 
+        const { authorization } = useRequestAuthorization();
+
+        expect(authorization.value.type).toBe(AuthorizationType.CurrentUser);
+    });
+
+    it('switches between authorization types and restores cached state', async () => {
         const {
             authorization,
             updateAuthorizationType,
             updateCurrentAuthorizationValue,
         } = useRequestAuthorization();
 
+        // Switch to Bearer
         updateAuthorizationType(AuthorizationType.Bearer);
+        await nextTick();
+
+        // Set value
         updateCurrentAuthorizationValue('token');
+        await nextTick();
+
         expect(authorization.value).toEqual({
             type: AuthorizationType.Bearer,
             value: 'token',
         });
 
+        // Switch to Basic
         updateAuthorizationType(AuthorizationType.Basic);
-        expect(authorization.value.type).toBe(AuthorizationType.Basic);
+        await nextTick();
 
+        expect(authorization.value.type).toBe(AuthorizationType.Basic);
+        expect(authorization.value.value).toEqual({ username: '', password: '' });
+
+        // Switch back to Bearer - should restore 'token'
         updateAuthorizationType(AuthorizationType.Bearer);
+        await nextTick();
+
         expect(authorization.value).toEqual({
             type: AuthorizationType.Bearer,
             value: 'token',
         });
     });
 
-    it('persists authorization back to the request store', () => {
-        setActivePinia(createPinia());
+    it('persists authorization back to the request store via actions', async () => {
+        const { updateAuthorizationType, updateCurrentAuthorizationValue } =
+            useRequestAuthorization();
 
-        updateAuthorization.mockClear();
+        const spy = vi.spyOn(requestStore, 'updateAuthorization');
 
-        const {
-            saveAuthorizationToStore,
-            updateAuthorizationType,
-            updateCurrentAuthorizationValue,
-        } = useRequestAuthorization();
-
+        // Switch to Bearer
         updateAuthorizationType(AuthorizationType.Bearer);
+        await nextTick();
+
+        // Set value
         updateCurrentAuthorizationValue('token');
+        await nextTick();
 
-        saveAuthorizationToStore();
-
-        expect(updateAuthorization).toHaveBeenCalledWith({
+        // Check if it was called with the final expected state
+        expect(spy).toHaveBeenCalledWith(expect.objectContaining({
             type: AuthorizationType.Bearer,
             value: 'token',
-        });
+        }));
     });
 });

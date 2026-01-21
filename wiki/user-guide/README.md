@@ -29,6 +29,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
     - [Value Generators](#value-generators)
     - [Auto-Fill Payloads](#auto-fill-payloads)
     - [Export to cURL](#export-to-curl)
+    - [Shareable Links](#shareable-links)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
 - [Getting Help](#getting-help)
@@ -352,6 +353,33 @@ Export configured requests as cURL commands for use in terminals or scripts.
 - Authentication credentials
 - Request body
 - HTTP method
+
+### Shareable Links
+
+Shareable links allow you to capture the exact state of your Request Builder and share it with others. This is perfect for bug reports, API demonstrations, or collaborating on complex request configurations.
+
+**Capture everything:**
+- HTTP Method and Endpoint
+- Headers and Query Parameters
+- Request Body & Payload Type
+- Authentication settings
+- Last response metadata (status, duration, and size)
+
+**How to use:**
+1. Configure your request (and optionally execute it to include response context).
+2. Click the **Request Options** (sparkles) icon in the endpoint bar.
+3. Select **Copy Shareable Link**.
+4. Share the generated URL.
+
+![Shareable link entry point](./assets/shareable-link.png)
+
+![Shareable link example](./assets/shareable-link-2.png)
+
+**Automatic Restoration:**
+When a shareable link is opened, Nimbus will:
+- Parse and decompress the payload.
+- Automatically restore all request data.
+- **Switch Applications**: If the link points to a route in a different application (e.g., from `Rest API` to `Admin API`), Nimbus will automatically switch the active application context for you.
 
 ---
 
