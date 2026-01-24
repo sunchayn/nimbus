@@ -1,6 +1,22 @@
 <script setup lang="ts">
+/**
+ * @component ValueGeneratorCategoryFilters
+ * @description Category tabs for filtering the value generator command palette.
+ */
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
 import { useValueGeneratorStore } from '@/stores';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppValueGeneratorCategoryFiltersProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppValueGeneratorCategoryFiltersProps>();
 
 const store = useValueGeneratorStore();
 
@@ -12,19 +28,33 @@ const {
     scrollTabIntoView,
 } = useTabHorizontalScroll();
 
+/*
+ * Computed & Methods.
+ */
+
+const getCategoryButtonClass = (categoryId: string) => {
+    const isSelected = store.commandState.selectedCategory === categoryId;
+
+    return isSelected
+        ? 'bg-background text-foreground shadow'
+        : 'text-muted-foreground hover:text-foreground';
+};
+
+const changeFocusToTheCommandSearchBox = () => {
+    const commandInput = document.querySelector(
+        '[data-slot="command-input"]',
+    ) as HTMLInputElement;
+
+    commandInput?.focus();
+};
+
 /**
  * Handles category tab clicks with toggle behavior.
- *
- * Implements toggle behavior where clicking the same category deselects it,
- * while clicking a different category selects it. Works in combination with
- * command component's search filtering.
  */
 const handleCategoryClick = (event: Event, categoryId: string) => {
     const isCurrentlySelected = store.commandState.selectedCategory === categoryId;
 
-    const newCategory = isCurrentlySelected
-        ? null // <- Deselect the category.
-        : categoryId;
+    const newCategory = isCurrentlySelected ? null : categoryId;
 
     store.setSelectedCategory(newCategory);
 
@@ -33,9 +63,6 @@ const handleCategoryClick = (event: Event, categoryId: string) => {
 
 /**
  * Handles arrow key navigation from category tabs.
- *
- * Intercepts arrow keys on category tabs and redirects focus to the command
- * input for proper keyboard navigation.
  */
 const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
     const isArrowKey = event.key === 'ArrowDown' || event.key === 'ArrowUp';
@@ -49,22 +76,6 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
 
     // Move the focus to the command search box for better UX.
     changeFocusToTheCommandSearchBox();
-};
-
-const changeFocusToTheCommandSearchBox = () => {
-    const commandInput = document.querySelector(
-        '[data-slot="command-input"]',
-    ) as HTMLInputElement;
-
-    commandInput?.focus();
-};
-
-const getCategoryButtonClass = (categoryId: string) => {
-    const isSelected = store.commandState.selectedCategory === categoryId;
-
-    return isSelected
-        ? 'bg-white text-zinc-950 shadow dark:bg-zinc-950 dark:text-zinc-50'
-        : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50';
 };
 </script>
 
@@ -84,7 +95,7 @@ const getCategoryButtonClass = (categoryId: string) => {
                     :key="category.id"
                     tabindex="0"
                     :class="[
-                        'flex flex-shrink-0 items-center justify-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap ring-offset-white transition-all focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-zinc-950 dark:focus-visible:ring-zinc-300',
+                        'flex flex-shrink-0 items-center justify-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap ring-offset-background transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
                         getCategoryButtonClass(category.id),
                     ]"
                     @click="event => handleCategoryClick(event, category.id)"
@@ -97,11 +108,11 @@ const getCategoryButtonClass = (categoryId: string) => {
             <!-- Scroll Gradient Masks -->
             <div
                 v-show="showLeftMask"
-                class="pointer-events-none absolute top-0 bottom-0 left-0 w-8 rounded-l-lg bg-gradient-to-r from-zinc-100 via-zinc-100/80 to-transparent transition-opacity duration-200 dark:from-zinc-950 dark:via-zinc-900/80"
+                class="pointer-events-none absolute top-0 bottom-0 left-0 w-8 rounded-l-lg bg-gradient-to-r from-subtle-background via-subtle-background/80 to-transparent transition-opacity duration-200"
             />
             <div
                 v-show="showRightMask"
-                class="pointer-events-none absolute top-0 right-0 bottom-0 w-8 rounded-r-lg bg-gradient-to-l from-zinc-100 via-zinc-100/80 to-transparent transition-opacity duration-200 dark:from-zinc-950 dark:via-zinc-900/80"
+                class="pointer-events-none absolute top-0 right-0 bottom-0 w-8 rounded-r-lg bg-gradient-to-l from-subtle-background via-subtle-background/80 to-transparent transition-opacity duration-200"
             />
         </div>
     </div>

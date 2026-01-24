@@ -1,13 +1,25 @@
 <script setup lang="ts">
+/**
+ * @component CopyButton
+ * @description A small button for copying text to the clipboard with status feedback.
+ */
 import { AppButton } from '@/components/base/button';
 import { CheckIcon, CopyIcon } from 'lucide-vue-next';
 
-interface CopyButtonProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppCopyButtonProps {
     onClick: () => void;
     copied: boolean;
 }
 
-defineProps<CopyButtonProps>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppCopyButtonProps>();
 </script>
 
 <template>

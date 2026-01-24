@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component SchemaExtractionErrorButton
+ * @description A button that opens a dialog displaying details about schema extraction errors.
+ */
 import { AppButton } from '@/components/base/button';
 import {
     AppDialog,
@@ -12,11 +16,19 @@ import {
 } from '@/components/base/dialog';
 import { ChevronsLeftRightIcon } from 'lucide-vue-next';
 
-type PropsShape = {
-    errorHtml: string;
-};
+/*
+ * Types & Interfaces.
+ */
 
-defineProps<PropsShape>();
+export interface AppSchemaExtractionErrorButtonProps {
+    errorHtml: string;
+}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppSchemaExtractionErrorButtonProps>();
 </script>
 
 <template>
@@ -28,7 +40,7 @@ defineProps<PropsShape>();
             </AppButton>
         </AppDialogTrigger>
         <AppDialogContent
-            class="to-background flex max-h-[90dvh] flex-col bg-gradient-to-bl from-red-50 to-50% sm:max-w-[600px] dark:from-red-900/15"
+            class="to-background flex max-h-[90dvh] flex-col bg-gradient-to-bl from-destructive/10 to-50% sm:max-w-[600px] dark:from-destructive/15"
         >
             <AppDialogHeader>
                 <AppDialogTitle>Schema Extraction Error</AppDialogTitle>
@@ -38,7 +50,7 @@ defineProps<PropsShape>();
                 </AppDialogDescription>
             </AppDialogHeader>
             <div
-                class="dark:bg-subtle-background max-w-full flex-1 overflow-auto bg-red-50 p-2 leading-tight wrap-anywhere"
+                class="dark:bg-subtle-background max-w-full flex-1 overflow-auto bg-destructive/10 p-2 leading-tight wrap-anywhere"
             >
                 <!-- eslint-disable-next-line vue/no-v-html -->
                 <p v-html="errorHtml" />

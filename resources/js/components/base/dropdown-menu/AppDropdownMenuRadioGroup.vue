@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppDropdownMenuRadioGroup
+ * @description A group for managing mutually exclusive dropdown menu items.
+ */
 import {
     DropdownMenuRadioGroup,
     type DropdownMenuRadioGroupEmits,
@@ -6,7 +10,17 @@ import {
     useForwardPropsEmits,
 } from 'reka-ui';
 
-const props = defineProps<DropdownMenuRadioGroupProps>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDropdownMenuRadioGroupProps extends DropdownMenuRadioGroupProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDropdownMenuRadioGroupProps>();
 const emits = defineEmits<DropdownMenuRadioGroupEmits>();
 
 const forwarded = useForwardPropsEmits(props, emits);

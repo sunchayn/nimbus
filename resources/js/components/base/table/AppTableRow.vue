@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppTableRow
+ * @description A row container within a table.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppTableRowProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppTableRowProps>();
 </script>
 
 <template>

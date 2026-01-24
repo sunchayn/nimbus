@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppCallout
+ * @description A callout component for displaying important information, warnings, or success messages.
+ */
 import { cn } from '@/utils/ui';
 import {
     AlertTriangleIcon,
@@ -8,17 +12,29 @@ import {
 } from 'lucide-vue-next';
 import type { HTMLAttributes } from 'vue';
 
-interface AppCalloutProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppCalloutProps {
     class?: HTMLAttributes['class'];
     variant?: 'default' | 'info' | 'success' | 'warning' | 'destructive';
     title?: string;
 }
+
+/*
+ * Component Setup.
+ */
 
 const props = withDefaults(defineProps<AppCalloutProps>(), {
     variant: 'default',
     class: '',
     title: '',
 });
+
+/*
+ * Computed & Methods.
+ */
 
 const iconMap = {
     default: InfoIcon,

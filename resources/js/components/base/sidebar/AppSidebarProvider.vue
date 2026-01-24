@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarProvider
+ * @description The context provider for managing sidebar state and keyboard shortcuts.
+ */
 import { cn } from '@/utils/ui';
 import { useEventListener, useVModel } from '@vueuse/core';
 import { TooltipProvider } from 'reka-ui';
@@ -12,22 +16,35 @@ import {
     SIDEBAR_WIDTH_ICON,
 } from './utils';
 
-const props = withDefaults(
-    defineProps<{
-        defaultOpen?: boolean;
-        open?: boolean;
-        class?: HTMLAttributes['class'];
-    }>(),
-    {
-        defaultOpen: false,
-        open: undefined,
-        class: '',
-    },
-);
+/*
+ * Types & Interfaces.
+ */
 
-const emits = defineEmits<{
+export interface AppSidebarProviderProps {
+    defaultOpen?: boolean;
+    open?: boolean;
+    class?: HTMLAttributes['class'];
+}
+
+export interface AppSidebarProviderEmits {
     'update:open': [open: boolean];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppSidebarProviderProps>(), {
+    defaultOpen: false,
+    open: undefined,
+    class: '',
+});
+
+const emits = defineEmits<AppSidebarProviderEmits>();
+
+/*
+ * Computed & Methods.
+ */
 
 const open = useVModel(props, 'open', emits, {
     defaultValue: props.defaultOpen ?? false,

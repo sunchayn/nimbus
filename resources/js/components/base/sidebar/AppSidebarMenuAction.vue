@@ -1,21 +1,30 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarMenuAction
+ * @description An action button associated with a sidebar menu item.
+ */
 import { cn } from '@/utils/ui';
 import { Primitive, type PrimitiveProps } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = withDefaults(
-    defineProps<
-        PrimitiveProps & {
-            showOnHover?: boolean;
-            class?: HTMLAttributes['class'];
-        }
-    >(),
-    {
-        as: 'button',
-        showOnHover: false,
-        class: '',
-    },
-);
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarMenuActionProps extends PrimitiveProps {
+    showOnHover?: boolean;
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppSidebarMenuActionProps>(), {
+    as: 'button',
+    showOnHover: false,
+    class: '',
+});
 </script>
 
 <template>

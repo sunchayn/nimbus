@@ -1,7 +1,21 @@
 <script setup lang="ts">
+/**
+ * @component AppSheetTrigger
+ * @description The interactive element that opens the sheet.
+ */
 import { DialogTrigger, type DialogTriggerProps } from 'reka-ui';
 
-const props = defineProps<DialogTriggerProps>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSheetTriggerProps extends DialogTriggerProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSheetTriggerProps>();
 </script>
 
 <template>

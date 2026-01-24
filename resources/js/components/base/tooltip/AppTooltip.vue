@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppTooltip
+ * @description Root container for a tooltip component.
+ */
 import {
     TooltipRoot,
     type TooltipRootEmits,
@@ -6,8 +10,22 @@ import {
     useForwardPropsEmits,
 } from 'reka-ui';
 
-const props = defineProps<TooltipRootProps>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppTooltipProps extends TooltipRootProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppTooltipProps>();
 const emits = defineEmits<TooltipRootEmits>();
+
+/*
+ * Computed & Methods.
+ */
 
 const forwarded = useForwardPropsEmits(props, emits);
 </script>

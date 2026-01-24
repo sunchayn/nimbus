@@ -1,15 +1,31 @@
 <script setup lang="ts">
+/**
+ * @component TechnicalDetailsSection
+ * @description Displays technical details of the exception (backtrace, file, line) with copy functionality.
+ */
 import CopyButton from '@/components/common/CopyButton.vue';
-import { ExceptionPrevious } from '@/interfaces/routes';
+import { type ExceptionPrevious } from '@/interfaces/routes';
 import { useClipboard } from '@vueuse/core';
 
-interface TechnicalDetailsSectionProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppTechnicalDetailsSectionProps {
     previousError: ExceptionPrevious;
 }
 
-const props = defineProps<TechnicalDetailsSectionProps>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppTechnicalDetailsSectionProps>();
 
 const { copy, copied } = useClipboard();
+
+/*
+ * Methods.
+ */
 
 const copyValue = () => {
     let value = props.previousError.message;
@@ -28,17 +44,17 @@ const copyValue = () => {
 
 <template>
     <div>
-        <h3 class="mb-2 font-semibold text-gray-900 dark:text-gray-100">
+        <h3 class="mb-2 font-semibold text-foreground">
             Technical Details
             <CopyButton :on-click="copyValue" :copied="copied" />
         </h3>
-        <div class="rounded-lg bg-red-50 p-4 dark:bg-red-950/30">
-            <p class="font-mono text-sm text-red-800 dark:text-red-200">
+        <div class="rounded-lg bg-destructive/10 p-4 dark:bg-destructive/30">
+            <p class="font-mono text-sm text-destructive">
                 {{ previousError.message }}
             </p>
             <div
                 v-if="previousError.file"
-                class="mt-2 text-sm wrap-break-word text-red-600 dark:text-red-400"
+                class="mt-2 text-sm wrap-break-word text-destructive"
             >
                 <p>{{ previousError.file }}:{{ previousError.line }}</p>
                 <div v-if="previousError.trace" class="mt-2">

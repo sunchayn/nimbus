@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppInputGroup
+ * @description A container for grouping inputs with addons and buttons.
+ */
 import { cn } from '@/utils';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppInputGroupProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppInputGroupProps>();
 </script>
 
 <template>

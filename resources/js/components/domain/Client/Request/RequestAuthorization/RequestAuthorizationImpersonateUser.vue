@@ -1,6 +1,22 @@
 <script setup lang="ts">
+/**
+ * @component RequestAuthorizationImpersonateUser
+ * @description Input field for user ID to impersonate as authentication.
+ */
 import { AppInput } from '@/components/base/input';
-import { ModelRef } from 'vue';
+import { type ModelRef } from 'vue';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRequestAuthorizationImpersonateUserProps {}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRequestAuthorizationImpersonateUserProps>();
 
 const model: ModelRef<number> = defineModel<number>({
     default: () => 0,

@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppTableFooter
+ * @description The footer container for table summary rows.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppTableFooterProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppTableFooterProps>();
 </script>
 
 <template>

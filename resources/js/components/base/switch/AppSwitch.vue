@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppSwitch
+ * @description A toggle switch component using reka-ui primitives.
+ */
 import { cn } from '@/utils/ui';
 import {
     SwitchRoot,
@@ -9,14 +13,25 @@ import {
 } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-const props = defineProps<
-    SwitchRootProps & {
-        class?: HTMLAttributes['class'];
-        variant?: { type: 'default' | 'compact'; default: 'default' };
-    }
->();
+/*
+ * Types & Interfaces.
+ */
 
+export interface AppSwitchProps extends SwitchRootProps {
+    class?: HTMLAttributes['class'];
+    variant?: { type: 'default' | 'compact'; default: 'default' };
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSwitchProps>();
 const emits = defineEmits<SwitchRootEmits>();
+
+/*
+ * Computed & Methods.
+ */
 
 const delegatedProps = computed(() => {
     const { class: _, ...delegated } = props;

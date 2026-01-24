@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppInput
+ * @description A standard text input component with double-shift value generation support.
+ */
 import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
 import { useValueGeneratorStore } from '@/stores';
 import { cn } from '@/utils/ui';
@@ -6,12 +10,24 @@ import { useVModel } from '@vueuse/core';
 import type { HTMLAttributes } from 'vue';
 import { ref } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppInputProps {
     defaultValue?: string | number;
     modelValue?: string | number;
     class?: HTMLAttributes['class'];
-    type?: HTMLAttributes['inputmode'];
-}>();
+    type?: string;
+    placeholder?: string;
+    disabled?: boolean;
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppInputProps>();
 
 const emits = defineEmits<{
     (e: 'update:modelValue', payload: string | number): void;
@@ -21,6 +37,10 @@ const modelValue = useVModel(props, 'modelValue', emits, {
     passive: true,
     defaultValue: props.defaultValue,
 });
+
+/*
+ * Computed & Methods.
+ */
 
 const { openCommand } = useValueGeneratorStore();
 const inputRef = ref<HTMLInputElement>();
@@ -55,6 +75,8 @@ const handleKeydown = (event: KeyboardEvent) => {
                 props.class,
             )
         "
+        :placeholder="placeholder"
+        :disabled="disabled"
         @keydown="handleKeydown"
     />
 </template>

@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarInset
+ * @description A main content wrapper that adjusts its layout based on the sidebar's inset variant.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarInsetProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSidebarInsetProps>();
 </script>
 
 <template>

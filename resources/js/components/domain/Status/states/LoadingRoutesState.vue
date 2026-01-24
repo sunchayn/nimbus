@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component LoadingRoutesState
+ * @description State displayed while routes are being extracted.
+ */
 import { RefreshCwIcon } from 'lucide-vue-next';
 </script>
 

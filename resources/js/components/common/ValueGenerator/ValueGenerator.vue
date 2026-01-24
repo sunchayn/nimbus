@@ -1,12 +1,8 @@
 <script setup lang="ts">
 /**
- * Global command palette for value generation
- *
- * Teleports a command interface that allows users to generate values
- * throughout the application. Uses WeakMap-based tracking to avoid
- * DOM pollution while maintaining state across different input contexts.
+ * @component ValueGenerator
+ * @description Global command palette for value generation across the application.
  */
-
 import { AppCommand, AppCommandInput } from '@/components/base/command';
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
 import { useValueGeneratorStore } from '@/stores';
@@ -17,33 +13,30 @@ import ValueGeneratorFooter from './ValueGeneratorFooter.vue';
 import ValueGeneratorGeneratorList from './ValueGeneratorGeneratorList.vue';
 
 /*
- * Emits.
+ * Types & Interfaces.
  */
 
-const emits = defineEmits<{
+export interface AppValueGeneratorEmits {
     (e: 'valueGenerated', value: string | number | bigint): void;
-}>();
+}
 
 /*
- * Stores & dependencies.
+ * Component Setup.
  */
 
-const store = useValueGeneratorStore();
+const emits = defineEmits<AppValueGeneratorEmits>();
 
+const store = useValueGeneratorStore();
 const { restoreScrollPosition } = useTabHorizontalScroll();
 
 /*
- * Computed.
+ * Computed & Methods.
  */
 
 /**
  * Gets the command position relative to the input that opened it.
  */
 const commandPosition = computed(() => calculateCommandPosition(store.currentInputRef));
-
-/*
- * Actions.
- */
 
 /**
  * Creates an input event to trigger change handlers

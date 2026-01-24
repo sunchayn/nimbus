@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppDialogScrollContent
+ * @description A dialog content variant that allows internal scrolling.
+ */
 import { cn } from '@/utils/ui';
 import { reactiveOmit } from '@vueuse/core';
 import { X } from 'lucide-vue-next';
@@ -12,7 +16,19 @@ import {
 } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'] }>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDialogScrollContentProps extends DialogContentProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDialogScrollContentProps>();
 const emits = defineEmits<DialogContentEmits>();
 
 const delegatedProps = reactiveOmit(props, 'class');

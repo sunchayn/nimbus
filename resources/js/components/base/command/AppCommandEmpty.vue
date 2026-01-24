@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppCommandEmpty
+ * @description Renders content when no command items match the filter.
+ */
 import { cn } from '@/utils/ui';
 import { reactiveOmit } from '@vueuse/core';
 import type { PrimitiveProps } from 'reka-ui';
@@ -7,9 +11,25 @@ import type { HTMLAttributes } from 'vue';
 import { computed } from 'vue';
 import { useCommand } from '.';
 
-const props = defineProps<PrimitiveProps & { class?: HTMLAttributes['class'] }>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppCommandEmptyProps extends PrimitiveProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppCommandEmptyProps>();
 
 const delegatedProps = reactiveOmit(props, 'class');
+
+/*
+ * Computed & Methods.
+ */
 
 const { filterState } = useCommand();
 const isRender = computed(() => !!filterState.search && filterState.filtered.count === 0);

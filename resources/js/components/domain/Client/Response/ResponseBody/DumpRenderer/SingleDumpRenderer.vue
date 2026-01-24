@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component SingleDumpRenderer
+ * @description Recursively renders a single dump value, handling different types (objects, arrays, strings, etc.).
+ */
 import {
     AppCollapsible,
     AppCollapsibleContent,
@@ -6,38 +10,50 @@ import {
 } from '@/components/base/collapsible';
 import DumpKeyRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/DumpKeyRenderer.vue';
 import {
-    ArrayDump,
-    ClosureDump,
-    ConstDump,
+    type ArrayDump,
+    type ClosureDump,
+    type ConstDump,
     ConstDumpRenderer,
-    DumpValue,
-    NumberDump,
+    type DumpValue,
+    type NumberDump,
     NumberDumpRenderer,
-    ObjectDump,
-    ObjectDumpProperty,
-    StringDump,
+    type ObjectDump,
+    type ObjectDumpProperty,
+    type StringDump,
     StringDumpRenderer,
     styles,
-    UninitializedDump,
+    type UninitializedDump,
 } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
 import ObjectDumpValuePropertyKey from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/ObjectDumpValuePropertyKey.vue';
 import UninitializedDumpRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/UninitializedDumpRenderer.vue';
 import { DumpValueType } from '@/interfaces/generated/dump-value-types';
 import { ChevronRight } from 'lucide-vue-next';
-import { computed, ComputedRef } from 'vue';
+import { computed, type ComputedRef } from 'vue';
 
-interface DumpNodeRendererProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDumpNodeRendererProps {
     dump: DumpValue;
     depth?: number;
     keyName?: string;
     numericalKey?: boolean;
 }
 
-const props = withDefaults(defineProps<DumpNodeRendererProps>(), {
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppDumpNodeRendererProps>(), {
     depth: 0,
     keyName: undefined,
     numericalKey: false,
 });
+
+/*
+ * Computed & Methods.
+ */
 
 const isNestable: ComputedRef<boolean> = computed(
     () =>

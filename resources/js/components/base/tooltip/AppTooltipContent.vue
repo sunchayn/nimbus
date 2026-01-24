@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppTooltipContent
+ * @description The floating content area for a tooltip, including transitions and offsets.
+ */
 import { cn } from '@/utils/ui';
 import {
     TooltipContent,
@@ -9,19 +13,32 @@ import {
 } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-const props = withDefaults(
-    defineProps<TooltipContentProps & { class?: HTMLAttributes['class'] }>(),
-    {
-        sideOffset: 4,
-        class: '',
-    },
-);
-
-const emits = defineEmits<TooltipContentEmits>();
-
 defineOptions({
     inheritAttrs: false,
 });
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppTooltipContentProps extends TooltipContentProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppTooltipContentProps>(), {
+    sideOffset: 4,
+    class: '',
+});
+
+const emits = defineEmits<TooltipContentEmits>();
+
+/*
+ * Computed & Methods.
+ */
 
 const delegatedProps = computed(() => {
     const { class: _, ...delegated } = props;

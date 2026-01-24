@@ -1,13 +1,25 @@
 <script setup lang="ts">
+/**
+ * @component AppDropdownMenuSeparator
+ * @description A visual divider for dropdown menu items.
+ */
 import { cn } from '@/utils/ui';
 import { DropdownMenuSeparator, type DropdownMenuSeparatorProps } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-const props = defineProps<
-    DropdownMenuSeparatorProps & {
-        class?: HTMLAttributes['class'];
-    }
->();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDropdownMenuSeparatorProps extends DropdownMenuSeparatorProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDropdownMenuSeparatorProps>();
 
 const delegatedProps = computed(() => {
     const { class: _, ...delegated } = props;

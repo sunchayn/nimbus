@@ -1,12 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppSkeleton
+ * @description A placeholder component used to indicate loading states.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-interface SkeletonProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSkeletonProps {
     class?: HTMLAttributes['class'];
 }
 
-const props = defineProps<SkeletonProps>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSkeletonProps>();
 </script>
 
 <template>

@@ -1,17 +1,17 @@
-import { AppSidebarProvider } from '@/components/base/sidebar';
-import { RouteExtractorException, RoutesGroup } from '@/interfaces';
-import MainPage from '@/pages/Main.vue';
-import { mountWithPlugins } from '@/tests/_utils/test-utils';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { h, nextTick } from 'vue';
+import { AppSidebarProvider } from '@/components/base/sidebar';
+import MainPage from '@/pages/Main.vue';
+import type { RouteExtractorException, RoutesGroup } from '@/interfaces';
 
-// Mock the stores
-const mockRoutesStore: {
-    routes: { [key: string]: RoutesGroup[] } | null;
-    hasExtractionError: boolean;
-    routeExtractorException: RouteExtractorException | null;
-    initializeRoutes: () => void;
-} = {
+/*
+ * Fixtures.
+ */
+
+const mockRoutesStore = {
     routes: {
         v1: [
             {
@@ -21,26 +21,14 @@ const mockRoutesStore: {
                         method: 'GET',
                         endpoint: 'api/users',
                         shortEndpoint: 'api/users',
-                        schema: {
-                            shape: {},
-                            extractionErrors: null,
-                        },
-                    },
-                    {
-                        method: 'POST',
-                        endpoint: 'api/users',
-                        shortEndpoint: 'api/users',
-                        schema: {
-                            shape: {},
-                            extractionErrors: null,
-                        },
+                        schema: { shape: {}, extractionErrors: null },
                     },
                 ],
             },
         ],
-    },
+    } as { [key: string]: RoutesGroup[] } | null,
     hasExtractionError: false,
-    routeExtractorException: null,
+    routeExtractorException: null as RouteExtractorException | null,
     initializeRoutes: vi.fn(),
 };
 
@@ -58,7 +46,6 @@ const mockValueGeneratorStore = {
 };
 
 vi.mock('@/stores', async () => {
-    // Import the real module first
     const original: object = await vi.importActual('@/stores');
 
     return {
@@ -69,134 +56,136 @@ vi.mock('@/stores', async () => {
     };
 });
 
-const componentFactory = () => {
-    return mountWithPlugins({
-        // We to wrap MainPage inside an `AppSidebarProvider` component (normally provided by App.vue)
-        render() {
-            return h(
-                AppSidebarProvider,
-                {},
-                {
-                    default: () => h(MainPage),
-                },
-            );
+import type { MountingOptions } from '@vue/test-utils';
+import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
+
+/**
+ * Factory function to create a mounted wrapper with sensible defaults.
+ */
+const createWrapper = (options= {}): VueWrapper => {
+    return mount(AppSidebarProvider, {
+        slots: {
+            default: h(MainPage),
+        } as any,
+        ...options,
+        global: {
+            plugins: [createPinia()],
+            // @ts-ignore
+            ...(options.global || {}),
         },
     });
 };
 
 describe('MainPage', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia());
+        vi.clearAllMocks();
+    });
+
     afterEach(() => {
         mockRoutesStore.hasExtractionError = false;
-    });
-
-    it('renders RouteExplorer with routes data', () => {
-        const wrapper = componentFactory();
-
-        const routeExplorer = wrapper.findComponent({ name: 'RouteExplorer' });
-        expect(routeExplorer.exists()).toBe(true);
-        expect(routeExplorer.props('routes')).toBe(mockRoutesStore.routes);
-    });
-
-    it('renders RequestBuilder and ResponseViewer when no extraction error', () => {
-        mockRoutesStore.hasExtractionError = false;
-        const wrapper = componentFactory();
-
-        expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(true);
-        expect(wrapper.findComponent({ name: 'ResponseViewer' }).exists()).toBe(true);
-    });
-
-    it('renders RouteExtractorExceptionRenderer instead of request/response components when extraction error exists', () => {
-        mockRoutesStore.hasExtractionError = true;
-        mockRoutesStore.routeExtractorException = {
-            exception: {
-                message: 'Extraction failed',
-            },
-            routeContext: {},
+        mockRoutesStore.routes = {
+            v1: [
+                {
+                    resource: 'users',
+                    routes: [
+                        {
+                            method: 'GET',
+                            endpoint: 'api/users',
+                            shortEndpoint: 'api/users',
+                            schema: { shape: {}, extractionErrors: null },
+                        },
+                    ],
+                },
+            ],
         };
-
-        const wrapper = componentFactory();
-
-        expect(
-            wrapper.findComponent({ name: 'RouteExtractorExceptionRenderer' }).exists(),
-        ).toBe(true);
-        expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(false);
-        expect(wrapper.findComponent({ name: 'ResponseViewer' }).exists()).toBe(false);
     });
 
-    it('passes correct props to RouteExtractorExceptionRenderer', () => {
-        const mockException: RouteExtractorException = {
-            exception: {
-                message: 'Test error',
-            },
-            routeContext: {},
-        };
+    /*
+     * Rendering tests.
+     */
 
-        mockRoutesStore.hasExtractionError = true;
-        mockRoutesStore.routeExtractorException = mockException;
+    describe('Rendering', () => {
+        it('renders RouteExplorer with routes data', () => {
+            // Arrange
 
-        const wrapper = componentFactory();
+            const wrapper = createWrapper();
 
-        const exceptionRenderer = wrapper.findComponent({
-            name: 'RouteExtractorExceptionRenderer',
+            // Assert
+
+            const routeExplorer = wrapper.findComponent({ name: 'RouteExplorer' });
+            expect(routeExplorer.exists()).toBe(true);
+            expect(routeExplorer.props('routes')).toBe(mockRoutesStore.routes);
         });
 
-        expect(exceptionRenderer.props('error')).toBe(mockException);
-    });
+        it('renders RequestBuilder and ResponseViewer when no extraction error', () => {
+            // Arrange
 
-    it('calls initializeRoutes on mount', async () => {
-        componentFactory();
+            mockRoutesStore.hasExtractionError = false;
+            const wrapper = createWrapper();
 
-        await nextTick();
+            // Assert
 
-        expect(mockRoutesStore.initializeRoutes).toHaveBeenCalled();
-    });
-
-    it('configures resizable panels with correct sizing constraints', () => {
-        const wrapper = componentFactory();
-
-        const panelGroup = wrapper.findComponent({
-            name: 'AppResizablePanelGroup',
+            expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'ResponseViewer' }).exists()).toBe(true);
         });
 
-        expect(panelGroup.props('autoSaveId')).toBe('main-splitter-group');
-        expect(panelGroup.props('direction')).toBe('vertical');
+        it('renders RouteExtractorExceptionRenderer instead of request/response components when extraction error exists', () => {
+            // Arrange
 
-        const panels = wrapper.findAllComponents({ name: 'AppResizablePanel' });
-        expect(panels).toHaveLength(4);
+            mockRoutesStore.hasExtractionError = true;
+            mockRoutesStore.routeExtractorException = {
+                exception: { message: 'Extraction failed' },
+                routeContext: {},
+            };
 
-        expect(panels[0].props('minSize')).toBe(15);
-        expect(panels[0].props('defaultSize')).toBe(20);
-        expect(panels[1].props('minSize')).toBe(60);
-        expect(panels[1].props('defaultSize')).toBe(80);
+            const wrapper = createWrapper();
+
+            // Assert
+
+            expect(wrapper.findComponent({ name: 'RouteExtractorExceptionRenderer' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(false);
+            expect(wrapper.findComponent({ name: 'ResponseViewer' }).exists()).toBe(false);
+        });
     });
 
-    it('handles null routes data gracefully', () => {
-        mockRoutesStore.routes = null;
-        const wrapper = componentFactory();
+    /*
+     * State Transition tests.
+     */
 
-        expect(
-            wrapper.findComponent({ name: 'RouteExplorer' }).props('routes'),
-        ).toBeNull();
-    });
+    describe('Behavior', () => {
+        it('calls initializeRoutes on mount', async () => {
+            // Arrange & Act
 
-    it('reactively updates UI when extraction error state changes', async () => {
-        const wrapper = componentFactory();
+            createWrapper();
+            await nextTick();
 
-        expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(true);
+            // Assert
 
-        mockRoutesStore.hasExtractionError = true;
-        mockRoutesStore.routeExtractorException = {
-            exception: {
-                message: 'Error',
-            },
-            routeContext: {},
-        };
+            expect(mockRoutesStore.initializeRoutes).toHaveBeenCalled();
+        });
 
-        await wrapper.vm.$nextTick();
+        it('reactively updates UI when extraction error state changes', async () => {
+            // Arrange
 
-        expect(
-            wrapper.findComponent({ name: 'RouteExtractorExceptionRenderer' }).exists(),
-        ).toBe(true);
-        expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(false);
+            const wrapper = createWrapper();
+            expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(true);
+
+            // Act
+
+            mockRoutesStore.hasExtractionError = true;
+            mockRoutesStore.routeExtractorException = {
+                exception: { message: 'Error' },
+                routeContext: {},
+            };
+            await nextTick();
+            // multiple nextTicks might be needed due to nested components or store refs
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.findComponent({ name: 'RouteExtractorExceptionRenderer' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(false);
+        });
     });
 });

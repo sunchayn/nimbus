@@ -1,6 +1,22 @@
 <script setup lang="ts">
+/**
+ * @component RequestAuthorizationBearer
+ * @description Input field for Bearer Token authentication.
+ */
 import { AppInput } from '@/components/base/input';
-import { ModelRef } from 'vue';
+import { type ModelRef } from 'vue';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRequestAuthorizationBearerProps {}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRequestAuthorizationBearerProps>();
 
 const model: ModelRef<string> = defineModel<string>({
     default: () => '',

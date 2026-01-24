@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppDropdownMenuSubContent
+ * @description The container for sub-dropdown menu items.
+ */
 import { cn } from '@/utils/ui';
 import {
     DropdownMenuSubContent,
@@ -8,9 +12,19 @@ import {
 } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-const props = defineProps<
-    DropdownMenuSubContentProps & { class?: HTMLAttributes['class'] }
->();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDropdownMenuSubContentProps extends DropdownMenuSubContentProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDropdownMenuSubContentProps>();
 const emits = defineEmits<DropdownMenuSubContentEmits>();
 
 const delegatedProps = computed(() => {

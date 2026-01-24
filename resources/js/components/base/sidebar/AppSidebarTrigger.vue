@@ -1,13 +1,31 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarTrigger
+ * @description A button used to toggle the sidebar's open and collapsed states.
+ */
 import { AppButton } from '@/components/base/button';
 import { cn } from '@/utils/ui';
 import { PanelLeft } from 'lucide-vue-next';
 import type { HTMLAttributes } from 'vue';
 import { useSidebar } from './utils';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarTriggerProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSidebarTriggerProps>();
+
+/*
+ * Computed & Methods.
+ */
 
 const { toggleSidebar } = useSidebar();
 </script>

@@ -35,11 +35,12 @@ export function createMockRouter(): Router {
 
 export function renderWithProviders(
     component: Component,
-    options: RenderWithProvidersOptions = {},
+    options = {},
 ) {
     const pinia = createPinia();
     setActivePinia(pinia);
 
+    // @ts-expect-error .router not found in object.
     const router = options.router ?? createMockRouter();
 
     return {
@@ -47,14 +48,17 @@ export function renderWithProviders(
         ...render(component, {
             ...options,
             global: {
+                // @ts-expect-error .global not found in object.
                 ...(options.global ?? {}),
+                // @ts-expect-error .global not found in object.
                 plugins: [...(options.global?.plugins ?? []), pinia, router],
                 stubs: {
                     keepAlive: true,
                     Transition: true,
                     Teleport: true,
-                    'router-link': true,
-                    'router-view': true,
+                    "router-link": true,
+                    "router-view": true,
+                    // @ts-expect-error .global not found in object.
                     ...(options.global?.stubs ?? {}),
                 },
             },

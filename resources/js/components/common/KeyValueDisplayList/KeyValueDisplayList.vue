@@ -3,14 +3,26 @@
     lang="ts"
     generic="T extends { key: string; value: string | number | boolean }"
 >
+/**
+ * @component KeyValueDisplayList
+ * @description A list-based table for displaying key-value pairs with copy support.
+ */
 import { AppTable, AppTableBody } from '@/components/base/table';
 import KeyValueDisplayListItem from '@/components/common/KeyValueDisplayList/KeyValueDisplayListItem.vue';
 
-interface KeyValueDisplayListProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppKeyValueDisplayListProps<T> {
     items: Array<T>;
 }
 
-defineProps<KeyValueDisplayListProps>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppKeyValueDisplayListProps<T>>();
 </script>
 
 <template>

@@ -1,14 +1,30 @@
 <script setup lang="ts">
+/**
+ * @component ValueGeneratorFooter
+ * @description The footer for the value generator command, showing shortcuts and hints.
+ */
 import { AppBadge } from '@/components/base/badge';
 import { useValueGeneratorStore } from '@/stores';
 import { ArrowBigUpIcon } from 'lucide-vue-next';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppValueGeneratorFooterProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppValueGeneratorFooterProps>();
 
 const store = useValueGeneratorStore();
 </script>
 
 <template>
     <div
-        class="border-t border-zinc-200 bg-zinc-50 p-2 text-center text-xs text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950"
+        class="border-t border-border bg-subtle-background p-2 text-center text-xs text-muted-foreground"
     >
         <!-- Shift-Shift Shortcut Hint -->
         <div

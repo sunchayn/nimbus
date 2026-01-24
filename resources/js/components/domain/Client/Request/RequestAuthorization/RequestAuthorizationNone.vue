@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component RequestAuthorizationNone
+ * @description Info card indicating no authentication is being used.
+ */
 import {
     AppCard,
     AppCardDescription,
@@ -6,6 +10,18 @@ import {
     AppCardTitle,
 } from '@/components/base/card';
 import { LockKeyholeOpenIcon } from 'lucide-vue-next';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRequestAuthorizationNoneProps {}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRequestAuthorizationNoneProps>();
 </script>
 
 <template>

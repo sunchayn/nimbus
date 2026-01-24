@@ -1,11 +1,27 @@
 <script setup lang="ts">
+/**
+ * @component AppDialogOverlay
+ * @description The semi-transparent backdrop for a modal dialog.
+ */
 import { cn } from '@/utils/ui';
 import { reactiveOmit } from '@vueuse/core';
 import type { DialogOverlayProps } from 'reka-ui';
 import { DialogOverlay } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<DialogOverlayProps & { class?: HTMLAttributes['class'] }>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDialogOverlayProps extends DialogOverlayProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDialogOverlayProps>();
 
 const delegatedProps = reactiveOmit(props, 'class');
 </script>

@@ -1,11 +1,27 @@
-<script lang="ts" setup>
+<script setup lang="ts">
+/**
+ * @component AppFormLabel
+ * @description A label for a form field that automatically handles error states.
+ */
 import { AppLabel } from '@/components/base/label';
 import { cn } from '@/utils/ui';
 import type { LabelProps } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 import { useFormField } from './useFormField';
 
-const props = defineProps<LabelProps & { class?: HTMLAttributes['class'] }>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppFormLabelProps extends LabelProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppFormLabelProps>();
 
 const { error, formItemId } = useFormField();
 </script>

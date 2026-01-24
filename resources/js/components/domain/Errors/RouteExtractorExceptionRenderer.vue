@@ -1,8 +1,12 @@
 <script setup lang="ts">
+/**
+ * @component RouteExtractorExceptionRenderer
+ * @description A specialized error renderer for route extraction exceptions.
+ */
 import AppPanelRipple from '@/components/base/AppPanelRipple.vue';
 import { AppBadge } from '@/components/base/badge';
 import { AppButton } from '@/components/base/button';
-import { RouteExtractorException } from '@/interfaces/routes';
+import { type RouteExtractorException } from '@/interfaces/routes';
 import { Loader2Icon, RefreshCcwIcon, SkipForwardIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import ErrorCardHeader from './RouteExtractor/ErrorCardHeader.vue';
@@ -10,13 +14,29 @@ import RouteInformationSection from './RouteExtractor/RouteInformationSection.vu
 import SuggestedSolutionCallout from './RouteExtractor/SuggestedSolutionCallout.vue';
 import TechnicalDetailsSection from './RouteExtractor/TechnicalDetailsSection.vue';
 
-interface RoutesErrorProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRouteExtractorExceptionRendererProps {
     error: RouteExtractorException;
 }
 
-const props = defineProps<RoutesErrorProps>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppRouteExtractorExceptionRendererProps>();
+
+/*
+ * State.
+ */
 
 const isIgnoring = ref(false);
+
+/*
+ * Event Handlers.
+ */
 
 const handleRetry = () => {
     window.location.reload();
@@ -40,7 +60,7 @@ const handleIgnoreEndpoint = () => {
 
 <template>
     <div
-        class="relative h-full max-h-full w-full bg-gradient-to-br from-red-50/30 to-transparent p-4 dark:from-red-950/10"
+        class="relative h-full max-h-full w-full bg-gradient-to-br from-destructive/10 to-transparent p-4 dark:from-destructive/15"
     >
         <div class="relative z-10 flex h-full w-full justify-center overflow-auto py-2">
             <div class="flex h-full flex-col space-y-4">
@@ -48,7 +68,7 @@ const handleIgnoreEndpoint = () => {
                     <AppBadge variant="outline" class="p-0 px-1 text-xs">
                         Internal Error
                     </AppBadge>
-                    <h1 class="text-xl font-medium text-red-500 dark:text-rose-600">
+                    <h1 class="text-xl font-medium text-destructive">
                         An error occurred while processing your application routes
                     </h1>
                 </div>
@@ -59,7 +79,7 @@ const handleIgnoreEndpoint = () => {
                 />
 
                 <div
-                    class="relative flex flex-1 flex-col overflow-hidden rounded-xl border-1 bg-white/10 break-words backdrop-blur-md dark:bg-gray-950/10"
+                    class="relative flex flex-1 flex-col overflow-hidden rounded-xl border-1 bg-muted/10 break-words backdrop-blur-md"
                 >
                     <ErrorCardHeader :message="error.exception.message" />
                     <div

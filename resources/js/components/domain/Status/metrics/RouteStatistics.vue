@@ -1,18 +1,26 @@
 <script setup lang="ts">
+/**
+ * @component RouteStatistics
+ * @description Displays statistical metrics about the application routes (total, success, errors, error rate).
+ */
 import { ChartAreaIcon, CheckCircleIcon, RouteIcon, XCircleIcon } from 'lucide-vue-next';
 
 /*
- * Props.
+ * Types & Interfaces.
  */
 
-interface Props {
+export interface AppRouteStatisticsProps {
     totalRoutes: number;
     routesWithErrors: number;
     routesWithoutErrors: number;
     errorRate: number;
 }
 
-defineProps<Props>();
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRouteStatisticsProps>();
 </script>
 
 <template>

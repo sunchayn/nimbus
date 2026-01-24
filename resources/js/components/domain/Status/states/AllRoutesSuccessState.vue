@@ -1,24 +1,30 @@
 <script setup lang="ts">
+/**
+ * @component AllRoutesSuccessState
+ * @description Success state displayed when all routes have been extracted smoothly without errors.
+ */
 import { AppButton } from '@/components/base/button';
 import { CheckCircleIcon, RouteIcon } from 'lucide-vue-next';
 
 /*
- * Props.
+ * Types & Interfaces.
  */
 
-interface Props {
+export interface AppAllRoutesSuccessStateProps {
     totalRoutes: number;
 }
 
-defineProps<Props>();
+export interface AppAllRoutesSuccessStateEmits {
+    (e: 'go-to-main'): void;
+}
 
 /*
- * Emits.
+ * Component Setup.
  */
 
-const emit = defineEmits<{
-    'go-to-main': [];
-}>();
+defineProps<AppAllRoutesSuccessStateProps>();
+
+const emit = defineEmits<AppAllRoutesSuccessStateEmits>();
 
 /*
  * Methods.

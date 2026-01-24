@@ -1,15 +1,34 @@
 <script setup lang="ts">
+/**
+ * @component StatusIndicator
+ * @description A visual indicator component showing the overall health status of routes.
+ */
 import AppRoundIndicator from '@/components/base/round-indicator/AppRoundIndicator.vue';
 import { computed } from 'vue';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppStatusIndicatorProps {
+    routesWithErrors: number;
+    totalRoutes: number;
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppStatusIndicatorProps>();
 
 /*
  * Constants.
  */
 
 const STATUS_COLORS = {
-    success: 'text-emerald-600',
-    error: 'text-rose-500',
-    neutral: 'text-zinc-500',
+    success: 'text-success',
+    error: 'text-destructive',
+    neutral: 'text-muted-foreground',
 } as const;
 
 const STATUS_MESSAGES = {
@@ -19,18 +38,7 @@ const STATUS_MESSAGES = {
 } as const;
 
 /*
- * Props.
- */
-
-interface Props {
-    routesWithErrors: number;
-    totalRoutes: number;
-}
-
-const props = defineProps<Props>();
-
-/*
- * Computed Properties.
+ * Computed & Methods.
  */
 
 const statusIndicator = computed(() => {

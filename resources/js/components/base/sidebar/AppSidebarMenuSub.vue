@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarMenuSub
+ * @description A sub-menu list container within a sidebar menu item.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarMenuSubProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSidebarMenuSubProps>();
 </script>
 
 <template>

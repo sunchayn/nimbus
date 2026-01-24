@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component RequestBuilder
+ * @description The main container for constructing API requests, including tabs for params, body, auth, and headers.
+ */
 import {
     AppTabs,
     AppTabsContent,
@@ -14,6 +18,22 @@ import {
 } from '@/components/domain/Client/Request';
 import { uniquePersistenceKey } from '@/utils/stores';
 import { useStorage } from '@vueuse/core';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRequestBuilderProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppRequestBuilderProps>();
+
+/*
+ * State.
+ */
 
 const tab = useStorage(uniquePersistenceKey('request-builder-tab'), 'body');
 </script>

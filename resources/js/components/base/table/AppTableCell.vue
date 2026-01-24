@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppTableCell
+ * @description An individual data cell within a table row.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppTableCellProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppTableCellProps>();
 </script>
 
 <template>

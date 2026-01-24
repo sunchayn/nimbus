@@ -1,15 +1,31 @@
 <script setup lang="ts">
+/**
+ * @component ResponseViewerErrorState
+ * @description Displays internal errors that occurred during the request (e.g., proxy failures).
+ */
 import AppPanelRipple from '@/components/base/AppPanelRipple.vue';
 import { AppBadge } from '@/components/base/badge';
 import CodeEditor from '@/components/domain/CodeEditor/CodeEditor.vue';
-import { ErrorPlainResponse } from '@/interfaces/http';
+import { type ErrorPlainResponse } from '@/interfaces/http';
 import { computed } from 'vue';
 
-interface ResponseViewerErrorStateProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppResponseViewerErrorStateProps {
     error: ErrorPlainResponse;
 }
 
-const props = defineProps<ResponseViewerErrorStateProps>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppResponseViewerErrorStateProps>();
+
+/*
+ * Computed & Methods.
+ */
 
 const errorBody = computed({
     get: () => props.error.body,
@@ -21,14 +37,14 @@ const errorBody = computed({
 
 <template>
     <div
-        class="via-background relative max-h-full flex-1 overflow-hidden bg-gradient-to-br from-red-50 from-10% p-4 dark:from-red-900/15"
+        class="via-background relative max-h-full flex-1 overflow-hidden bg-gradient-to-br from-destructive/10 from-10% p-4 dark:from-destructive/15"
     >
         <div class="relative z-10 flex max-h-full flex-col p-2">
             <div>
                 <AppBadge variant="outline" class="p-0 px-1 text-xs">
                     Internal Error
                 </AppBadge>
-                <h2 class="text-lg font-medium text-red-500">
+                <h2 class="text-lg font-medium text-destructive">
                     {{ props.error.message }}
                 </h2>
             </div>

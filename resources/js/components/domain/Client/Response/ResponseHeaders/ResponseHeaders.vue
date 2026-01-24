@@ -1,18 +1,34 @@
 <script setup lang="ts">
+/**
+ * @component ResponseHeaders
+ * @description Displays the HTTP headers from the response.
+ */
 import CopyButton from '@/components/common/CopyButton.vue';
 import KeyValueDisplayList from '@/components/common/KeyValueDisplayList/KeyValueDisplayList.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
-import { HttpHeadersArray } from '@/interfaces/http';
+import { type HttpHeadersArray } from '@/interfaces/http';
 import { useClipboard } from '@vueuse/core';
 import { computed } from 'vue';
 
-interface ResponseHeadersProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppResponseHeadersProps {
     headers: HttpHeadersArray;
 }
 
-const props = defineProps<ResponseHeadersProps>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppResponseHeadersProps>();
 
 const { copy, copied } = useClipboard();
+
+/*
+ * Computed & Methods.
+ */
 
 const headersForDisplay = computed(() => {
     return props.headers.map(header => ({

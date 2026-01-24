@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppDropdownMenuCheckboxItem
+ * @description A dropdown menu item that can be toggled on/off.
+ */
 import { cn } from '@/utils/ui';
 import { Check } from 'lucide-vue-next';
 import {
@@ -10,9 +14,19 @@ import {
 } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-const props = defineProps<
-    DropdownMenuCheckboxItemProps & { class?: HTMLAttributes['class'] }
->();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDropdownMenuCheckboxItemProps extends DropdownMenuCheckboxItemProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDropdownMenuCheckboxItemProps>();
 const emits = defineEmits<DropdownMenuCheckboxItemEmits>();
 
 const delegatedProps = computed(() => {

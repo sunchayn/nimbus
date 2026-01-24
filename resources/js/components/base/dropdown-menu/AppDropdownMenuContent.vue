@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppDropdownMenuContent
+ * @description The container for dropdown menu items, including portal and animations.
+ */
 import { cn } from '@/utils/ui';
 import {
     DropdownMenuContent,
@@ -9,13 +13,22 @@ import {
 } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-const props = withDefaults(
-    defineProps<DropdownMenuContentProps & { class?: HTMLAttributes['class'] }>(),
-    {
-        sideOffset: 4,
-        class: '',
-    },
-);
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDropdownMenuContentProps extends DropdownMenuContentProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppDropdownMenuContentProps>(), {
+    sideOffset: 4,
+    class: '',
+});
 const emits = defineEmits<DropdownMenuContentEmits>();
 
 const delegatedProps = computed(() => {

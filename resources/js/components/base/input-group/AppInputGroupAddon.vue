@@ -1,19 +1,34 @@
 <script setup lang="ts">
+/**
+ * @component AppInputGroupAddon
+ * @description An addon element (text or icon) for an input group.
+ */
 import { cn } from '@/utils';
 import type { HTMLAttributes } from 'vue';
 import type { InputGroupVariants } from '.';
 import { inputGroupAddonVariants } from '.';
 
-const props = withDefaults(
-    defineProps<{
-        align?: InputGroupVariants['align'];
-        class?: HTMLAttributes['class'];
-    }>(),
-    {
-        align: 'inline-start',
-        class: undefined,
-    },
-);
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppInputGroupAddonProps {
+    align?: InputGroupVariants['align'];
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppInputGroupAddonProps>(), {
+    align: 'inline-start',
+    class: undefined,
+});
+
+/*
+ * Computed & Methods.
+ */
 
 function handleInputGroupAddonClick(e: MouseEvent) {
     const currentTarget = e.currentTarget as HTMLElement | null;

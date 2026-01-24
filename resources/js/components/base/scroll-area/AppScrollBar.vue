@@ -1,17 +1,30 @@
 <script setup lang="ts">
+/**
+ * @component AppScrollBar
+ * @description The scrollbar element for the scroll area.
+ */
 import { cn } from '@/utils/ui';
 import { reactiveOmit } from '@vueuse/core';
 import type { ScrollAreaScrollbarProps } from 'reka-ui';
 import { ScrollAreaScrollbar, ScrollAreaThumb } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = withDefaults(
-    defineProps<ScrollAreaScrollbarProps & { class?: HTMLAttributes['class'] }>(),
-    {
-        orientation: 'vertical',
-        class: undefined,
-    },
-);
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppScrollBarProps extends ScrollAreaScrollbarProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppScrollBarProps>(), {
+    orientation: 'vertical',
+    class: undefined,
+});
 
 const delegatedProps = reactiveOmit(props, 'class');
 </script>

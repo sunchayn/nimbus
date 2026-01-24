@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppDropdownMenuSubTrigger
+ * @description The interactive element that opens a sub-dropdown menu.
+ */
 import { cn } from '@/utils/ui';
 import { ChevronRight } from 'lucide-vue-next';
 import {
@@ -8,9 +12,19 @@ import {
 } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-const props = defineProps<
-    DropdownMenuSubTriggerProps & { class?: HTMLAttributes['class'] }
->();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDropdownMenuSubTriggerProps extends DropdownMenuSubTriggerProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDropdownMenuSubTriggerProps>();
 
 const delegatedProps = computed(() => {
     const { class: _, ...delegated } = props;

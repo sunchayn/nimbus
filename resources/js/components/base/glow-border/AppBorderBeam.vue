@@ -1,3 +1,49 @@
+<script setup lang="ts">
+/**
+ * @component AppBorderBeam
+ * @description An animated beam of light that travels around a container's border.
+ */
+import { cn } from '@/utils/ui';
+import { computed } from 'vue';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppBorderBeamProps {
+    class?: string;
+    size?: number;
+    duration?: number;
+    borderWidth?: number;
+    anchor?: number;
+    colorFrom?: string;
+    colorTo?: string;
+    delay?: number;
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppBorderBeamProps>(), {
+    class: '',
+    size: 200,
+    duration: 15000,
+    anchor: 10,
+    borderWidth: 1.5,
+    colorFrom: '#ffaa40',
+    colorTo: '#9c40ff',
+    delay: 0,
+});
+
+/*
+ * Computed & Methods.
+ */
+
+const durationInSeconds = computed(() => `${props.duration}s`);
+const delayInSeconds = computed(() => `${props.delay}s`);
+</script>
+
 <template>
     <div
         :class="
@@ -11,36 +57,6 @@
         "
     ></div>
 </template>
-
-<script setup lang="ts">
-import { cn } from '@/utils/ui';
-import { computed } from 'vue';
-
-interface BorderBeamProps {
-    class?: string;
-    size?: number;
-    duration?: number;
-    borderWidth?: number;
-    anchor?: number;
-    colorFrom?: string;
-    colorTo?: string;
-    delay?: number;
-}
-
-const props = withDefaults(defineProps<BorderBeamProps>(), {
-    class: '',
-    size: 200,
-    duration: 15000,
-    anchor: 10,
-    borderWidth: 1.5,
-    colorFrom: '#ffaa40',
-    colorTo: '#9c40ff',
-    delay: 0,
-});
-
-const durationInSeconds = computed(() => `${props.duration}s`);
-const delayInSeconds = computed(() => `${props.delay}s`);
-</script>
 
 <style scoped>
 .border-beam {

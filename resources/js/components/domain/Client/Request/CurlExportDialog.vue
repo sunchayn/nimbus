@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component CurlExportDialog
+ * @description A dialog that displays the generated cURL command for a request.
+ */
 import { AppButton } from '@/components/base/button';
 import {
     AppDialog,
@@ -10,18 +14,32 @@ import {
 import { useClipboard } from '@vueuse/core';
 import { Check, Copy } from 'lucide-vue-next';
 
-interface CurlExportDialogProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppCurlExportDialogProps {
     open: boolean;
     command: string;
     hasSpecialAuth: boolean;
 }
 
-const props = defineProps<CurlExportDialogProps>();
-const emits = defineEmits<{
-    'update:open': [value: boolean];
-}>();
+export interface AppCurlExportDialogEmits {
+    (e: 'update:open', value: boolean): void;
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppCurlExportDialogProps>();
+const emits = defineEmits<AppCurlExportDialogEmits>();
 
 const { copy, copied } = useClipboard();
+
+/*
+ * Methods.
+ */
 
 const copyCommand = () => {
     copy(props.command);
@@ -47,9 +65,9 @@ const closeDialog = () => {
             <div class="flex flex-1 flex-col space-y-4 overflow-hidden">
                 <div
                     v-if="hasSpecialAuth"
-                    class="rounded-md bg-yellow-50 p-3 dark:bg-yellow-900/20"
+                    class="rounded-md bg-warning/10 p-3 dark:bg-warning/20"
                 >
-                    <p class="text-sm text-yellow-800 dark:text-yellow-200">
+                    <p class="text-sm text-warning">
                         Note: Authorization has been dropped as special authorization
                         types (Current User, Impersonate) are not supported in cURL
                         commands.
@@ -58,7 +76,7 @@ const closeDialog = () => {
 
                 <div class="flex min-h-0 flex-1 flex-col space-y-3">
                     <div class="mb-2 flex items-center justify-between">
-                        <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        <h4 class="text-sm font-medium text-foreground">
                             Command
                         </h4>
                         <AppButton
@@ -80,7 +98,7 @@ const closeDialog = () => {
                 </div>
             </div>
 
-            <div class="flex justify-end border-t pt-4 dark:border-gray-700">
+            <div class="flex justify-end border-t pt-4">
                 <AppButton variant="outline" @click="closeDialog">Close</AppButton>
             </div>
         </AppDialogContent>

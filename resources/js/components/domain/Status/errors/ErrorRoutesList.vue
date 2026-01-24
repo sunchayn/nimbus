@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component ErrorRoutesList
+ * @description A list of routes that failed schema extraction, with search filtering.
+ */
 import { AppButton } from '@/components/base/button';
 import { AppInput } from '@/components/base/input';
 import { AppScrollArea } from '@/components/base/scroll-area';
@@ -8,10 +12,10 @@ import { SearchIcon, SearchXIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 /*
- * Interfaces.
+ * Types & Interfaces.
  */
 
-interface RouteWithError {
+export interface RouteWithError {
     endpoint: string;
     method: string;
     resource: string;
@@ -22,24 +26,21 @@ interface RouteWithError {
     };
 }
 
-/*
- * Props.
- */
-
-interface Props {
+export interface AppErrorRoutesListProps {
     routes: RouteWithError[];
     selectedRoute: RouteWithError | null;
 }
 
-const props = defineProps<Props>();
+export interface AppErrorRoutesListEmits {
+    (e: 'route-selected', route: RouteWithError): void;
+}
 
 /*
- * Emits.
+ * Component Setup.
  */
 
-const emit = defineEmits<{
-    'route-selected': [route: RouteWithError];
-}>();
+const props = defineProps<AppErrorRoutesListProps>();
+const emit = defineEmits<AppErrorRoutesListEmits>();
 
 /*
  * State.
@@ -48,7 +49,7 @@ const emit = defineEmits<{
 const searchQuery = ref('');
 
 /*
- * Computed Properties.
+ * Computed & Methods.
  */
 
 const filteredRoutes = computed((): RouteWithError[] => {
@@ -67,10 +68,6 @@ const filteredRoutes = computed((): RouteWithError[] => {
 });
 
 const hasSearchResults = computed(() => filteredRoutes.value.length > 0);
-
-/*
- * Methods.
- */
 
 const selectRoute = (route: RouteWithError) => {
     emit('route-selected', route);
@@ -99,7 +96,7 @@ const isRouteSelected = (route: RouteWithError) => {
             class="h-toolbar bg-subtle-background flex flex-shrink-0 items-center justify-between border-b"
         >
             <div class="pl-panel flex items-center">
-                <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <span class="text-sm font-semibold text-foreground">
                     Failed Routes
                 </span>
                 <span class="bg-background ml-2 rounded-full px-2 py-0.5 text-xs">
@@ -124,9 +121,9 @@ const isRouteSelected = (route: RouteWithError) => {
                 <div
                     v-for="route in filteredRoutes"
                     :key="`${route.version}-${route.resource}-${route.method}-${route.endpoint}`"
-                    class="px-panel dark:hover:bg-accent/20 flex cursor-pointer items-center space-x-3 border-b border-l-2 border-l-transparent py-1 transition-colors odd:bg-white even:bg-gray-50 hover:bg-yellow-50/30 dark:odd:bg-zinc-950 dark:even:bg-zinc-900/30"
+                    class="px-panel flex cursor-pointer items-center space-x-3 border-b border-l-2 border-l-transparent py-1 transition-colors odd:bg-background even:bg-muted hover:bg-accent/50"
                     :class="{
-                        '!border-l-black dark:!border-l-zinc-800': isRouteSelected(route),
+                        '!border-l-primary': isRouteSelected(route),
                     }"
                     @click="selectRoute(route)"
                 >
@@ -135,7 +132,7 @@ const isRouteSelected = (route: RouteWithError) => {
                         <div class="text-subtle-foreground truncate font-mono text-sm">
                             {{ route.endpoint }}
                         </div>
-                        <div class="truncate text-xs text-gray-500">
+                        <div class="truncate text-xs text-muted-foreground">
                             /{{ route.resource }}
                             <span v-if="route.version !== 'n/a'">
                                 • v{{ route.version }}

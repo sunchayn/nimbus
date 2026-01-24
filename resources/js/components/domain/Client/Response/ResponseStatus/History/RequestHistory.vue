@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component RequestHistory
+ * @description A dropdown menu showing the history of requests made to the current endpoint.
+ */
 import { AppButton } from '@/components/base/button';
 import {
     AppDropdownMenu,
@@ -13,18 +17,54 @@ import {
 } from '@/components/base/input-group';
 import { AppScrollArea } from '@/components/base/scroll-area';
 import HistoryItem from '@/components/domain/Client/Response/ResponseStatus/History/HistoryItem.vue';
-import { RequestLog } from '@/interfaces/history/logs';
-import { Response } from '@/interfaces/http';
+import { type RequestLog } from '@/interfaces/history/logs';
+import { type Response } from '@/interfaces/http';
 import { useRequestsHistoryStore, useRequestStore } from '@/stores';
 import { cn } from '@/utils/ui';
 import { useTimeAgo } from '@vueuse/core';
 import { HistoryIcon, Search, Trash2Icon } from 'lucide-vue-next';
 import { computed, nextTick, ref, watch } from 'vue';
 
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRequestHistoryProps {}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRequestHistoryProps>();
+
+/*
+ * Stores.
+ */
+
 const requestStore = useRequestStore();
 const historyStore = useRequestsHistoryStore();
 
+/*
+ * State.
+ */
+
+const isOpen = ref(false);
+const searchQuery = ref('');
+const searchInputRef = ref<HTMLInputElement | null>(null);
+const isConfirmingClear = ref(false);
+const clearHistoryTimeoutId = ref<number | null>(null);
+
+/*
+ * Computed & Methods.
+ */
+
 const lastLog = computed(() => historyStore.lastLog);
+
+const timeToTimeAgo = (timestamp: number): string => {
+    const timeAgo = useTimeAgo(new Date(timestamp * 1000));
+
+    return timeAgo.value;
+};
 
 const readableTime = computed(() => {
     if (lastLog.value?.response === undefined) {
@@ -33,27 +73,6 @@ const readableTime = computed(() => {
 
     return timeToTimeAgo(lastLog.value.response.timestamp);
 });
-
-const isOpen = ref(false);
-const searchQuery = ref('');
-const searchInputRef = ref<HTMLInputElement | null>(null);
-
-// Auto-focus search input when dropdown opens
-watch(isOpen, async newValue => {
-    if (newValue) {
-        await nextTick();
-        searchInputRef.value?.focus();
-    } else {
-        // Clear search when dropdown closes
-        searchQuery.value = '';
-    }
-});
-
-const timeToTimeAgo = (timestamp: number): string => {
-    const timeAgo = useTimeAgo(new Date(timestamp * 1000));
-
-    return timeAgo.value;
-};
 
 const absoluteTime = computed(() => {
     if (lastLog.value?.response === undefined) {
@@ -110,12 +129,13 @@ const getOriginalIndex = (reversedIndex: number) => {
     return historyStore.allLogs.indexOf(originalLog);
 };
 
-/*
- * Clear RequestHistory Logic.
- */
-
-const isConfirmingClear = ref(false);
-const clearHistoryTimeoutId = ref<number | null>(null);
+const resetClearConfirmation = () => {
+    isConfirmingClear.value = false;
+    if (clearHistoryTimeoutId.value) {
+        window.clearTimeout(clearHistoryTimeoutId.value);
+        clearHistoryTimeoutId.value = null;
+    }
+};
 
 const handleClearHistory = () => {
     if (isConfirmingClear.value) {
@@ -137,13 +157,20 @@ const handleClearHistory = () => {
     }, 1000);
 };
 
-const resetClearConfirmation = () => {
-    isConfirmingClear.value = false;
-    if (clearHistoryTimeoutId.value) {
-        window.clearTimeout(clearHistoryTimeoutId.value);
-        clearHistoryTimeoutId.value = null;
+/*
+ * Watchers.
+ */
+
+// Auto-focus search input when dropdown opens
+watch(isOpen, async newValue => {
+    if (newValue) {
+        await nextTick();
+        searchInputRef.value?.focus();
+    } else {
+        // Clear search when dropdown closes
+        searchQuery.value = '';
     }
-};
+});
 </script>
 
 <template>

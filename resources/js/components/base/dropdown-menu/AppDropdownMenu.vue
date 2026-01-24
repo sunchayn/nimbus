@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppDropdownMenu
+ * @description Root container for a dropdown menu.
+ */
 import {
     DropdownMenuRoot,
     type DropdownMenuRootEmits,
@@ -6,7 +10,17 @@ import {
     useForwardPropsEmits,
 } from 'reka-ui';
 
-const props = defineProps<DropdownMenuRootProps>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDropdownMenuProps extends DropdownMenuRootProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDropdownMenuProps>();
 const emits = defineEmits<DropdownMenuRootEmits>();
 
 const forwarded = useForwardPropsEmits(props, emits);

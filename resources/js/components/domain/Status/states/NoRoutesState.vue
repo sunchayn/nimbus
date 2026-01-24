@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component NoRoutesState
+ * @description State displayed when no routes could be found/extracted.
+ */
 import DocumentationLinkButton from '@/components/domain/DocumentationLinkButton.vue';
 </script>
 

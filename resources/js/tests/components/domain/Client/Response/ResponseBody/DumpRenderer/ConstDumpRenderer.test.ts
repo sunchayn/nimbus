@@ -1,101 +1,168 @@
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 import type { ConstDump } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
 import ConstDumpRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/ConstDumpRenderer.vue';
 import { DumpValueType } from '@/interfaces/generated/dump-value-types';
-import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
-import { describe, expect, it } from 'vitest';
-import { nextTick } from 'vue';
+import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
+
+/*
+ * Fixtures.
+ */
+
+/**
+ * Factory function to create a mounted wrapper with sensible defaults.
+ */
+const createWrapper = (options= {}): VueWrapper => {
+    return mount(ConstDumpRenderer, {
+        ...options,
+        global: {
+            plugins: [createPinia()],
+            // @ts-expect-error .global not found in object.
+            ...(options.global || {}),
+        },
+    });
+};
 
 describe('ConstDumpRenderer', () => {
-    it('renders true as string', async () => {
-        const dump: ConstDump = {
-            type: DumpValueType.Constant,
-            value: true,
-        };
-
-        renderWithProviders(ConstDumpRenderer, {
-            props: { dump },
-        });
-
-        await nextTick();
-
-        expect(screen.getByText('true')).toBeInTheDocument();
+    beforeEach(() => {
+        setActivePinia(createPinia());
+        vi.clearAllMocks();
     });
 
-    it('renders false as string', async () => {
-        const dump: ConstDump = {
-            type: DumpValueType.Constant,
-            value: false,
-        };
+    /*
+     * Rendering tests.
+     */
 
-        renderWithProviders(ConstDumpRenderer, {
-            props: { dump },
+    describe('Rendering', () => {
+        it('renders true as string', async () => {
+            // Arrange
+
+            const dump: ConstDump = {
+                type: DumpValueType.Constant,
+                value: true,
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('true');
         });
 
-        await nextTick();
+        it('renders false as string', async () => {
+            // Arrange
 
-        expect(screen.getByText('false')).toBeInTheDocument();
-    });
+            const dump: ConstDump = {
+                type: DumpValueType.Constant,
+                value: false,
+            };
 
-    it('renders null as string', async () => {
-        const dump: ConstDump = {
-            type: DumpValueType.Constant,
-            value: null,
-        };
+            const wrapper = createWrapper({
+                props: { dump },
+            });
 
-        renderWithProviders(ConstDumpRenderer, {
-            props: { dump },
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('false');
         });
 
-        await nextTick();
+        it('renders null as string', async () => {
+            // Arrange
 
-        expect(screen.getByText('null')).toBeInTheDocument();
-    });
+            const dump: ConstDump = {
+                type: DumpValueType.Constant,
+                value: null,
+            };
 
-    it('applies italic styling', async () => {
-        const dump: ConstDump = {
-            type: DumpValueType.Constant,
-            value: true,
-        };
+            const wrapper = createWrapper({
+                props: { dump },
+            });
 
-        const { container } = renderWithProviders(ConstDumpRenderer, {
-            props: { dump },
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('null');
         });
 
-        await nextTick();
+        it('applies italic styling', async () => {
+            // Arrange
 
-        const span = container.querySelector('span');
-        expect(span?.className).toContain('italic');
-    });
+            const dump: ConstDump = {
+                type: DumpValueType.Constant,
+                value: true,
+            };
 
-    it('applies correct CSS classes', async () => {
-        const dump: ConstDump = {
-            type: DumpValueType.Constant,
-            value: true,
-        };
+            const wrapper = createWrapper({
+                props: { dump },
+            });
 
-        const { container } = renderWithProviders(ConstDumpRenderer, {
-            props: { dump },
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.find('span').classes()).toContain('italic');
         });
 
-        await nextTick();
+        it('applies correct CSS classes', async () => {
+            // Arrange
 
-        const span = container.querySelector('span');
-        expect(span?.className).toContain('text-xs');
-        expect(span?.className).toContain('font-mono');
-    });
+            const dump: ConstDump = {
+                type: DumpValueType.Constant,
+                value: true,
+            };
 
-    it('handles keyName prop when provided', async () => {
-        const dump: ConstDump = {
-            type: DumpValueType.Constant,
-            value: true,
-        };
+            const wrapper = createWrapper({
+                props: { dump },
+            });
 
-        renderWithProviders(ConstDumpRenderer, {
-            props: { dump, keyName: 'myKey' },
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            const span = wrapper.find('span');
+            expect(span.classes()).toContain('text-xs');
+            expect(span.classes()).toContain('font-mono');
         });
 
-        await nextTick();
+        it('handles keyName prop when provided', async () => {
+            // Arrange
 
-        expect(screen.getByText('true')).toBeInTheDocument();
+            const dump: ConstDump = {
+                type: DumpValueType.Constant,
+                value: true,
+            };
+
+            const wrapper = createWrapper({
+                props: { dump, keyName: 'myKey' },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('true');
+        });
     });
 });

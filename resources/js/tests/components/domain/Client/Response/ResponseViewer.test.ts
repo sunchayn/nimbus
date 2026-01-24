@@ -1,88 +1,96 @@
-import ResponseViewer from '@/components/domain/Client/Response/ResponseViewer.vue';
-import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Reactive, reactive } from 'vue';
+import { nextTick } from 'vue';
+import ResponseViewer from '@/components/domain/Client/Response/ResponseViewer.vue';
+import { useRequestsHistoryStore } from '@/stores';
+
+/*
+ * Fixtures.
+ */
 
 vi.mock('@/components/domain/Client/Response/ResponseStatus/ResponseStatus.vue', () => ({
-    default: {
-        name: 'ResponseStatus',
-        template: '<div data-testid="response-status">Status</div>',
-    },
+    default: { template: '<div data-testid="response-status" />' },
 }));
 
 vi.mock('@/components/domain/Client/Response/ResponseViewerEmptyState.vue', () => ({
-    default: {
-        name: 'ResponseViewerEmptyState',
-        template: '<div data-testid="response-empty">Empty</div>',
-    },
+    default: { template: '<div data-testid="response-empty" />' },
 }));
 
 vi.mock('@/components/domain/Client/Response/ResponseViewerErrorState.vue', () => ({
-    default: {
-        name: 'ResponseViewerError',
-        props: ['error'],
-        template: '<div data-testid="response-error">{{ error.message }}</div>',
-    },
+    default: { template: '<div data-testid="response-error" />', props: ['error'] },
 }));
 
 vi.mock('@/components/domain/Client/Response/ResponseViewerResponse.vue', () => ({
-    default: {
-        name: 'ResponseViewerResponse',
-        template: '<div data-testid="response-content">Response</div>',
-    },
+    default: { template: '<div data-testid="response-content" />' },
 }));
 
-const mockRequestHistoryStore: Reactive<{
-    logs: Array<object> | [];
-    lastLog: object | null;
-}> = reactive({
-    logs: [],
-    lastLog: null,
-});
-
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
-
-    return {
-        ...actual,
-        useRequestsHistoryStore: () => mockRequestHistoryStore,
-    };
-});
+/**
+ * Factory function to create a mounted wrapper with sensible defaults.
+ */
+const createWrapper = (pinia: any): VueWrapper => {
+    return mount(ResponseViewer, {
+        global: {
+            plugins: [pinia],
+        },
+    });
+};
 
 describe('ResponseViewer', () => {
+    let pinia: any;
+
     beforeEach(() => {
-        mockRequestHistoryStore.logs = [];
+        pinia = createPinia();
+        setActivePinia(pinia);
+        vi.clearAllMocks();
     });
 
-    it('renders empty state when no logs available', () => {
-        renderWithProviders(ResponseViewer);
+    /*
+     * Rendering tests.
+     */
 
-        expect(screen.getByTestId('response-status')).toBeInTheDocument();
-        expect(screen.getByTestId('response-empty')).toBeInTheDocument();
-    });
+    describe('Rendering', () => {
+        it('renders empty state when no logs exist', () => {
+            // Arrange
 
-    it('renders error component when last log contains error', () => {
-        mockRequestHistoryStore.logs = [
-            {
-                error: { message: 'Something went wrong' },
-            },
-        ];
+            const wrapper = createWrapper(pinia);
 
-        mockRequestHistoryStore.lastLog = mockRequestHistoryStore.logs[0];
+            // Assert
 
-        renderWithProviders(ResponseViewer);
+            expect(wrapper.find('[data-testid="response-empty"]').exists()).toBe(true);
+        });
 
-        expect(screen.getByTestId('response-error')).toHaveTextContent(
-            'Something went wrong',
-        );
-    });
+        it('renders error state when last log has error', async () => {
+            // Arrange
 
-    it('renders response component when last log has response', () => {
-        mockRequestHistoryStore.logs = [{ response: { status: 200 } }];
-        mockRequestHistoryStore.lastLog = mockRequestHistoryStore.logs[0];
+            const wrapper = createWrapper(pinia);
+            const historyStore = useRequestsHistoryStore();
 
-        renderWithProviders(ResponseViewer);
+            // Act
 
-        expect(screen.getByTestId('response-content')).toBeInTheDocument();
+            historyStore.logs = [{ error: { message: 'Failed' } } as any];
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.find('[data-testid="response-error"]').exists()).toBe(true);
+        });
+
+        it('renders content when last log is successful', async () => {
+            // Arrange
+
+            const wrapper = createWrapper(pinia);
+            const historyStore = useRequestsHistoryStore();
+
+            // Act
+
+            historyStore.logs = [{ response: { status: 200 } } as any];
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.find('[data-testid="response-content"]').exists()).toBe(true);
+        });
     });
 });

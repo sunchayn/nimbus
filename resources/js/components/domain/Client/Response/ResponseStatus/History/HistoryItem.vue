@@ -1,25 +1,43 @@
 <script setup lang="ts">
+/**
+ * @component HistoryItem
+ * @description A single item in the request history dropdown.
+ */
 import { AppDropdownMenuItem } from '@/components/base/dropdown-menu';
 import StatusIndicator from '@/components/domain/Client/Response/ResponseStatus/StatusIndicator.vue';
 import HttpVerbLabel from '@/components/domain/HttpVerbLabel/HttpVerbLabel.vue';
-import { RequestLog } from '@/interfaces/history/logs';
-import { Response, STATUS } from '@/interfaces/http';
+import { type RequestLog } from '@/interfaces/history/logs';
+import { type Response, STATUS } from '@/interfaces/http';
 import { useTimeAgo } from '@vueuse/core';
 import prettyBytes from 'pretty-bytes';
 import prettyMs from 'pretty-ms';
 
-interface HistoryItemProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppHistoryItemProps {
     log: RequestLog & {
         response: Response;
     };
     index: number;
 }
 
-const props = defineProps<HistoryItemProps>();
+export interface AppHistoryItemEmits {
+    (e: 'select', index: number): void;
+}
 
-const emit = defineEmits<{
-    select: [index: number];
-}>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppHistoryItemProps>();
+
+const emit = defineEmits<AppHistoryItemEmits>();
+
+/*
+ * Methods.
+ */
 
 const timeToTimeAgo = (timestamp: number): string => {
     const timeAgo = useTimeAgo(new Date(timestamp * 1000));
@@ -62,7 +80,7 @@ const timeToTimeAgo = (timestamp: number): string => {
                         {{ props.log.response.statusText }}
                     </span>
 
-                    <div class="w-8 border-b border-zinc-200"></div>
+                    <div class="w-8 border-b border-border"></div>
 
                     <div class="flex w-full items-center justify-between">
                         <div>

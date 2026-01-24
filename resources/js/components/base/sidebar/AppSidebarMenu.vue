@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarMenu
+ * @description The main menu list container within the sidebar.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarMenuProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSidebarMenuProps>();
 </script>
 
 <template>

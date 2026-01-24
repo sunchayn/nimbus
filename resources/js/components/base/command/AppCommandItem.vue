@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppCommandItem
+ * @description An individual selectable item within a command group or list.
+ */
 import { cn } from '@/utils/ui';
 import { reactiveOmit, useCurrentElement } from '@vueuse/core';
 import type { ListboxItemEmits, ListboxItemProps } from 'reka-ui';
@@ -7,12 +11,28 @@ import type { HTMLAttributes } from 'vue';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useCommand, useCommandGroup } from '.';
 
-const props = defineProps<ListboxItemProps & { class?: HTMLAttributes['class'] }>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppCommandItemProps extends ListboxItemProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppCommandItemProps>();
 const emits = defineEmits<ListboxItemEmits>();
 
 const delegatedProps = reactiveOmit(props, 'class');
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
+
+/*
+ * Computed & Methods.
+ */
 
 const id = useId();
 const { filterState, allItems, allGroups } = useCommand();

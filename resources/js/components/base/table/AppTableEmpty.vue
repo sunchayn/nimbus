@@ -1,19 +1,34 @@
 <script setup lang="ts">
+/**
+ * @component AppTableEmpty
+ * @description A specialized table row for displaying empty states across all columns.
+ */
 import { cn } from '@/utils/ui';
 import { computed, type HTMLAttributes } from 'vue';
 import TableCell from './AppTableCell.vue';
 import TableRow from './AppTableRow.vue';
 
-const props = withDefaults(
-    defineProps<{
-        class?: HTMLAttributes['class'];
-        colspan?: number;
-    }>(),
-    {
-        colspan: 1,
-        class: '',
-    },
-);
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppTableEmptyProps {
+    class?: HTMLAttributes['class'];
+    colspan?: number;
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppTableEmptyProps>(), {
+    colspan: 1,
+    class: '',
+});
+
+/*
+ * Computed & Methods.
+ */
 
 const delegatedProps = computed(() => {
     const { class: _, ...delegated } = props;

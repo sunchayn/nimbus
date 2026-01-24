@@ -1,15 +1,32 @@
 <script setup lang="ts">
+/**
+ * @component AppSelectGroup
+ * @description A logical grouping for select items.
+ */
 import { cn } from '@/utils/ui';
 import { SelectGroup, type SelectGroupProps } from 'reka-ui';
-import { computed, type HTMLAttributes } from 'vue';
+import { reactiveOmit } from '@vueuse/core';
+import { type HTMLAttributes } from 'vue';
 
-const props = defineProps<SelectGroupProps & { class?: HTMLAttributes['class'] }>();
+/*
+ * Types & Interfaces.
+ */
 
-const delegatedProps = computed(() => {
-    const { class: _, ...delegated } = props;
+export interface AppSelectGroupProps extends SelectGroupProps {
+    class?: HTMLAttributes['class'];
+}
 
-    return delegated;
-});
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSelectGroupProps>();
+
+/*
+ * Computed & Methods.
+ */
+
+const delegatedProps = reactiveOmit(props, 'class');
 </script>
 
 <template>

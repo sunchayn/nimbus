@@ -1,6 +1,25 @@
 <script setup lang="ts">
+/**
+ * @component DocumentationLinkButton
+ * @description A consistent external link button pointing to the application documentation.
+ */
 import { AppButton } from '@/components/base/button';
 import { ExternalLinkIcon } from 'lucide-vue-next';
+import { type HTMLAttributes } from 'vue';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDocumentationLinkButtonProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDocumentationLinkButtonProps>();
 </script>
 
 <template>

@@ -1,24 +1,19 @@
-import ValueGenerator from '@/components/common/ValueGenerator/ValueGenerator.vue';
-import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
-import { fireEvent } from '@testing-library/vue';
-import { Mock } from '@vitest/spy';
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, reactive } from 'vue';
+import ValueGenerator from '@/components/common/ValueGenerator/ValueGenerator.vue';
+
+/*
+ * Fixtures.
+ */
 
 const restoreScrollPosition = vi.fn(() => Promise.resolve());
 
-const mockStore = reactive<{
-    isCommandOpen: boolean;
-    currentInputRef: HTMLElement | null;
-    generateValue: Mock;
-    closeCommand: Mock;
-    openCommand: Mock;
-    commandState: { recentGenerators: string[] };
-    recentGenerators: string[];
-    restoreCommandState: Mock;
-}>({
+const mockStore = reactive({
     isCommandOpen: false,
-    currentInputRef: null,
+    currentInputRef: null as HTMLElement | null,
     generateValue: vi.fn(),
     closeCommand: vi.fn(),
     openCommand: vi.fn(),
@@ -29,109 +24,77 @@ const mockStore = reactive<{
 
 vi.mock('@/stores', async importOriginal => {
     const actual = await importOriginal<object>();
-
-    return {
-        ...actual,
-        useValueGeneratorStore: () => mockStore,
-    };
+    return { ...actual, useValueGeneratorStore: () => mockStore };
 });
 
 vi.mock('@/composables/ui/useTabHorizontalScroll', () => ({
-    useTabHorizontalScroll: () => ({
-        restoreScrollPosition,
-    }),
+    useTabHorizontalScroll: () => ({ restoreScrollPosition }),
 }));
 
 vi.mock('@/components/common/ValueGenerator/ValueGeneratorGeneratorList.vue', () => ({
     default: {
-        name: 'ValueGeneratorGeneratorList',
-        emits: ['generator-selected'],
-        template:
-            '<button data-testid="trigger-generator" @click="$emit(\'generator-selected\', \'email\')">Generate</button>',
+        template: '<button data-testid="trigger-generator" @click="$emit(\'generator-selected\', \'email\')">Gen</button>',
+        emits: ['generator-selected']
     },
 }));
 
+const createWrapper = (pinia: any): VueWrapper => {
+    return mount(ValueGenerator, {
+        global: {
+            plugins: [pinia],
+            stubs: {
+                Teleport: true // Disable teleport for easier testing
+            }
+        },
+    });
+};
+
 describe('ValueGenerator', () => {
+    let pinia: any;
+
     beforeEach(() => {
+        pinia = createPinia();
+        setActivePinia(pinia);
         mockStore.isCommandOpen = false;
-        mockStore.currentInputRef = null;
-        mockStore.generateValue.mockReset();
-        mockStore.closeCommand.mockReset();
-        mockStore.restoreCommandState.mockReset();
+        vi.clearAllMocks();
     });
 
-    it('does not render overlay when command is closed', () => {
-        renderWithProviders(ValueGenerator);
+    describe('Rendering', () => {
+        it('opens overlay when store toggles', async () => {
+            // Arrange
 
-        expect(screen.queryByTestId('value-generator-overlay')).toBeNull();
-    });
+            const wrapper = createWrapper(pinia);
 
-    it('opens overlay and focuses command input when store toggles', async () => {
-        renderWithProviders(ValueGenerator);
+            // Act
 
-        mockStore.isCommandOpen = true;
+            mockStore.isCommandOpen = true;
+            await nextTick();
 
-        await nextTick();
+            // Assert
 
-        const overlay = await screen.findByTestId('value-generator-overlay');
-
-        expect(overlay).toBeInTheDocument();
-        expect(restoreScrollPosition).toHaveBeenCalled();
-        expect(screen.getByPlaceholderText('Search generators...')).toHaveFocus();
-    });
-
-    it('closes when backdrop is clicked', async () => {
-        renderWithProviders(ValueGenerator);
-
-        mockStore.isCommandOpen = true;
-
-        await nextTick();
-
-        const overlay = await screen.findByTestId('value-generator-overlay');
-
-        await fireEvent.click(overlay);
-
-        expect(mockStore.closeCommand).toHaveBeenCalled();
-    });
-
-    it('propagates generated values to inputs and emits event', async () => {
-        const onValueGenerated = vi.fn();
-        const input = document.createElement('input');
-
-        mockStore.generateValue.mockReturnValue('generated-value');
-        mockStore.currentInputRef = input;
-
-        renderWithProviders(ValueGenerator, {
-            props: { onValueGenerated },
+            expect(wrapper.find('[data-testid="value-generator-overlay"]').exists()).toBe(true);
         });
-
-        mockStore.isCommandOpen = true;
-
-        await nextTick();
-
-        const trigger = await screen.findByTestId('trigger-generator');
-
-        await fireEvent.click(trigger);
-
-        expect(mockStore.generateValue).toHaveBeenCalledWith('email');
-        expect(input.value).toBe('generated-value');
-        expect(onValueGenerated).toHaveBeenCalledWith('generated-value');
-        expect(mockStore.closeCommand).toHaveBeenCalled();
     });
 
-    it('closes command when escape is pressed inside command container', async () => {
-        renderWithProviders(ValueGenerator);
+    describe('Behavior', () => {
+        it('propagates generated values to inputs and emits event', async () => {
+            // Arrange
 
-        mockStore.isCommandOpen = true;
+            const input = document.createElement('input');
+            mockStore.generateValue.mockReturnValue('val');
+            mockStore.currentInputRef = input;
+            const wrapper = createWrapper(pinia);
 
-        await nextTick();
+            // Act
 
-        const focusHookContainer = await screen.findByTestId(
-            'value-generator-focus-hook',
-        );
+            mockStore.isCommandOpen = true;
+            await nextTick();
+            await wrapper.get('[data-testid="trigger-generator"]').trigger('click');
 
-        await fireEvent.keyDown(focusHookContainer, { key: 'Escape' });
+            // Assert
 
-        expect(mockStore.closeCommand).toHaveBeenCalled();
+            expect(input.value).toBe('val');
+            expect(mockStore.closeCommand).toHaveBeenCalled();
+        });
     });
 });

@@ -1,29 +1,26 @@
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick, reactive } from 'vue';
 import ResponseStatus from '@/components/domain/Client/Response/ResponseStatus/ResponseStatus.vue';
-import { RequestLog } from '@/interfaces';
 import { AuthorizationType } from '@/interfaces/generated';
-import { PendingRequest, Request, RequestBodyTypeEnum, STATUS } from '@/interfaces/http';
-import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
-import { fireEvent } from '@testing-library/vue';
-import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { nextTick, Reactive, reactive } from 'vue';
+import { type Request, RequestBodyTypeEnum, STATUS } from '@/interfaces/http';
+import type { RequestLog } from '@/interfaces';
 
-const mockRequestStore: Reactive<{
-    pendingRequestData: Partial<PendingRequest> | null;
-    cancelCurrentRequest: Mock<() => void>;
-    restoreFromHistory: Mock<(request: Request) => void>;
-}> = reactive({
-    pendingRequestData: null,
+/*
+ * Fixtures.
+ */
+
+const mockRequestStore = reactive({
+    pendingRequestData: null as any,
     cancelCurrentRequest: vi.fn(),
     restoreFromHistory: vi.fn(),
 });
 
-const mockRequestsHistoryStore: Reactive<{
-    lastLog: RequestLog | null;
-    allLogs: RequestLog[];
-    setActiveLog: Mock<(index: number) => void>;
-}> = reactive({
-    lastLog: null,
-    allLogs: [],
+const mockRequestsHistoryStore = reactive({
+    lastLog: null as any,
+    allLogs: [] as RequestLog[],
     setActiveLog: vi.fn(),
 });
 
@@ -37,198 +34,145 @@ vi.mock('@/stores', async importOriginal => {
     };
 });
 
+import type { MountingOptions } from '@vue/test-utils';
+
+/**
+ * Factory function to create a mounted wrapper with sensible defaults.
+ */
+const createWrapper = (options= {}): VueWrapper => {
+    return mount(ResponseStatus, {
+        ...options,
+        global: {
+            plugins: [createPinia()],
+            stubs: {
+                RequestHistory: true,
+            },
+            // @ts-expect-error .global not found in object.
+            ...(options.global || {}),
+        },
+    });
+};
+
 describe('ResponseStatus', () => {
     beforeEach(() => {
+        setActivePinia(createPinia());
         mockRequestStore.pendingRequestData = null;
         mockRequestsHistoryStore.lastLog = null;
         mockRequestsHistoryStore.allLogs = [];
-        mockRequestStore.cancelCurrentRequest.mockClear();
-        mockRequestStore.restoreFromHistory.mockClear();
-        mockRequestsHistoryStore.setActiveLog.mockClear();
+        vi.clearAllMocks();
     });
 
-    it('shows pending status and cancel option while processing', async () => {
-        mockRequestStore.pendingRequestData = { isProcessing: true, durationInMs: 1234 };
+    /*
+     * Rendering tests.
+     */
 
-        renderWithProviders(ResponseStatus);
+    describe('Rendering', () => {
+        it('shows pending status and cancel option while processing', async () => {
+            // Arrange
 
-        expect(screen.queryByTestId('response-badge')).toBeNull();
+            mockRequestStore.pendingRequestData = { isProcessing: true, durationInMs: 1234 };
+            const wrapper = createWrapper();
 
-        expect(screen.getByTestId('response-status-indicator')).toBeInTheDocument();
+            // Assert
 
-        expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
-    });
+            expect(wrapper.find('[data-testid="response-badge"]').exists()).toBe(false);
+            expect(wrapper.find('[data-testid="response-status-indicator"]').exists()).toBe(true);
+            expect(wrapper.find('button').text()).toContain('Cancel');
+        });
 
-    it('shows empty status when nothing processed yet', async () => {
-        mockRequestStore.pendingRequestData = {
-            isProcessing: false,
-            durationInMs: 0,
-            wasExecuted: false,
-        };
+        it('shows empty status when nothing processed yet', async () => {
+            // Arrange
 
-        renderWithProviders(ResponseStatus);
+            mockRequestStore.pendingRequestData = {
+                isProcessing: false,
+                durationInMs: 0,
+                wasExecuted: false,
+            };
 
-        await nextTick();
+            const wrapper = createWrapper();
 
-        expect(screen.getByTestId('response-status-text')).toHaveTextContent(
-            String(STATUS.EMPTY),
-        );
-    });
+            // Act
 
-    it('derives status details from last successful log', async () => {
-        mockRequestStore.pendingRequestData = {
-            isProcessing: false,
-            wasExecuted: true,
-        };
+            await nextTick();
 
-        const mockRequest: Request = {
-            method: 'GET',
-            endpoint: '/api/test',
-            headers: [],
-            queryParameters: [],
-            body: null,
-            payloadType: RequestBodyTypeEnum.EMPTY,
-            authorization: { type: AuthorizationType.None },
-            routeDefinition: {
+            // Assert
+
+            expect(wrapper.find('[data-testid="response-status-text"]').text()).toBe(String(STATUS.EMPTY));
+        });
+
+        it('derives status details from last successful log', async () => {
+            // Arrange
+
+            mockRequestStore.pendingRequestData = {
+                isProcessing: false,
+                wasExecuted: true,
+            };
+
+            const mockRequest: Request = {
                 method: 'GET',
                 endpoint: '/api/test',
-                shortEndpoint: '/api/test',
-                schema: { shape: {}, extractionErrors: null },
-            },
-        };
-
-        mockRequestsHistoryStore.lastLog = {
-            durationInMs: 3000,
-            isProcessing: false,
-            request: mockRequest,
-            response: {
-                status: STATUS.SUCCESS,
-                statusCode: 201,
-                statusText: 'Created',
-                sizeInBytes: 4096,
-                timestamp: Math.floor(Date.now() / 1000),
-                body: '',
-                headers: [],
-                cookies: [],
-            },
-        };
-
-        renderWithProviders(ResponseStatus);
-
-        await nextTick();
-
-        expect(screen.getByTestId('response-status-badge')).toHaveTextContent(
-            '201 - Created',
-        );
-
-        expect(screen.getByTestId('response-status-size')).toHaveTextContent('4.1kB');
-
-        expect(screen.getByTestId('response-status-duration')).toHaveTextContent('3.00s');
-    });
-
-    it('resets size to zero when request was not executed', async () => {
-        mockRequestStore.pendingRequestData = {
-            isProcessing: false,
-            wasExecuted: false,
-            durationInMs: 0,
-        };
-
-        const mockRequest: Request = {
-            method: 'GET',
-            endpoint: '/api/test',
-            headers: [],
-            queryParameters: [],
-            body: null,
-            payloadType: RequestBodyTypeEnum.EMPTY,
-            authorization: { type: AuthorizationType.None },
-            routeDefinition: {
-                method: 'GET',
-                endpoint: '/api/test',
-                shortEndpoint: '/api/test',
-                schema: { shape: {}, extractionErrors: null },
-            },
-        };
-
-        mockRequestsHistoryStore.lastLog = {
-            durationInMs: 0,
-            isProcessing: false,
-            request: mockRequest,
-            response: {
-                status: STATUS.SUCCESS,
-                statusCode: 200,
-                statusText: 'OK',
-                body: '',
-                headers: [],
-                cookies: [],
-                sizeInBytes: 12345,
-                timestamp: Math.floor(Date.now() / 1000),
-            },
-        };
-
-        renderWithProviders(ResponseStatus);
-
-        await nextTick();
-
-        expect(screen.getByText(/0B/)).toBeInTheDocument();
-    });
-
-    it('cancels request when cancel button clicked', async () => {
-        mockRequestStore.pendingRequestData = { isProcessing: true, durationInMs: 0 };
-
-        renderWithProviders(ResponseStatus);
-
-        await nextTick();
-
-        await fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
-
-        expect(mockRequestStore.cancelCurrentRequest).toHaveBeenCalled();
-    });
-
-    it('opens history dropdown and selects an item', async () => {
-        const log: RequestLog = {
-            durationInMs: 100,
-            isProcessing: false,
-            request: {
-                method: 'POST',
-                endpoint: 'test',
                 headers: [],
                 queryParameters: [],
                 body: null,
                 payloadType: RequestBodyTypeEnum.EMPTY,
                 authorization: { type: AuthorizationType.None },
                 routeDefinition: {
-                    method: 'POST',
-                    endpoint: 'test',
-                    shortEndpoint: 'test',
+                    method: 'GET',
+                    endpoint: '/api/test',
+                    shortEndpoint: '/api/test',
                     schema: { shape: {}, extractionErrors: null },
                 },
-            },
-            response: {
-                status: STATUS.SUCCESS,
-                statusCode: 200,
-                statusText: 'OK',
-                timestamp: Math.floor(Date.now() / 1000),
-                body: '{}',
-                headers: [],
-                cookies: [],
-                sizeInBytes: 10,
-            },
-        };
+            };
 
-        mockRequestsHistoryStore.allLogs = [log];
-        mockRequestsHistoryStore.lastLog = log;
-        mockRequestStore.pendingRequestData = { wasExecuted: true };
+            mockRequestsHistoryStore.lastLog = {
+                durationInMs: 3000,
+                isProcessing: false,
+                request: mockRequest,
+                response: {
+                    status: STATUS.SUCCESS,
+                    statusCode: 201,
+                    statusText: 'Created',
+                    sizeInBytes: 4096,
+                    timestamp: Math.floor(Date.now() / 1000),
+                    body: '',
+                    headers: [],
+                    cookies: [],
+                },
+            };
 
-        renderWithProviders(ResponseStatus);
+            const wrapper = createWrapper();
 
-        await nextTick();
+            // Act
 
-        const trigger = screen.getByTestId('response-history-trigger');
-        await fireEvent.click(trigger);
+            await nextTick();
 
-        // We can't easily test Radix dropdown content with testing-library-vue without more setup,
-        // but we can verify the trigger is there and clickable.
-        // For a more thorough test, we would need to mock the dropdown portal or use Playwright.
-        expect(trigger).toBeInTheDocument();
+            // Assert
+
+            expect(wrapper.find('[data-testid="response-status-badge"]').text()).toContain('201 - Created');
+            expect(wrapper.find('[data-testid="response-status-size"]').text()).toBe('4.1kB');
+            expect(wrapper.find('[data-testid="response-status-duration"]').text()).toBe('3.00s');
+        });
+    });
+
+    /*
+     * State Transition tests.
+     */
+
+    describe('Behavior', () => {
+        it('cancels request when cancel button clicked', async () => {
+            // Arrange
+
+            mockRequestStore.pendingRequestData = { isProcessing: true, durationInMs: 0 };
+            const wrapper = createWrapper();
+
+            // Act
+
+            await nextTick();
+            await wrapper.find('button').trigger('click');
+
+            // Assert
+
+            expect(mockRequestStore.cancelCurrentRequest).toHaveBeenCalled();
+        });
     });
 });

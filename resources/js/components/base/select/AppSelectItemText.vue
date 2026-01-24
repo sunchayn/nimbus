@@ -1,7 +1,21 @@
 <script setup lang="ts">
+/**
+ * @component AppSelectItemText
+ * @description The text content within a select item.
+ */
 import { SelectItemText, type SelectItemTextProps } from 'reka-ui';
 
-const props = defineProps<SelectItemTextProps>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSelectItemTextProps extends SelectItemTextProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSelectItemTextProps>();
 </script>
 
 <template>

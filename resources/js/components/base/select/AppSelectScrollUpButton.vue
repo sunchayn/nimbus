@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppSelectScrollUpButton
+ * @description A button displayed at the top of the select viewport to enable scrolling up.
+ */
 import { cn } from '@/utils/ui';
 import { ChevronUp } from 'lucide-vue-next';
 import {
@@ -6,17 +10,28 @@ import {
     type SelectScrollUpButtonProps,
     useForwardProps,
 } from 'reka-ui';
-import { computed, type HTMLAttributes } from 'vue';
+import { reactiveOmit } from '@vueuse/core';
+import { type HTMLAttributes } from 'vue';
 
-const props = defineProps<
-    SelectScrollUpButtonProps & { class?: HTMLAttributes['class'] }
->();
+/*
+ * Types & Interfaces.
+ */
 
-const delegatedProps = computed(() => {
-    const { class: _, ...delegated } = props;
+export interface AppSelectScrollUpButtonProps extends SelectScrollUpButtonProps {
+    class?: HTMLAttributes['class'];
+}
 
-    return delegated;
-});
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSelectScrollUpButtonProps>();
+
+/*
+ * Computed & Methods.
+ */
+
+const delegatedProps = reactiveOmit(props, 'class');
 
 const forwardedProps = useForwardProps(delegatedProps);
 </script>

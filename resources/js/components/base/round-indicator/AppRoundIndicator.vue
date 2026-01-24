@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppRoundIndicator
+ * @description A small circular indicator used for visual status or marking.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRoundIndicatorProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppRoundIndicatorProps>();
 </script>
 
 <template>

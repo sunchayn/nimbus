@@ -1,12 +1,30 @@
 <script setup lang="ts">
+/**
+ * @component AppInputGroupInput
+ * @description A specialized input for use inside an input group, removing default borders/shadows.
+ */
 import { AppInput } from '@/components/base/input';
 import { cn } from '@/utils';
 import type { HTMLAttributes } from 'vue';
 import { ref } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppInputGroupInputProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppInputGroupInputProps>();
+
+/*
+ * Computed & Methods.
+ */
 
 const inputRef = ref<InstanceType<typeof AppInput> | null>(null);
 

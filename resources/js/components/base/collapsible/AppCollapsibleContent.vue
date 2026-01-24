@@ -1,7 +1,21 @@
 <script setup lang="ts">
+/**
+ * @component AppCollapsibleContent
+ * @description The content area that expands/collapses within a collapsible.
+ */
 import { CollapsibleContent, type CollapsibleContentProps } from 'reka-ui';
 
-const props = defineProps<CollapsibleContentProps>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppCollapsibleContentProps extends CollapsibleContentProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppCollapsibleContentProps>();
 </script>
 
 <template>

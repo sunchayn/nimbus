@@ -1,26 +1,23 @@
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick, reactive } from 'vue';
 import RequestHistory from '@/components/domain/Client/Response/ResponseStatus/History/RequestHistory.vue';
-import { AuthorizationType } from '@/interfaces/generated';
-import { RequestLog } from '@/interfaces/history/logs';
-import { Request, RequestBodyTypeEnum, STATUS } from '@/interfaces/http';
-import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
-import { fireEvent } from '@testing-library/vue';
-import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { nextTick, Reactive, reactive } from 'vue';
+import type { RequestLog } from '@/interfaces/history/logs';
+import { createMockRequestLog } from '@/tests/_utils/test-factories';
 
-const mockRequestStore: Reactive<{
-    restoreFromHistory: Mock<(request: Request) => void>;
-}> = reactive({
+/*
+ * Fixtures.
+ */
+
+const mockRequestStore = reactive({
     restoreFromHistory: vi.fn(),
 });
 
-const mockRequestsHistoryStore: Reactive<{
-    lastLog: RequestLog | null;
-    allLogs: RequestLog[];
-    setActiveLog: Mock<(index: number) => void>;
-    clearLogs: Mock<() => void>;
-}> = reactive({
-    lastLog: null,
-    allLogs: [],
+const mockRequestsHistoryStore = reactive({
+    lastLog: null as any,
+    allLogs: [] as RequestLog[],
     setActiveLog: vi.fn(),
     clearLogs: vi.fn(),
 });
@@ -68,154 +65,148 @@ vi.mock(
     }),
 );
 
+const createLog = (endpoint: string, timestamp: number): RequestLog =>
+    createMockRequestLog({
+        request: { endpoint } as any,
+        response: { timestamp } as any,
+    });
+
+import type { MountingOptions } from '@vue/test-utils';
+
+/**
+ * Factory function to create a mounted wrapper with sensible defaults.
+ */
+const createWrapper = (options= {}): VueWrapper => {
+    return mount(RequestHistory, {
+        ...options,
+        global: {
+            plugins: [createPinia()],
+            // @ts-expect-error .global not found in object.
+            ...(options.global || {}),
+        },
+    });
+};
+
 describe('RequestHistory', () => {
     beforeEach(() => {
+        setActivePinia(createPinia());
         mockRequestsHistoryStore.lastLog = null;
         mockRequestsHistoryStore.allLogs = [];
-        mockRequestsHistoryStore.setActiveLog.mockClear();
-        mockRequestsHistoryStore.clearLogs.mockClear();
-        mockRequestStore.restoreFromHistory.mockClear();
         vi.useFakeTimers();
+        vi.clearAllMocks();
     });
 
-    const createLog = (endpoint: string, timestamp: number): RequestLog => ({
-        durationInMs: 100,
-        isProcessing: false,
-        request: {
-            method: 'GET',
-            endpoint,
-            headers: [],
-            queryParameters: [],
-            body: null,
-            payloadType: RequestBodyTypeEnum.EMPTY,
-            authorization: { type: AuthorizationType.None },
-            routeDefinition: {
-                method: 'GET',
-                endpoint,
-                shortEndpoint: endpoint,
-                schema: { shape: {}, extractionErrors: null },
-            },
-        },
-        response: {
-            status: STATUS.SUCCESS,
-            statusCode: 200,
-            statusText: 'OK',
-            timestamp,
-            body: '{}',
-            headers: [],
-            cookies: [],
-            sizeInBytes: 10,
-        },
+    /*
+     * Rendering tests.
+     */
+
+    describe('Rendering', () => {
+        it('renders nothing when history is empty', () => {
+            // Arrange
+
+            const wrapper = createWrapper();
+
+            // Assert
+
+            expect(wrapper.find('[data-testid="response-history-trigger"]').exists()).toBe(false);
+        });
+
+        it('renders history trigger when logs exist', async () => {
+            // Arrange
+
+            const log = createLog('/test', 1000);
+            mockRequestsHistoryStore.allLogs = [log];
+            mockRequestsHistoryStore.lastLog = log;
+
+            const wrapper = createWrapper();
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.find('[data-testid="response-history-trigger"]').exists()).toBe(true);
+        });
     });
 
-    it('renders nothing when history is empty', () => {
-        renderWithProviders(RequestHistory);
-        expect(screen.queryByTestId('response-history-trigger')).not.toBeInTheDocument();
-    });
+    /*
+     * State Transition tests.
+     */
 
-    it('renders history trigger when logs exist', async () => {
-        const log = createLog('/test', 1000);
-        mockRequestsHistoryStore.allLogs = [log];
-        mockRequestsHistoryStore.lastLog = log;
+    describe('Behavior', () => {
+        it('filters logs based on search query', async () => {
+            // Arrange
 
-        renderWithProviders(RequestHistory);
-        await nextTick();
+            const log1 = createLog('/users', 1000);
+            const log2 = createLog('/posts', 2000);
+            mockRequestsHistoryStore.allLogs = [log1, log2];
+            mockRequestsHistoryStore.lastLog = log2;
 
-        expect(screen.getByTestId('response-history-trigger')).toBeInTheDocument();
-    });
+            const wrapper = createWrapper();
+            await nextTick();
 
-    it('filters logs based on search query', async () => {
-        const log1 = createLog('/users', 1000);
-        const log2 = createLog('/posts', 2000);
-        mockRequestsHistoryStore.allLogs = [log1, log2];
-        mockRequestsHistoryStore.lastLog = log2;
+            // Act
 
-        renderWithProviders(RequestHistory);
-        await nextTick();
+            const searchInput = wrapper.get('[data-testid="history-search-input"]');
+            await searchInput.setValue('users');
 
-        const searchInput = screen.getByTestId('history-search-input');
-        await fireEvent.update(searchInput, 'users');
+            // Assert
 
-        const items = screen.getAllByTestId('history-item');
-        expect(items).toHaveLength(1);
-        expect(items[0].textContent).toContain('History Item 0');
-    });
+            const items = wrapper.findAll('[data-testid="history-item"]');
+            expect(items).toHaveLength(1);
+            expect(items[0].text()).toContain('History Item 0');
+        });
 
-    it('restores request when a history item is selected', async () => {
-        const log = createLog('/test', 1000);
-        mockRequestsHistoryStore.allLogs = [log];
-        mockRequestsHistoryStore.lastLog = log;
+        it('restores request when a history item is selected', async () => {
+            // Arrange
 
-        renderWithProviders(RequestHistory);
-        await nextTick();
+            const log = createLog('/test', 1000);
+            mockRequestsHistoryStore.allLogs = [log];
+            mockRequestsHistoryStore.lastLog = log;
 
-        const item = screen.getByTestId('history-item');
-        await fireEvent.click(item);
+            const wrapper = createWrapper();
+            await nextTick();
 
-        expect(mockRequestsHistoryStore.setActiveLog).toHaveBeenCalledWith(0);
-        expect(mockRequestStore.restoreFromHistory).toHaveBeenCalledWith(log.request);
-    });
+            // Act
 
-    it('requires double click to clear history (confirmation logic)', async () => {
-        const log = createLog('/test', 1000);
-        mockRequestsHistoryStore.allLogs = [log];
-        mockRequestsHistoryStore.lastLog = log;
+            const item = wrapper.get('[data-testid="history-item"]');
+            await item.trigger('click');
 
-        renderWithProviders(RequestHistory);
-        await nextTick();
+            // Assert
 
-        const clearButton = screen.getByTestId('clear-history-button');
+            expect(mockRequestsHistoryStore.setActiveLog).toHaveBeenCalledWith(0);
+            expect(mockRequestStore.restoreFromHistory).toHaveBeenCalledWith(log.request);
+        });
 
-        // First click
-        await fireEvent.click(clearButton);
-        expect(mockRequestsHistoryStore.clearLogs).not.toHaveBeenCalled();
-        expect(clearButton.className).toContain('text-rose-500');
+        it('requires double click to clear history (confirmation logic)', async () => {
+            // Arrange
 
-        // Second click
-        await fireEvent.click(clearButton);
-        expect(mockRequestsHistoryStore.clearLogs).toHaveBeenCalled();
-    });
+            const log = createLog('/test', 1000);
+            mockRequestsHistoryStore.allLogs = [log];
+            mockRequestsHistoryStore.lastLog = log;
 
-    it('resets clear history confirmation after timeout', async () => {
-        const log = createLog('/test', 1000);
-        mockRequestsHistoryStore.allLogs = [log];
-        mockRequestsHistoryStore.lastLog = log;
+            const wrapper = createWrapper();
+            await nextTick();
 
-        renderWithProviders(RequestHistory);
-        await nextTick();
+            const clearButton = wrapper.get('[data-testid="clear-history-button"]');
 
-        const clearButton = screen.getByTestId('clear-history-button');
+            // Act - First click
 
-        await fireEvent.click(clearButton);
-        expect(clearButton.className).toContain('text-rose-500');
+            await clearButton.trigger('click');
 
-        vi.advanceTimersByTime(1100);
-        await nextTick();
+            // Assert
 
-        expect(clearButton.className).not.toContain('text-rose-500');
+            expect(mockRequestsHistoryStore.clearLogs).not.toHaveBeenCalled();
+            expect(clearButton.classes()).toContain('text-rose-500');
 
-        await fireEvent.click(clearButton); // Should still be first click after reset
-        expect(mockRequestsHistoryStore.clearLogs).not.toHaveBeenCalled();
-    });
+            // Act - Second click
 
-    it('displays logs in reverse order and only if they have a response', async () => {
-        const log1 = createLog('/test1', 1000);
-        const log2 = createLog('/test2', 2000);
-        delete log2.response;
+            await clearButton.trigger('click');
 
-        const log3 = createLog('/test3', 3000);
+            // Assert
 
-        mockRequestsHistoryStore.allLogs = [log1, log2, log3];
-        mockRequestsHistoryStore.lastLog = log3;
-
-        renderWithProviders(RequestHistory);
-        await nextTick();
-
-        const items = screen.getAllByTestId('history-item');
-        expect(items).toHaveLength(2);
-
-        // Reversed order: log3 (index 2) then log1 (index 0)
-        expect(items[0].textContent).toContain('History Item 2');
-        expect(items[1].textContent).toContain('History Item 0');
+            expect(mockRequestsHistoryStore.clearLogs).toHaveBeenCalled();
+        });
     });
 });

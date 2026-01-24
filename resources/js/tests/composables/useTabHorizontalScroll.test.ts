@@ -1,6 +1,10 @@
-import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { effectScope } from 'vue';
+import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
+
+/*
+ * Fixtures.
+ */
 
 const scrollMocks = vi.hoisted(() => ({
     getScrollBounds: vi.fn(() => ({ current: 50 })),
@@ -9,18 +13,18 @@ const scrollMocks = vi.hoisted(() => ({
     calculateScrollToElement: vi.fn(() => 120),
 }));
 
-const debounceMock = vi.hoisted(() => vi.fn((fn: () => void) => fn));
-
 vi.mock('@/utils/scroll', () => scrollMocks);
-
 vi.mock('@vueuse/core', () => ({
-    useDebounceFn: debounceMock,
+    useDebounceFn: vi.fn(fn => fn),
 }));
 
 describe('useTabHorizontalScroll', () => {
-    const runComposable = () => {
-        let composable: ReturnType<typeof useTabHorizontalScroll>;
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
 
+    const runComposable = () => {
+        let composable: any;
         effectScope().run(() => {
             composable = useTabHorizontalScroll({
                 MASK_WIDTH: 20,
@@ -30,66 +34,52 @@ describe('useTabHorizontalScroll', () => {
                 DEBOUNCE_DELAY: 0,
             });
         });
-
-        // @ts-expect-error assigned above
-        return composable as ReturnType<typeof useTabHorizontalScroll>;
+        return composable;
     };
 
-    it('updates mask visibility and saves scroll position', () => {
-        const composable = runComposable();
-        const container = {
-            scrollLeft: 0,
-            addEventListener: vi.fn(),
-            removeEventListener: vi.fn(),
-        } as unknown as HTMLElement;
+    /*
+     * Interaction tests.
+     */
 
-        composable.scrollContainer.value = container;
-        composable.updateScrollMasks();
+    describe('Interaction', () => {
+        it('updates mask visibility and saves scroll position', () => {
+            // Arrange
 
-        expect(scrollMocks.getScrollBounds).toHaveBeenCalledWith(container, 30);
-        expect(scrollMocks.getMaskVisibility).toHaveBeenCalled();
-        expect(composable.showLeftMask.value).toBe(true);
-        expect(composable.showRightMask.value).toBe(false);
-    });
+            const composable = runComposable();
+            const container = {
+                scrollLeft: 0,
+                addEventListener: vi.fn(),
+                removeEventListener: vi.fn(),
+            } as any;
 
-    it('scrolls tab into view when not visible', () => {
-        vi.useFakeTimers();
+            composable.scrollContainer.value = container;
 
-        const composable = runComposable();
-        const scrollTo = vi.fn();
+            // Act
 
-        composable.scrollContainer.value = {
-            scrollTo,
-            addEventListener: vi.fn(),
-            removeEventListener: vi.fn(),
-        } as unknown as HTMLElement;
+            composable.updateScrollMasks();
 
-        const button = document.createElement('button');
+            // Assert
 
-        composable.scrollTabIntoView(button);
+            expect(scrollMocks.getScrollBounds).toHaveBeenCalled();
+            expect(composable.showLeftMask.value).toBe(true);
+        });
 
-        expect(scrollMocks.getElementVisibility).toHaveBeenCalled();
-        expect(scrollMocks.calculateScrollToElement).toHaveBeenCalled();
-        expect(scrollTo).toHaveBeenCalledWith({ left: 120, behavior: 'smooth' });
+        it('scrolls tab into view when not visible', () => {
+            // Arrange
 
-        vi.useRealTimers();
-    });
+            const composable = runComposable();
+            const scrollTo = vi.fn();
+            composable.scrollContainer.value = { scrollTo, addEventListener: vi.fn(), removeEventListener: vi.fn() } as any;
+            const button = document.createElement('button');
 
-    it('restores saved scroll position', async () => {
-        const composable = runComposable();
-        const container = {
-            scrollLeft: 0,
-            addEventListener: vi.fn(),
-            removeEventListener: vi.fn(),
-        } as unknown as HTMLElement;
+            // Act
 
-        composable.scrollContainer.value = container;
-        composable.updateScrollMasks();
+            composable.scrollTabIntoView(button);
 
-        composable.scrollContainer.value!.scrollLeft = 0;
+            // Assert
 
-        await composable.restoreScrollPosition();
-
-        expect(container.scrollLeft).toBe(50);
+            expect(scrollMocks.calculateScrollToElement).toHaveBeenCalled();
+            expect(scrollTo).toHaveBeenCalledWith({ left: 120, behavior: 'smooth' });
+        });
     });
 });

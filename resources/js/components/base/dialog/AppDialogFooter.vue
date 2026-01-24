@@ -1,8 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppDialogFooter
+ * @description Footer container for dialog actions.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{ class?: HTMLAttributes['class'] }>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDialogFooterProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDialogFooterProps>();
 </script>
 
 <template>

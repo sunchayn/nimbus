@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppCommand
+ * @description The root container for a command palette or search menu.
+ */
 import { cn } from '@/utils/ui';
 import { reactiveOmit } from '@vueuse/core';
 import type { ListboxRootEmits, ListboxRootProps } from 'reka-ui';
@@ -7,19 +11,32 @@ import type { HTMLAttributes } from 'vue';
 import { reactive, ref, watch } from 'vue';
 import { provideCommandContext } from '.';
 
-const props = withDefaults(
-    defineProps<ListboxRootProps & { class?: HTMLAttributes['class'] }>(),
-    {
-        modelValue: '',
-        class: undefined,
-    },
-);
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppCommandProps extends ListboxRootProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppCommandProps>(), {
+    modelValue: '',
+    class: undefined,
+});
 
 const emits = defineEmits<ListboxRootEmits>();
 
 const delegatedProps = reactiveOmit(props, 'class');
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
+
+/*
+ * Computed & Methods.
+ */
 
 const allItems = ref<Map<string, string>>(new Map());
 const allGroups = ref<Map<string, Set<string>>>(new Map());

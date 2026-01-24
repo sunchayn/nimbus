@@ -1,24 +1,49 @@
 <script setup lang="ts">
+/**
+ * @component ValueGeneratorGeneratorList
+ * @description The list of available generators for the value generator command palette.
+ */
 import {
     AppCommandEmpty,
     AppCommandGroup,
     AppCommandItem,
     AppCommandList,
 } from '@/components/base/command';
-import type { ValueGenerator } from '@/interfaces/ui';
+import { type ValueGenerator } from '@/interfaces/ui';
 import { useValueGeneratorStore } from '@/stores';
 import { SparklesIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppValueGeneratorGeneratorListProps {}
+
+export interface AppValueGeneratorGeneratorListEmits {
+    (e: 'generator-selected', generatorId: string): void;
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppValueGeneratorGeneratorListProps>();
+const emits = defineEmits<AppValueGeneratorGeneratorListEmits>();
+
 const store = useValueGeneratorStore();
 
-const emits = defineEmits<{
-    (e: 'generator-selected', generatorId: string): void;
-}>();
+/*
+ * Computed & Methods.
+ */
 
 const hasRecentGenerators = computed(() => store.recentGenerators.length > 0);
 
 const getGeneratorIcon = (generator: ValueGenerator) => generator.icon || SparklesIcon;
+
+const emitGeneratorSelectedEvent = (generatorId: string) => {
+    emits('generator-selected', generatorId);
+};
 
 /**
  * Checks if a category has any generators in the filtered results.
@@ -45,10 +70,6 @@ const getGeneratorsForCategory = (categoryId: string) => {
         (generator: ValueGenerator) => generator.category.id === categoryId,
     );
 };
-
-const emitGeneratorSelectedEvent = (generatorId: string) => {
-    emits('generator-selected', generatorId);
-};
 </script>
 
 <template>
@@ -67,7 +88,7 @@ const emitGeneratorSelectedEvent = (generatorId: string) => {
             >
                 <component
                     :is="getGeneratorIcon(generator)"
-                    class="size-4 flex-shrink-0 text-zinc-500"
+                    class="size-4 flex-shrink-0 text-muted-foreground"
                 />
                 <span class="font-medium">{{ generator.name }}</span>
             </AppCommandItem>

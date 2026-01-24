@@ -1,12 +1,30 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarMenuSkeleton
+ * @description Loading placeholder for sidebar menu items.
+ */
 import { AppSkeleton } from '@/components/base/skeleton';
 import { cn } from '@/utils/ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarMenuSkeletonProps {
     showIcon?: boolean;
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSidebarMenuSkeletonProps>();
+
+/*
+ * Computed & Methods.
+ */
 
 const width = computed(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`;

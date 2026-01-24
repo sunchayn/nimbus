@@ -1,32 +1,42 @@
 <script setup lang="ts">
+/**
+ * @component RoutesListItem
+ * @description An individual list item representing a route definition.
+ */
 import { AppSidebarMenuButton } from '@/components/base/sidebar';
 import HttpVerbLabel from '@/components/domain/HttpVerbLabel/HttpVerbLabel.vue';
-import { RouteDefinition } from '@/interfaces/routes/routes';
+import { type RouteDefinition } from '@/interfaces/routes/routes';
 import { computed } from 'vue';
 
-interface RoutesListItemProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRoutesListItemProps {
     route: RouteDefinition;
     resource: string;
     isActive: boolean;
     onClick?: () => void;
 }
 
-const props = withDefaults(defineProps<RoutesListItemProps>(), {
+export interface AppRoutesListItemEmits {
+    (e: 'click'): void;
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppRoutesListItemProps>(), {
     isActive: false,
     onClick: () => {},
 });
 
-const emit = defineEmits<{
-    click: [];
-}>();
+const emit = defineEmits<AppRoutesListItemEmits>();
 
-const handleClick = () => {
-    if (props.onClick) {
-        props.onClick();
-    }
-
-    emit('click');
-};
+/*
+ * Computed & Methods.
+ */
 
 const endpointsSegments = computed(() => {
     const segments = props.route.shortEndpoint
@@ -51,6 +61,14 @@ const endpointsSegments = computed(() => {
         };
     });
 });
+
+const handleClick = () => {
+    if (props.onClick) {
+        props.onClick();
+    }
+
+    emit('click');
+};
 </script>
 
 <template>
@@ -64,7 +82,7 @@ const endpointsSegments = computed(() => {
             <template v-for="(segment, index) in endpointsSegments" :key="index">
                 <span v-if="!segment.isRouteVariable">{{ segment.value }}</span>
                 <span v-else>
-                    <span class="text-zinc-400">{{ segment.value }}</span>
+                    <span class="text-muted-foreground">{{ segment.value }}</span>
                 </span>
             </template>
         </span>

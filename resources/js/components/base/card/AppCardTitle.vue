@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppCardTitle
+ * @description Main heading for a card.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppCardTitleProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppCardTitleProps>();
 </script>
 
 <template>

@@ -1,7 +1,21 @@
 <script setup lang="ts">
+/**
+ * @component AppSheetClose
+ * @description The element that closes the sheet.
+ */
 import { DialogClose, type DialogCloseProps } from 'reka-ui';
 
-const props = defineProps<DialogCloseProps>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSheetCloseProps extends DialogCloseProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSheetCloseProps>();
 </script>
 
 <template>

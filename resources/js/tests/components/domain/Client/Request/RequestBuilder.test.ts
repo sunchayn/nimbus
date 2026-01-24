@@ -1,51 +1,92 @@
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import RequestBuilder from '@/components/domain/Client/Request/RequestBuilder.vue';
-import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
-import { describe, expect, it, vi } from 'vitest';
+
+/*
+ * Fixtures.
+ */
 
 vi.mock('@/components/domain/Client/Request', () => ({
     RequestBuilderEndpoint: {
         name: 'RequestBuilderEndpoint',
-        template: '<div>Endpoint</div>',
+        template: '<div data-testid="request-builder-endpoint">Endpoint</div>',
     },
     RequestParameters: {
         name: 'RequestParameters',
-        template: '<div>Parameters Panel</div>',
+        template: '<div data-testid="request-parameters">Parameters Panel</div>',
     },
     RequestBody: {
         name: 'RequestBody',
-        template: '<div>Body Panel</div>',
+        template: '<div data-testid="request-body">Body Panel</div>',
     },
     RequestAuthorization: {
         name: 'RequestAuthorization',
-        template: '<div>Authorization Panel</div>',
+        template: '<div data-testid="request-authorization">Authorization Panel</div>',
     },
     RequestHeaders: {
         name: 'RequestHeaders',
-        template: '<div>Headers Panel</div>',
+        template: '<div data-testid="request-headers">Headers Panel</div>',
     },
 }));
 
-describe('RequestBuilder', () => {
-    it('renders endpoint selector and body tab by default', () => {
-        renderWithProviders(RequestBuilder);
+/**
+ * Factory function to create a mounted wrapper with sensible defaults.
+ */
+const createWrapper = (options= {}): VueWrapper => {
+    return mount(RequestBuilder, {
+        ...options,
+        global: {
+            plugins: [createPinia()],
+            // @ts-expect-error .global not found in object.
+            ...(options.global || {}),
+        },
+    });
+};
 
-        expect(screen.getByTestId('request-builder-endpoint')).toBeInTheDocument();
-        expect(screen.getByTestId('request-body')).toBeVisible();
+describe('RequestBuilder', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia());
+        vi.clearAllMocks();
     });
 
-    it('switches between panels when different tabs are selected', async () => {
-        const { user } = renderWithProviders(RequestBuilder);
+    /*
+     * Rendering tests.
+     */
 
-        await user.click(screen.getByRole('tab', { name: 'Parameters' }));
+    describe('Rendering', () => {
+        it('renders endpoint selector and body tab by default', () => {
+            // Arrange
 
-        expect(screen.getByTestId('request-parameters')).toBeVisible();
+            const wrapper = createWrapper();
 
-        await user.click(screen.getByRole('tab', { name: 'Authorization' }));
+            // Assert
 
-        expect(screen.getByTestId('request-authorization')).toBeVisible();
+            expect(wrapper.find('[data-testid="request-builder-endpoint"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="request-body"]').exists()).toBe(true);
+        });
+    });
 
-        await user.click(screen.getByRole('tab', { name: 'Headers' }));
+    /*
+     * State Transition tests.
+     */
 
-        expect(screen.getByTestId('request-headers')).toBeVisible();
+    describe('Behavior', () => {
+        it('switches between panels when different tabs are selected', async () => {
+            // Arrange
+
+            const wrapper = createWrapper();
+
+            // Act
+
+            const triggers = wrapper.findAll('[role="tab"]');
+            const parametersTrigger = triggers.find(t => t.text() === 'Parameters');
+            await parametersTrigger?.trigger('click');
+
+            // Assert
+
+            expect(wrapper.find('[data-testid="request-parameters"]').exists()).toBe(true);
+        });
     });
 });

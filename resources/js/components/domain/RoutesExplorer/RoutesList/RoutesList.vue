@@ -1,46 +1,37 @@
 <script setup lang="ts">
+/**
+ * @component RoutesList
+ * @description A list of grouped route resources and their endpoints.
+ */
 import RoutesListItem from '@/components/domain/RoutesExplorer/RoutesList/RoutesListItem.vue';
 import RoutesResource from '@/components/domain/RoutesExplorer/RoutesResourceGroup.vue';
-import { RouteDefinition, RoutesGroup } from '@/interfaces/routes/routes';
+import { type RouteDefinition, type RoutesGroup } from '@/interfaces/routes/routes';
 import { useRequestStore } from '@/stores';
 import { computed } from 'vue';
 
 /*
- * Types & interfaces.
+ * Types & Interfaces.
  */
 
-interface RoutesListProps {
+export interface AppRoutesListProps {
     routes: RoutesGroup[];
     filteringEnabled: boolean;
 }
 
-defineProps<RoutesListProps>();
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRoutesListProps>();
 
 /*
- * Stores & dependencies.
+ * Stores & Dependencies.
  */
 
 const requestStore = useRequestStore();
 
 /*
- * Actions.
- */
-
-const setPendingRequest = (route: RouteDefinition, resourceGroup: RoutesGroup) => {
-    if (!route || !resourceGroup) {
-        return;
-    }
-
-    // Get all routes with the same endpoint (different HTTP methods)
-    const availableRoutesForEndpoint = resourceGroup.routes.filter(
-        (routeInGroup: RouteDefinition) => routeInGroup.endpoint === route.endpoint,
-    );
-
-    requestStore.initializeRequest(route, availableRoutesForEndpoint);
-};
-
-/*
- * Computed.
+ * Computed & Methods.
  */
 
 const pendingRequestData = computed(() => requestStore.pendingRequestData);
@@ -57,6 +48,19 @@ const isRouteActive = (route: RouteDefinition) => {
         route.endpoint === pendingRequestData.value.endpoint &&
         route.method === pendingRequestData.value.method
     );
+};
+
+const setPendingRequest = (route: RouteDefinition, resourceGroup: RoutesGroup) => {
+    if (!route || !resourceGroup) {
+        return;
+    }
+
+    // Get all routes with the same endpoint (different HTTP methods)
+    const availableRoutesForEndpoint = resourceGroup.routes.filter(
+        (routeInGroup: RouteDefinition) => routeInGroup.endpoint === route.endpoint,
+    );
+
+    requestStore.initializeRequest(route, availableRoutesForEndpoint);
 };
 </script>
 

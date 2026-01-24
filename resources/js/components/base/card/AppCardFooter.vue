@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppCardFooter
+ * @description Footer container for card actions or metadata.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppCardFooterProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppCardFooterProps>();
 </script>
 
 <template>

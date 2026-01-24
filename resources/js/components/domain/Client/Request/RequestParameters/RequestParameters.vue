@@ -1,21 +1,37 @@
 <script setup lang="ts">
+/**
+ * @component RequestParameters
+ * @description Manages URL query parameters for the current request.
+ */
 import CopyButton from '@/components/common/CopyButton.vue';
 import KeyValueParametersBuilder from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
-import { ParameterContract } from '@/interfaces/ui';
+import { type ParameterContract } from '@/interfaces/ui';
 import { useRequestStore } from '@/stores';
 import { useClipboard } from '@vueuse/core';
 import { computed } from 'vue';
 
 /*
- * Stores & dependencies.
+ * Types & Interfaces.
+ */
+
+export interface AppRequestParametersProps {}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRequestParametersProps>();
+
+/*
+ * Stores & Dependencies.
  */
 
 const requestStore = useRequestStore();
 const { copy, copied: previewCopied } = useClipboard();
 
 /*
- * Computed.
+ * Computed & Methods.
  */
 
 const pendingRequestData = computed(() => requestStore.pendingRequestData);
@@ -24,17 +40,13 @@ const currentRequestQueryParameters = computed<ParameterContract[]>(
     () => pendingRequestData.value?.queryParameters ?? [],
 );
 
-const handleQueryParametersUpdate = (parameters: ParameterContract[]) => {
-    requestStore.updateQueryParameters(parameters);
-};
-
 const preview = computed(() =>
     pendingRequestData.value ? requestStore.getRequestUrl(pendingRequestData.value) : '',
 );
 
-/*
- * Actions.
- */
+const handleQueryParametersUpdate = (parameters: ParameterContract[]) => {
+    requestStore.updateQueryParameters(parameters);
+};
 
 const copyPreview = () => copy(preview.value);
 </script>

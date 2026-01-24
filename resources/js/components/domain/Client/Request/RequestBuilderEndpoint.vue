@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component RequestBuilderEndpoint
+ * @description The endpoint input and method selector for the request builder.
+ */
 import { AppButton } from '@/components/base/button';
 import { AppInput } from '@/components/base/input';
 import {
@@ -12,21 +16,27 @@ import {
 } from '@/components/base/select';
 import AppTooltipWrapper from '@/components/base/tooltip/AppTooltipWrapper.vue';
 import { useRouteSegmentSelection } from '@/composables/request/useRouteSegmentSelection';
-import { RouteDefinition } from '@/interfaces/routes/routes';
+import { type RouteDefinition } from '@/interfaces/routes/routes';
 import { useConfigStore, useRequestStore } from '@/stores';
 import { generateCurlCommand } from '@/utils/request';
 import { cn } from '@/utils/ui';
 import { CodeXml, CornerDownLeftIcon } from 'lucide-vue-next';
-import { computed, HTMLAttributes, ref } from 'vue';
+import { computed, type HTMLAttributes, ref } from 'vue';
 import CurlExportDialog from './CurlExportDialog.vue';
 
-interface RequestBuilderEndpointProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRequestBuilderEndpointProps {
     class?: HTMLAttributes['class'];
 }
 
-const props = defineProps<RequestBuilderEndpointProps>();
+/*
+ * Component Setup.
+ */
 
-const availableMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
+const props = defineProps<AppRequestBuilderEndpointProps>();
 
 /*
  * Stores.
@@ -42,9 +52,10 @@ const configStore = useConfigStore();
 const showCurlDialog = ref(false);
 const curlCommand = ref('');
 const hasSpecialAuth = ref(false);
+const availableMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
 /*
- * Computed.
+ * Computed & Methods.
  */
 
 const pendingRequestData = computed(() => requestStore.pendingRequestData);
@@ -84,6 +95,14 @@ const { handleClick: autoSelectRouteVariableSegmentWhenApplicable } =
  * Actions.
  */
 
+const executeCurrentRequest = async function () {
+    if (!requestStore.pendingRequestData) {
+        return;
+    }
+
+    await requestStore.executeCurrentRequest();
+};
+
 /**
  * Executes request of Enter key is pressed.
  */
@@ -94,14 +113,6 @@ const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
 
     event.preventDefault();
     executeCurrentRequest();
-};
-
-const executeCurrentRequest = async function () {
-    if (!requestStore.pendingRequestData) {
-        return;
-    }
-
-    await requestStore.executeCurrentRequest();
 };
 
 /**

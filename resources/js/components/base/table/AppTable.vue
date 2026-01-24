@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppTable
+ * @description Root table container with horizontal scroll support.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppTableProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppTableProps>();
 </script>
 
 <template>

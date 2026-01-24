@@ -1,11 +1,25 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarInput
+ * @description A specialized input component for use within the sidebar.
+ */
 import { AppInput } from '@/components/base/input';
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarInputProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSidebarInputProps>();
 </script>
 
 <template>

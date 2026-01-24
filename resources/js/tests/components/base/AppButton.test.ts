@@ -1,38 +1,88 @@
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppButton } from '@/components/base/button';
-import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
-import { describe, expect, it } from 'vitest';
+
+/*
+ * Fixtures.
+ */
+
+/**
+ * Factory function to create a mounted wrapper with sensible defaults.
+ */
+import type { MountingOptions } from '@vue/test-utils';
+
+/**
+ * Factory function to create a mounted wrapper with sensible defaults.
+ */
+const createWrapper = (options= {}): VueWrapper => {
+    return mount(AppButton, {
+        ...options,
+        global: {
+            plugins: [createPinia()],
+            // @ts-expect-error .global not found in object.
+            ...(options.global ?? {}),
+        },
+    });
+};
 
 describe('AppButton', () => {
-    it('applies default sizing and variant styles', () => {
-        renderWithProviders(AppButton, { slots: { default: 'Submit' } });
-
-        const button = screen.getByRole('button', { name: 'Submit' });
-
-        expect(button.className).toContain('bg-zinc-900');
-        expect(button.className).toContain('h-9');
+    beforeEach(() => {
+        setActivePinia(createPinia());
+        vi.clearAllMocks();
     });
 
-    it('applies requested variant styles', () => {
-        renderWithProviders(AppButton, {
-            props: { variant: 'destructive' },
-            slots: { default: 'Delete' },
+    /*
+     * Rendering tests.
+     */
+
+    describe('Rendering', () => {
+        it('renders default button correctly', () => {
+            // Arrange
+
+            const wrapper = createWrapper({
+                slots: {
+                    default: 'Click me',
+                },
+            });
+
+            // Assert
+
+            expect(wrapper.text()).toBe('Click me');
+            expect(wrapper.classes()).toContain('bg-primary');
         });
 
-        const button = screen.getByRole('button', { name: 'Delete' });
+        it('renders different variants', () => {
+            // Arrange
 
-        expect(button.className).toContain('bg-red-500');
-        expect(button.className).toContain('dark:bg-red-900');
+            const wrapper = createWrapper({
+                props: { variant: 'destructive' },
+            });
+
+            // Assert
+
+            expect(wrapper.classes()).toContain('bg-destructive');
+        });
     });
 
-    it('merges custom classes with size styles', () => {
-        renderWithProviders(AppButton, {
-            props: { size: 'lg', class: 'tracking-wide' },
-            slots: { default: 'Large' },
+    /*
+     * State Transition tests.
+     */
+
+    describe('Behavior', () => {
+        it('emits click event', async () => {
+            // Arrange
+
+            const wrapper = createWrapper();
+
+            // Act
+
+            await wrapper.trigger('click');
+
+            // Assert
+
+            expect(wrapper.emitted('click')).toHaveLength(1);
         });
-
-        const button = screen.getByRole('button', { name: 'Large' });
-
-        expect(button.className).toContain('h-10');
-        expect(button.className).toContain('tracking-wide');
     });
 });

@@ -1,12 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component RouteInformationSection
+ * @description Displays details about the route where the exception occurred (URI, method, controller).
+ */
 import HttpVerbLabel from '@/components/domain/HttpVerbLabel/HttpVerbLabel.vue';
-import { ExceptionRouteContext } from '@/interfaces/routes/exceptions';
+import { type ExceptionRouteContext } from '@/interfaces/routes/exceptions';
 
-interface RouteInformationSectionProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRouteInformationSectionProps {
     routeContext: ExceptionRouteContext;
 }
 
-defineProps<RouteInformationSectionProps>();
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRouteInformationSectionProps>();
 </script>
 
 <template>
@@ -37,7 +49,7 @@ defineProps<RouteInformationSectionProps>();
 
             <!-- Controller Class -->
             <div v-if="routeContext.controllerClass" class="flex items-center gap-2">
-                <span class="w-20 text-sm font-medium text-gray-600 dark:text-gray-400">
+                <span class="w-20 text-sm font-medium text-muted-foreground">
                     Controller:
                 </span>
                 <code class="bg-subtle-background rounded border px-2 py-1 text-sm">
@@ -47,7 +59,7 @@ defineProps<RouteInformationSectionProps>();
 
             <!-- Controller Method -->
             <div v-if="routeContext.controllerMethod" class="flex items-center gap-2">
-                <span class="w-20 text-sm font-medium text-gray-600 dark:text-gray-400">
+                <span class="w-20 text-sm font-medium text-muted-foreground">
                     Method:
                 </span>
                 <code class="bg-subtle-background rounded border px-2 py-1 text-sm">

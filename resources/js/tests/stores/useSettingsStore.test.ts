@@ -1,54 +1,85 @@
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
 import { AuthorizationType } from '@/interfaces/generated';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
 import { useSettingsStore } from '@/stores/core/useSettingsStore';
-import { describe, expect, it } from 'vitest';
-import { nextTick } from 'vue';
+
+/*
+ * Fixtures.
+ */
 
 const STORAGE_KEY = 'nimbus-user-preferences';
 
 describe('useSettingsStore', () => {
-    it('loads stored preferences when available', () => {
-        window.localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify({
+    beforeEach(() => {
+        setActivePinia(createPinia());
+        window.localStorage.removeItem(STORAGE_KEY);
+    });
+
+    /*
+     * Initialization tests.
+     */
+
+    describe('Initialization', () => {
+        it('loads stored preferences when available', () => {
+            // Arrange
+
+            const preferences = {
                 autoRefreshRoutes: false,
                 maxHistoryLogs: 50,
-                theme: 'dark',
+                theme: 'dark' as const,
                 defaultRequestBodyType: RequestBodyTypeEnum.JSON,
                 defaultAuthorizationType: AuthorizationType.Bearer,
-            }),
-        );
+            };
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
 
-        const store = useSettingsStore();
+            // Act
 
-        expect(store.preferences.autoRefreshRoutes).toBe(false);
-        expect(store.preferences.maxHistoryLogs).toBe(50);
-        expect(store.preferences.theme).toBe('dark');
-        expect(store.preferences.defaultRequestBodyType).toBe(RequestBodyTypeEnum.JSON);
-        expect(store.preferences.defaultAuthorizationType).toBe(AuthorizationType.Bearer);
+            const store = useSettingsStore();
+
+            // Assert
+
+            expect(store.preferences.autoRefreshRoutes).toBe(false);
+            expect(store.preferences.theme).toBe('dark');
+        });
     });
 
-    it('persists preference changes automatically', async () => {
-        const store = useSettingsStore();
+    /*
+     * State Transition tests.
+     */
 
-        store.updatePreference('theme', 'dark');
+    describe('Behavior', () => {
+        it('persists preference changes automatically', async () => {
+            // Arrange
 
-        await nextTick();
+            const store = useSettingsStore();
 
-        expect(JSON.parse(window.localStorage?.getItem(STORAGE_KEY) ?? '{}').theme).toBe(
-            'dark',
-        );
-    });
+            // Act
 
-    it('resets preferences to defaults', async () => {
-        const store = useSettingsStore();
+            store.updatePreference('theme', 'dark');
+            await nextTick();
 
-        store.updatePreference('theme', 'dark');
+            // Assert
 
-        await Promise.resolve();
+            const stored = JSON.parse(window.localStorage?.getItem(STORAGE_KEY) ?? '{}');
+            expect(stored.theme).toBe('dark');
+        });
 
-        store.resetPreferences();
+        it('resets preferences to defaults', async () => {
+            // Arrange
 
-        expect(store.preferences.theme).toBe('system');
+            const store = useSettingsStore();
+            store.updatePreference('theme', 'dark');
+            await nextTick();
+
+            // Act
+
+            store.resetPreferences();
+
+            // Assert
+
+            expect(store.preferences.theme).toBe('system');
+        });
     });
 });

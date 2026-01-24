@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component ScreenNavigationSidebar
+ * @description The main vertical navigation sidebar for primary application screens.
+ */
 import {
     AppSidebar,
     AppSidebarContent,
@@ -10,7 +14,6 @@ import {
     AppSidebarMenuItem,
     type SidebarProps,
 } from '@/components/base/sidebar';
-
 import AppBrandIcon from '@/components/base/icons/AppBrandIcon.vue';
 import {
     BookOpenIcon,
@@ -22,12 +25,26 @@ import {
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-withDefaults(defineProps<SidebarProps>(), {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppScreenNavigationSidebarProps extends SidebarProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppScreenNavigationSidebarProps>(), {
     collapsible: 'icon',
 });
 
 const router = useRouter();
 const route = useRoute();
+
+/*
+ * Constants.
+ */
 
 const coreItems = [
     {
@@ -62,6 +79,10 @@ const externalLinks = [
         icon: GithubIcon,
     },
 ];
+
+/*
+ * Computed & Methods.
+ */
 
 const activeItem = computed(() => {
     return coreItems.find(item => item.route.name === route.name) || coreItems[0];

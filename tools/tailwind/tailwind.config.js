@@ -10,7 +10,9 @@ export default {
                 xs: '360px'
             },
             fontSize: {
-                xxs: '9px',
+                // Use rem for scalability, define as tokens
+                xxs: ['0.5625rem', { lineHeight: '0.75rem' }], // 9px
+                xs: ['0.75rem', { lineHeight: '1rem' }],       // 12px
             },
             borderRadius: {
                 lg: 'var(--radius)',

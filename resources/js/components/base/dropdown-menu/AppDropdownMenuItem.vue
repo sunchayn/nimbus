@@ -1,11 +1,26 @@
 <script setup lang="ts">
+/**
+ * @component AppDropdownMenuItem
+ * @description An individual selectable item within a dropdown menu.
+ */
 import { cn } from '@/utils/ui';
 import { DropdownMenuItem, type DropdownMenuItemProps, useForwardProps } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-const props = defineProps<
-    DropdownMenuItemProps & { class?: HTMLAttributes['class']; inset?: boolean }
->();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDropdownMenuItemProps extends DropdownMenuItemProps {
+    class?: HTMLAttributes['class'];
+    inset?: boolean;
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDropdownMenuItemProps>();
 
 const delegatedProps = computed(() => {
     const { class: _, ...delegated } = props;

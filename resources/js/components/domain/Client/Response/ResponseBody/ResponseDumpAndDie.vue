@@ -1,59 +1,86 @@
 <script setup lang="ts">
+/**
+ * @component ResponseDumpAndDie
+ * @description Renders "Dump and Die" (dd) debug output, with navigation and management of dump snapshots.
+ */
 import { AppButton } from '@/components/base/button';
 import AppRoundIndicator from '@/components/base/round-indicator/AppRoundIndicator.vue';
 import {
-    DumpValue,
+    type DumpValue,
     SingleDumpRenderer,
 } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import { ChevronLeft, ChevronRight, Trash2Icon } from 'lucide-vue-next';
-import { computed, reactive, Ref, ref, watch } from 'vue';
+import { computed, reactive, type Ref, ref, watch } from 'vue';
 
-interface DumpSnapshot {
+/*
+ * Types & Interfaces.
+ */
+
+export interface DumpSnapshot {
     id: string;
     timestamp: string;
     source: string;
     dumps: DumpValue[];
 }
 
-interface ResponseDieAndDumpProps {
+export interface AppResponseDieAndDumpProps {
     rawContent: string;
 }
 
-const dumpSnapshots: Ref<DumpSnapshot[]> = ref([]);
-
-const props = defineProps<ResponseDieAndDumpProps>();
-
-const emits = defineEmits<{
-    'update:dumps': [dumps: DumpSnapshot[]];
-}>();
-
-const DELETION_CONFIRMATION_TIMEOUT = 1200;
+export interface AppResponseDieAndDumpEmits {
+    (e: 'update:dumps', dumps: DumpSnapshot[]): void;
+}
 
 interface DeletionState {
     deleting: boolean;
     timeoutId?: number;
 }
 
+/*
+ * Constants.
+ */
+
+const DELETION_CONFIRMATION_TIMEOUT = 1200;
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppResponseDieAndDumpProps>();
+const emits = defineEmits<AppResponseDieAndDumpEmits>();
+
+/*
+ * State.
+ */
+
+const dumpSnapshots: Ref<DumpSnapshot[]> = ref([]);
+const selectedDumpIndex = ref<number>(0);
 const deletionStatesForDumps = reactive(new Map<string, DeletionState>());
 
-const initiateDumpDeletion = (dumpId: string): boolean => {
-    const state = deletionStatesForDumps.get(dumpId);
+/*
+ * Computed & Methods.
+ */
 
-    if (state?.deleting) {
-        clearDumpDeletionState(dumpId);
-
-        return true;
+const selectedDumpsLog = computed(() => {
+    if (dumpSnapshots.value.length === 0) {
+        return null;
     }
 
-    setDumpDeletionState(dumpId);
+    return dumpSnapshots.value[selectedDumpIndex.value] ?? null;
+});
 
-    return false;
-};
+const hasMultipleDumps = computed(() => {
+    return dumpSnapshots.value.length > 1;
+});
 
-const isDumpMarkedForDeletion = (dumpId: string): boolean => {
-    return deletionStatesForDumps.get(dumpId)?.deleting ?? false;
-};
+const canGoPrevious = computed(() => {
+    return selectedDumpIndex.value > 0;
+});
+
+const canGoNext = computed(() => {
+    return selectedDumpIndex.value < dumpSnapshots.value.length - 1;
+});
 
 const clearDumpDeletionState = (dumpId: string): void => {
     const state = deletionStatesForDumps.get(dumpId);
@@ -74,6 +101,24 @@ const setDumpDeletionState = (dumpId: string): void => {
         deleting: true,
         timeoutId,
     });
+};
+
+const initiateDumpDeletion = (dumpId: string): boolean => {
+    const state = deletionStatesForDumps.get(dumpId);
+
+    if (state?.deleting) {
+        clearDumpDeletionState(dumpId);
+
+        return true;
+    }
+
+    setDumpDeletionState(dumpId);
+
+    return false;
+};
+
+const isDumpMarkedForDeletion = (dumpId: string): boolean => {
+    return deletionStatesForDumps.get(dumpId)?.deleting ?? false;
 };
 
 const handleDeleteDump = (): void => {
@@ -111,7 +156,21 @@ const handleDeleteDump = (): void => {
     clearDumpDeletionState(currentDump.id);
 };
 
-const selectedDumpIndex = ref<number>(0);
+const goToPrevious = () => {
+    if (canGoPrevious.value) {
+        selectedDumpIndex.value--;
+    }
+};
+
+const goToNext = () => {
+    if (canGoNext.value) {
+        selectedDumpIndex.value++;
+    }
+};
+
+/*
+ * Watchers.
+ */
 
 watch(
     () => props.rawContent,
@@ -144,44 +203,12 @@ watch(
     },
     { immediate: true },
 );
-
-const selectedDumpsLog = computed(() => {
-    if (dumpSnapshots.value.length === 0) {
-        return null;
-    }
-
-    return dumpSnapshots.value[selectedDumpIndex.value] ?? null;
-});
-
-const hasMultipleDumps = computed(() => {
-    return dumpSnapshots.value.length > 1;
-});
-
-const canGoPrevious = computed(() => {
-    return selectedDumpIndex.value > 0;
-});
-
-const canGoNext = computed(() => {
-    return selectedDumpIndex.value < dumpSnapshots.value.length - 1;
-});
-
-const goToPrevious = () => {
-    if (canGoPrevious.value) {
-        selectedDumpIndex.value--;
-    }
-};
-
-const goToNext = () => {
-    if (canGoNext.value) {
-        selectedDumpIndex.value++;
-    }
-};
 </script>
 
 <template>
     <PanelSubHeader class="border-b">
         <div class="gap-.5 flex flex-col">
-            <span class="text-xs text-zinc-900 dark:text-zinc-50">
+            <span class="text-xs text-foreground">
                 {{ selectedDumpsLog?.source ?? 'Unknown Source' }}
             </span>
         </div>
@@ -197,7 +224,7 @@ const goToNext = () => {
                     >
                         <ChevronLeft class="size-3" />
                     </AppButton>
-                    <span class="text-xxs text-zinc-500 select-none dark:text-zinc-400">
+                    <span class="text-xxs text-muted-foreground select-none">
                         {{ selectedDumpIndex + 1 }} /
                         {{ dumpSnapshots.length }}
                     </span>
@@ -221,7 +248,7 @@ const goToNext = () => {
                         <Trash2Icon
                             class="size-3"
                             :class="{
-                                'text-rose-500 dark:text-rose-700':
+                                'text-destructive':
                                     isDumpMarkedForDeletion(selectedDumpsLog.id),
                             }"
                         />
@@ -235,7 +262,7 @@ const goToNext = () => {
     >
         <div
             v-if="selectedDumpsLog?.timestamp"
-            class="text-xxs my-1 text-zinc-500 dark:text-zinc-400"
+            class="text-xxs my-1 text-muted-foreground"
         >
             Dumped At:
             {{ selectedDumpsLog?.timestamp ?? '' }}
@@ -246,7 +273,7 @@ const goToNext = () => {
             class="border-subtle bg-card rounded-md border text-sm"
         >
             <div class="px-panel flex items-center gap-1.5 border-b py-1">
-                <AppRoundIndicator class="text-zinc-500" />
+                <AppRoundIndicator class="text-muted-foreground" />
                 Info
             </div>
             <div class="p-panel">Please make sure one dump snapshot is selected.</div>
@@ -257,7 +284,7 @@ const goToNext = () => {
             class="border-subtle bg-card rounded-md border text-sm"
         >
             <div class="px-panel flex items-center gap-1.5 border-b py-1">
-                <AppRoundIndicator class="text-rose-500" />
+                <AppRoundIndicator class="text-destructive" />
                 Error
             </div>
             <div class="p-panel">

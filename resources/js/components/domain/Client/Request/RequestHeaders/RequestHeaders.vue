@@ -1,19 +1,47 @@
 <script setup lang="ts">
+/**
+ * @component RequestHeaders
+ * @description Manages HTTP headers for the current request, initializing from global config as needed.
+ */
 import KeyValueParametersBuilder from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
-import { GeneratorType, SourceGlobalHeaders } from '@/interfaces/http';
-import { ParameterContract } from '@/interfaces/ui';
+import { GeneratorType, type SourceGlobalHeaders } from '@/interfaces/http';
+import { type ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
 import { useConfigStore, useRequestStore, useValueGeneratorStore } from '@/stores';
-import { computed, onBeforeMount, Ref, ref } from 'vue';
+import { computed, onBeforeMount, type Ref, ref } from 'vue';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRequestHeadersProps {}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRequestHeadersProps>();
+
+/*
+ * Stores.
+ */
 
 const requestStore = useRequestStore();
 const configStore = useConfigStore();
 const valueGeneratorStore = useValueGeneratorStore();
 
-const pendingRequestData = computed(() => requestStore.pendingRequestData);
+/*
+ * State.
+ */
 
 const globalHeaders: Ref<ParameterContract[]> = ref([]);
+
+/*
+ * Computed & Methods.
+ */
+
+const pendingRequestData = computed(() => requestStore.pendingRequestData);
 
 const generateValue = (value: GeneratorType): string => {
     switch (value) {

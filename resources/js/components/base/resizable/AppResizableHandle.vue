@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppResizableHandle
+ * @description The interactive handle used to resize panels in a group.
+ */
 import { cn } from '@/utils/ui';
 import { reactiveOmit } from '@vueuse/core';
 import { GripVertical } from 'lucide-vue-next';
@@ -10,12 +14,20 @@ import {
 } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<
-    SplitterResizeHandleProps & {
-        class?: HTMLAttributes['class'];
-        withHandle?: boolean;
-    }
->();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppResizableHandleProps extends SplitterResizeHandleProps {
+    class?: HTMLAttributes['class'];
+    withHandle?: boolean;
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppResizableHandleProps>();
 const emits = defineEmits<SplitterResizeHandleEmits>();
 
 const delegatedProps = reactiveOmit(props, 'class', 'withHandle');

@@ -1,15 +1,32 @@
 <script setup lang="ts">
+/**
+ * @component AppSelectSeparator
+ * @description A visual divider between select items or groups.
+ */
 import { cn } from '@/utils/ui';
 import { SelectSeparator, type SelectSeparatorProps } from 'reka-ui';
-import { computed, type HTMLAttributes } from 'vue';
+import { reactiveOmit } from '@vueuse/core';
+import { type HTMLAttributes } from 'vue';
 
-const props = defineProps<SelectSeparatorProps & { class?: HTMLAttributes['class'] }>();
+/*
+ * Types & Interfaces.
+ */
 
-const delegatedProps = computed(() => {
-    const { class: _, ...delegated } = props;
+export interface AppSelectSeparatorProps extends SelectSeparatorProps {
+    class?: HTMLAttributes['class'];
+}
 
-    return delegated;
-});
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSelectSeparatorProps>();
+
+/*
+ * Computed & Methods.
+ */
+
+const delegatedProps = reactiveOmit(props, 'class');
 </script>
 
 <template>

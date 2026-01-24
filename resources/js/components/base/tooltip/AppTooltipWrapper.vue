@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppTooltipWrapper
+ * @description A high-level helper component that combines provider, root, trigger, and content for quick tooltip implementation.
+ */
 import {
     AppTooltip,
     AppTooltipContent,
@@ -6,16 +10,24 @@ import {
     AppTooltipTrigger,
 } from '@/components/base/tooltip/index';
 import { AsTag } from 'reka-ui';
-import { Component } from 'vue';
+import { type Component } from 'vue';
 
-interface PropsShape {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppTooltipWrapperProps {
     value: string;
     delay?: number;
     as?: AsTag | Component;
     onClick?: () => void;
 }
 
-const props = withDefaults(defineProps<PropsShape>(), {
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppTooltipWrapperProps>(), {
     as: 'button',
     delay: 300,
     onClick: () => {},

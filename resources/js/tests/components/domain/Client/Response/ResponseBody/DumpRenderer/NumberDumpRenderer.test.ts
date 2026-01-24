@@ -1,175 +1,279 @@
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 import type { NumberDump } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
 import NumberDumpRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/NumberDumpRenderer.vue';
 import { DumpValueType } from '@/interfaces/generated/dump-value-types';
-import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
-import { describe, expect, it } from 'vitest';
-import { nextTick } from 'vue';
+import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
+
+/*
+ * Fixtures.
+ */
+
+/**
+ * Factory function to create a mounted wrapper with sensible defaults.
+ */
+const createWrapper = (options= {}): VueWrapper => {
+    return mount(NumberDumpRenderer, {
+        ...options,
+        global: {
+            plugins: [createPinia()],
+            // @ts-expect-error .global not found in object.
+            ...(options.global || {}),
+        },
+    });
+};
 
 describe('NumberDumpRenderer', () => {
-    it('renders number value correctly', async () => {
-        const dump: NumberDump = {
-            type: DumpValueType.Number,
-            value: 42,
-        };
-
-        renderWithProviders(NumberDumpRenderer, {
-            props: { dump },
-        });
-
-        await nextTick();
-
-        expect(screen.getByText('42')).toBeInTheDocument();
+    beforeEach(() => {
+        setActivePinia(createPinia());
+        vi.clearAllMocks();
     });
 
-    it('handles positive numbers', async () => {
-        const dump: NumberDump = {
-            type: DumpValueType.Number,
-            value: 123,
-        };
+    /*
+     * Rendering tests.
+     */
 
-        renderWithProviders(NumberDumpRenderer, {
-            props: { dump },
+    describe('Rendering', () => {
+        it('renders number value correctly', async () => {
+            // Arrange
+
+            const dump: NumberDump = {
+                type: DumpValueType.Number,
+                value: 42,
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('42');
         });
 
-        await nextTick();
+        it('handles positive numbers', async () => {
+            // Arrange
 
-        expect(screen.getByText('123')).toBeInTheDocument();
+            const dump: NumberDump = {
+                type: DumpValueType.Number,
+                value: 123,
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('123');
+        });
+
+        it('handles negative numbers', async () => {
+            // Arrange
+
+            const dump: NumberDump = {
+                type: DumpValueType.Number,
+                value: -42,
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('-42');
+        });
+
+        it('handles zero', async () => {
+            // Arrange
+
+            const dump: NumberDump = {
+                type: DumpValueType.Number,
+                value: 0,
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('0');
+        });
+
+        it('handles decimal numbers', async () => {
+            // Arrange
+
+            const dump: NumberDump = {
+                type: DumpValueType.Number,
+                value: 3.14159,
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('3.14159');
+        });
+
+        it('handles very large numbers', async () => {
+            // Arrange
+
+            const dump: NumberDump = {
+                type: DumpValueType.Number,
+                value: 1e20,
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('100000000000000000000');
+        });
+
+        it('handles very small numbers', async () => {
+            // Arrange
+
+            const dump: NumberDump = {
+                type: DumpValueType.Number,
+                value: 1e-10,
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('1e-10');
+        });
+
+        it('applies correct CSS classes', async () => {
+            // Arrange
+
+            const dump: NumberDump = {
+                type: DumpValueType.Number,
+                value: 42,
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            const span = wrapper.find('span');
+            expect(span.classes()).toContain('text-xs');
+            expect(span.classes()).toContain('font-mono');
+        });
     });
 
-    it('handles negative numbers', async () => {
-        const dump: NumberDump = {
-            type: DumpValueType.Number,
-            value: -42,
-        };
+    /*
+     * Edge Cases.
+     */
 
-        renderWithProviders(NumberDumpRenderer, {
-            props: { dump },
+    describe('Edge Cases', () => {
+        it('handles Infinity', async () => {
+            // Arrange
+
+            const dump: NumberDump = {
+                type: DumpValueType.Number,
+                value: Infinity,
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('Infinity');
         });
 
-        await nextTick();
+        it('handles -Infinity', async () => {
+            // Arrange
 
-        expect(screen.getByText('-42')).toBeInTheDocument();
-    });
+            const dump: NumberDump = {
+                type: DumpValueType.Number,
+                value: -Infinity,
+            };
 
-    it('handles zero', async () => {
-        const dump: NumberDump = {
-            type: DumpValueType.Number,
-            value: 0,
-        };
+            const wrapper = createWrapper({
+                props: { dump },
+            });
 
-        renderWithProviders(NumberDumpRenderer, {
-            props: { dump },
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('-Infinity');
         });
 
-        await nextTick();
+        it('handles NaN', async () => {
+            // Arrange
 
-        expect(screen.getByText('0')).toBeInTheDocument();
-    });
+            const dump: NumberDump = {
+                type: DumpValueType.Number,
+                value: NaN,
+            };
 
-    it('handles decimal numbers', async () => {
-        const dump: NumberDump = {
-            type: DumpValueType.Number,
-            value: 3.14159,
-        };
+            const wrapper = createWrapper({
+                props: { dump },
+            });
 
-        renderWithProviders(NumberDumpRenderer, {
-            props: { dump },
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toBe('NaN');
         });
-
-        await nextTick();
-
-        expect(screen.getByText('3.14159')).toBeInTheDocument();
-    });
-
-    it('handles very large numbers', async () => {
-        const dump: NumberDump = {
-            type: DumpValueType.Number,
-            value: 1e20,
-        };
-
-        renderWithProviders(NumberDumpRenderer, {
-            props: { dump },
-        });
-
-        await nextTick();
-
-        expect(screen.getByText('100000000000000000000')).toBeInTheDocument();
-    });
-
-    it('handles very small numbers', async () => {
-        const dump: NumberDump = {
-            type: DumpValueType.Number,
-            value: 1e-10,
-        };
-
-        renderWithProviders(NumberDumpRenderer, {
-            props: { dump },
-        });
-
-        await nextTick();
-
-        expect(screen.getByText('1e-10')).toBeInTheDocument();
-    });
-
-    it('applies correct CSS classes', async () => {
-        const dump: NumberDump = {
-            type: DumpValueType.Number,
-            value: 42,
-        };
-
-        const { container } = renderWithProviders(NumberDumpRenderer, {
-            props: { dump },
-        });
-
-        await nextTick();
-
-        const span = container.querySelector('span');
-        expect(span?.className).toContain('text-xs');
-        expect(span?.className).toContain('font-mono');
-    });
-
-    it('handles Infinity', async () => {
-        const dump: NumberDump = {
-            type: DumpValueType.Number,
-            value: Infinity,
-        };
-
-        renderWithProviders(NumberDumpRenderer, {
-            props: { dump },
-        });
-
-        await nextTick();
-
-        expect(screen.getByText('Infinity')).toBeInTheDocument();
-    });
-
-    it('handles -Infinity', async () => {
-        const dump: NumberDump = {
-            type: DumpValueType.Number,
-            value: -Infinity,
-        };
-
-        renderWithProviders(NumberDumpRenderer, {
-            props: { dump },
-        });
-
-        await nextTick();
-
-        expect(screen.getByText('-Infinity')).toBeInTheDocument();
-    });
-
-    it('handles NaN', async () => {
-        const dump: NumberDump = {
-            type: DumpValueType.Number,
-            value: NaN,
-        };
-
-        renderWithProviders(NumberDumpRenderer, {
-            props: { dump },
-        });
-
-        await nextTick();
-
-        expect(screen.getByText('NaN')).toBeInTheDocument();
     });
 });

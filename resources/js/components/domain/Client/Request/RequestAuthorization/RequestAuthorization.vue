@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component RequestAuthorization
+ * @description The main container for configuring authentication methods for the request.
+ */
 import RequestAuthorizationBasicAuth from '@/components/domain/Client/Request/RequestAuthorization/RequestAuthorizationBasicAuth.vue';
 import RequestAuthorizationBearer from '@/components/domain/Client/Request/RequestAuthorization/RequestAuthorizationBearer.vue';
 import RequestAuthorizationCurrentUser from '@/components/domain/Client/Request/RequestAuthorization/RequestAuthorizationCurrentUser.vue';
@@ -8,6 +12,18 @@ import RequestAuthorizationSelector from '@/components/domain/Client/Request/Req
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import { useRequestAuthorization } from '@/composables/request/useRequestAuthorization';
 import { AuthorizationType } from '@/interfaces/generated';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRequestAuthorizationProps {}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRequestAuthorizationProps>();
 
 /*
  * Composables.

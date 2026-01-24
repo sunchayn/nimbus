@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component RequestBodyContent
+ * @description Dynamic content renderer for the request body based on the selected payload type.
+ */
 import { RequestBodyTypeEnum } from '@/interfaces/http';
 import type { JSONSchema7 } from 'json-schema';
 import RequestBodyFormData from './RequestBodyFormData.vue';
@@ -6,17 +10,31 @@ import RequestBodyFormNone from './RequestBodyFormNone.vue';
 import RequestBodyJson from './RequestBodyJson.vue';
 import RequestBodyPlainText from './RequestBodyPlainText.vue';
 
-interface RequestBodyContentProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRequestBodyContentProps {
     payloadType: RequestBodyTypeEnum;
     payload: FormData | string | null;
     schema?: JSONSchema7;
 }
 
-defineProps<RequestBodyContentProps>();
+export interface AppRequestBodyContentEmits {
+    (e: 'update:payload', value: FormData | string | null): void;
+}
 
-const emit = defineEmits<{
-    'update:payload': [value: FormData | string | null];
-}>();
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRequestBodyContentProps>();
+
+const emit = defineEmits<AppRequestBodyContentEmits>();
+
+/*
+ * Event Handlers.
+ */
 
 const updatePayload = (value: FormData | string | null) => {
     emit('update:payload', value);

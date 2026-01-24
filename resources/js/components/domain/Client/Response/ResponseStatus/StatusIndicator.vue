@@ -1,15 +1,30 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+/**
+ * @component StatusIndicator
+ * @description A colored indicator dot representing the response status (success, error, redirect, etc.).
+ */
+import Spinner from "@/components/base/icons/AppSpinner.vue";
+import AppRoundIndicator from "@/components/base/round-indicator/AppRoundIndicator.vue";
+import { STATUS } from "@/interfaces/http";
+import { computed } from "vue";
 
-import Spinner from '@/components/base/icons/AppSpinner.vue';
-import AppRoundIndicator from '@/components/base/round-indicator/AppRoundIndicator.vue';
-import { STATUS } from '@/interfaces/http';
+/*
+ * Types & Interfaces.
+ */
 
-interface StatusIndicatorProps {
+export interface AppStatusIndicatorProps {
     status: STATUS;
 }
 
-const props = defineProps<StatusIndicatorProps>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppStatusIndicatorProps>();
+
+/*
+ * Constants.
+ */
 
 const variants = {
     [STATUS.INFORMATION]: 'text-zinc-500',
@@ -22,6 +37,10 @@ const variants = {
     [STATUS.DUMP_AND_DIE]: 'text-violet-600',
     [STATUS.PENDING]: '',
 };
+
+/*
+ * Computed & Methods.
+ */
 
 const indicatorColor = computed<string>(() => {
     return variants[props.status];

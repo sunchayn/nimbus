@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component RouteExplorerVersionSelector
+ * @description A dropdown for selecting the API version.
+ */
 import {
     AppSelect,
     AppSelectContent,
@@ -7,9 +11,19 @@ import {
     AppSelectValue,
 } from '@/components/base/select';
 
-defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRouteExplorerVersionSelectorProps {
     versions: string[];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRouteExplorerVersionSelectorProps>();
 
 const model = defineModel<string>();
 </script>

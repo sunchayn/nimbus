@@ -1,5 +1,15 @@
 <script setup lang="ts">
+/**
+ * @component AppPanelRipple
+ * @description A decorative ripple effect container used in panel backgrounds.
+ */
 import AppRipple from '@/components/base/ripple/AppRipple.vue';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppPanelRippleProps {}
 </script>
 
 <template>

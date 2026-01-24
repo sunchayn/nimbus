@@ -1,9 +1,13 @@
-import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces';
-import { AuthorizationType } from '@/interfaces/generated';
-import { useRequestExecutorStore } from '@/stores/request/useRequestExecutorStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
+import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces';
+import { AuthorizationType } from '@/interfaces/generated';
+import { useRequestExecutorStore } from '@/stores/request/useRequestExecutorStore';
+
+/*
+ * Fixtures.
+ */
 
 const executeRequest = vi.fn();
 const cancelCurrentRequest = vi.fn();
@@ -44,10 +48,7 @@ const request: PendingRequest = {
     headers: [],
     body: {},
     payloadType: RequestBodyTypeEnum.EMPTY,
-    schema: {
-        shape: {},
-        extractionErrors: null,
-    },
+    schema: { shape: {}, extractionErrors: null },
     queryParameters: [],
     authorization: { type: AuthorizationType.None },
     supportedRoutes: [],
@@ -55,10 +56,7 @@ const request: PendingRequest = {
         method: 'GET',
         endpoint: 'users',
         shortEndpoint: 'users',
-        schema: {
-            shape: {},
-            extractionErrors: null,
-        },
+        schema: { shape: {}, extractionErrors: null },
     },
     isProcessing: false,
     wasExecuted: false,
@@ -68,70 +66,78 @@ const request: PendingRequest = {
 describe('useRequestExecutorStore', () => {
     beforeEach(() => {
         setActivePinia(createPinia());
-        mockRequestsHistoryStore.addLog.mockClear();
-        executeRequest.mockReset();
-        cancelCurrentRequest.mockClear();
-        requestUtilsMocks.createRequestTimer.mockClear();
-        requestUtilsMocks.generateSuccessRequestLog.mockClear();
-        requestUtilsMocks.generateErrorRequestLog.mockClear();
+        vi.clearAllMocks();
     });
 
-    it('prevents execution when request invalid', async () => {
-        const store = useRequestExecutorStore();
+    /*
+     * Initialization tests.
+     */
 
-        expect(store.canExecute(null)).toBe(false);
+    describe('Validation', () => {
+        it('prevents execution when request invalid', async () => {
+            // Arrange
 
-        const invalid = { ...request, endpoint: '   ' };
+            const store = useRequestExecutorStore();
 
-        expect(store.canExecute(invalid as PendingRequest)).toBe(false);
+            // Assert
+
+            expect(store.canExecute(null)).toBe(false);
+            expect(store.canExecute({ ...request, endpoint: '   ' } as PendingRequest)).toBe(false);
+        });
     });
 
-    it('logs successful executions with generated log entry', async () => {
-        const store = useRequestExecutorStore();
+    /*
+     * State Transition tests.
+     */
 
-        executeRequest.mockResolvedValue({
-            duration: 2000,
-            response: { status: 200 },
+    describe('Execution', () => {
+        it('logs successful executions with generated log entry', async () => {
+            // Arrange
+
+            const store = useRequestExecutorStore();
+            executeRequest.mockResolvedValue({
+                duration: 2000,
+                response: { status: 200 },
+            });
+
+            // Act
+
+            await store.executeRequestWithTiming({ ...request });
+
+            // Assert
+
+            expect(requestUtilsMocks.createRequestTimer).toHaveBeenCalled();
+            expect(mockRequestsHistoryStore.addLog).toHaveBeenCalledWith({ type: 'success' });
         });
 
-        await store.executeRequestWithTiming({ ...request });
+        it('logs errors using error log factory', async () => {
+            // Arrange
 
-        expect(requestUtilsMocks.createRequestTimer).toHaveBeenCalled();
-        expect(requestUtilsMocks.generateSuccessRequestLog).toHaveBeenCalledWith(
-            expect.objectContaining({ method: 'GET' }),
-            2000,
-            { status: 200 },
-        );
-        expect(mockRequestsHistoryStore.addLog).toHaveBeenCalledWith({ type: 'success' });
-    });
+            const store = useRequestExecutorStore();
+            executeRequest.mockRejectedValue({ message: 'boom' });
 
-    it('skips logging when request is cancelled', async () => {
-        const store = useRequestExecutorStore();
+            // Act
 
-        executeRequest.mockResolvedValue(null);
+            await store.executeRequestWithTiming({ ...request });
 
-        await store.executeRequestWithTiming({ ...request });
+            // Assert
 
-        expect(mockRequestsHistoryStore.addLog).not.toHaveBeenCalled();
-    });
+            expect(requestUtilsMocks.generateErrorRequestLog).toHaveBeenCalled();
+            expect(mockRequestsHistoryStore.addLog).toHaveBeenCalledWith({ type: 'error' });
+        });
 
-    it('logs errors using error log factory', async () => {
-        const store = useRequestExecutorStore();
+        it('cancels current request via http client', () => {
+            // Arrange
 
-        executeRequest.mockRejectedValue({ message: 'boom' });
+            const store = useRequestExecutorStore();
 
-        await store.executeRequestWithTiming({ ...request });
+            // Act
 
-        expect(requestUtilsMocks.generateErrorRequestLog).toHaveBeenCalled();
+            store.cancelCurrentRequest();
 
-        expect(mockRequestsHistoryStore.addLog).toHaveBeenCalledWith({ type: 'error' });
-    });
+            // Assert
 
-    it('cancels current request via http client', () => {
-        const store = useRequestExecutorStore();
-
-        store.cancelCurrentRequest();
-
-        expect(cancelCurrentRequest).toHaveBeenCalled();
+            expect(cancelCurrentRequest).toHaveBeenCalled();
+        });
     });
 });

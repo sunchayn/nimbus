@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppDialogContent
+ * @description The main content area of a dialog, including its overlay and portal.
+ */
 import { cn } from '@/utils/ui';
 import { reactiveOmit } from '@vueuse/core';
 import { X } from 'lucide-vue-next';
@@ -7,7 +11,19 @@ import { DialogClose, DialogContent, DialogPortal, useForwardPropsEmits } from '
 import type { HTMLAttributes } from 'vue';
 import AppDialogOverlay from './AppDialogOverlay.vue';
 
-const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'] }>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDialogContentProps extends DialogContentProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDialogContentProps>();
 const emits = defineEmits<DialogContentEmits>();
 
 const delegatedProps = reactiveOmit(props, 'class');

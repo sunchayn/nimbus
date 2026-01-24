@@ -1,5 +1,11 @@
+```html
 <script setup lang="ts">
+/**
+ * @component AppSelectContent
+ * @description The container for select items, including portal, viewport, and scroll buttons.
+ */
 import { cn } from '@/utils/ui';
+import { reactiveOmit } from '@vueuse/core';
 import {
     SelectContent,
     type SelectContentEmits,
@@ -8,28 +14,37 @@ import {
     SelectViewport,
     useForwardPropsEmits,
 } from 'reka-ui';
-import { computed, type HTMLAttributes } from 'vue';
+import { type HTMLAttributes } from 'vue';
 import { AppSelectScrollDownButton, AppSelectScrollUpButton } from './index';
-
-const props = withDefaults(
-    defineProps<SelectContentProps & { class?: HTMLAttributes['class'] }>(),
-    {
-        position: 'popper',
-        class: '',
-    },
-);
-
-const emits = defineEmits<SelectContentEmits>();
 
 defineOptions({
     inheritAttrs: false,
 });
 
-const delegatedProps = computed(() => {
-    const { class: _, ...delegated } = props;
+/*
+ * Types & Interfaces.
+ */
 
-    return delegated;
+export interface AppSelectContentProps extends SelectContentProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppSelectContentProps>(), {
+    position: 'popper',
+    class: '',
 });
+
+const emits = defineEmits<SelectContentEmits>();
+
+/*
+ * Computed & Methods.
+ */
+
+const delegatedProps = reactiveOmit(props, 'class');
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>

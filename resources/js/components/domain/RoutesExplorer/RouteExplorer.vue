@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component RouteExplorer
+ * @description The main sidebar component for exploring and searching available API routes.
+ */
 import {
     AppSidebar,
     AppSidebarContent,
@@ -13,29 +17,40 @@ import ApplicationSwitcher from '@/components/domain/RoutesExplorer/ApplicationS
 import RouteExplorerHeader from '@/components/domain/RoutesExplorer/RouteExplorerHeader.vue';
 import RouteExplorerVersionSelector from '@/components/domain/RoutesExplorer/RouteExplorerVersionSelector.vue';
 import RoutesList from '@/components/domain/RoutesExplorer/RoutesList/RoutesList.vue';
-import { RouteDefinition, RoutesGroup } from '@/interfaces/routes/routes';
+import { type RouteDefinition, type RoutesGroup } from '@/interfaces/routes/routes';
 import { useConfigStore } from '@/stores';
 import { uniquePersistenceKey } from '@/utils/stores';
 import { useStorage } from '@vueuse/core';
 import { computed, ref, watch } from 'vue';
 
 /*
- * Props.
+ * Types & Interfaces.
  */
 
-const props = defineProps<{
+export interface AppRouteExplorerProps {
     routes: { [_key in string]?: RoutesGroup[] } | null;
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppRouteExplorerProps>();
+
+const configStore = useConfigStore();
 
 /*
  * State.
  */
 
 const search = useStorage(uniquePersistenceKey('routes-explorer-search-keyword'), '');
+const currentVersion = ref('');
+
+/*
+ * Watchers.
+ */
 
 const versions = computed(() => Object.keys(props.routes || {}));
-
-const currentVersion = ref('');
 
 // Initialize or update current version when versions list changes (e.g. after project switch)
 watch(
@@ -51,7 +66,7 @@ watch(
 );
 
 /*
- * Computed.
+ * Computed & Methods.
  */
 
 const routesInVersion = computed(() => {
@@ -85,12 +100,6 @@ const filteredRoutes = computed(() => {
             .filter((group): group is RoutesGroup => group !== null) || []
     );
 });
-
-/*
- * Stores.
- */
-
-const configStore = useConfigStore();
 
 const hasMultipleApplications = computed(
     () => Object.keys(configStore.applications).length > 1,

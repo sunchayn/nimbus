@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarHeader
+ * @description The top section of the sidebar, typically for logos or workspace switchers.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarHeaderProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSidebarHeaderProps>();
 </script>
 
 <template>

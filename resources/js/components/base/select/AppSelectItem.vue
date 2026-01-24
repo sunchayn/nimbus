@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppSelectItem
+ * @description An individual selectable item within a select menu.
+ */
 import { cn } from '@/utils/ui';
 import { Check } from 'lucide-vue-next';
 import {
@@ -8,15 +12,28 @@ import {
     SelectItemText,
     useForwardProps,
 } from 'reka-ui';
-import { computed, type HTMLAttributes } from 'vue';
+import { reactiveOmit } from '@vueuse/core';
+import { type HTMLAttributes } from 'vue';
 
-const props = defineProps<SelectItemProps & { class?: HTMLAttributes['class'] }>();
+/*
+ * Types & Interfaces.
+ */
 
-const delegatedProps = computed(() => {
-    const { class: _, ...delegated } = props;
+export interface AppSelectItemProps extends SelectItemProps {
+    class?: HTMLAttributes['class'];
+}
 
-    return delegated;
-});
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSelectItemProps>();
+
+/*
+ * Computed & Methods.
+ */
+
+const delegatedProps = reactiveOmit(props, 'class');
 
 const forwardedProps = useForwardProps(delegatedProps);
 </script>

@@ -1,9 +1,25 @@
 <script setup lang="ts">
+/**
+ * @component AppSheetTitle
+ * @description The main heading for the sheet content.
+ */
 import { cn } from '@/utils/ui';
 import { DialogTitle, type DialogTitleProps } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-const props = defineProps<DialogTitleProps & { class?: HTMLAttributes['class'] }>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSheetTitleProps extends DialogTitleProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSheetTitleProps>();
 
 const delegatedProps = computed(() => {
     const { class: _, ...delegated } = props;

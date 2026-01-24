@@ -1,14 +1,38 @@
 <script setup lang="ts">
+/**
+ * @component ConfigReadonlySection
+ * @description A read-only display of the current application configuration.
+ */
 import { AppLabel } from '@/components/base/label';
 import { useConfigStore } from '@/stores';
 import { GlobeIcon, RouteIcon, ShieldIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppConfigReadonlySectionProps {}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppConfigReadonlySectionProps>();
+
 defineOptions({
     name: 'ConfigReadonlySection',
 });
 
+/*
+ * Stores.
+ */
+
 const configStore = useConfigStore();
+
+/*
+ * Computed & Methods.
+ */
 
 const configData = computed(() => ({
     routePrefix: 'api',
@@ -43,7 +67,7 @@ const configData = computed(() => ({
                                 Route Prefix
                             </AppLabel>
                             <div
-                                class="flex h-9 items-center rounded bg-zinc-100 px-3 font-mono text-sm dark:bg-zinc-900"
+                                class="flex h-9 items-center rounded bg-muted px-3 font-mono text-sm"
                             >
                                 {{ configData.routePrefix }}
                             </div>
@@ -54,14 +78,13 @@ const configData = computed(() => ({
                                 Versioned
                             </AppLabel>
                             <div
-                                class="flex h-9 items-center rounded bg-zinc-100 px-3 text-sm dark:bg-zinc-900"
+                                class="flex h-9 items-center rounded bg-muted px-3 text-sm"
                             >
                                 <div class="flex items-center space-x-2">
-                                    <div
                                         :class="
                                             configData.isVersioned
-                                                ? 'bg-green-500'
-                                                : 'bg-gray-400'
+                                                ? 'bg-success'
+                                                : 'bg-muted-foreground'
                                         "
                                         class="h-2 w-2 rounded-full"
                                     ></div>
@@ -141,15 +164,15 @@ const configData = computed(() => ({
                         <div
                             v-for="header in configData.globalHeaders"
                             :key="header.header"
-                            class="flex items-center justify-between rounded bg-zinc-100 p-3.5 dark:bg-zinc-900"
+                            class="flex items-center justify-between rounded bg-muted p-3.5"
                         >
                             <span class="font-mono text-sm">{{ header.header }}</span>
                             <div class="flex items-center space-x-2">
                                 <div
                                     :class="
                                         header.type === 'generator'
-                                            ? 'bg-blue-500'
-                                            : 'bg-gray-500'
+                                            ? 'bg-info'
+                                            : 'bg-muted-foreground'
                                     "
                                     class="h-2 w-2 rounded-full"
                                 ></div>

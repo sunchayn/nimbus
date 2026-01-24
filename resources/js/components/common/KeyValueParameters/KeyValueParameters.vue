@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component KeyValueParameters
+ * @description An interactive editor for key-value parameter lists with integrated value generation.
+ */
 import { AppBadge } from '@/components/base/badge';
 import { AppButton } from '@/components/base/button';
 import { AppInput } from '@/components/base/input';
@@ -10,10 +14,11 @@ import {
     AppSelectValue,
 } from '@/components/base/select';
 import { AppSwitch } from '@/components/base/switch';
+import { AppTooltipWrapper } from '@/components/base/tooltip';
 import { useKeyValueParameters } from '@/composables/ui/useKeyValueParameters';
-import { ParameterContract } from '@/interfaces/ui';
+import { type ParameterContract } from '@/interfaces/ui';
 import { useValueGeneratorStore } from '@/stores';
-import { cn } from '@/utils';
+import { cn } from '@/utils/ui';
 import {
     EyeClosedIcon,
     EyeIcon,
@@ -22,28 +27,41 @@ import {
     Trash2Icon,
 } from 'lucide-vue-next';
 import { computed, type HTMLAttributes, ref } from 'vue';
-import AppTooltipWrapper from '../../base/tooltip/AppTooltipWrapper.vue';
 
 /*
- * Props and Emits.
+ * Types & Interfaces.
  */
 
-const props = withDefaults(
-    defineProps<{
-        modelValue?: ParameterContract[];
-        freeFormTypes?: boolean;
-        class?: HTMLAttributes['class'];
-    }>(),
-    {
-        modelValue: () => [],
-        freeFormTypes: false,
-        class: undefined,
-    },
-);
+export interface AppKeyValueParametersProps {
+    modelValue?: ParameterContract[];
+    freeFormTypes?: boolean;
+    class?: HTMLAttributes['class'];
+}
 
-const emit = defineEmits<{
-    'update:parameters': [parameters: ParameterContract[]];
-}>();
+export interface AppKeyValueParametersEmits {
+    (e: 'update:parameters', parameters: ParameterContract[]): void;
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppKeyValueParametersProps>(), {
+    modelValue: () => [],
+    freeFormTypes: false,
+    class: undefined,
+});
+
+const emit = defineEmits<AppKeyValueParametersEmits>();
+
+const { openCommand, closeCommand } = useValueGeneratorStore();
+
+/*
+ * Refs.
+ */
+
+const focusedInputIndex = ref<number | null>(null);
+const focusedInputRef = ref<HTMLInputElement | null>(null);
 
 /*
  * Composables.
@@ -66,15 +84,13 @@ const {
     deleteAllParameters,
 } = useKeyValueParameters(modelValueRef, handleParametersUpdate);
 
-const { openCommand, closeCommand } = useValueGeneratorStore();
-
-// Focus management
-const focusedInputIndex = ref<number | null>(null);
-const focusedInputRef = ref<HTMLInputElement | null>(null);
-
 /*
- * Event Handlers.
+ * Computed & Methods.
  */
+
+const shouldShowGeneratorIcon = (index: number, parameter: ParameterContract) => {
+    return focusedInputIndex.value === index && parameter.enabled;
+};
 
 const handleValueInputFocus = (index: number, inputRef: HTMLInputElement) => {
     focusedInputIndex.value = index;
@@ -109,14 +125,6 @@ const handleGeneratorClick = () => {
 
 const handleDeleteParameter = (index: number) => {
     triggerParameterDeletion(parameters.value, index);
-};
-
-/*
- * Computed Properties.
- */
-
-const shouldShowGeneratorIcon = (index: number, parameter: ParameterContract) => {
-    return focusedInputIndex.value === index && parameter.enabled;
 };
 </script>
 <template>
@@ -155,7 +163,7 @@ const shouldShowGeneratorIcon = (index: number, parameter: ParameterContract) =>
                 size="xs"
                 class="px-panel h-full -translate-x-0.5 rounded-none text-xs"
                 :class="{
-                    '!text-red-500 hover:text-red-500 dark:!text-rose-700 dark:hover:text-red-700':
+                    '!text-destructive hover:text-destructive/90':
                         deletingAll,
                 }"
                 :disabled="parameters.length === 0"
@@ -239,7 +247,7 @@ const shouldShowGeneratorIcon = (index: number, parameter: ParameterContract) =>
                     @mousedown.prevent="handleGeneratorClick"
                 >
                     <SparklesIcon
-                        class="text-subtle size-4 transition-colors hover:text-zinc-800 dark:hover:text-zinc-200"
+                        class="text-subtle size-4 transition-colors hover:text-foreground"
                     />
                 </div>
 
@@ -255,7 +263,7 @@ const shouldShowGeneratorIcon = (index: number, parameter: ParameterContract) =>
                         <Trash2Icon
                             class="size-4"
                             :class="{
-                                'text-rose-500 dark:text-rose-700':
+                                'text-destructive':
                                     isParameterMarkedForDeletion(index),
                             }"
                         />

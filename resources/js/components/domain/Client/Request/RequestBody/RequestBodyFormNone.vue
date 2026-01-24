@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component RequestBodyFormNone
+ * @description Card indicating an empty or 'none' request body.
+ */
 import {
     AppCard,
     AppCardDescription,
@@ -8,7 +12,26 @@ import {
 import { CircleSlash2Icon } from 'lucide-vue-next';
 import { onMounted } from 'vue';
 
-const emit = defineEmits(['update:modelValue']);
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRequestBodyFormNoneProps {}
+
+export interface AppRequestBodyFormNoneEmits {
+    (e: 'update:modelValue', value: null): void;
+}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRequestBodyFormNoneProps>();
+const emit = defineEmits<AppRequestBodyFormNoneEmits>();
+
+/*
+ * Lifecycle.
+ */
 
 onMounted(() => emit('update:modelValue', null));
 </script>

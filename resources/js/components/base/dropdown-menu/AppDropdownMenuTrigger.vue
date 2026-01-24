@@ -1,11 +1,25 @@
 <script setup lang="ts">
+/**
+ * @component AppDropdownMenuTrigger
+ * @description The interactive element that opens the dropdown menu.
+ */
 import {
     DropdownMenuTrigger,
     type DropdownMenuTriggerProps,
     useForwardProps,
 } from 'reka-ui';
 
-const props = defineProps<DropdownMenuTriggerProps>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDropdownMenuTriggerProps extends DropdownMenuTriggerProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDropdownMenuTriggerProps>();
 
 const forwardedProps = useForwardProps(props);
 </script>

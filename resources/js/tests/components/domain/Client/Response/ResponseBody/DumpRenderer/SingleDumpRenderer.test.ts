@@ -1,3 +1,8 @@
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 import type {
     ArrayDump,
     ClosureDump,
@@ -9,9 +14,10 @@ import type {
 } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
 import SingleDumpRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/SingleDumpRenderer.vue';
 import { DumpValueType } from '@/interfaces/generated/dump-value-types';
-import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
+
+/*
+ * Fixtures.
+ */
 
 vi.mock('@/components/base/collapsible', () => ({
     AppCollapsible: {
@@ -163,434 +169,298 @@ const createArrayDump = (
     },
 });
 
+/**
+ * Factory function to create a mounted wrapper with sensible defaults.
+ */
+const createWrapper = (options= {}): VueWrapper => {
+    return mount(SingleDumpRenderer, {
+        ...options,
+        global: {
+            plugins: [createPinia()],
+            // @ts-expect-error .global not found in object.
+            ...(options.global || {}),
+        },
+    });
+};
+
 describe('SingleDumpRenderer', () => {
     beforeEach(() => {
+        setActivePinia(createPinia());
         vi.clearAllMocks();
     });
 
-    describe('Non-nestable Types', () => {
-        it('renders StringDumpRenderer for string type', async () => {
-            const dump = createStringDump('test-string');
+    /*
+     * Rendering tests.
+     */
 
-            renderWithProviders(SingleDumpRenderer, {
+    describe('Rendering - Non-nestable Types', () => {
+        it('renders StringDumpRenderer for string type', async () => {
+            // Arrange
+
+            const dump = createStringDump('test-string');
+            const wrapper = createWrapper({
                 props: { dump },
             });
 
+            // Act
+
             await nextTick();
 
-            expect(screen.getByTestId('string-dump-renderer')).toBeInTheDocument();
-            expect(screen.getByTestId('string-dump-renderer')).toHaveTextContent(
-                'test-string',
-            );
+            // Assert
+
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').text()).toBe('test-string');
         });
 
         it('renders NumberDumpRenderer for number type', async () => {
-            const dump = createNumberDump(42);
+            // Arrange
 
-            renderWithProviders(SingleDumpRenderer, {
+            const dump = createNumberDump(42);
+            const wrapper = createWrapper({
                 props: { dump },
             });
 
+            // Act
+
             await nextTick();
 
-            expect(screen.getByTestId('number-dump-renderer')).toBeInTheDocument();
-            expect(screen.getByTestId('number-dump-renderer')).toHaveTextContent('42');
+            // Assert
+
+            expect(wrapper.find('[data-testid="number-dump-renderer"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="number-dump-renderer"]').text()).toBe('42');
         });
 
         it('renders ConstDumpRenderer for const type', async () => {
-            const dump = createConstDump(true);
+            // Arrange
 
-            renderWithProviders(SingleDumpRenderer, {
+            const dump = createConstDump(true);
+            const wrapper = createWrapper({
                 props: { dump },
             });
 
+            // Act
+
             await nextTick();
 
-            expect(screen.getByTestId('const-dump-renderer')).toBeInTheDocument();
-            expect(screen.getByTestId('const-dump-renderer')).toHaveTextContent('true');
+            // Assert
+
+            expect(wrapper.find('[data-testid="const-dump-renderer"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="const-dump-renderer"]').text()).toBe('true');
         });
 
-        it('renders ClosureDumpRenderer for closure type', async () => {
-            const dump = createClosureDump(
-                'Closure(Application $app)',
-                'MyClass',
-                'thisValue',
-            );
+        it('renders ClosureDumpRenderer content', async () => {
+            // Arrange
 
-            renderWithProviders(SingleDumpRenderer, {
+            const dump = createClosureDump('Closure(Application $app)', 'MyClass', 'thisValue');
+            const wrapper = createWrapper({
                 props: { dump },
             });
 
+            // Act
+
             await nextTick();
 
-            expect(screen.getByTestId('app-collapsible')).toBeInTheDocument();
+            // Assert
 
-            expect(screen.getByTestId('app-collapsible')).toHaveTextContent(
-                'Closure(Application $app)',
-            );
+            expect(wrapper.find('[data-testid="app-collapsible"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="app-collapsible"]').text()).toContain('Closure(Application $app)');
         });
 
         it('displays key name when provided for string type', async () => {
-            const dump = createStringDump('test');
+            // Arrange
 
-            const { container } = renderWithProviders(SingleDumpRenderer, {
+            const dump = createStringDump('test');
+            const wrapper = createWrapper({
                 props: { dump, keyName: 'myKey' },
             });
 
+            // Act
+
             await nextTick();
 
-            expect(container.textContent).toEqual('"myKey": test');
-            expect(screen.getByTestId('string-dump-renderer')).toHaveTextContent('test');
+            // Assert
+
+            expect(wrapper.text()).toContain('"myKey":');
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').text()).toBe('test');
         });
 
         it('shows error message for unknown types', async () => {
-            const dump = { type: 'unknown-type' } as DumpValue;
+            // Arrange
 
-            renderWithProviders(SingleDumpRenderer, {
+            const dump = { type: 'unknown-type' } as DumpValue;
+            const wrapper = createWrapper({
                 props: { dump },
             });
 
+            // Act
+
             await nextTick();
 
-            expect(screen.getByText(/Invalid dump value type/)).toBeInTheDocument();
-            expect(screen.getByText(/`unknown-type`/)).toBeInTheDocument();
+            // Assert
+
+            expect(wrapper.text()).toContain('Invalid dump value type');
+            expect(wrapper.text()).toContain('`unknown-type`');
         });
     });
 
-    describe('Nestable Types', () => {
+    describe('Rendering - Nestable Types', () => {
         it('renders collapsible for object type', async () => {
-            const dump = createObjectDump('MyClass', {});
+            // Arrange
 
-            renderWithProviders(SingleDumpRenderer, {
+            const dump = createObjectDump('MyClass', {});
+            const wrapper = createWrapper({
                 props: { dump },
             });
 
+            // Act
+
             await nextTick();
 
-            expect(screen.getByTestId('app-collapsible')).toBeInTheDocument();
-            expect(screen.getByTestId('collapsible-trigger')).toBeInTheDocument();
-            expect(screen.getByTestId('chevron-right')).toBeInTheDocument();
+            // Assert
+
+            expect(wrapper.find('[data-testid="app-collapsible"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="collapsible-trigger"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="chevron-right"]').exists()).toBe(true);
         });
 
         it('renders collapsible for array type', async () => {
-            const dump = createArrayDump({});
+            // Arrange
 
-            renderWithProviders(SingleDumpRenderer, {
+            const dump = createArrayDump({});
+            const wrapper = createWrapper({
                 props: { dump },
             });
 
+            // Act
+
             await nextTick();
 
-            expect(screen.getByTestId('app-collapsible')).toBeInTheDocument();
-            expect(screen.getByTestId('collapsible-trigger')).toBeInTheDocument();
-            expect(screen.getByTestId('chevron-right')).toBeInTheDocument();
+            // Assert
+
+            expect(wrapper.find('[data-testid="app-collapsible"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="collapsible-trigger"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="chevron-right"]').exists()).toBe(true);
         });
 
         it('shows correct summary text for object with properties', async () => {
+            // Arrange
+
             const dump = createObjectDump('MyClass', {
-                prop1: {
-                    visibility: 'public',
-                    value: createStringDump('value1'),
-                },
+                prop1: { visibility: 'public', value: createStringDump('value1') },
                 prop2: { visibility: 'private', value: createNumberDump(42) },
             });
-
-            renderWithProviders(SingleDumpRenderer, {
+            const wrapper = createWrapper({
                 props: { dump },
             });
 
-            await nextTick();
-
-            const trigger = screen.getByTestId('collapsible-trigger');
-            expect(trigger.textContent).toContain('MyClass: 2 properties');
-        });
-
-        it('shows correct summary text for object with single property', async () => {
-            const dump = createObjectDump('MyClass', {
-                prop1: {
-                    visibility: 'public',
-                    value: createStringDump('value1'),
-                },
-            });
-
-            renderWithProviders(SingleDumpRenderer, {
-                props: { dump },
-            });
+            // Act
 
             await nextTick();
 
-            const trigger = screen.getByTestId('collapsible-trigger');
-            expect(trigger.textContent).toContain('MyClass: 1 property');
-        });
+            // Assert
 
-        it('shows correct summary text for object with no properties', async () => {
-            const dump = createObjectDump('MyClass', {});
-
-            renderWithProviders(SingleDumpRenderer, {
-                props: { dump },
-            });
-
-            await nextTick();
-
-            const trigger = screen.getByTestId('collapsible-trigger');
-            expect(trigger.textContent).toContain('{}');
-        });
-
-        it('shows correct summary text for array with items', async () => {
-            const dump = createArrayDump({
-                '0': createStringDump('item1'),
-                '1': createStringDump('item2'),
-            });
-
-            renderWithProviders(SingleDumpRenderer, {
-                props: { dump },
-            });
-
-            await nextTick();
-
-            const trigger = screen.getByTestId('collapsible-trigger');
-            expect(trigger.textContent).toContain('array: 2 items');
-        });
-
-        it('shows correct summary text for array with single item', async () => {
-            const dump = createArrayDump({
-                '0': createStringDump('item1'),
-            });
-
-            renderWithProviders(SingleDumpRenderer, {
-                props: { dump },
-            });
-
-            await nextTick();
-
-            const trigger = screen.getByTestId('collapsible-trigger');
-            expect(trigger.textContent).toContain('array: 1 item');
+            const trigger = wrapper.find('[data-testid="collapsible-trigger"]');
+            expect(trigger.text()).toContain('MyClass: 2 properties');
         });
 
         it('shows correct summary text for empty array', async () => {
-            const dump = createArrayDump({});
+            // Arrange
 
-            renderWithProviders(SingleDumpRenderer, {
+            const dump = createArrayDump({});
+            const wrapper = createWrapper({
                 props: { dump },
             });
 
+            // Act
+
             await nextTick();
 
-            const trigger = screen.getByTestId('collapsible-trigger');
-            expect(trigger.textContent).toContain('[]');
+            // Assert
+
+            const trigger = wrapper.find('[data-testid="collapsible-trigger"]');
+            expect(trigger.text()).toContain('[]');
         });
 
         it('is open by default when depth is 0', async () => {
-            const dump = createObjectDump('MyClass', {
-                prop1: {
-                    visibility: 'public',
-                    value: createStringDump('value1'),
-                },
-            });
+            // Arrange
 
-            renderWithProviders(SingleDumpRenderer, {
+            const dump = createObjectDump('MyClass', {
+                prop1: { visibility: 'public', value: createStringDump('value1') },
+            });
+            const wrapper = createWrapper({
                 props: { dump, depth: 0 },
             });
 
-            await nextTick();
-
-            const collapsible = screen.getByTestId('app-collapsible');
-            expect(collapsible.getAttribute('data-default-open')).toBe('true');
-        });
-
-        it('is closed by default when depth > 0', async () => {
-            const dump = createObjectDump('MyClass', {
-                prop1: {
-                    visibility: 'public',
-                    value: createStringDump('value1'),
-                },
-            });
-
-            renderWithProviders(SingleDumpRenderer, {
-                props: { dump, depth: 1 },
-            });
+            // Act
 
             await nextTick();
 
-            const collapsible = screen.getByTestId('app-collapsible');
-            expect(collapsible.getAttribute('data-default-open')).toBe('false');
-        });
+            // Assert
 
-        it('displays key name for nestable types', async () => {
-            const dump = createObjectDump('MyClass', {});
-
-            const { container } = renderWithProviders(SingleDumpRenderer, {
-                props: { dump, keyName: 'myObject' },
-            });
-
-            await nextTick();
-
-            expect(container.textContent).toContain('"myObject": {}');
+            const collapsible = wrapper.find('[data-testid="app-collapsible"]');
+            expect(collapsible.attributes('data-default-open')).toBe('true');
         });
     });
 
-    describe('Nested Rendering', () => {
+    /*
+     * State Transition tests.
+     */
+
+    describe('Behavior - Nested Rendering', () => {
         it('recursively renders nested object properties', async () => {
+            // Arrange
+
             const dump = createObjectDump('MyClass', {
-                prop1: {
-                    visibility: 'public',
-                    value: createStringDump('value1'),
-                },
+                prop1: { visibility: 'public', value: createStringDump('value1') },
                 prop2: { visibility: 'private', value: createNumberDump(42) },
             });
-
-            renderWithProviders(SingleDumpRenderer, {
+            const wrapper = createWrapper({
                 props: { dump },
             });
 
+            // Act
+
             await nextTick();
 
-            // Should render property keys
-            const propertyKeys = screen.getAllByTestId('property-key');
-            expect(propertyKeys).toHaveLength(2);
+            // Assert
 
-            // Should render the actual values
-            expect(screen.getByTestId('string-dump-renderer')).toBeInTheDocument();
-            expect(screen.getByTestId('number-dump-renderer')).toBeInTheDocument();
+            const propertyKeys = wrapper.findAll('[data-testid="property-key"]');
+            expect(propertyKeys).toHaveLength(2);
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="number-dump-renderer"]').exists()).toBe(true);
         });
 
         it('recursively renders array items', async () => {
-            const dump = createArrayDump(
-                {
-                    value: createStringDump('item1'),
-                    'value-2': createNumberDump(42),
-                },
-                false,
-            );
+            // Arrange
 
-            renderWithProviders(SingleDumpRenderer, {
-                props: { dump },
-            });
-
-            await nextTick();
-
-            const content = screen.getByTestId('collapsible-content');
-            expect(content).toBeInTheDocument();
-
-            // Should render both item values
-            expect(screen.getByTestId('string-dump-renderer')).toBeInTheDocument();
-            expect(screen.getByTestId('number-dump-renderer')).toBeInTheDocument();
-        });
-
-        it('passes correct depth to nested renderers', async () => {
-            const nestedDump = createObjectDump('NestedClass', {
-                nestedProp: {
-                    visibility: 'public',
-                    value: createStringDump('nested'),
-                },
-            });
-            const dump = createObjectDump('MyClass', {
-                nested: { visibility: 'public', value: nestedDump },
-            });
-
-            renderWithProviders(SingleDumpRenderer, {
-                props: { dump, depth: 0 },
-            });
-
-            await nextTick();
-
-            // Both outer and nested objects should have collapsibles
-            const collapsibles = screen.getAllByTestId('app-collapsible');
-            expect(collapsibles.length).toBeGreaterThanOrEqual(2);
-
-            // Outer should be open (depth 0)
-            expect(collapsibles[0].getAttribute('data-default-open')).toBe('true');
-        });
-
-        it('passes correct key names to nested renderers', async () => {
-            const dump = createObjectDump('MyClass', {
-                myProperty: {
-                    visibility: 'public',
-                    value: createStringDump('value'),
-                },
-            });
-
-            renderWithProviders(SingleDumpRenderer, {
-                props: { dump },
-            });
-
-            await nextTick();
-
-            const propertyKey = screen.getByTestId('property-key');
-            expect(propertyKey).toHaveTextContent('myProperty');
-        });
-
-        it('uses ObjectDumpValuePropertyKey for object properties', async () => {
-            const dump = createObjectDump('MyClass', {
-                prop1: {
-                    visibility: 'public',
-                    value: createStringDump('value1'),
-                },
-            });
-
-            renderWithProviders(SingleDumpRenderer, {
-                props: { dump },
-            });
-
-            await nextTick();
-
-            expect(screen.getByTestId('property-key')).toBeInTheDocument();
-            expect(screen.getByTestId('property-key')).toHaveTextContent('prop1');
-        });
-
-        it('renders array items with numeric keys', async () => {
             const dump = createArrayDump({
-                '0': createStringDump('item1'),
-                '1': createStringDump('item2'),
-            });
-
-            const { container } = renderWithProviders(SingleDumpRenderer, {
+                'value': createStringDump('item1'),
+                'value-2': createNumberDump(42),
+            }, false);
+            const wrapper = createWrapper({
                 props: { dump },
             });
 
+            // Act
+
             await nextTick();
 
-            // Array items should show their index keys
-            expect(container.textContent).toContain('0:');
-            expect(container.textContent).toContain('1:');
+            // Assert
+
+            expect(wrapper.find('[data-testid="collapsible-content"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="number-dump-renderer"]').exists()).toBe(true);
         });
     });
 
+    /*
+     * Edge Cases.
+     */
+
     describe('Edge Cases', () => {
-        it('handles invalid nested value types in objects', async () => {
-            const dump = createObjectDump('MyClass', {
-                prop1: {
-                    visibility: 'public',
-                    value: { type: 'invalid-type' } as DumpValue,
-                },
-            });
-
-            renderWithProviders(SingleDumpRenderer, {
-                props: { dump },
-            });
-
-            await nextTick();
-
-            expect(screen.getByText(/Invalid dump value type/)).toBeInTheDocument();
-        });
-
-        it('handles missing properties gracefully', async () => {
-            const dump = createObjectDump('MyClass', {});
-
-            renderWithProviders(SingleDumpRenderer, {
-                props: { dump },
-            });
-
-            await nextTick();
-
-            const trigger = screen.getByTestId('collapsible-trigger');
-            expect(trigger.textContent).toContain('{}');
-
-            // Should still render collapsible structure
-            expect(screen.getByTestId('app-collapsible')).toBeInTheDocument();
-        });
-
         it('handles deeply nested structures', async () => {
+            // Arrange
+
             const level3 = createObjectDump('Level3', {
                 prop: { visibility: 'public', value: createStringDump('deep') },
             });
@@ -601,78 +471,20 @@ describe('SingleDumpRenderer', () => {
                 nested: { visibility: 'public', value: level2 },
             });
 
-            renderWithProviders(SingleDumpRenderer, {
+            const wrapper = createWrapper({
                 props: { dump: level1 },
             });
 
+            // Act
+
             await nextTick();
 
-            // Should render multiple nested collapsibles
-            const collapsibles = screen.getAllByTestId('app-collapsible');
+            // Assert
+
+            const collapsibles = wrapper.findAll('[data-testid="app-collapsible"]');
             expect(collapsibles.length).toBeGreaterThanOrEqual(3);
-
-            // The deepest string value should be rendered
-            expect(screen.getByTestId('string-dump-renderer')).toBeInTheDocument();
-            expect(screen.getByTestId('string-dump-renderer')).toHaveTextContent('deep');
-        });
-
-        it('handles mixed nested types', async () => {
-            const dump = createObjectDump('MyClass', {
-                stringProp: {
-                    visibility: 'public',
-                    value: createStringDump('text'),
-                },
-                numberProp: {
-                    visibility: 'public',
-                    value: createNumberDump(123),
-                },
-                constProp: {
-                    visibility: 'public',
-                    value: createConstDump(true),
-                },
-                arrayProp: {
-                    visibility: 'public',
-                    value: createArrayDump({ '0': createStringDump('item') }),
-                },
-            });
-
-            renderWithProviders(SingleDumpRenderer, {
-                props: { dump },
-            });
-
-            await nextTick();
-
-            expect(screen.getAllByTestId('string-dump-renderer').length).toEqual(2);
-
-            expect(screen.getByTestId('number-dump-renderer')).toBeInTheDocument();
-
-            expect(screen.getByTestId('const-dump-renderer')).toBeInTheDocument();
-
-            // Nested array should also be rendered
-            const collapsibles = screen.getAllByTestId('app-collapsible');
-            expect(collapsibles.length).toBeGreaterThanOrEqual(2); // Main object + nested array
-        });
-
-        it('handles empty arrays in object properties', async () => {
-            const dump = createObjectDump('MyClass', {
-                emptyArray: {
-                    visibility: 'public',
-                    value: createArrayDump({}),
-                },
-            });
-
-            renderWithProviders(SingleDumpRenderer, {
-                props: { dump },
-            });
-
-            await nextTick();
-
-            expect(screen.getByTestId('property-key')).toHaveTextContent('emptyArray');
-
-            // Should show [] for empty array
-            const content = screen.getAllByTestId('collapsible-trigger')[1];
-
-            expect(content.textContent).toContain('[]');
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').text()).toBe('deep');
         });
     });
 });

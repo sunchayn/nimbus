@@ -1,4 +1,8 @@
-<script lang="ts" setup>
+<script setup lang="ts">
+/**
+ * @component AppSonner
+ * @description A toast notification container using vue-sonner.
+ */
 import type { ToasterProps } from 'vue-sonner';
 import { Toaster as Sonner } from 'vue-sonner';
 
@@ -6,7 +10,17 @@ defineOptions({
     name: 'AppSonner',
 });
 
-const props = defineProps<ToasterProps>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSonnerProps extends ToasterProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSonnerProps>();
 </script>
 
 <template>

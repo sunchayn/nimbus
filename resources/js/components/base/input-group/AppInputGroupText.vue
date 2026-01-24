@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppInputGroupText
+ * @description Plain text addon for an input group.
+ */
 import { cn } from '@/utils';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppInputGroupTextProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppInputGroupTextProps>();
 </script>
 
 <template>

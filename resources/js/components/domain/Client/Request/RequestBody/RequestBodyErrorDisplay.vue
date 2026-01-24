@@ -1,21 +1,33 @@
 <script setup lang="ts">
+/**
+ * @component RequestBodyErrorDisplay
+ * @description Displays a banner alerting the user about schema extraction errors in the request body.
+ */
 import SchemaExtractionErrorButton from '@/components/domain/Client/Errors/SchemaExtractionErrorButton.vue';
 import { TriangleAlertIcon } from 'lucide-vue-next';
 
-interface RequestBodyErrorDisplayProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRequestBodyErrorDisplayProps {
     extractionError: string;
 }
 
-const props = defineProps<RequestBodyErrorDisplayProps>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppRequestBodyErrorDisplayProps>();
 </script>
 
 <template>
     <div
-        class="px-panel flex items-center justify-between border-b bg-gradient-to-tr from-red-50 to-transparent to-50% py-1 dark:from-red-900/15"
+        class="px-panel flex items-center justify-between border-b bg-gradient-to-tr from-destructive/10 to-transparent to-50% py-1 dark:from-destructive/15"
     >
         <div class="flex items-start gap-2 text-xs">
             <div class="px-1 py-2">
-                <TriangleAlertIcon class="size-4 text-red-600 dark:text-red-500" />
+                <TriangleAlertIcon class="size-4 text-destructive" />
             </div>
             <div>
                 <span class="flex items-center gap-1 font-bold">Extraction Error</span>

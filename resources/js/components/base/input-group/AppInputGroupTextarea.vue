@@ -1,11 +1,25 @@
 <script setup lang="ts">
+/**
+ * @component AppInputGroupTextarea
+ * @description A specialized textarea for use inside an input group.
+ */
 import { AppTextarea } from '@/components/base/textarea';
 import { cn } from '@/utils';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppInputGroupTextareaProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppInputGroupTextareaProps>();
 </script>
 
 <template>

@@ -1,16 +1,28 @@
 <script setup lang="ts">
+/**
+ * @component AppButton
+ * @description Standard button component with multiple variants and sizes.
+ */
 import { cn } from '@/utils/ui';
 import { Primitive, type PrimitiveProps } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 import { type ButtonVariants, buttonVariants } from './index';
 
-export interface Props extends PrimitiveProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppButtonProps extends PrimitiveProps {
     variant?: ButtonVariants['variant'];
     size?: ButtonVariants['size'];
     class?: HTMLAttributes['class'];
 }
 
-const props = withDefaults(defineProps<Props>(), {
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppButtonProps>(), {
     as: 'button',
     variant: 'default',
     size: 'default',

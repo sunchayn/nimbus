@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppInputGroupButton
+ * @description A button intended for use within an input group.
+ */
 import { AppButton } from '@/components/base/button';
 import { cn } from '@/utils';
 import type { InputGroupButtonProps } from '.';
 import { inputGroupButtonVariants } from '.';
 
-const props = withDefaults(defineProps<InputGroupButtonProps>(), {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppInputGroupButtonComponentProps extends InputGroupButtonProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppInputGroupButtonComponentProps>(), {
     size: 'xs',
     variant: 'ghost',
 });

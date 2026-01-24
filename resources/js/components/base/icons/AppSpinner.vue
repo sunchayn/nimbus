@@ -1,12 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppSpinner
+ * @description A simple animated SVG spinner for indicating loading states.
+ */
 import { cn } from '@/utils/ui';
-import { HTMLAttributes } from 'vue';
+import { type HTMLAttributes } from 'vue';
 
-interface SpinnerProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSpinnerProps {
     class?: HTMLAttributes['class'];
 }
 
-const props = defineProps<SpinnerProps>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSpinnerProps>();
 </script>
 
 <template>

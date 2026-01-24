@@ -1,8 +1,12 @@
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { RequestLog } from '@/interfaces/history/logs';
 import { useSettingsStore } from '@/stores/core/useSettingsStore';
 import { useRequestsHistoryStore } from '@/stores/request/useRequestsHistoryStore';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
+
+/*
+ * Fixtures.
+ */
 
 describe('useRequestsHistoryStore', () => {
     beforeEach(() => {
@@ -11,72 +15,91 @@ describe('useRequestsHistoryStore', () => {
         settings.updatePreference('maxHistoryLogs', 2);
     });
 
-    it('adds logs and enforces max history size', () => {
-        const store = useRequestsHistoryStore();
+    /*
+     * Initialization tests.
+     */
 
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        const logs: RequestLog[] = [
-            { durationInMs: 10, isProcessing: false, request: {} as any },
-            { durationInMs: 20, isProcessing: false, request: {} as any },
-            { durationInMs: 30, isProcessing: false, request: {} as any },
-        ];
-        /* eslint-enable  @typescript-eslint/no-explicit-any */
+    describe('Log Management', () => {
+        it('adds logs and enforces max history size', () => {
+            // Arrange
 
-        logs.forEach(log => store.addLog(log));
+            const store = useRequestsHistoryStore();
+            const logs: RequestLog[] = [
+                { durationInMs: 10, isProcessing: false, request: {} as any },
+                { durationInMs: 20, isProcessing: false, request: {} as any },
+                { durationInMs: 30, isProcessing: false, request: {} as any },
+            ];
 
-        expect(store.allLogs).toHaveLength(2);
-        expect(store.lastLog?.durationInMs).toBe(30);
+            // Act
+
+            logs.forEach(log => store.addLog(log));
+
+            // Assert
+
+            expect(store.allLogs).toHaveLength(2);
+            expect(store.lastLog?.durationInMs).toBe(30);
+        });
+
+        it('clears logs when requested', () => {
+            // Arrange
+
+            const store = useRequestsHistoryStore();
+            store.addLog({ durationInMs: 10, isProcessing: false, request: {} as any });
+
+            // Act
+
+            store.clearLogs();
+
+            // Assert
+
+            expect(store.allLogs).toEqual([]);
+            expect(store.lastLog).toBeNull();
+        });
     });
 
-    it('clears logs when requested', () => {
-        const store = useRequestsHistoryStore();
+    /*
+     * State Transition tests.
+     */
 
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        store.addLog({ durationInMs: 10, isProcessing: false, request: {} as any });
-        /* eslint-enable  @typescript-eslint/no-explicit-any */
+    describe('Active Log State', () => {
+        it('can set and reset an active log index', () => {
+            // Arrange
 
-        store.clearLogs();
+            const store = useRequestsHistoryStore();
+            const logs: RequestLog[] = [
+                { durationInMs: 10, isProcessing: false, request: { method: 'GET' } as any },
+                { durationInMs: 20, isProcessing: false, request: { method: 'POST' } as any },
+            ];
+            logs.forEach(log => store.addLog(log));
 
-        expect(store.allLogs).toEqual([]);
-        expect(store.lastLog).toBeNull();
-    });
+            // Act & Assert
 
-    it('can set and reset an active log index', () => {
-        const store = useRequestsHistoryStore();
+            expect(store.lastLog?.durationInMs).toBe(20);
 
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        const logs: RequestLog[] = [
-            { durationInMs: 10, isProcessing: false, request: { method: 'GET' } as any },
-            { durationInMs: 20, isProcessing: false, request: { method: 'POST' } as any },
-        ];
-        /* eslint-enable  @typescript-eslint/no-explicit-any */
+            store.setActiveLog(0);
+            expect(store.activeLogIndex).toBe(0);
+            expect(store.lastLog?.durationInMs).toBe(10);
 
-        logs.forEach(log => store.addLog(log));
+            store.setActiveLog(null);
+            expect(store.activeLogIndex).toBe(null);
+            expect(store.lastLog?.durationInMs).toBe(20);
+        });
 
-        expect(store.lastLog?.durationInMs).toBe(20);
+        it('resets activeLogIndex when a new log is added', () => {
+            // Arrange
 
-        store.setActiveLog(0);
-        expect(store.activeLogIndex).toBe(0);
-        expect(store.lastLog?.durationInMs).toBe(10);
+            const store = useRequestsHistoryStore();
+            store.addLog({ durationInMs: 10, isProcessing: false, request: {} as any });
+            store.setActiveLog(0);
 
-        store.setActiveLog(null);
-        expect(store.activeLogIndex).toBe(null);
-        expect(store.lastLog?.durationInMs).toBe(20);
-    });
+            // Act
 
-    it('resets activeLogIndex when a new log is added', () => {
-        const store = useRequestsHistoryStore();
+            store.addLog({ durationInMs: 20, isProcessing: false, request: {} as any });
 
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        store.addLog({ durationInMs: 10, isProcessing: false, request: {} as any });
-        store.setActiveLog(0);
+            // Assert
 
-        expect(store.activeLogIndex).toBe(0);
-
-        store.addLog({ durationInMs: 20, isProcessing: false, request: {} as any });
-        /* eslint-enable  @typescript-eslint/no-explicit-any */
-
-        expect(store.activeLogIndex).toBeNull();
-        expect(store.lastLog?.durationInMs).toBe(20);
+            expect(store.activeLogIndex).toBeNull();
+            expect(store.lastLog?.durationInMs).toBe(20);
+        });
     });
 });

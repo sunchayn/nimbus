@@ -1,8 +1,24 @@
 <script setup lang="ts">
-import { cn } from '@/utils';
-import { HTMLAttributes } from 'vue';
+/**
+ * @component AppBrandIcon
+ * @description The main SVG brand icon for the application.
+ */
+import { cn } from '@/utils/ui';
+import { type HTMLAttributes } from 'vue';
 
-const props = defineProps<{ class?: HTMLAttributes['class'] }>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppBrandIconProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppBrandIconProps>();
 </script>
 <template>
     <svg

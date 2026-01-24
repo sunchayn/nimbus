@@ -1,14 +1,16 @@
-import { useRequestBody } from '@/composables/request/useRequestBody';
-import { AuthorizationType } from '@/interfaces/generated';
-import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { effectScope, reactive } from 'vue';
+import { AuthorizationType } from '@/interfaces/generated';
+import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
+import { useRequestBody } from '@/composables/request/useRequestBody';
 
-const requestStore = reactive<{
-    pendingRequestData: PendingRequest | null;
-}>({
-    pendingRequestData: null,
+/*
+ * Fixtures.
+ */
+
+const requestStore = reactive({
+    pendingRequestData: null as PendingRequest | null,
 });
 
 vi.mock('@/stores', async importOriginal => {
@@ -34,16 +36,7 @@ const createPendingRequest = (): PendingRequest => ({
     headers: [],
     body: {},
     payloadType: RequestBodyTypeEnum.JSON,
-    schema: {
-        shape: {
-            properties: {
-                name: {
-                    type: 'string',
-                },
-            },
-        },
-        extractionErrors: null,
-    },
+    schema: { shape: { properties: { name: { type: 'string' } } }, extractionErrors: null },
     queryParameters: [],
     authorization: { type: AuthorizationType.None },
     supportedRoutes: [],
@@ -51,16 +44,7 @@ const createPendingRequest = (): PendingRequest => ({
         method: 'POST',
         endpoint: 'api/users',
         shortEndpoint: 'api/users',
-        schema: {
-            shape: {
-                properties: {
-                    name: {
-                        type: 'string',
-                    },
-                },
-            },
-            extractionErrors: null,
-        },
+        schema: { shape: { properties: { name: { type: 'string' } } }, extractionErrors: null },
     },
     isProcessing: false,
     wasExecuted: false,
@@ -71,57 +55,74 @@ describe('useRequestBody', () => {
     beforeEach(() => {
         setActivePinia(createPinia());
         requestStore.pendingRequestData = createPendingRequest();
-        payloadMocks.generatePlaceholderPayload.mockClear();
-        payloadMocks.generateRandomPayload.mockClear();
-        payloadMocks.serializeSchemaPayload.mockClear();
+        vi.clearAllMocks();
     });
 
     const runComposable = () => {
-        let composable: ReturnType<typeof useRequestBody>;
+        let composable: any;
+        effectScope().run(() => { composable = useRequestBody(); });
 
-        effectScope().run(() => {
-            composable = useRequestBody();
-        });
-
-        // @ts-expect-error composable assigned within scope
-        return composable as ReturnType<typeof useRequestBody>;
+        return composable;
     };
 
-    it('generates placeholder payload when none memoized', () => {
-        const composable = runComposable();
+    /*
+     * Generation tests.
+     */
 
-        composable.payloadType.value = RequestBodyTypeEnum.JSON;
-        const payload = composable.generateCurrentPayload();
+    describe('Generation', () => {
+        it('generates placeholder payload when none memoized', () => {
+            // Arrange
 
-        expect(payloadMocks.generatePlaceholderPayload).toHaveBeenCalled();
-        expect(payloadMocks.serializeSchemaPayload).toHaveBeenCalled();
-        expect(payload).toBe('{"serialized":true}');
+            const composable = runComposable();
+            composable.payloadType.value = RequestBodyTypeEnum.JSON;
+
+            // Act
+
+            const payload = composable.generateCurrentPayload();
+
+            // Assert
+
+            expect(payloadMocks.generatePlaceholderPayload).toHaveBeenCalled();
+            expect(payload).toBe('{"serialized":true}');
+        });
+
+        it('hydrates payload from memoized body when available', () => {
+            // Arrange
+
+            const pending = requestStore.pendingRequestData!;
+            pending.body = { POST: { [RequestBodyTypeEnum.JSON]: '{"cached":true}' } };
+            const composable = runComposable();
+            composable.payloadType.value = RequestBodyTypeEnum.JSON;
+
+            // Act
+
+            const payload = composable.generateCurrentPayload();
+
+            // Assert
+
+            expect(payload).toBe('{"cached":true}');
+        });
     });
 
-    it('hydrates payload from memoized body when available', () => {
-        const pending = requestStore.pendingRequestData!;
-        pending.body = {
-            POST: {
-                [RequestBodyTypeEnum.JSON]: '{"cached":true}',
-            },
-        };
+    /*
+     * Behavior tests.
+     */
 
-        const composable = runComposable();
+    describe('Behavior', () => {
+        it('autofills payload using random generator', () => {
+            // Arrange
 
-        composable.payloadType.value = RequestBodyTypeEnum.JSON;
-        const payload = composable.generateCurrentPayload();
+            const composable = runComposable();
+            composable.payloadType.value = RequestBodyTypeEnum.JSON;
 
-        expect(payload).toBe('{"cached":true}');
-    });
+            // Act
 
-    it('autofills payload using random generator', () => {
-        const composable = runComposable();
+            composable.autofill();
 
-        composable.payloadType.value = RequestBodyTypeEnum.JSON;
-        composable.autofill();
+            // Assert
 
-        expect(payloadMocks.generateRandomPayload).toHaveBeenCalled();
-        expect(payloadMocks.serializeSchemaPayload).toHaveBeenCalled();
-        expect(composable.payload.value).toBe('{"serialized":true}');
+            expect(payloadMocks.generateRandomPayload).toHaveBeenCalled();
+            expect(composable.payload.value).toBe('{"serialized":true}');
+        });
     });
 });

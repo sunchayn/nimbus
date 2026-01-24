@@ -1,24 +1,33 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarMenuSubButton
+ * @description An interactive button within a sidebar sub-menu.
+ */
 import { cn } from '@/utils/ui';
 import type { PrimitiveProps } from 'reka-ui';
 import { Primitive } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = withDefaults(
-    defineProps<
-        PrimitiveProps & {
-            size?: 'sm' | 'md';
-            isActive?: boolean;
-            class?: HTMLAttributes['class'];
-        }
-    >(),
-    {
-        as: 'a',
-        size: 'md',
-        isActive: false,
-        class: '',
-    },
-);
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarMenuSubButtonProps extends PrimitiveProps {
+    size?: 'sm' | 'md';
+    isActive?: boolean;
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppSidebarMenuSubButtonProps>(), {
+    as: 'a',
+    size: 'md',
+    isActive: false,
+    class: '',
+});
 </script>
 
 <template>

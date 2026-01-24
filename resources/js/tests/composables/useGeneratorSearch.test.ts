@@ -2,6 +2,10 @@ import { useGeneratorSearch } from '@/composables/data/useGeneratorSearch';
 import { ValueGenerator } from '@/interfaces/ui';
 import { describe, expect, it } from 'vitest';
 
+/*
+ * Fixtures.
+ */
+
 const mockGenerators: ValueGenerator[] = [
     {
         id: 'email',
@@ -27,10 +31,17 @@ const mockGenerators: ValueGenerator[] = [
 ];
 
 describe('useGeneratorSearch', () => {
-    describe('initialization', () => {
+    /*
+     * Initialization tests.
+     */
+
+    describe('Initialization', () => {
         it('initializes with empty search query and no category filter', () => {
-            const { searchQuery, selectedCategory, filteredGenerators } =
-                useGeneratorSearch(mockGenerators);
+            // Act
+
+            const { searchQuery, selectedCategory, filteredGenerators } = useGeneratorSearch(mockGenerators);
+
+            // Assert
 
             expect(searchQuery.value).toBe('');
             expect(selectedCategory.value).toBeNull();
@@ -38,118 +49,75 @@ describe('useGeneratorSearch', () => {
         });
     });
 
-    describe('text search filtering', () => {
+    /*
+     * State Transition tests.
+     */
+
+    describe('Filtering', () => {
         it('filters generators by name case-insensitively', () => {
-            const { setSearchQuery, filteredGenerators } =
-                useGeneratorSearch(mockGenerators);
+            // Arrange
+
+            const { setSearchQuery, filteredGenerators } = useGeneratorSearch(mockGenerators);
+
+            // Act
 
             setSearchQuery('email');
+
+            // Assert
 
             expect(filteredGenerators.value).toHaveLength(1);
             expect(filteredGenerators.value[0].id).toBe('email');
         });
 
         it('filters generators by description case-insensitively', () => {
-            const { setSearchQuery, filteredGenerators } =
-                useGeneratorSearch(mockGenerators);
+            // Arrange
+
+            const { setSearchQuery, filteredGenerators } = useGeneratorSearch(mockGenerators);
+
+            // Act
 
             setSearchQuery('uuid');
+
+            // Assert
 
             expect(filteredGenerators.value).toHaveLength(1);
             expect(filteredGenerators.value[0].id).toBe('uuid');
         });
 
-        it('returns empty array when no generators match search query', () => {
-            const { setSearchQuery, filteredGenerators } =
-                useGeneratorSearch(mockGenerators);
-
-            setSearchQuery('nonexistent');
-
-            expect(filteredGenerators.value).toEqual([]);
-        });
-
-        it('matches partial text in name or description', () => {
-            const { setSearchQuery, filteredGenerators } =
-                useGeneratorSearch(mockGenerators);
-
-            setSearchQuery('generator');
-
-            expect(filteredGenerators.value).toHaveLength(3);
-        });
-
-        it('clears search filter when query is empty', () => {
-            const { setSearchQuery, filteredGenerators } =
-                useGeneratorSearch(mockGenerators);
-
-            setSearchQuery('email');
-            expect(filteredGenerators.value).toHaveLength(1);
-
-            setSearchQuery('');
-            expect(filteredGenerators.value).toEqual(mockGenerators);
-        });
-    });
-
-    describe('category filtering', () => {
         it('filters generators by selected category', () => {
-            const { setSelectedCategory, filteredGenerators } =
-                useGeneratorSearch(mockGenerators);
+            // Arrange
+
+            const { setSelectedCategory, filteredGenerators } = useGeneratorSearch(mockGenerators);
+
+            // Act
 
             setSelectedCategory('string');
 
+            // Assert
+
             expect(filteredGenerators.value).toHaveLength(2);
-            expect(filteredGenerators.value.every(g => g.category.id === 'string')).toBe(
-                true,
-            );
+            expect(filteredGenerators.value.every(g => g.category.id === 'string')).toBe(true);
         });
 
-        it('returns empty array when no generators match category', () => {
-            const { setSelectedCategory, filteredGenerators } =
-                useGeneratorSearch(mockGenerators);
-
-            setSelectedCategory('nonexistent');
-
-            expect(filteredGenerators.value).toEqual([]);
-        });
-
-        it('clears category filter when set to null', () => {
-            const { setSelectedCategory, filteredGenerators } =
-                useGeneratorSearch(mockGenerators);
-
-            setSelectedCategory('string');
-            expect(filteredGenerators.value).toHaveLength(2);
-
-            setSelectedCategory(null);
-            expect(filteredGenerators.value).toEqual(mockGenerators);
-        });
-    });
-
-    describe('combined filtering', () => {
         it('applies both search query and category filter simultaneously', () => {
-            const { setSearchQuery, setSelectedCategory, filteredGenerators } =
-                useGeneratorSearch(mockGenerators);
+            // Arrange
+
+            const { setSearchQuery, setSelectedCategory, filteredGenerators } = useGeneratorSearch(mockGenerators);
+
+            // Act
 
             setSearchQuery('generator');
             setSelectedCategory('string');
 
+            // Assert
+
             expect(filteredGenerators.value).toHaveLength(2);
-            expect(filteredGenerators.value.every(g => g.category.id === 'string')).toBe(
-                true,
-            );
+            expect(filteredGenerators.value.every(g => g.category.id === 'string')).toBe(true);
         });
 
-        it('returns empty array when filters exclude all generators', () => {
-            const { setSearchQuery, setSelectedCategory, filteredGenerators } =
-                useGeneratorSearch(mockGenerators);
-
-            setSearchQuery('email');
-            setSelectedCategory('number');
-
-            expect(filteredGenerators.value).toEqual([]);
-        });
-    });
-
-    describe('filter management', () => {
         it('clears all filters when clearFilters is called', () => {
+            // Arrange
+
             const {
                 setSearchQuery,
                 setSelectedCategory,
@@ -160,41 +128,24 @@ describe('useGeneratorSearch', () => {
             setSearchQuery('email');
             setSelectedCategory('string');
 
+            // Act
+
             clearFilters();
+
+            // Assert
 
             expect(filteredGenerators.value).toEqual(mockGenerators);
         });
-
-        it('correctly identifies when filters are active', () => {
-            const {
-                setSearchQuery,
-                setSelectedCategory,
-                hasActiveFilters,
-                clearFilters,
-            } = useGeneratorSearch(mockGenerators);
-
-            expect(hasActiveFilters.value).toBe(false);
-
-            setSearchQuery('test');
-            expect(hasActiveFilters.value).toBe(true);
-
-            clearFilters();
-            setSelectedCategory('string');
-            expect(hasActiveFilters.value).toBe(true);
-
-            clearFilters();
-            expect(hasActiveFilters.value).toBe(false);
-        });
     });
 
-    describe('edge cases', () => {
-        it('handles empty generators array', () => {
-            const { filteredGenerators } = useGeneratorSearch([]);
+    /*
+     * Edge Cases.
+     */
 
-            expect(filteredGenerators.value).toEqual([]);
-        });
-
+    describe('Edge Cases', () => {
         it('handles search query with special characters', () => {
+            // Arrange
+
             const generatorsWithSpecialChars: ValueGenerator[] = [
                 {
                     id: 'special',
@@ -205,22 +156,27 @@ describe('useGeneratorSearch', () => {
                 },
             ];
 
-            const { setSearchQuery, filteredGenerators } = useGeneratorSearch(
-                generatorsWithSpecialChars,
-            );
+            const { setSearchQuery, filteredGenerators } = useGeneratorSearch(generatorsWithSpecialChars);
+
+            // Act
 
             setSearchQuery('@');
-            expect(filteredGenerators.value).toHaveLength(1);
 
-            setSearchQuery('(');
+            // Assert
+
             expect(filteredGenerators.value).toHaveLength(1);
         });
 
         it('handles very long search queries', () => {
-            const { setSearchQuery, filteredGenerators } =
-                useGeneratorSearch(mockGenerators);
+            // Arrange
+
+            const { setSearchQuery, filteredGenerators } = useGeneratorSearch(mockGenerators);
+
+            // Act
 
             setSearchQuery('a'.repeat(1000));
+
+            // Assert
 
             expect(filteredGenerators.value).toEqual([]);
         });

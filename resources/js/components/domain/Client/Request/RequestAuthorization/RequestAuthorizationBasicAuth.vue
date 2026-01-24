@@ -1,20 +1,50 @@
 <script setup lang="ts">
+/**
+ * @component RequestAuthorizationBasicAuth
+ * @description Input fields for Basic Authentication (username/password).
+ */
 import { AppInput } from '@/components/base/input';
-import { ModelRef, ref, watch } from 'vue';
+import { type ModelRef, ref, watch } from 'vue';
 
-type modelType = { username: string; password: string };
+/*
+ * Types & Interfaces.
+ */
 
-const model: ModelRef<modelType> = defineModel<modelType>({
+export type AppRequestAuthorizationBasicAuthModel = {
+    username: string;
+    password: string;
+};
+
+export interface AppRequestAuthorizationBasicAuthProps {}
+
+export interface AppRequestAuthorizationBasicAuthEmits {
+    (e: 'update:modelValue', value: AppRequestAuthorizationBasicAuthModel): void;
+}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRequestAuthorizationBasicAuthProps>();
+const emit = defineEmits<AppRequestAuthorizationBasicAuthEmits>();
+
+const model = defineModel<AppRequestAuthorizationBasicAuthModel>({
     default: () => ({
         username: '',
         password: '',
     }),
 });
 
-const emit = defineEmits(['update:modelValue']);
+/*
+ * State.
+ */
 
 const username = ref(model.value.username);
 const password = ref(model.value.password);
+
+/*
+ * Watchers.
+ */
 
 watch(username, newValue => {
     model.value.username = newValue;

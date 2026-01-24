@@ -1,14 +1,26 @@
 <script setup lang="ts">
+/**
+ * @component AppDropdownMenuLabel
+ * @description A label for a group of dropdown menu items.
+ */
 import { cn } from '@/utils/ui';
 import { DropdownMenuLabel, type DropdownMenuLabelProps, useForwardProps } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-const props = defineProps<
-    DropdownMenuLabelProps & {
-        class?: HTMLAttributes['class'];
-        inset?: boolean;
-    }
->();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDropdownMenuLabelProps extends DropdownMenuLabelProps {
+    class?: HTMLAttributes['class'];
+    inset?: boolean;
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDropdownMenuLabelProps>();
 
 const delegatedProps = computed(() => {
     const { class: _, ...delegated } = props;

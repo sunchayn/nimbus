@@ -1,120 +1,198 @@
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 import type { StringDump } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
 import StringDumpRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/StringDumpRenderer.vue';
 import { DumpValueType } from '@/interfaces/generated/dump-value-types';
-import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
-import { describe, expect, it } from 'vitest';
-import { nextTick } from 'vue';
+
+/*
+ * Fixtures.
+ */
+
+/**
+ * Factory function to create a mounted wrapper with sensible defaults.
+ */
+const createWrapper = (options= {}): VueWrapper => {
+    return mount(StringDumpRenderer, {
+        ...options,
+        global: {
+            plugins: [createPinia()],
+            // @ts-expect-error .global not found in object.
+            ...(options.global || {}),
+        },
+    });
+};
 
 describe('StringDumpRenderer', () => {
-    it('renders string value in quotes', async () => {
-        const dump: StringDump = {
-            type: DumpValueType.String,
-            value: 'test-string',
-        };
-
-        renderWithProviders(StringDumpRenderer, {
-            props: { dump },
-        });
-
-        await nextTick();
-
-        const element = screen.getByText(/"test-string"/);
-        expect(element).toBeInTheDocument();
+    beforeEach(() => {
+        setActivePinia(createPinia());
+        vi.clearAllMocks();
     });
 
-    it('displays string length in parentheses', async () => {
-        const dump: StringDump = {
-            type: DumpValueType.String,
-            value: 'hello',
-        };
+    /*
+     * Rendering tests.
+     */
 
-        renderWithProviders(StringDumpRenderer, {
-            props: { dump },
+    describe('Rendering', () => {
+        it('renders string value in quotes', async () => {
+            // Arrange
+
+            const dump: StringDump = {
+                type: DumpValueType.String,
+                value: 'test-string',
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toContain('"test-string"');
         });
 
-        await nextTick();
+        it('displays string length in parentheses', async () => {
+            // Arrange
 
-        expect(screen.getByText(/\(5\)/)).toBeInTheDocument();
+            const dump: StringDump = {
+                type: DumpValueType.String,
+                value: 'hello',
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toContain('(5)');
+        });
+
+        it('applies correct CSS classes', async () => {
+            // Arrange
+
+            const dump: StringDump = {
+                type: DumpValueType.String,
+                value: 'test',
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            const span = wrapper.find('span');
+            expect(span.classes()).toContain('text-xs');
+            expect(span.classes()).toContain('font-mono');
+        });
     });
 
-    it('applies correct CSS classes', async () => {
-        const dump: StringDump = {
-            type: DumpValueType.String,
-            value: 'test',
-        };
+    /*
+     * Edge Cases.
+     */
 
-        const { container } = renderWithProviders(StringDumpRenderer, {
-            props: { dump },
+    describe('Edge Cases', () => {
+        it('handles empty strings', async () => {
+            // Arrange
+
+            const dump: StringDump = {
+                type: DumpValueType.String,
+                value: '',
+            };
+
+            const wrapper = createWrapper({
+                props: { dump },
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toContain('""');
+            expect(wrapper.text()).toContain('(0)');
         });
 
-        await nextTick();
+        it('handles long strings', async () => {
+            // Arrange
 
-        const span = container.querySelector('span');
-        expect(span?.className).toContain('text-xs');
-        expect(span?.className).toContain('font-mono');
-    });
+            const longString = 'a'.repeat(1000);
+            const dump: StringDump = {
+                type: DumpValueType.String,
+                value: longString,
+            };
 
-    it('handles empty strings', async () => {
-        const dump: StringDump = {
-            type: DumpValueType.String,
-            value: '',
-        };
+            const wrapper = createWrapper({
+                props: { dump },
+            });
 
-        renderWithProviders(StringDumpRenderer, {
-            props: { dump },
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toContain(`"${longString}"`);
+            expect(wrapper.text()).toContain('(1000)');
         });
 
-        await nextTick();
+        it('handles unicode characters', async () => {
+            // Arrange
 
-        expect(screen.getByText(/""/)).toBeInTheDocument();
-        expect(screen.getByText(/\(0\)/)).toBeInTheDocument();
-    });
+            const dump: StringDump = {
+                type: DumpValueType.String,
+                value: '测试 🎉',
+            };
 
-    it('handles long strings', async () => {
-        const longString = 'a'.repeat(1000);
-        const dump: StringDump = {
-            type: DumpValueType.String,
-            value: longString,
-        };
+            const wrapper = createWrapper({
+                props: { dump },
+            });
 
-        renderWithProviders(StringDumpRenderer, {
-            props: { dump },
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toContain('"测试 🎉"');
+            expect(wrapper.text()).toContain('(5)');
         });
 
-        await nextTick();
+        it('handles strings with quotes', async () => {
+            // Arrange
 
-        expect(screen.getByText(new RegExp(`"${longString}"`))).toBeInTheDocument();
-        expect(screen.getByText(/\(1000\)/)).toBeInTheDocument();
-    });
+            const dump: StringDump = {
+                type: DumpValueType.String,
+                value: 'string with "quotes"',
+            };
 
-    it('handles unicode characters', async () => {
-        const dump: StringDump = {
-            type: DumpValueType.String,
-            value: '测试 🎉',
-        };
+            const wrapper = createWrapper({
+                props: { dump },
+            });
 
-        renderWithProviders(StringDumpRenderer, {
-            props: { dump },
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.text()).toContain('"string with "quotes""');
         });
-
-        await nextTick();
-
-        expect(screen.getByText(/"测试 🎉"/)).toBeInTheDocument();
-        expect(screen.getByText(/\(5\)/)).toBeInTheDocument();
-    });
-
-    it('handles strings with quotes', async () => {
-        const dump: StringDump = {
-            type: DumpValueType.String,
-            value: 'string with "quotes"',
-        };
-
-        renderWithProviders(StringDumpRenderer, {
-            props: { dump },
-        });
-
-        await nextTick();
-
-        expect(screen.getByText(/"string with "quotes""/)).toBeInTheDocument();
     });
 });

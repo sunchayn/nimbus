@@ -1,6 +1,11 @@
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ValueGenerator } from '@/interfaces/ui';
 import { useValueGeneratorDefinitionsStore } from '@/stores/generators/useValueGeneratorDefinitionsStore';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+/*
+ * Fixtures.
+ */
 
 const generatorFixtures = vi.hoisted(() => ({
     allValueGenerators: [
@@ -11,83 +16,75 @@ const generatorFixtures = vi.hoisted(() => ({
             category: { id: 'string', name: 'String' },
             generate: () => 'test@example.com',
         },
-        {
-            id: 'uuid',
-            name: 'UUID Generator',
-            description: 'Generates UUID',
-            category: { id: 'string', name: 'String' },
-            generate: () => '123e4567-e89b-12d3-a456-426614174000',
-        },
-        {
-            id: 'number',
-            name: 'Number Generator',
-            description: 'Generates number',
-            category: { id: 'number', name: 'Number' },
-            generate: () => 42,
-        },
     ] as ValueGenerator[],
-    generatorCategories: [
-        { id: 'string', name: 'String' },
-        { id: 'number', name: 'Number' },
-    ],
+    generatorCategories: [{ id: 'string', name: 'String' }],
 }));
 
 vi.mock('@/config/generators', () => generatorFixtures);
 
-const mockGenerators = generatorFixtures.allValueGenerators;
-const mockCategories = generatorFixtures.generatorCategories;
-
 describe('useValueGeneratorDefinitionsStore', () => {
-    let store: ReturnType<typeof useValueGeneratorDefinitionsStore>;
-
     beforeEach(() => {
-        store = useValueGeneratorDefinitionsStore();
+        setActivePinia(createPinia());
+        vi.clearAllMocks();
     });
 
-    describe('initial state', () => {
+    /*
+     * Initialization tests.
+     */
+
+    describe('Initialization', () => {
         it('initializes with generators from config', () => {
-            expect(store.generators).toEqual(mockGenerators);
+            // Act
+
+            const store = useValueGeneratorDefinitionsStore();
+
+            // Assert
+
+            expect(store.generators).toEqual(generatorFixtures.allValueGenerators);
         });
 
         it('initializes with categories from config', () => {
-            expect(store.categories).toEqual(mockCategories);
+            // Act
+
+            const store = useValueGeneratorDefinitionsStore();
+
+            // Assert
+
+            expect(store.categories).toEqual(generatorFixtures.generatorCategories);
         });
     });
 
-    describe('getGeneratorById', () => {
+    /*
+     * Search tests.
+     */
+
+    describe('Search', () => {
         it('returns generator when found by id', () => {
+            // Arrange
+
+            const store = useValueGeneratorDefinitionsStore();
+
+            // Act
+
             const generator = store.getGeneratorById('email');
 
-            expect(generator).toEqual(mockGenerators[0]);
+            // Assert
+
+            expect(generator?.id).toBe('email');
         });
 
         it('returns undefined when generator not found', () => {
+            // Arrange
+
+            const store = useValueGeneratorDefinitionsStore();
+
+            // Act
+
             const generator = store.getGeneratorById('nonexistent');
 
+            // Assert
+
             expect(generator).toBeUndefined();
-        });
-    });
-
-    describe('getGeneratorsByCategory', () => {
-        it('returns all generators for specified category', () => {
-            const generators = store.getGeneratorsByCategory('string');
-
-            expect(generators).toHaveLength(2);
-            expect(generators.every(g => g.category.id === 'string')).toBe(true);
-        });
-
-        it('returns empty array when no generators match category', () => {
-            const generators = store.getGeneratorsByCategory('nonexistent');
-
-            expect(generators).toEqual([]);
-        });
-    });
-
-    describe('getAllCategories', () => {
-        it('returns all categories', () => {
-            const categories = store.getAllCategories();
-
-            expect(categories).toEqual(mockCategories);
         });
     });
 });

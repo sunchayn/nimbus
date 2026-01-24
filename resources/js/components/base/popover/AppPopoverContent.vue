@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppPopoverContent
+ * @description The main content area for a popover, including portal and animations.
+ */
 import { cn } from '@/utils/ui';
 import { reactiveOmit } from '@vueuse/core';
 import type { PopoverContentEmits, PopoverContentProps } from 'reka-ui';
@@ -9,14 +13,23 @@ defineOptions({
     inheritAttrs: false,
 });
 
-const props = withDefaults(
-    defineProps<PopoverContentProps & { class?: HTMLAttributes['class'] }>(),
-    {
-        align: 'center',
-        sideOffset: 4,
-        class: undefined,
-    },
-);
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppPopoverContentProps extends PopoverContentProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppPopoverContentProps>(), {
+    align: 'center',
+    sideOffset: 4,
+    class: undefined,
+});
 const emits = defineEmits<PopoverContentEmits>();
 
 const delegatedProps = reactiveOmit(props, 'class');

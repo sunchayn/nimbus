@@ -1,11 +1,26 @@
 <script setup lang="ts">
+/**
+ * @component AppSeparator
+ * @description A visual divider between content sections.
+ */
 import { cn } from '@/utils/ui';
 import { Separator, type SeparatorProps } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-const props = defineProps<
-    SeparatorProps & { class?: HTMLAttributes['class']; label?: string }
->();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSeparatorProps extends SeparatorProps {
+    class?: HTMLAttributes['class'];
+    label?: string;
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSeparatorProps>();
 
 const delegatedProps = computed(() => {
     const { class: _, ...delegated } = props;

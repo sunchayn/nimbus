@@ -1,8 +1,22 @@
 <script setup lang="ts">
+/**
+ * @component AppPopover
+ * @description Root container for a popover menu.
+ */
 import type { PopoverRootEmits, PopoverRootProps } from 'reka-ui';
 import { PopoverRoot, useForwardPropsEmits } from 'reka-ui';
 
-const props = defineProps<PopoverRootProps>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppPopoverProps extends PopoverRootProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppPopoverProps>();
 const emits = defineEmits<PopoverRootEmits>();
 
 const forwarded = useForwardPropsEmits(props, emits);

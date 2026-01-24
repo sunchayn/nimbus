@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppDialogHeader
+ * @description Header container for dialog title and description.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDialogHeaderProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDialogHeaderProps>();
 </script>
 
 <template>

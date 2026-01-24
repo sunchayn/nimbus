@@ -1,11 +1,15 @@
-<template>
-    <div :class="cn('absolute shadow-xl', 'animate-ripple-circle', props.class)" />
-</template>
-
 <script setup lang="ts">
+/**
+ * @component AppRippleCircle
+ * @description An individual animated circle for the ripple effect.
+ */
 import { cn } from '@/utils/ui';
 
-interface Props {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRippleCircleProps {
     size?: number;
     class?: string;
     opacity?: number;
@@ -13,7 +17,11 @@ interface Props {
     borderStyle?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppRippleCircleProps>(), {
     size: 210,
     opacity: 0.24,
     class: '',
@@ -21,6 +29,10 @@ const props = withDefaults(defineProps<Props>(), {
     borderStyle: '',
 });
 </script>
+
+<template>
+    <div :class="cn('absolute shadow-xl', 'animate-ripple-circle', props.class)" />
+</template>
 
 <style scoped>
 .animate-ripple-circle {

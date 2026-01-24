@@ -1,19 +1,31 @@
 <script setup lang="ts">
-defineOptions({
-    name: 'PageLayout',
-});
+/**
+ * @component PageLayout
+ * @description The main structural layout for application pages, including header, subheader, and content area.
+ */
+import { type Component } from 'vue';
 
-import type { Component } from 'vue';
+/*
+ * Types & Interfaces.
+ */
 
-interface Props {
+export interface AppPageLayoutProps {
     title: string;
     icon?: Component;
     scrollable?: boolean;
 }
 
-withDefaults(defineProps<Props>(), {
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppPageLayoutProps>(), {
     scrollable: true,
     icon: undefined,
+});
+
+defineOptions({
+    name: 'PageLayout',
 });
 </script>
 

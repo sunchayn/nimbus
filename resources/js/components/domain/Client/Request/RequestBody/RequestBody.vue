@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component RequestBody
+ * @description The container for the request body configuration, supporting multiple payload types.
+ */
 import {
     RequestBodyAutoFillButton,
     RequestBodySelector,
@@ -7,6 +11,18 @@ import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vu
 import { useRequestBody } from '@/composables/request/useRequestBody';
 import RequestBodyContent from './RequestBodyContent.vue';
 import RequestBodyErrorDisplay from './RequestBodyErrorDisplay.vue';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppRequestBodyProps {}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRequestBodyProps>();
 
 /*
  * Composables.

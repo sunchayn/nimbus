@@ -1,7 +1,21 @@
-<script lang="ts" setup>
+<script setup lang="ts">
+/**
+ * @component AppFormMessage
+ * @description Displays validation error messages for a form field.
+ */
 import { ErrorMessage } from 'vee-validate';
 import { toValue } from 'vue';
 import { useFormField } from './useFormField';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppFormMessageProps {}
+
+/*
+ * Component Setup.
+ */
 
 const { name, formMessageId } = useFormField();
 </script>

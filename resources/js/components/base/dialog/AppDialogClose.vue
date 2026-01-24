@@ -1,8 +1,22 @@
 <script setup lang="ts">
+/**
+ * @component AppDialogClose
+ * @description An interactive element that closes the dialog.
+ */
 import type { DialogCloseProps } from 'reka-ui';
 import { DialogClose } from 'reka-ui';
 
-const props = defineProps<DialogCloseProps>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDialogCloseProps extends DialogCloseProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDialogCloseProps>();
 </script>
 
 <template>

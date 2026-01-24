@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppTableHead
+ * @description A header cell for defining column titles.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppTableHeadProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppTableHeadProps>();
 </script>
 
 <template>

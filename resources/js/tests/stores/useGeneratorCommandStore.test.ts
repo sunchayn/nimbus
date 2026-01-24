@@ -1,52 +1,88 @@
-import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
-import { useGeneratorCommandStore } from '@/stores/generators/useGeneratorCommandStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
+import { useGeneratorCommandStore } from '@/stores/generators/useGeneratorCommandStore';
+
+/*
+ * Fixtures.
+ */
 
 describe('useGeneratorCommandStore', () => {
     beforeEach(() => {
         setActivePinia(createPinia());
     });
 
-    it('opens and closes command while tracking input refs', () => {
-        const store = useGeneratorCommandStore();
-        const input = document.createElement('input');
+    /*
+     * Initialization tests.
+     */
 
-        store.openCommand(input, ValueGeneratorCommandOpenMethod.SHIFT_SHIFT);
+    describe('Visibility', () => {
+        it('opens and closes command while tracking input refs', () => {
+            // Arrange
 
-        expect(store.isCommandOpen).toBe(true);
-        expect(store.currentInputRef).toBe(input);
-        expect(store.wasOpenedViaShiftShift).toBe(true);
+            const store = useGeneratorCommandStore();
+            const input = document.createElement('input');
 
-        store.closeCommand();
+            // Act
 
-        expect(store.isCommandOpen).toBe(false);
-        expect(store.currentInputRef).toBeNull();
+            store.openCommand(input, ValueGeneratorCommandOpenMethod.SHIFT_SHIFT);
+
+            // Assert
+
+            expect(store.isCommandOpen).toBe(true);
+            expect(store.currentInputRef).toBe(input);
+            expect(store.wasOpenedViaShiftShift).toBe(true);
+
+            // Act
+
+            store.closeCommand();
+
+            // Assert
+
+            expect(store.isCommandOpen).toBe(false);
+            expect(store.currentInputRef).toBeNull();
+        });
     });
 
-    it('updates command state and maintains recent generators cap', () => {
-        const store = useGeneratorCommandStore();
+    /*
+     * State Transition tests.
+     */
 
-        store.setSearchQuery('email');
-        store.setSelectedCategory('strings');
-        store.addToRecentGenerators('uuid');
-        store.addToRecentGenerators('email');
-        store.addToRecentGenerators('uuid'); // promotes existing entry
+    describe('State Management', () => {
+        it('updates command state and maintains recent generators cap', () => {
+            // Arrange
 
-        expect(store.commandState.searchQuery).toBe('email');
-        expect(store.commandState.selectedCategory).toBe('strings');
-        expect(store.commandState.recentGenerators).toEqual(['uuid', 'email']);
-    });
+            const store = useGeneratorCommandStore();
 
-    it('restores prior command search when command has no query', () => {
-        const store = useGeneratorCommandStore();
+            // Act
 
-        store.setSearchQuery('date');
+            store.setSearchQuery('email');
+            store.setSelectedCategory('strings');
+            store.addToRecentGenerators('uuid');
+            store.addToRecentGenerators('email');
+            store.addToRecentGenerators('uuid'); // promotes existing entry
 
-        const commandInstance = { filterState: { search: '' } };
+            // Assert
 
-        store.restoreCommandState(commandInstance);
+            expect(store.commandState.searchQuery).toBe('email');
+            expect(store.commandState.selectedCategory).toBe('strings');
+            expect(store.commandState.recentGenerators).toEqual(['uuid', 'email']);
+        });
 
-        expect(commandInstance.filterState.search).toBe('date');
+        it('restores prior command search when command has no query', () => {
+            // Arrange
+
+            const store = useGeneratorCommandStore();
+            store.setSearchQuery('date');
+            const commandInstance = { filterState: { search: '' } };
+
+            // Act
+
+            store.restoreCommandState(commandInstance);
+
+            // Assert
+
+            expect(commandInstance.filterState.search).toBe('date');
+        });
     });
 });

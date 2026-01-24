@@ -1,15 +1,29 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebar
+ * @description Root sidebar component that handles layout, collapsible states, and variants.
+ */
 import { cn } from '@/utils/ui';
 import { SidebarProps, useSidebar } from './index';
 
-const props = withDefaults(defineProps<SidebarProps>(), {
+defineOptions({
+    inheritAttrs: false,
+});
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarComponentProps extends SidebarProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppSidebarComponentProps>(), {
     side: 'left',
     variant: 'sidebar',
     collapsible: 'icon',
-});
-
-defineOptions({
-    inheritAttrs: false,
 });
 
 const { state } = useSidebar();

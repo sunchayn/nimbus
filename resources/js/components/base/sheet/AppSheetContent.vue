@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppSheetContent
+ * @description The content area for a sheet, including overlay and transition animations.
+ */
 import { cn } from '@/utils/ui';
 import { X } from 'lucide-vue-next';
 import {
@@ -13,22 +17,30 @@ import {
 import { computed, type HTMLAttributes } from 'vue';
 import { type SheetVariants, sheetVariants } from './index';
 
-interface SheetContentProps extends DialogContentProps {
-    class?: HTMLAttributes['class'];
-    side?: SheetVariants['side'];
-}
-
-const props = defineProps<SheetContentProps>();
-
-const emits = defineEmits<DialogContentEmits>();
-
 defineOptions({
     inheritAttrs: false,
 });
 
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSheetContentProps extends DialogContentProps {
+    class?: HTMLAttributes['class'];
+    side?: SheetVariants['side'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSheetContentProps>();
+const emits = defineEmits<DialogContentEmits>();
+
 const delegatedProps = computed(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    /* eslint-disable @typescript-eslint/no-unused-vars */
     const { class: _, side, ...delegated } = props;
+    /* eslint-enable @typescript-eslint/no-unused-vars */
 
     return delegated;
 });

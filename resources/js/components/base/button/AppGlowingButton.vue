@@ -1,13 +1,25 @@
 <script setup lang="ts">
-import { Props } from '@/components/base/button/AppButton.vue';
+/**
+ * @component AppGlowingButton
+ * @description A button with a glowing animated border effect.
+ */
+import { type AppButtonProps } from '@/components/base/button/AppButton.vue';
 import { AppButton } from '@/components/base/button/index';
 import AppBorderBeam from '@/components/base/glow-border/AppBorderBeam.vue';
 import { cn } from '@/utils/ui';
 
-interface AppGlowingButtonProps extends Props {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppGlowingButtonProps extends AppButtonProps {
     duration?: number;
     beamSize?: number;
 }
+
+/*
+ * Component Setup.
+ */
 
 const props = withDefaults(defineProps<AppGlowingButtonProps>(), {
     size: 'xs',

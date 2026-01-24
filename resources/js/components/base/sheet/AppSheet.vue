@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppSheet
+ * @description Root container for a sheet component.
+ */
 import {
     DialogRoot,
     type DialogRootEmits,
@@ -6,7 +10,17 @@ import {
     useForwardPropsEmits,
 } from 'reka-ui';
 
-const props = defineProps<DialogRootProps>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSheetProps extends DialogRootProps {}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSheetProps>();
 const emits = defineEmits<DialogRootEmits>();
 
 const forwarded = useForwardPropsEmits(props, emits);

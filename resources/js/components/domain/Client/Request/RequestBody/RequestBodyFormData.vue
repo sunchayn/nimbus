@@ -1,18 +1,33 @@
 <script setup lang="ts">
+/**
+ * @component RequestBodyFormData
+ * @description Key-value editor for FormData request bodies.
+ */
 import KeyValueParametersBuilder from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
-import { ParameterContract } from '@/interfaces/ui';
+import { type ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
 import { nextTick, ref, watch } from 'vue';
 
 /*
- * Model.
+ * Types & Interfaces.
  */
+
+export interface AppRequestBodyFormDataProps {}
+
+export interface AppRequestBodyFormDataEmits {
+    (e: 'update:modelValue', value: FormData | null): void;
+}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppRequestBodyFormDataProps>();
+const emit = defineEmits<AppRequestBodyFormDataEmits>();
 
 const model = defineModel<FormData | null>({
     default: () => null,
 });
-
-const emit = defineEmits(['update:modelValue']);
 
 /*
  * State.
@@ -22,41 +37,6 @@ const emit = defineEmits(['update:modelValue']);
 const isPropagatingChangesToParent = ref(false);
 
 const payload = ref<ParameterContract[]>([]);
-
-/*
- * Watchers.
- */
-
-watch(
-    model,
-    (newModel: FormData | null) => {
-        if (newModel === null) {
-            return;
-        }
-
-        if (isPropagatingChangesToParent.value) {
-            return;
-        }
-
-        // Re-initialize the payload if the parent updated the payload from an exterior source.
-        // For instance, when the user changes to a different endpoint.
-        payload.value =
-            newModel instanceof FormData
-                ? convertFormDataToParametersArray(newModel)
-                : [];
-
-        nextTick(() => {
-            isPropagatingChangesToParent.value = false;
-        });
-    },
-    { deep: true },
-);
-
-const handlePayloadUpdate = (parameters: ParameterContract[]) => {
-    isPropagatingChangesToParent.value = true;
-    payload.value = parameters;
-    emit('update:modelValue', convertParametersArrayToFormData(parameters));
-};
 
 /*
  * Actions.
@@ -112,6 +92,41 @@ function convertFormDataToParametersArray(form: FormData): ParameterContract[] {
 
     return parameters;
 }
+
+const handlePayloadUpdate = (parameters: ParameterContract[]) => {
+    isPropagatingChangesToParent.value = true;
+    payload.value = parameters;
+    emit('update:modelValue', convertParametersArrayToFormData(parameters));
+};
+
+/*
+ * Watchers.
+ */
+
+watch(
+    model,
+    (newModel: FormData | null) => {
+        if (newModel === null) {
+            return;
+        }
+
+        if (isPropagatingChangesToParent.value) {
+            return;
+        }
+
+        // Re-initialize the payload if the parent updated the payload from an exterior source.
+        // For instance, when the user changes to a different endpoint.
+        payload.value =
+            newModel instanceof FormData
+                ? convertFormDataToParametersArray(newModel)
+                : [];
+
+        nextTick(() => {
+            isPropagatingChangesToParent.value = false;
+        });
+    },
+    { deep: true },
+);
 </script>
 
 <template>

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppDropdownMenuRadioItem
+ * @description A dropdown menu item that acts as a radio button within a group.
+ */
 import { cn } from '@/utils/ui';
 import { Circle } from 'lucide-vue-next';
 import {
@@ -10,9 +14,19 @@ import {
 } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-const props = defineProps<
-    DropdownMenuRadioItemProps & { class?: HTMLAttributes['class'] }
->();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppDropdownMenuRadioItemProps extends DropdownMenuRadioItemProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppDropdownMenuRadioItemProps>();
 
 const emits = defineEmits<DropdownMenuRadioItemEmits>();
 

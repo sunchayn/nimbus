@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component UserPreferencesSection
+ * @description Settings section for configuring user-specific application preferences.
+ */
 import { AppLabel } from '@/components/base/label';
 import {
     AppSelect,
@@ -14,11 +18,31 @@ import { PaletteIcon, ZapIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { toast } from 'vue-sonner';
 
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppUserPreferencesSectionProps {}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppUserPreferencesSectionProps>();
+
 defineOptions({
     name: 'UserPreferencesSection',
 });
 
+/*
+ * Stores.
+ */
+
 const settingsStore = useSettingsStore();
+
+/*
+ * Computed & Methods.
+ */
 
 const preferences = computed(() => settingsStore.preferences);
 
@@ -144,7 +168,7 @@ const updatePreference = <K extends keyof typeof preferences.value>(
         </div>
 
         <!-- Divider -->
-        <div class="border-t border-zinc-200 dark:border-zinc-800"></div>
+        <div class="border-t border-border"></div>
 
         <!-- Request Defaults -->
         <div class="grid gap-2 sm:grid-cols-12 sm:gap-8">

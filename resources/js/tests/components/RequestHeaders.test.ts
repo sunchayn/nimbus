@@ -1,10 +1,17 @@
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick, reactive, ref } from 'vue';
 import RequestHeaders from '@/components/domain/Client/Request/RequestHeaders/RequestHeaders.vue';
 import { AuthorizationType } from '@/interfaces/generated';
 import { GeneratorType, PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
 import { ParameterContract, ParameterType } from '@/interfaces/ui';
-import { renderWithProviders } from '@/tests/_utils/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick, reactive, ref } from 'vue';
+import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
+
+/*
+ * Fixtures.
+ */
 
 const mockConfigStore = reactive({
     headers: [
@@ -33,14 +40,31 @@ vi.mock('@/stores', async importOriginal => {
     };
 });
 
-const renderComponent = () => renderWithProviders(RequestHeaders);
-
 const setPendingRequest = (request: PendingRequest | null) => {
-    mockRequestStore.pendingRequestData = ref(request) as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    mockRequestStore.pendingRequestData = ref(request) as any;
+};
+
+/**
+ * Factory function to create a mounted wrapper with sensible defaults.
+ */
+const createWrapper = (options= {}): VueWrapper => {
+    return mount(RequestHeaders, {
+        ...options,
+        global: {
+            plugins: [createPinia()],
+            stubs: {
+                // Stub heavy child components if any
+                KeyValueParameters: true,
+            },
+            // @ts-expect-error .global not found in object.
+            ...(options.global || {}),
+        },
+    });
 };
 
 describe('RequestHeaders', () => {
     beforeEach(() => {
+        setActivePinia(createPinia());
         vi.useFakeTimers();
         generateValue.mockClear();
 
@@ -77,88 +101,110 @@ describe('RequestHeaders', () => {
         });
 
         mockRequestStore.updateRequestHeaders.mockClear();
+        vi.clearAllMocks();
     });
 
-    it('initializes headers with global defaults and syncs them to the store', async () => {
-        renderComponent();
+    /*
+     * Rendering tests.
+     */
 
-        await nextTick();
-        vi.advanceTimersByTime(310);
-        await nextTick();
+    describe('Rendering', () => {
+        it('initializes headers with global defaults and syncs them to the store', async () => {
+            // Arrange
 
-        expect(mockRequestStore.updateRequestHeaders).toHaveBeenCalledWith(
-            expect.arrayContaining([
-                expect.objectContaining({ key: 'X-Global', value: 'foo', enabled: true }),
-                expect.objectContaining({
-                    key: 'X-Generated',
-                    value: 'generated@example.com',
+            createWrapper();
+
+            // Act
+
+            await nextTick();
+            vi.advanceTimersByTime(310);
+            await nextTick();
+
+            // Assert
+
+            expect(mockRequestStore.updateRequestHeaders).toHaveBeenCalledWith(
+                expect.arrayContaining([
+                    expect.objectContaining({ key: 'X-Global', value: 'foo', enabled: true }),
+                    expect.objectContaining({
+                        key: 'X-Generated',
+                        value: 'generated@example.com',
+                        enabled: true,
+                    }),
+                ]),
+            );
+            expect(generateValue).toHaveBeenCalledWith('email');
+        });
+    });
+
+    /*
+     * State Transition tests.
+     */
+
+    describe('Behavior', () => {
+        it('preserves headers and does not re-inject globals when the endpoint changes', async () => {
+            // Arrange
+
+            createWrapper();
+
+            await nextTick();
+            vi.advanceTimersByTime(310);
+            await nextTick();
+
+            const firstSyncCall = vi.mocked(mockRequestStore.updateRequestHeaders).mock.calls[0][0];
+
+            // Act - Simulate the store being updated with these headers
+            setPendingRequest({
+                ...mockRequestStore.pendingRequestData!,
+                headers: firstSyncCall,
+            });
+
+            await nextTick();
+            mockRequestStore.updateRequestHeaders.mockClear();
+
+            // Act - Change the endpoint
+            setPendingRequest({
+                ...mockRequestStore.pendingRequestData!,
+                endpoint: 'api/other-endpoint',
+            });
+
+            await nextTick();
+            vi.advanceTimersByTime(310);
+            await nextTick();
+
+            // Assert - Should not have triggered a new update because effectiveHeaders returned currentHeaders
+            expect(mockRequestStore.updateRequestHeaders).not.toHaveBeenCalled();
+        });
+
+        it('prefers existing store headers over global defaults', async () => {
+            // Arrange
+
+            const customHeaders: ParameterContract[] = [
+                {
+                    key: 'X-Custom',
+                    value: 'custom-value',
                     enabled: true,
-                }),
-            ]),
-        );
-        expect(generateValue).toHaveBeenCalledWith('email');
-    });
+                    id: 1,
+                    type: ParameterType.Text,
+                },
+            ];
 
-    it('preserves headers and does not re-inject globals when the endpoint changes', async () => {
-        // 1. Initial render populates headers from globals
-        renderComponent();
+            setPendingRequest({
+                ...mockRequestStore.pendingRequestData!,
+                headers: customHeaders,
+            });
 
-        await nextTick();
-        vi.advanceTimersByTime(310);
-        await nextTick();
+            createWrapper();
 
-        const firstSyncCall = vi.mocked(mockRequestStore.updateRequestHeaders).mock
-            .calls[0][0];
+            // Act
 
-        // 2. Simulate the store being updated with these headers
-        setPendingRequest({
-            ...mockRequestStore.pendingRequestData!,
-            headers: firstSyncCall,
+            await nextTick();
+            vi.advanceTimersByTime(310);
+            await nextTick();
+
+            // Assert - It should NOT have initialized with global headers
+            expect(mockRequestStore.updateRequestHeaders).not.toHaveBeenCalledWith(
+                expect.arrayContaining([expect.objectContaining({ key: 'X-Global' })]),
+            );
         });
-
-        await nextTick();
-        mockRequestStore.updateRequestHeaders.mockClear();
-
-        // 3. Change the endpoint
-        setPendingRequest({
-            ...mockRequestStore.pendingRequestData!,
-            endpoint: 'api/other-endpoint',
-        });
-
-        await nextTick();
-        vi.advanceTimersByTime(310);
-        await nextTick();
-
-        // Should not have triggered a new update because effectiveHeaders returned currentHeaders
-        expect(mockRequestStore.updateRequestHeaders).not.toHaveBeenCalled();
-    });
-
-    it('prefers existing store headers over global defaults', async () => {
-        const customHeaders: ParameterContract[] = [
-            {
-                key: 'X-Custom',
-                value: 'custom-value',
-                enabled: true,
-                id: 1,
-                type: ParameterType.Text,
-            },
-        ];
-
-        setPendingRequest({
-            ...mockRequestStore.pendingRequestData!,
-            headers: customHeaders,
-        });
-
-        renderComponent();
-
-        await nextTick();
-        vi.advanceTimersByTime(310);
-        await nextTick();
-
-        // It should NOT have initialized with global headers
-        // It might sync back the custom headers if they were deep cloned internally
-        expect(mockRequestStore.updateRequestHeaders).not.toHaveBeenCalledWith(
-            expect.arrayContaining([expect.objectContaining({ key: 'X-Global' })]),
-        );
     });
 });

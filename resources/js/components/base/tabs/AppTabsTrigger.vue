@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppTabsTrigger
+ * @description The interactive tab header that activates its corresponding content.
+ */
 import { cn } from '@/utils/ui';
 import {
     TabsTrigger,
@@ -7,12 +11,24 @@ import {
 } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 
-interface TabTriggerProps extends RekaTabsTriggerProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppTabsTriggerProps extends RekaTabsTriggerProps {
     label?: string;
     class?: HTMLAttributes['class'];
 }
 
-const props = defineProps<TabTriggerProps>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppTabsTriggerProps>();
+
+/*
+ * Computed & Methods.
+ */
 
 const delegatedProps = computed(() => {
     const { class: _, ...delegated } = props;

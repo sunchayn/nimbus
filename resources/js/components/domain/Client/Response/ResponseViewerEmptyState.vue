@@ -1,6 +1,22 @@
 <script setup lang="ts">
+/**
+ * @component ResponseViewerEmptyState
+ * @description A placeholder displayed when no request has been performed yet.
+ */
 import AppPanelStateContainer from '@/components/base/AppPanelStateContainer.vue';
 import DocumentationLinkButton from '@/components/domain/DocumentationLinkButton.vue';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppResponseViewerEmptyStateProps {}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppResponseViewerEmptyStateProps>();
 </script>
 
 <template>

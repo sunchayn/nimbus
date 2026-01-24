@@ -1,14 +1,26 @@
 <script setup lang="ts">
+/**
+ * @component ResponseStatusCode
+ * @description Displays the numeric status code and status text badge.
+ */
 import { AppBadge } from '@/components/base/badge';
 import StatusIndicator from '@/components/domain/Client/Response/ResponseStatus/StatusIndicator.vue';
-import { Response, STATUS } from '@/interfaces/http';
+import { type Response, STATUS } from '@/interfaces/http';
 
-interface ResponseStatusCodeProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppResponseStatusCodeProps {
     status: STATUS;
     response: Response | undefined;
 }
 
-const props = defineProps<ResponseStatusCodeProps>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppResponseStatusCodeProps>();
 </script>
 
 <template>

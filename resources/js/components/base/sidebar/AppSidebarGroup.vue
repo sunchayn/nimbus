@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarGroup
+ * @description A logical grouping for sidebar menu items.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarGroupProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSidebarGroupProps>();
 </script>
 
 <template>

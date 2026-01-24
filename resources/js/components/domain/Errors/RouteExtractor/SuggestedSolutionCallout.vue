@@ -1,11 +1,23 @@
 <script setup lang="ts">
+/**
+ * @component SuggestedSolutionCallout
+ * @description A callout box displaying a suggested solution for the error.
+ */
 import { LightbulbIcon } from 'lucide-vue-next';
 
-interface SuggestedSolutionCalloutProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSuggestedSolutionCalloutProps {
     solution: string;
 }
 
-defineProps<SuggestedSolutionCalloutProps>();
+/*
+ * Component Setup.
+ */
+
+defineProps<AppSuggestedSolutionCalloutProps>();
 </script>
 
 <template>

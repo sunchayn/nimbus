@@ -1,11 +1,29 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarRail
+ * @description An invisible interactive area on the edge of the sidebar for quick toggling.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 import { useSidebar } from './utils';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarRailProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSidebarRailProps>();
+
+/*
+ * Computed & Methods.
+ */
 
 const { toggleSidebar } = useSidebar();
 </script>

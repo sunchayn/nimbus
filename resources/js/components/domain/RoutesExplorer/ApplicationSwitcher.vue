@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component ApplicationSwitcher
+ * @description A dropdown component for switching between different applications in a multi-app setup.
+ */
 import {
     AppSelect,
     AppSelectContent,
@@ -10,9 +14,25 @@ import {
 } from '@/components/base/select';
 import { useConfigStore } from '@/stores';
 import { LayersIcon } from 'lucide-vue-next';
-import { AcceptableValue } from 'reka-ui';
+import { type AcceptableValue } from 'reka-ui';
+
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppApplicationSwitcherProps {}
+
+/*
+ * Component Setup.
+ */
+
+defineProps<AppApplicationSwitcherProps>();
 
 const configStore = useConfigStore();
+
+/*
+ * Event Handlers.
+ */
 
 const handleApplicationChange = (applicationKey: AcceptableValue) => {
     if (applicationKey === null) {

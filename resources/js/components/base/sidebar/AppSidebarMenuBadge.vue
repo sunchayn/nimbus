@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarMenuBadge
+ * @description A badge displayed within a sidebar menu item.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarMenuBadgeProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSidebarMenuBadgeProps>();
 </script>
 
 <template>

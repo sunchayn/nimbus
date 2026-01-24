@@ -1,29 +1,33 @@
 <script setup lang="ts">
+/**
+ * @component ResponseStatus
+ * @description Renders the status bar for a response, showing the status code, duration, size, and history controls.
+ */
 import { AppButton } from '@/components/base/button';
 import RequestHistory from '@/components/domain/Client/Response/ResponseStatus/History/RequestHistory.vue';
 import ResponseStatusCode from '@/components/domain/Client/Response/ResponseStatus/ResponseStatusCode.vue';
-import { PendingRequest, STATUS } from '@/interfaces/http';
+import { type PendingRequest, STATUS } from '@/interfaces/http';
 import { useRequestsHistoryStore, useRequestStore } from '@/stores';
 import { cn } from '@/utils/ui';
 import { RefreshCwOffIcon } from 'lucide-vue-next';
 import prettyBytes from 'pretty-bytes';
 import prettyMs from 'pretty-ms';
-import { PrimitiveProps } from 'reka-ui';
-import { computed, ComputedRef, HTMLAttributes } from 'vue';
+import { type PrimitiveProps } from 'reka-ui';
+import { computed, type ComputedRef, type HTMLAttributes } from 'vue';
 
 /*
- * Types & interfaces.
+ * Types & Interfaces.
  */
 
-interface ResponseStatusProps extends PrimitiveProps {
+export interface AppResponseStatusProps extends PrimitiveProps {
     class?: HTMLAttributes['class'];
 }
 
 /*
- * Props.
+ * Component Setup.
  */
 
-const props = defineProps<ResponseStatusProps>();
+const props = defineProps<AppResponseStatusProps>();
 
 /*
  * Stores.
@@ -33,7 +37,7 @@ const requestStore = useRequestStore();
 const historyStore = useRequestsHistoryStore();
 
 /*
- * Computed.
+ * Computed & Methods.
  */
 
 const pendingRequestData: ComputedRef<PendingRequest | null> = computed(
@@ -75,10 +79,6 @@ const duration = computed(() => {
         },
     );
 });
-
-/*
- * Actions.
- */
 
 const cancelRequest = () => {
     requestStore.cancelCurrentRequest();

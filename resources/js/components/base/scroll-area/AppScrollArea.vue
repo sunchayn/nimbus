@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component AppScrollArea
+ * @description A custom-styled scrollable container using radix-ui primitives.
+ */
 import { cn } from '@/utils/ui';
 import { reactiveOmit } from '@vueuse/core';
 import type { ScrollAreaRootProps } from 'reka-ui';
@@ -6,7 +10,19 @@ import { ScrollAreaCorner, ScrollAreaRoot, ScrollAreaViewport } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 import AppScrollBar from './AppScrollBar.vue';
 
-const props = defineProps<ScrollAreaRootProps & { class?: HTMLAttributes['class'] }>();
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppScrollAreaProps extends ScrollAreaRootProps {
+    class?: HTMLAttributes['class'];
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppScrollAreaProps>();
 
 const delegatedProps = reactiveOmit(props, 'class');
 </script>

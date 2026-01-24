@@ -1,10 +1,24 @@
 <script setup lang="ts">
+/**
+ * @component AppSidebarFooter
+ * @description The bottom section of the sidebar, typically for user profiles or settings.
+ */
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppSidebarFooterProps {
     class?: HTMLAttributes['class'];
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppSidebarFooterProps>();
 </script>
 
 <template>

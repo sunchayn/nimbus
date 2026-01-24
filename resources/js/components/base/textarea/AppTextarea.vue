@@ -1,17 +1,36 @@
 <script setup lang="ts">
-import { cn } from '@/utils';
+/**
+ * @component AppTextarea
+ * @description A multiline text input component with auto-sizing support.
+ */
+import { cn } from '@/utils/ui';
 import { useVModel } from '@vueuse/core';
 import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<{
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppTextareaProps {
     class?: HTMLAttributes['class'];
     defaultValue?: string | number;
     modelValue?: string | number;
-}>();
+}
 
-const emits = defineEmits<{
+export interface AppTextareaEmits {
     (e: 'update:modelValue', payload: string | number): void;
-}>();
+}
+
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppTextareaProps>();
+const emits = defineEmits<AppTextareaEmits>();
+
+/*
+ * Computed & Methods.
+ */
 
 const modelValue = useVModel(props, 'modelValue', emits, {
     passive: true,

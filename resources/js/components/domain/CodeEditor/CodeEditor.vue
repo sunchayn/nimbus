@@ -1,14 +1,22 @@
 <script setup lang="ts">
+/**
+ * @component CodeEditor
+ * @description A rich code editor wrapper around CodeMirror with support for JSON and plain text.
+ */
 import {
     fallbackExtensions,
     jsonExtensions,
 } from '@/components/domain/CodeEditor/extensions';
 import type { JSONSchema7 } from 'json-schema';
-import { PrimitiveProps } from 'reka-ui';
-import { computed, HTMLAttributes } from 'vue';
+import { type PrimitiveProps } from 'reka-ui';
+import { computed, type HTMLAttributes } from 'vue';
 import { Codemirror } from 'vue-codemirror';
 
-interface CodeEditorProps extends PrimitiveProps {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppCodeEditorProps extends PrimitiveProps {
     class?: HTMLAttributes['class'];
     placeholder?: string;
     language: 'json' | 'plain';
@@ -17,7 +25,11 @@ interface CodeEditorProps extends PrimitiveProps {
     validationSchema?: JSONSchema7;
 }
 
-const props = withDefaults(defineProps<CodeEditorProps>(), {
+/*
+ * Component Setup.
+ */
+
+const props = withDefaults(defineProps<AppCodeEditorProps>(), {
     readonly: false,
     placeholder: 'Payload...',
     disabled: false,
@@ -28,6 +40,10 @@ const props = withDefaults(defineProps<CodeEditorProps>(), {
 const model = defineModel<string>({
     default: () => '',
 });
+
+/*
+ * Computed & Methods.
+ */
 
 const extensions = computed(() => {
     if (props.language === 'json') {

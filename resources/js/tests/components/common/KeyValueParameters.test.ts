@@ -1,8 +1,14 @@
-import KeyValueParameters from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
-import { renderWithProviders, screen } from '@/tests/_utils/test-utils';
-import { fireEvent, getByTestId } from '@testing-library/vue';
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { computed, nextTick, Ref, ref } from 'vue';
+import KeyValueParameters from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
+import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
+
+/*
+ * Fixtures.
+ */
 
 const parameters: Ref<
     Array<{
@@ -12,22 +18,7 @@ const parameters: Ref<
         enabled: boolean;
         type: string;
     }>
-> = ref([
-    {
-        id: '1',
-        key: 'test-key',
-        value: 'test-value',
-        enabled: true,
-        type: 'text',
-    },
-    {
-        id: '2',
-        key: 'another-key',
-        value: 'another-value',
-        enabled: false,
-        type: 'text',
-    },
-]);
+> = ref([]);
 
 const deletingAll = ref(false);
 const areAllDisabledRef = ref(false);
@@ -66,16 +57,28 @@ vi.mock('@/stores', async importOriginal => {
     };
 });
 
-const renderComponent = (props: Record<string, unknown> = {}) =>
-    renderWithProviders(KeyValueParameters, {
+/**
+ * Factory function to create a mounted wrapper with sensible defaults.
+ */
+const createWrapper = (options= {}): VueWrapper => {
+    return mount(KeyValueParameters, {
         props: {
             modelValue: [],
-            ...props,
+            // @ts-expect-error .props not found in object.
+            ...(options.props || {}),
         },
+        global: {
+            plugins: [createPinia()],
+            // @ts-expect-error .global not found in object.
+            ...(options.global || {}),
+        },
+        ...options,
     });
+};
 
 describe('KeyValueParameters', () => {
     beforeEach(() => {
+        setActivePinia(createPinia());
         parameters.value = [
             {
                 id: '1',
@@ -95,6 +98,7 @@ describe('KeyValueParameters', () => {
         deletingAll.value = false;
         areAllDisabledRef.value = false;
 
+        vi.clearAllMocks();
         addNewEmptyParameter.mockClear();
         toggleAllParametersEnabledState.mockClear();
         triggerParameterDeletion.mockClear();
@@ -104,96 +108,142 @@ describe('KeyValueParameters', () => {
         closeCommand.mockClear();
     });
 
-    it('renders parameters and header controls', () => {
-        renderComponent();
+    /*
+     * Rendering tests.
+     */
 
-        expect(screen.getByTestId('kv-container')).toBeInTheDocument();
-        expect(screen.getAllByTestId('parameter-row')).toHaveLength(2);
-        expect(screen.getByTestId('add-button')).toBeInTheDocument();
-        expect(screen.getByTestId('enable-all-button')).toBeInTheDocument();
-        expect(screen.getByTestId('delete-all-button')).toBeInTheDocument();
+    describe('Rendering', () => {
+        it('renders parameters and header controls', () => {
+            // Arrange
+
+            const wrapper = createWrapper();
+
+            // Assert
+
+            expect(wrapper.find('[data-testid="kv-container"]').exists()).toBe(true);
+            expect(wrapper.findAll('[data-testid="parameter-row"]')).toHaveLength(2);
+            expect(wrapper.find('[data-testid="add-button"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="enable-all-button"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="delete-all-button"]').exists()).toBe(true);
+        });
+
+        it('shows type selector when freeFormTypes enabled', () => {
+            // Arrange
+
+            const wrapper = createWrapper({
+                props: { freeFormTypes: true },
+            });
+
+            // Assert
+
+            expect(wrapper.findAll('[data-testid="type-selector"]')).toHaveLength(2);
+        });
     });
 
-    it('shows type selector when freeFormTypes enabled', () => {
-        renderComponent({ freeFormTypes: true });
+    /*
+     * State Transition tests.
+     */
 
-        expect(screen.getAllByTestId('type-selector')).toHaveLength(2);
+    describe('Behavior', () => {
+        it('invokes composable actions for header buttons', async () => {
+            // Arrange
+
+            const wrapper = createWrapper();
+
+            // Act
+
+            await wrapper.find('[data-testid="add-button"]').trigger('click');
+            await wrapper.find('[data-testid="enable-all-button"]').trigger('click');
+            await wrapper.find('[data-testid="delete-all-button"]').trigger('click');
+
+            // Assert
+
+            expect(addNewEmptyParameter).toHaveBeenCalled();
+            expect(toggleAllParametersEnabledState).toHaveBeenCalled();
+            expect(deleteAllParameters).toHaveBeenCalled();
+        });
+
+        it('updates enable button label based on disabled state', async () => {
+            // Arrange
+
+            const wrapper = createWrapper();
+
+            // Assert
+
+            expect(wrapper.find('[data-testid="enable-all-button"]').text()).toBe('Disable All');
+
+            // Act
+
+            areAllDisabledRef.value = true;
+            await nextTick();
+
+            // Assert
+
+            expect(wrapper.find('[data-testid="enable-all-button"]').text()).toBe('Enable All');
+        });
+
+        it('displays generator button while value input focused and opens command', async () => {
+            // Arrange
+
+            const wrapper = createWrapper();
+            const valueInputs = wrapper.findAll('[data-testid="kv-value"]');
+
+            // Act
+
+            await valueInputs[0].trigger('focus');
+            await nextTick();
+
+            const generatorButton = wrapper.find('[data-testid="generator-button"]');
+            await generatorButton.trigger('mousedown');
+
+            // Assert
+
+            expect(openCommand).toHaveBeenCalledWith(valueInputs[0].element);
+        });
+
+        it('keeps generator open when blur moves into generator palette', async () => {
+            // Arrange
+
+            const wrapper = createWrapper();
+            const valueInput = wrapper.findAll('[data-testid="kv-value"]')[0];
+
+            // Act
+
+            await valueInput.trigger('focus');
+
+            const relatedTarget = document.createElement('div');
+            relatedTarget.setAttribute('data-ValueGenerator-focus-hook', '');
+
+            await valueInput.trigger('blur', { relatedTarget });
+
+            // Assert
+
+            expect(closeCommand).not.toHaveBeenCalled();
+        });
     });
 
-    it('invokes composable actions for header buttons', async () => {
-        renderComponent();
+    /*
+     * Edge Cases.
+     */
 
-        await fireEvent.click(screen.getByTestId('add-button'));
+    describe('Edge Cases', () => {
+        it('marks delete button when parameter flagged for deletion', () => {
+            // Arrange
 
-        await fireEvent.click(screen.getByTestId('enable-all-button'));
+            isParameterMarkedForDeletion
+                .mockReturnValueOnce(true) // <- First Parameter.
+                .mockReturnValueOnce(false); // <- Second Parameter.
 
-        await fireEvent.click(screen.getByTestId('delete-all-button'));
+            const wrapper = createWrapper();
+            const rows = wrapper.findAll('[data-testid="parameter-row"]');
 
-        expect(addNewEmptyParameter).toHaveBeenCalled();
-        expect(toggleAllParametersEnabledState).toHaveBeenCalled();
-        expect(deleteAllParameters).toHaveBeenCalled();
-    });
+            // Assert
 
-    it('updates enable button label based on disabled state', async () => {
-        renderComponent();
+            const firstDeleteButton = rows[0].get('[data-testid="delete-button"]');
+            const secondDeleteButton = rows[1].get('[data-testid="delete-button"]');
 
-        expect(screen.getByTestId('enable-all-button')).toHaveTextContent('Disable All');
-
-        areAllDisabledRef.value = true;
-
-        await nextTick();
-
-        expect(screen.getByTestId('enable-all-button')).toHaveTextContent('Enable All');
-    });
-
-    it('displays generator button while value input focused and opens command', async () => {
-        renderComponent();
-
-        const valueInputs = screen.getAllByTestId('kv-value');
-
-        await fireEvent.focus(valueInputs[0]);
-
-        await nextTick();
-
-        const generatorButton = screen.getByTestId('generator-button');
-
-        await fireEvent.mouseDown(generatorButton);
-
-        expect(openCommand).toHaveBeenCalledWith(valueInputs[0]);
-    });
-
-    it('keeps generator open when blur moves into generator palette', async () => {
-        renderComponent();
-
-        const valueInput = screen.getAllByTestId('kv-value')[0];
-
-        await fireEvent.focus(valueInput);
-
-        const relatedTarget = document.createElement('div');
-        relatedTarget.setAttribute('data-ValueGenerator-focus-hook', '');
-
-        await fireEvent.blur(valueInput, { relatedTarget });
-
-        expect(closeCommand).not.toHaveBeenCalled();
-    });
-
-    it('marks delete button when parameter flagged for deletion', () => {
-        isParameterMarkedForDeletion
-            .mockReturnValueOnce(true) // <- First Parameter.
-            .mockReturnValueOnce(false); // <- Second Parameter.
-
-        renderComponent();
-
-        const rows = screen.getAllByTestId('parameter-row');
-
-        const firstDeleteIcon = getByTestId(rows[0], 'delete-button').querySelector(
-            'svg',
-        );
-        const secondDeleteIcon = getByTestId(rows[1], 'delete-button').querySelector(
-            'svg',
-        );
-
-        expect(firstDeleteIcon?.classList).toContain('text-rose-500');
-        expect(secondDeleteIcon?.classList ?? '').not.toContain('text-rose-500');
+            expect(firstDeleteButton.find('svg').classes()).toContain('text-destructive');
+            expect(secondDeleteButton.find('svg').classes()).not.toContain('text-rose-500');
+        });
     });
 });

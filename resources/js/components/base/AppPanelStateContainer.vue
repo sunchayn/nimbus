@@ -1,13 +1,25 @@
 <script setup lang="ts">
+/**
+ * @component AppPanelStateContainer
+ * @description A layout container for panel content with an integrated ripple background effect.
+ */
 import AppPanelRipple from '@/components/base/AppPanelRipple.vue';
 import { cn } from '@/utils/ui';
 import type { HTMLAttributes } from 'vue';
 
-interface Props {
+/*
+ * Types & Interfaces.
+ */
+
+export interface AppPanelStateContainerProps {
     class?: HTMLAttributes['class'];
 }
 
-const props = defineProps<Props>();
+/*
+ * Component Setup.
+ */
+
+const props = defineProps<AppPanelStateContainerProps>();
 </script>
 
 <template>
