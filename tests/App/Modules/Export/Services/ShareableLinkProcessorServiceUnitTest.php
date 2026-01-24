@@ -1,6 +1,6 @@
 <?php
 
-namespace Sunchayn\Nimbus\Tests\App\Modules\Share\Services;
+namespace Sunchayn\Nimbus\Tests\App\Modules\Export\Services;
 
 use Generator;
 use Illuminate\Contracts\Config\Repository;
