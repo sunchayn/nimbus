@@ -8,6 +8,7 @@ jobs:
   test:
     timeout-minutes: 5
     runs-on: ubuntu-latest
+    name: E2E Tests
     steps:
       - name: Checkout code
         if: ${{ !env.ACT }}
