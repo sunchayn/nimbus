@@ -1,5 +1,5 @@
-import { ErrorPlainResponse, Request, Response } from '@/interfaces/http';
-import { Ref } from 'vue';
+import type { ErrorPlainResponse, Request, Response } from '@/interfaces/http';
+import type { Ref } from 'vue';
 
 export interface RequestLog {
     durationInMs: number;

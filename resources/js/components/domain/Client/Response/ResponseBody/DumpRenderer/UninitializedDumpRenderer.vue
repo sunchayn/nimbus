@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import {
-    styles,
-    UninitializedDump,
-} from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
+import type { UninitializedDump } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
+import { styles } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
 import { cn } from '@/utils';
 
 interface PropsShape {

@@ -1,8 +1,8 @@
+import { AppBadge } from '@/components/base/badge';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppBadge } from '@/components/base/badge';
 
 /*
  * Fixtures.
@@ -11,7 +11,6 @@ import { AppBadge } from '@/components/base/badge';
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-import type { MountingOptions } from '@vue/test-utils';
 
 /**
  * Factory function to create a mounted wrapper with sensible defaults.

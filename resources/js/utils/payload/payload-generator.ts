@@ -1,11 +1,11 @@
 import { allValueGenerators, PROPERTY_NAME_PATTERNS } from '@/config/generators';
 import { PAYLOAD_GENERATOR_CONFIG } from '@/config/payload-generator';
-import {
+import type {
     PayloadObject,
     PayloadObjectValue,
     PayloadPrimitive,
 } from '@/interfaces/schema/payload';
-import { ValueGenerator } from '@/interfaces/ui';
+import type { ValueGenerator } from '@/interfaces/ui';
 import { isComplexType, isPrimitiveType, SchemaType } from '@/types/schema';
 import { faker } from '@faker-js/faker';
 import type { JSONSchema7 } from 'json-schema';

@@ -1,13 +1,14 @@
-import { AuthorizationContract } from "@/interfaces/auth/authorization";
-import { RequestLog } from "@/interfaces/history/logs";
-import { ParameterContract, ParameterType } from "@/interfaces";
-import { STATUS } from "@/interfaces/http/status";
-import { ErrorPlainResponse, Response } from "@/interfaces/http/response";
-import { RelayProxyResponse } from "@/interfaces/http";
-import { PendingRequest, Request, RequestBodyTypeEnum } from "@/interfaces/http/request";
-import { RouteDefinition, RoutesGroup } from "@/interfaces/routes/routes";
-import { vi } from "vitest";
-import { AuthorizationType } from "@/interfaces/generated";
+import { type ParameterContract, ParameterType } from '@/interfaces';
+import type { AuthorizationContract } from '@/interfaces/auth/authorization';
+import { AuthorizationType } from '@/interfaces/generated';
+import type { RequestLog } from '@/interfaces/history/logs';
+import type { RelayProxyResponse } from '@/interfaces/http';
+import type { PendingRequest, Request } from '@/interfaces/http/request';
+import { RequestBodyTypeEnum } from '@/interfaces/http/request';
+import type { ErrorPlainResponse, Response } from '@/interfaces/http/response';
+import { STATUS } from '@/interfaces/http/status';
+import type { RouteDefinition, RoutesGroup } from '@/interfaces/routes/routes';
+import { type Mock, vi } from 'vitest';
 
 /*
  * Http & Request Factories.
@@ -20,7 +21,15 @@ export interface MockRouteOverrides {
     middleware?: string[];
 }
 
-export const createMockBackendRoute = (overrides: MockRouteOverrides = {}) => ({
+export const createMockBackendRoute = (
+    overrides: MockRouteOverrides = {},
+): {
+    method: string;
+    uri: string;
+    name: string;
+    action: string;
+    middleware: string[];
+} => ({
     method: 'GET',
     uri: '/api/users',
     name: 'api.users.index',
@@ -29,7 +38,9 @@ export const createMockBackendRoute = (overrides: MockRouteOverrides = {}) => ({
     ...overrides,
 });
 
-export const createMockRouteDefinition = (overrides: Partial<RouteDefinition> = {}): RouteDefinition => ({
+export const createMockRouteDefinition = (
+    overrides: Partial<RouteDefinition> = {},
+): RouteDefinition => ({
     method: 'GET',
     endpoint: 'api/users',
     shortEndpoint: 'api/users',
@@ -40,7 +51,9 @@ export const createMockRouteDefinition = (overrides: Partial<RouteDefinition> = 
     ...overrides,
 });
 
-export const createMockRoutesGroup = (overrides: Partial<RoutesGroup> = {}): RoutesGroup => ({
+export const createMockRoutesGroup = (
+    overrides: Partial<RoutesGroup> = {},
+): RoutesGroup => ({
     resource: 'users',
     routes: [createMockRouteDefinition()],
     ...overrides,
@@ -58,7 +71,9 @@ export const createMockRequest = (overrides: Partial<Request> = {}): Request => 
     ...overrides,
 });
 
-export const createMockPendingRequest = (overrides: Partial<PendingRequest> = {}): PendingRequest => ({
+export const createMockPendingRequest = (
+    overrides: Partial<PendingRequest> = {},
+): PendingRequest => ({
     method: 'GET',
     endpoint: 'api/users',
     headers: [],
@@ -87,7 +102,9 @@ export interface MockHeaderOverrides {
     enabled?: boolean;
 }
 
-export const createMockHeader = (overrides: MockHeaderOverrides = {}): ParameterContract => ({
+export const createMockHeader = (
+    overrides: MockHeaderOverrides = {},
+): ParameterContract => ({
     key: 'Content-Type',
     value: 'application/json',
     type: ParameterType.Text,
@@ -141,12 +158,16 @@ export const createMockErrorResponse = (overrides: Partial<Response> = {}): Resp
         ...overrides,
     });
 
-export const createMockErrorPlainResponse = (overrides: Partial<ErrorPlainResponse> = {}): ErrorPlainResponse => ({
+export const createMockErrorPlainResponse = (
+    overrides: Partial<ErrorPlainResponse> = {},
+): ErrorPlainResponse => ({
     message: 'Internal Server Error',
     ...overrides,
 });
 
-export const createMockRelayProxyResponse = (overrides: Partial<RelayProxyResponse> = {}): RelayProxyResponse => ({
+export const createMockRelayProxyResponse = (
+    overrides: Partial<RelayProxyResponse> = {},
+): RelayProxyResponse => ({
     statusCode: 200,
     statusText: 'OK',
     headers: [],
@@ -161,7 +182,9 @@ export const createMockRelayProxyResponse = (overrides: Partial<RelayProxyRespon
  * Request Log Factories.
  */
 
-export const createMockRequestLog = (overrides: Partial<RequestLog> = {}): RequestLog => ({
+export const createMockRequestLog = (
+    overrides: Partial<RequestLog> = {},
+): RequestLog => ({
     durationInMs: 150,
     isProcessing: false,
     request: createMockRequest(),
@@ -173,13 +196,21 @@ export const createMockRequestLog = (overrides: Partial<RequestLog> = {}): Reque
  * Authorization Factories.
  */
 
-export const createMockBearerAuth = (token = 'test-token') => ({
-    type: 'bearer' as const,
+export const createMockBearerAuth = (
+    token = 'test-token',
+): { type: AuthorizationType.Bearer; value: string } => ({
+    type: AuthorizationType.Bearer,
     value: token,
 });
 
-export const createMockBasicAuth = (username = 'user', password = 'pass') => ({
-    type: 'basic' as const,
+export const createMockBasicAuth = (
+    username = 'user',
+    password = 'pass',
+): {
+    type: AuthorizationType.Basic;
+    value: { username: string; password: string };
+} => ({
+    type: AuthorizationType.Basic,
     value: { username, password },
 });
 
@@ -196,5 +227,5 @@ export const delay = (ms: number): Promise<void> =>
 /**
  * Creates a mock function that resolves after a delay.
  */
-export const createDelayedMock = <T>(value: T, delayMs = 100) =>
+export const createDelayedMock = <T>(value: T, delayMs = 100): Mock<() => Promise<T>> =>
     vi.fn().mockImplementation(() => delay(delayMs).then(() => value));

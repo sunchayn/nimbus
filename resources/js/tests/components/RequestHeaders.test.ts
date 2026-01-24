@@ -1,13 +1,14 @@
+import RequestHeaders from '@/components/domain/Client/Request/RequestHeaders/RequestHeaders.vue';
+import { AuthorizationType } from '@/interfaces/generated';
+import type { PendingRequest } from '@/interfaces/http';
+import { GeneratorType, RequestBodyTypeEnum } from '@/interfaces/http';
+import type { ParameterContract } from '@/interfaces/ui';
+import { ParameterType } from '@/interfaces/ui';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, reactive, ref } from 'vue';
-import RequestHeaders from '@/components/domain/Client/Request/RequestHeaders/RequestHeaders.vue';
-import { AuthorizationType } from '@/interfaces/generated';
-import { GeneratorType, PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
-import { ParameterContract, ParameterType } from '@/interfaces/ui';
-import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
 
 /*
  * Fixtures.
@@ -41,13 +42,13 @@ vi.mock('@/stores', async importOriginal => {
 });
 
 const setPendingRequest = (request: PendingRequest | null) => {
-    mockRequestStore.pendingRequestData = ref(request) as any;
+    mockRequestStore.pendingRequestData = request;
 };
 
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
+const createWrapper = (options = {}): VueWrapper => {
     return mount(RequestHeaders, {
         ...options,
         global: {
@@ -124,7 +125,11 @@ describe('RequestHeaders', () => {
 
             expect(mockRequestStore.updateRequestHeaders).toHaveBeenCalledWith(
                 expect.arrayContaining([
-                    expect.objectContaining({ key: 'X-Global', value: 'foo', enabled: true }),
+                    expect.objectContaining({
+                        key: 'X-Global',
+                        value: 'foo',
+                        enabled: true,
+                    }),
                     expect.objectContaining({
                         key: 'X-Generated',
                         value: 'generated@example.com',
@@ -150,7 +155,8 @@ describe('RequestHeaders', () => {
             vi.advanceTimersByTime(310);
             await nextTick();
 
-            const firstSyncCall = vi.mocked(mockRequestStore.updateRequestHeaders).mock.calls[0][0];
+            const firstSyncCall = vi.mocked(mockRequestStore.updateRequestHeaders).mock
+                .calls[0][0];
 
             // Act - Simulate the store being updated with these headers
             setPendingRequest({

@@ -1,8 +1,8 @@
+import type { ValueGenerator } from '@/interfaces/ui';
+import { useValueGeneratorStore } from '@/stores/generators/useValueGeneratorStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { reactive, ref, computed } from 'vue';
-import { ValueGenerator } from '@/interfaces/ui';
-import { useValueGeneratorStore } from '@/stores/generators/useValueGeneratorStore';
+import { computed, reactive, ref } from 'vue';
 
 /*
  * Fixtures.
@@ -93,7 +93,10 @@ describe('useValueGeneratorStore', () => {
 
             // Assert
 
-            expect(commandStore.openCommand).toHaveBeenCalledWith(input, expect.anything());
+            expect(commandStore.openCommand).toHaveBeenCalledWith(
+                input,
+                expect.anything(),
+            );
             expect(commandStore.closeCommand).toHaveBeenCalled();
         });
     });

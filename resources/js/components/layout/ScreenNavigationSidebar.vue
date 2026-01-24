@@ -3,6 +3,7 @@
  * @component ScreenNavigationSidebar
  * @description The main vertical navigation sidebar for primary application screens.
  */
+import AppBrandIcon from '@/components/base/icons/AppBrandIcon.vue';
 import {
     AppSidebar,
     AppSidebarContent,
@@ -14,7 +15,6 @@ import {
     AppSidebarMenuItem,
     type SidebarProps,
 } from '@/components/base/sidebar';
-import AppBrandIcon from '@/components/base/icons/AppBrandIcon.vue';
 import {
     BookOpenIcon,
     GithubIcon,
@@ -35,7 +35,7 @@ export interface AppScreenNavigationSidebarProps extends SidebarProps {}
  * Component Setup.
  */
 
-const props = withDefaults(defineProps<AppScreenNavigationSidebarProps>(), {
+withDefaults(defineProps<AppScreenNavigationSidebarProps>(), {
     collapsible: 'icon',
 });
 

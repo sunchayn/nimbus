@@ -1,25 +1,30 @@
+import ResponseStatus from '@/components/domain/Client/Response/ResponseStatus/ResponseStatus.vue';
+import type { RequestLog } from '@/interfaces';
+import { AuthorizationType } from '@/interfaces/generated';
+import {
+    type PendingRequest,
+    type Request,
+    RequestBodyTypeEnum,
+    STATUS,
+} from '@/interfaces/http';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, reactive } from 'vue';
-import ResponseStatus from '@/components/domain/Client/Response/ResponseStatus/ResponseStatus.vue';
-import { AuthorizationType } from '@/interfaces/generated';
-import { type Request, RequestBodyTypeEnum, STATUS } from '@/interfaces/http';
-import type { RequestLog } from '@/interfaces';
 
 /*
  * Fixtures.
  */
 
 const mockRequestStore = reactive({
-    pendingRequestData: null as any,
+    pendingRequestData: null as PendingRequest | null,
     cancelCurrentRequest: vi.fn(),
     restoreFromHistory: vi.fn(),
 });
 
 const mockRequestsHistoryStore = reactive({
-    lastLog: null as any,
+    lastLog: null as RequestLog | null,
     allLogs: [] as RequestLog[],
     setActiveLog: vi.fn(),
 });
@@ -34,12 +39,10 @@ vi.mock('@/stores', async importOriginal => {
     };
 });
 
-import type { MountingOptions } from '@vue/test-utils';
-
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
+const createWrapper = (options = {}): VueWrapper => {
     return mount(ResponseStatus, {
         ...options,
         global: {
@@ -70,13 +73,18 @@ describe('ResponseStatus', () => {
         it('shows pending status and cancel option while processing', async () => {
             // Arrange
 
-            mockRequestStore.pendingRequestData = { isProcessing: true, durationInMs: 1234 };
+            mockRequestStore.pendingRequestData = {
+                isProcessing: true,
+                durationInMs: 1234,
+            } as unknown as PendingRequest;
             const wrapper = createWrapper();
 
             // Assert
 
             expect(wrapper.find('[data-testid="response-badge"]').exists()).toBe(false);
-            expect(wrapper.find('[data-testid="response-status-indicator"]').exists()).toBe(true);
+            expect(
+                wrapper.find('[data-testid="response-status-indicator"]').exists(),
+            ).toBe(true);
             expect(wrapper.find('button').text()).toContain('Cancel');
         });
 
@@ -87,7 +95,7 @@ describe('ResponseStatus', () => {
                 isProcessing: false,
                 durationInMs: 0,
                 wasExecuted: false,
-            };
+            } as unknown as PendingRequest;
 
             const wrapper = createWrapper();
 
@@ -97,7 +105,9 @@ describe('ResponseStatus', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="response-status-text"]').text()).toBe(String(STATUS.EMPTY));
+            expect(wrapper.find('[data-testid="response-status-text"]').text()).toBe(
+                String(STATUS.EMPTY),
+            );
         });
 
         it('derives status details from last successful log', async () => {
@@ -106,7 +116,7 @@ describe('ResponseStatus', () => {
             mockRequestStore.pendingRequestData = {
                 isProcessing: false,
                 wasExecuted: true,
-            };
+            } as unknown as PendingRequest;
 
             const mockRequest: Request = {
                 method: 'GET',
@@ -148,9 +158,15 @@ describe('ResponseStatus', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="response-status-badge"]').text()).toContain('201 - Created');
-            expect(wrapper.find('[data-testid="response-status-size"]').text()).toBe('4.1kB');
-            expect(wrapper.find('[data-testid="response-status-duration"]').text()).toBe('3.00s');
+            expect(
+                wrapper.find('[data-testid="response-status-badge"]').text(),
+            ).toContain('201 - Created');
+            expect(wrapper.find('[data-testid="response-status-size"]').text()).toBe(
+                '4.1kB',
+            );
+            expect(wrapper.find('[data-testid="response-status-duration"]').text()).toBe(
+                '3.00s',
+            );
         });
     });
 
@@ -162,7 +178,10 @@ describe('ResponseStatus', () => {
         it('cancels request when cancel button clicked', async () => {
             // Arrange
 
-            mockRequestStore.pendingRequestData = { isProcessing: true, durationInMs: 0 };
+            mockRequestStore.pendingRequestData = {
+                isProcessing: true,
+                durationInMs: 0,
+            } as unknown as PendingRequest;
             const wrapper = createWrapper();
 
             // Act

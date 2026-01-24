@@ -1,6 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import { AppDropdownMenu, AppDropdownMenuContent, AppDropdownMenuItem, AppDropdownMenuLabel, AppDropdownMenuSeparator, AppDropdownMenuTrigger } from './index';
 import { AppButton } from '../button';
+import {
+    AppDropdownMenu,
+    AppDropdownMenuContent,
+    AppDropdownMenuItem,
+    AppDropdownMenuLabel,
+    AppDropdownMenuSeparator,
+    AppDropdownMenuTrigger,
+} from './index';
 
 const meta: Meta<typeof AppDropdownMenu> = {
     title: 'Base/DropdownMenu',
@@ -13,7 +20,15 @@ type Story = StoryObj<typeof AppDropdownMenu>;
 
 export const Default: Story = {
     render: () => ({
-        components: { AppDropdownMenu, AppDropdownMenuTrigger, AppDropdownMenuContent, AppDropdownMenuItem, AppDropdownMenuLabel, AppDropdownMenuSeparator, AppButton },
+        components: {
+            AppDropdownMenu,
+            AppDropdownMenuTrigger,
+            AppDropdownMenuContent,
+            AppDropdownMenuItem,
+            AppDropdownMenuLabel,
+            AppDropdownMenuSeparator,
+            AppButton,
+        },
         template: `
             <AppDropdownMenu>
                 <AppDropdownMenuTrigger asChild>

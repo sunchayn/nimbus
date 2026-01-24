@@ -4,6 +4,7 @@
  * @description An individual selectable item within a select menu.
  */
 import { cn } from '@/utils/ui';
+import { reactiveOmit } from '@vueuse/core';
 import { Check } from 'lucide-vue-next';
 import {
     SelectItem,
@@ -12,7 +13,6 @@ import {
     SelectItemText,
     useForwardProps,
 } from 'reka-ui';
-import { reactiveOmit } from '@vueuse/core';
 import { type HTMLAttributes } from 'vue';
 
 /*

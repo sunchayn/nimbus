@@ -1,8 +1,15 @@
+import {
+    AppTable,
+    AppTableBody,
+    AppTableCell,
+    AppTableHead,
+    AppTableHeader,
+    AppTableRow,
+} from '@/components/base/table';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppTable, AppTableBody, AppTableCell, AppTableHead, AppTableHeader, AppTableRow } from '@/components/base/table';
 
 /*
  * Fixtures.
@@ -11,10 +18,18 @@ import { AppTable, AppTableBody, AppTableCell, AppTableHead, AppTableHeader, App
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
-    return mount({
-        components: { AppTable, AppTableHeader, AppTableBody, AppTableHead, AppTableRow, AppTableCell },
-        template: `
+const createWrapper = (options = {}): VueWrapper => {
+    return mount(
+        {
+            components: {
+                AppTable,
+                AppTableHeader,
+                AppTableBody,
+                AppTableHead,
+                AppTableRow,
+                AppTableCell,
+            },
+            template: `
             <AppTable>
                 <AppTableHeader>
                     <AppTableRow>
@@ -28,12 +43,14 @@ const createWrapper = (options= {}): VueWrapper => {
                 </AppTableBody>
             </AppTable>
         `,
-        ...options,
-    }, {
-        global: {
-            plugins: [createPinia()],
+            ...options,
         },
-    });
+        {
+            global: {
+                plugins: [createPinia()],
+            },
+        },
+    );
 };
 
 describe('AppTable', () => {

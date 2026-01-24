@@ -1,5 +1,6 @@
 import { AuthorizationType } from '@/interfaces/generated';
-import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
+import type { PendingRequest } from '@/interfaces/http';
+import { RequestBodyTypeEnum } from '@/interfaces/http';
 import { ParameterType } from '@/interfaces/ui';
 import { generateCurlCommand } from '@/utils/request';
 import { describe, expect, it } from 'vitest';

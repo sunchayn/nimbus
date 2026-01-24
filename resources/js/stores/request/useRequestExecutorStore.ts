@@ -1,5 +1,5 @@
 import { useHttpClient } from '@/composables/request/useHttpClient';
-import { ErrorPlainResponse, PendingRequest } from '@/interfaces/http';
+import type { ErrorPlainResponse, PendingRequest } from '@/interfaces/http';
 import { useRequestsHistoryStore } from '@/stores';
 import {
     createRequestTimer,

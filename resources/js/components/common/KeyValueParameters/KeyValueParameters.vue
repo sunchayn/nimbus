@@ -163,8 +163,7 @@ const handleDeleteParameter = (index: number) => {
                 size="xs"
                 class="px-panel h-full -translate-x-0.5 rounded-none text-xs"
                 :class="{
-                    '!text-destructive hover:text-destructive/90':
-                        deletingAll,
+                    '!text-destructive hover:text-destructive/90': deletingAll,
                 }"
                 :disabled="parameters.length === 0"
                 data-testid="delete-all-button"
@@ -247,7 +246,7 @@ const handleDeleteParameter = (index: number) => {
                     @mousedown.prevent="handleGeneratorClick"
                 >
                     <SparklesIcon
-                        class="text-subtle size-4 transition-colors hover:text-foreground"
+                        class="text-subtle hover:text-foreground size-4 transition-colors"
                     />
                 </div>
 
@@ -263,8 +262,7 @@ const handleDeleteParameter = (index: number) => {
                         <Trash2Icon
                             class="size-4"
                             :class="{
-                                'text-destructive':
-                                    isParameterMarkedForDeletion(index),
+                                'text-destructive': isParameterMarkedForDeletion(index),
                             }"
                         />
                     </AppTooltipWrapper>

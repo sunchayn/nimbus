@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import {
-    ConstDump,
-    styles,
-} from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
+import type { ConstDump } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
+import { styles } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
 import { cn } from '@/utils';
 
 interface PropsShape {

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import { AppCheckbox } from './index';
 import { AppLabel } from '../label';
+import { AppCheckbox } from './index';
 
 const meta: Meta<typeof AppCheckbox> = {
     title: 'Base/Checkbox',

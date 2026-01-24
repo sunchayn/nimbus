@@ -1,10 +1,11 @@
+import ResponseViewer from '@/components/domain/Client/Response/ResponseViewer.vue';
+import type { RequestLog } from '@/interfaces';
+import { useRequestsHistoryStore } from '@/stores';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import ResponseViewer from '@/components/domain/Client/Response/ResponseViewer.vue';
-import { useRequestsHistoryStore } from '@/stores';
 
 /*
  * Fixtures.
@@ -29,7 +30,7 @@ vi.mock('@/components/domain/Client/Response/ResponseViewerResponse.vue', () => 
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (pinia: any): VueWrapper => {
+const createWrapper = (pinia: ReturnType<typeof createPinia>): VueWrapper => {
     return mount(ResponseViewer, {
         global: {
             plugins: [pinia],
@@ -38,7 +39,7 @@ const createWrapper = (pinia: any): VueWrapper => {
 };
 
 describe('ResponseViewer', () => {
-    let pinia: any;
+    let pinia: ReturnType<typeof createPinia>;
 
     beforeEach(() => {
         pinia = createPinia();
@@ -69,7 +70,9 @@ describe('ResponseViewer', () => {
 
             // Act
 
-            historyStore.logs = [{ error: { message: 'Failed' } } as any];
+            historyStore.logs = [
+                { error: { message: 'Failed' } } as unknown as RequestLog,
+            ];
             await nextTick();
 
             // Assert
@@ -85,7 +88,7 @@ describe('ResponseViewer', () => {
 
             // Act
 
-            historyStore.logs = [{ response: { status: 200 } } as any];
+            historyStore.logs = [{ response: { status: 200 } } as unknown as RequestLog];
             await nextTick();
 
             // Assert

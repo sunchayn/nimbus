@@ -1,22 +1,31 @@
-import {
-    tabNavigationScrollConfig,
-    TabNavigationScrollConfig,
-} from '@/config/tab-navigation-scroll';
+import type { TabNavigationScrollConfig } from '@/config/tab-navigation-scroll';
+import { tabNavigationScrollConfig } from '@/config/tab-navigation-scroll';
 import {
     calculateScrollToElement,
     getElementVisibility,
     getMaskVisibility,
     getScrollBounds,
 } from '@/utils/scroll';
+import type { ScrollBounds } from '@/utils/scroll/tab-scroll-utils';
 import { useDebounceFn } from '@vueuse/core';
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
+import type { ComputedRef } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, type Ref } from 'vue';
 
 /**
- * Manages horizontal scroll state and behavior for tab navigation.
+ * Handles horizontal scroll state and masks for tab containers.
  *
- * Provides reactive scroll management with configurable behavior and state management.
+ * Manages left/right gradient masks based on scroll position and provides
+ * functionality to scroll specific tabs into the visible area.
  */
-export function useTabHorizontalScroll(config?: Partial<TabNavigationScrollConfig>) {
+export function useTabHorizontalScroll(config?: Partial<TabNavigationScrollConfig>): {
+    scrollContainer: Ref<HTMLElement | null>;
+    showLeftMask: Ref<boolean>;
+    showRightMask: Ref<boolean>;
+    scrollBounds: ComputedRef<ScrollBounds | null>;
+    updateScrollMasks: () => void;
+    scrollTabIntoView: (buttonElement: HTMLElement) => void;
+    restoreScrollPosition: () => Promise<void>;
+} {
     /*
      * Configuration.
      *

@@ -1,8 +1,8 @@
+import RequestBuilder from '@/components/domain/Client/Request/RequestBuilder.vue';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import RequestBuilder from '@/components/domain/Client/Request/RequestBuilder.vue';
 
 /*
  * Fixtures.
@@ -34,7 +34,7 @@ vi.mock('@/components/domain/Client/Request', () => ({
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
+const createWrapper = (options = {}): VueWrapper => {
     return mount(RequestBuilder, {
         ...options,
         global: {
@@ -63,7 +63,9 @@ describe('RequestBuilder', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="request-builder-endpoint"]').exists()).toBe(true);
+            expect(
+                wrapper.find('[data-testid="request-builder-endpoint"]').exists(),
+            ).toBe(true);
             expect(wrapper.find('[data-testid="request-body"]').exists()).toBe(true);
         });
     });
@@ -86,7 +88,9 @@ describe('RequestBuilder', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="request-parameters"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="request-parameters"]').exists()).toBe(
+                true,
+            );
         });
     });
 });

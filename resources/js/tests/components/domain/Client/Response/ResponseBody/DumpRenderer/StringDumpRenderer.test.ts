@@ -1,11 +1,11 @@
+import type { StringDump } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
+import StringDumpRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/StringDumpRenderer.vue';
+import { DumpValueType } from '@/interfaces/generated/dump-value-types';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import type { StringDump } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
-import StringDumpRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/StringDumpRenderer.vue';
-import { DumpValueType } from '@/interfaces/generated/dump-value-types';
 
 /*
  * Fixtures.
@@ -14,7 +14,7 @@ import { DumpValueType } from '@/interfaces/generated/dump-value-types';
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
+const createWrapper = (options = {}): VueWrapper => {
     return mount(StringDumpRenderer, {
         ...options,
         global: {

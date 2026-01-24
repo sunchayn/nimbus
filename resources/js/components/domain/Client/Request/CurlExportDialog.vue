@@ -65,9 +65,9 @@ const closeDialog = () => {
             <div class="flex flex-1 flex-col space-y-4 overflow-hidden">
                 <div
                     v-if="hasSpecialAuth"
-                    class="rounded-md bg-warning/10 p-3 dark:bg-warning/20"
+                    class="bg-warning/10 dark:bg-warning/20 rounded-md p-3"
                 >
-                    <p class="text-sm text-warning">
+                    <p class="text-warning text-sm">
                         Note: Authorization has been dropped as special authorization
                         types (Current User, Impersonate) are not supported in cURL
                         commands.
@@ -76,9 +76,7 @@ const closeDialog = () => {
 
                 <div class="flex min-h-0 flex-1 flex-col space-y-3">
                     <div class="mb-2 flex items-center justify-between">
-                        <h4 class="text-sm font-medium text-foreground">
-                            Command
-                        </h4>
+                        <h4 class="text-foreground text-sm font-medium">Command</h4>
                         <AppButton
                             variant="outline"
                             size="sm"

@@ -1,5 +1,6 @@
 import { linter } from '@codemirror/lint';
-import { ParseError, parse as parseJson, printParseErrorCode } from 'jsonc-parser';
+import type { ParseError } from 'jsonc-parser';
+import { parse as parseJson, printParseErrorCode } from 'jsonc-parser';
 
 export const jsonLinter = linter(view => {
     const text = view.state.doc.toString();

@@ -28,7 +28,7 @@ export interface AppValueGeneratorGeneratorListEmits {
  * Component Setup.
  */
 
-const props = defineProps<AppValueGeneratorGeneratorListProps>();
+defineProps<AppValueGeneratorGeneratorListProps>();
 const emits = defineEmits<AppValueGeneratorGeneratorListEmits>();
 
 const store = useValueGeneratorStore();
@@ -88,7 +88,7 @@ const getGeneratorsForCategory = (categoryId: string) => {
             >
                 <component
                     :is="getGeneratorIcon(generator)"
-                    class="size-4 flex-shrink-0 text-muted-foreground"
+                    class="text-muted-foreground size-4 flex-shrink-0"
                 />
                 <span class="font-medium">{{ generator.name }}</span>
             </AppCommandItem>

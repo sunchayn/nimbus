@@ -1,13 +1,13 @@
-import {
+import type {
     ErrorPlainResponse,
     PendingRequest,
     Request,
-    RequestBodyTypeEnum,
     Response,
 } from '@/interfaces/http';
+import { RequestBodyTypeEnum } from '@/interfaces/http';
 
-import { RequestLog } from '@/interfaces';
-import { RouteDefinition } from '@/interfaces/routes';
+import type { RequestLog } from '@/interfaces';
+import type { RouteDefinition } from '@/interfaces/routes';
 
 /**
  * Selects default payload type from route definition.
@@ -78,14 +78,16 @@ const pendingRequestToRequestLogEntry = function (request: PendingRequest): Requ
  * Provides real-time updates to the UI during request execution,
  * allowing users to see progress.
  */
-export function createRequestTimer(updateCallback: (elapsed: number) => void) {
-    const startTime = performance.now();
+export function createRequestTimer(updateCallback: (elapsed: number) => void): {
+    stop: () => number;
+} {
+    const startTimeResult = performance.now();
 
     // Update every ~86ms for smooth UI updates.
     // This frequency balances smoothness with performance impact
     const sweetSpotRequestTimerIntervalInMilliSeconds = 86;
     let intervalId: number | null = window.setInterval(() => {
-        const elapsed = Math.floor(performance.now() - startTime);
+        const elapsed = Math.floor(performance.now() - startTimeResult);
         updateCallback(elapsed);
     }, sweetSpotRequestTimerIntervalInMilliSeconds);
 
@@ -94,13 +96,13 @@ export function createRequestTimer(updateCallback: (elapsed: number) => void) {
          * Stops the timer and returns final elapsed time.
          * Cleans up the interval to prevent memory leaks.
          */
-        stop: () => {
+        stop: (): number => {
             if (intervalId) {
                 clearInterval(intervalId);
                 intervalId = null;
             }
 
-            return Math.floor(performance.now() - startTime);
+            return Math.floor(performance.now() - startTimeResult);
         },
     };
 }

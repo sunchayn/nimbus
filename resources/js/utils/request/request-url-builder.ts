@@ -1,4 +1,4 @@
-import { ParameterContract } from '@/interfaces';
+import type { ParameterContract } from '@/interfaces';
 
 /**
  * Checks if a query parameter is valid for inclusion in URLs.

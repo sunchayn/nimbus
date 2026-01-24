@@ -1,5 +1,5 @@
-import { RouteExtractorException } from '@/interfaces';
-import { RoutesGroup } from '@/interfaces/routes/routes';
+import type { RouteExtractorException } from '@/interfaces';
+import type { RoutesGroup } from '@/interfaces/routes/routes';
 import {
     calculateTotalRouteCount,
     parseRouteExtractionException,

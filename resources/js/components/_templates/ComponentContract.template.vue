@@ -7,7 +7,7 @@
  * Copy this template when creating new components to ensure consistent
  * Props/Emits contracts and TypeScript interfaces.
  */
-import { computed } from "vue";
+import { computed } from 'vue';
 
 /*
  * Types & Interfaces.
@@ -21,7 +21,7 @@ export interface ExampleComponentProps {
     /** Primary data to display (required) */
     modelValue: string;
     /** Visual variant of the component */
-    variant?: "default" | "primary" | "destructive";
+    variant?: 'default' | 'primary' | 'destructive';
     /** Disabled state - prevents user interaction */
     disabled?: boolean;
 }
@@ -31,9 +31,9 @@ export interface ExampleComponentProps {
  * Using type-based declaration for ESLint compliance.
  */
 export interface ExampleComponentEmits {
-    (event: "update:modelValue", value: string): void;
-    (event: "submit"): void;
-    (event: "error", error: Error): void;
+    (event: 'update:modelValue', value: string): void;
+    (event: 'submit'): void;
+    (event: 'error', error: Error): void;
 }
 
 /*
@@ -41,7 +41,7 @@ export interface ExampleComponentEmits {
  */
 
 const props = withDefaults(defineProps<ExampleComponentProps>(), {
-    variant: "default",
+    variant: 'default',
     disabled: false,
 });
 
@@ -52,7 +52,7 @@ const emit = defineEmits<ExampleComponentEmits>();
  */
 
 const computedClasses = computed(() => ({
-    "is-disabled": props.disabled,
+    'is-disabled': props.disabled,
     [`variant-${props.variant}`]: true,
 }));
 
@@ -60,11 +60,11 @@ function handleSubmit(): void {
     if (props.disabled) {
         return;
     }
-    emit("submit");
+    emit('submit');
 }
 
-function handleError(error: Error): void {
-    emit("error", error);
+function _handleError(error: Error): void {
+    emit('error', error);
 }
 </script>
 

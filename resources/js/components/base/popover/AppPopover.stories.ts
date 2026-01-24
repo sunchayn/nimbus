@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import { AppPopover, AppPopoverContent, AppPopoverTrigger } from './index';
 import { AppButton } from '../button';
+import { AppPopover, AppPopoverContent, AppPopoverTrigger } from './index';
 
 const meta: Meta<typeof AppPopover> = {
     title: 'Base/Popover',

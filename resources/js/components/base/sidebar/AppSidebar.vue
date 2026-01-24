@@ -4,7 +4,8 @@
  * @description Root sidebar component that handles layout, collapsible states, and variants.
  */
 import { cn } from '@/utils/ui';
-import { SidebarProps, useSidebar } from './index';
+import type { SidebarProps } from './index';
+import { useSidebar } from './index';
 
 defineOptions({
     inheritAttrs: false,

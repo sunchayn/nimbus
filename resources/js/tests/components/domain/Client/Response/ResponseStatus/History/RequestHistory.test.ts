@@ -1,11 +1,12 @@
+import RequestHistory from '@/components/domain/Client/Response/ResponseStatus/History/RequestHistory.vue';
+import type { RequestLog } from '@/interfaces/history/logs';
+import type { Request, Response } from '@/interfaces/http';
+import { createMockRequestLog } from '@/tests/_utils/test-factories';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, reactive } from 'vue';
-import RequestHistory from '@/components/domain/Client/Response/ResponseStatus/History/RequestHistory.vue';
-import type { RequestLog } from '@/interfaces/history/logs';
-import { createMockRequestLog } from '@/tests/_utils/test-factories';
 
 /*
  * Fixtures.
@@ -16,7 +17,7 @@ const mockRequestStore = reactive({
 });
 
 const mockRequestsHistoryStore = reactive({
-    lastLog: null as any,
+    lastLog: null as RequestLog | null,
     allLogs: [] as RequestLog[],
     setActiveLog: vi.fn(),
     clearLogs: vi.fn(),
@@ -67,16 +68,14 @@ vi.mock(
 
 const createLog = (endpoint: string, timestamp: number): RequestLog =>
     createMockRequestLog({
-        request: { endpoint } as any,
-        response: { timestamp } as any,
+        request: { endpoint } as unknown as Request,
+        response: { timestamp } as unknown as Response,
     });
-
-import type { MountingOptions } from '@vue/test-utils';
 
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
+const createWrapper = (options = {}): VueWrapper => {
     return mount(RequestHistory, {
         ...options,
         global: {
@@ -108,7 +107,9 @@ describe('RequestHistory', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="response-history-trigger"]').exists()).toBe(false);
+            expect(
+                wrapper.find('[data-testid="response-history-trigger"]').exists(),
+            ).toBe(false);
         });
 
         it('renders history trigger when logs exist', async () => {
@@ -126,7 +127,9 @@ describe('RequestHistory', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="response-history-trigger"]').exists()).toBe(true);
+            expect(
+                wrapper.find('[data-testid="response-history-trigger"]').exists(),
+            ).toBe(true);
         });
     });
 

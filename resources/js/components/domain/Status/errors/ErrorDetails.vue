@@ -41,9 +41,7 @@ const props = defineProps<AppErrorDetailsProps>();
         <div
             class="h-toolbar px-panel bg-subtle-background flex flex-shrink-0 items-center justify-between border-b"
         >
-            <span class="text-sm font-semibold text-foreground">
-                Error Details
-            </span>
+            <span class="text-foreground text-sm font-semibold">Error Details</span>
         </div>
 
         <!-- Error Content -->
@@ -53,11 +51,11 @@ const props = defineProps<AppErrorDetailsProps>();
                 <div class="bg-subtle-background mb-4 rounded-lg p-2">
                     <div class="mb-2 flex items-center space-x-2">
                         <HttpVerbLabel :method="props.selectedRoute.method" size="sm" />
-                        <span class="font-mono text-sm text-foreground">
+                        <span class="text-foreground font-mono text-sm">
                             {{ props.selectedRoute.endpoint }}
                         </span>
                     </div>
-                    <div class="text-xs text-muted-foreground">
+                    <div class="text-muted-foreground text-xs">
                         /{{ props.selectedRoute.resource }}
                         <span v-if="props.selectedRoute.version !== 'n/a'">
                             • v{{ props.selectedRoute.version }}
@@ -67,7 +65,7 @@ const props = defineProps<AppErrorDetailsProps>();
 
                 <!-- Error Display -->
                 <div
-                    class="via-background relative max-h-full overflow-hidden rounded-lg bg-gradient-to-br from-destructive/10 from-10% p-2 dark:from-destructive/30"
+                    class="via-background from-destructive/10 dark:from-destructive/30 relative max-h-full overflow-hidden rounded-lg bg-gradient-to-br from-10% p-2"
                 >
                     <div class="relative z-10 flex max-h-full flex-col space-y-4">
                         <div>

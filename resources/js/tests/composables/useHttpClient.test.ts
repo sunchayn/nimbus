@@ -6,7 +6,8 @@ import {
     createMockRelayProxyResponse,
 } from '@/tests/_utils/test-factories';
 import axios, { AxiosError } from 'axios';
-import { describe, expect, it, Mocked, vi } from 'vitest';
+import type { Mocked } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 /*
  * Fixtures.
@@ -59,7 +60,12 @@ describe('useHttpClient', () => {
                 },
                 queryParameters: [
                     { key: 'page', value: '1', enabled: true, type: ParameterType.Text },
-                    { key: 'limit', value: '10', enabled: true, type: ParameterType.Text },
+                    {
+                        key: 'limit',
+                        value: '10',
+                        enabled: true,
+                        type: ParameterType.Text,
+                    },
                 ],
             });
 

@@ -1,5 +1,5 @@
-import { ValueGenerator } from '@/interfaces/ui';
-import { computed, ref } from 'vue';
+import type { ValueGenerator } from '@/interfaces/ui';
+import { type ComputedRef, type Ref, computed, ref } from 'vue';
 
 /**
  * Composable for filtering and searching value generators.
@@ -7,7 +7,15 @@ import { computed, ref } from 'vue';
  * Provides reactive filtering capabilities for generator lists,
  * supporting both text search and category filtering.
  */
-export function useGeneratorSearch(generators: ValueGenerator[]) {
+export function useGeneratorSearch(generators: ValueGenerator[]): {
+    searchQuery: Ref<string>;
+    selectedCategory: Ref<string | null>;
+    filteredGenerators: ComputedRef<ValueGenerator[]>;
+    hasActiveFilters: ComputedRef<boolean>;
+    setSearchQuery: (query: string) => void;
+    setSelectedCategory: (categoryId: string | null) => void;
+    clearFilters: () => void;
+} {
     const searchQuery = ref('');
     const selectedCategory = ref<string | null>(null);
 

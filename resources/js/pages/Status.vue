@@ -22,7 +22,8 @@ import { useResponsiveResizable } from '@/composables/ui/useResponsiveResizable'
 import { useRoutesStore } from '@/stores';
 import { useTimeAgo } from '@vueuse/core';
 import { ClockIcon, RadioIcon, RefreshCwIcon } from 'lucide-vue-next';
-import { computed, onBeforeMount, ref, TemplateRef, useTemplateRef } from 'vue';
+import type { TemplateRef } from 'vue';
+import { computed, onBeforeMount, ref, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
 
 defineOptions({

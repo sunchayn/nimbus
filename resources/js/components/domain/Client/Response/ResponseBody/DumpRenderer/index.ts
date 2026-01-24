@@ -1,4 +1,4 @@
-import { DumpValueType } from '@/interfaces/generated/dump-value-types';
+import type { DumpValueType } from '@/interfaces/generated/dump-value-types';
 
 export interface ArrayDump {
     type: DumpValueType.Array;
@@ -56,8 +56,8 @@ export type DumpValue =
     | ConstDump
     | UninitializedDump
     | {
-        type: string;
-    };
+          type: string;
+      };
 
 export interface ObjectDumpProperty {
     visibility: 'public' | 'protected' | 'private';

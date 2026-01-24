@@ -49,7 +49,7 @@ defineProps<AppRouteInformationSectionProps>();
 
             <!-- Controller Class -->
             <div v-if="routeContext.controllerClass" class="flex items-center gap-2">
-                <span class="w-20 text-sm font-medium text-muted-foreground">
+                <span class="text-muted-foreground w-20 text-sm font-medium">
                     Controller:
                 </span>
                 <code class="bg-subtle-background rounded border px-2 py-1 text-sm">
@@ -59,7 +59,7 @@ defineProps<AppRouteInformationSectionProps>();
 
             <!-- Controller Method -->
             <div v-if="routeContext.controllerMethod" class="flex items-center gap-2">
-                <span class="w-20 text-sm font-medium text-muted-foreground">
+                <span class="text-muted-foreground w-20 text-sm font-medium">
                     Method:
                 </span>
                 <code class="bg-subtle-background rounded border px-2 py-1 text-sm">

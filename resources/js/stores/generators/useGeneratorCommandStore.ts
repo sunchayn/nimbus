@@ -1,4 +1,5 @@
-import { GeneratorCommandState, ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
+import type { GeneratorCommandState } from '@/interfaces/ui';
+import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 

@@ -1,11 +1,11 @@
+import { AppSidebarProvider } from '@/components/base/sidebar';
+import type { RouteExtractorException, RoutesGroup } from '@/interfaces';
+import MainPage from '@/pages/Main.vue';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { h, nextTick } from 'vue';
-import { AppSidebarProvider } from '@/components/base/sidebar';
-import MainPage from '@/pages/Main.vue';
-import type { RouteExtractorException, RoutesGroup } from '@/interfaces';
 
 /*
  * Fixtures.
@@ -56,21 +56,18 @@ vi.mock('@/stores', async () => {
     };
 });
 
-import type { MountingOptions } from '@vue/test-utils';
-import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
-
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
+const createWrapper = (options = {}): VueWrapper => {
     return mount(AppSidebarProvider, {
         slots: {
             default: h(MainPage),
-        } as any,
+        },
         ...options,
         global: {
             plugins: [createPinia()],
-            // @ts-ignore
+            // @ts-expect-error .global not found in object.
             ...(options.global || {}),
         },
     });
@@ -143,9 +140,17 @@ describe('MainPage', () => {
 
             // Assert
 
-            expect(wrapper.findComponent({ name: 'RouteExtractorExceptionRenderer' }).exists()).toBe(true);
-            expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(false);
-            expect(wrapper.findComponent({ name: 'ResponseViewer' }).exists()).toBe(false);
+            expect(
+                wrapper
+                    .findComponent({ name: 'RouteExtractorExceptionRenderer' })
+                    .exists(),
+            ).toBe(true);
+            expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(
+                false,
+            );
+            expect(wrapper.findComponent({ name: 'ResponseViewer' }).exists()).toBe(
+                false,
+            );
         });
     });
 
@@ -184,8 +189,14 @@ describe('MainPage', () => {
 
             // Assert
 
-            expect(wrapper.findComponent({ name: 'RouteExtractorExceptionRenderer' }).exists()).toBe(true);
-            expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(false);
+            expect(
+                wrapper
+                    .findComponent({ name: 'RouteExtractorExceptionRenderer' })
+                    .exists(),
+            ).toBe(true);
+            expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(
+                false,
+            );
         });
     });
 });

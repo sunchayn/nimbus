@@ -40,7 +40,7 @@ defineProps<AppSchemaExtractionErrorButtonProps>();
             </AppButton>
         </AppDialogTrigger>
         <AppDialogContent
-            class="to-background flex max-h-[90dvh] flex-col bg-gradient-to-bl from-destructive/10 to-50% sm:max-w-[600px] dark:from-destructive/15"
+            class="to-background from-destructive/10 dark:from-destructive/15 flex max-h-[90dvh] flex-col bg-gradient-to-bl to-50% sm:max-w-[600px]"
         >
             <AppDialogHeader>
                 <AppDialogTitle>Schema Extraction Error</AppDialogTitle>
@@ -50,7 +50,7 @@ defineProps<AppSchemaExtractionErrorButtonProps>();
                 </AppDialogDescription>
             </AppDialogHeader>
             <div
-                class="dark:bg-subtle-background max-w-full flex-1 overflow-auto bg-destructive/10 p-2 leading-tight wrap-anywhere"
+                class="dark:bg-subtle-background bg-destructive/10 max-w-full flex-1 overflow-auto p-2 leading-tight wrap-anywhere"
             >
                 <!-- eslint-disable-next-line vue/no-v-html -->
                 <p v-html="errorHtml" />

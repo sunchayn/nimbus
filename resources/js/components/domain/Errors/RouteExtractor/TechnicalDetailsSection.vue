@@ -44,17 +44,17 @@ const copyValue = () => {
 
 <template>
     <div>
-        <h3 class="mb-2 font-semibold text-foreground">
+        <h3 class="text-foreground mb-2 font-semibold">
             Technical Details
             <CopyButton :on-click="copyValue" :copied="copied" />
         </h3>
-        <div class="rounded-lg bg-destructive/10 p-4 dark:bg-destructive/30">
-            <p class="font-mono text-sm text-destructive">
+        <div class="bg-destructive/10 dark:bg-destructive/30 rounded-lg p-4">
+            <p class="text-destructive font-mono text-sm">
                 {{ previousError.message }}
             </p>
             <div
                 v-if="previousError.file"
-                class="mt-2 text-sm wrap-break-word text-destructive"
+                class="text-destructive mt-2 text-sm wrap-break-word"
             >
                 <p>{{ previousError.file }}:{{ previousError.line }}</p>
                 <div v-if="previousError.trace" class="mt-2">

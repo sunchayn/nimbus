@@ -1,4 +1,4 @@
-import { ValueGenerator } from '@/interfaces/ui';
+import type { ValueGenerator } from '@/interfaces/ui';
 import { faker } from '@faker-js/faker';
 import {
     BarChart3Icon,

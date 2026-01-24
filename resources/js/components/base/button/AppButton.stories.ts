@@ -25,7 +25,7 @@ export const Default: Story = {
         variant: 'default',
         size: 'default',
     },
-    render: (args) => ({
+    render: args => ({
         components: { AppButton },
         setup() {
             return { args };

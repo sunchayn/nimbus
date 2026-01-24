@@ -1,9 +1,10 @@
+import type { PendingRequest } from '@/interfaces';
+import { RequestBodyTypeEnum } from '@/interfaces';
+import { AuthorizationType } from '@/interfaces/generated';
+import { useRequestExecutorStore } from '@/stores/request/useRequestExecutorStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
-import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces';
-import { AuthorizationType } from '@/interfaces/generated';
-import { useRequestExecutorStore } from '@/stores/request/useRequestExecutorStore';
 
 /*
  * Fixtures.
@@ -82,7 +83,9 @@ describe('useRequestExecutorStore', () => {
             // Assert
 
             expect(store.canExecute(null)).toBe(false);
-            expect(store.canExecute({ ...request, endpoint: '   ' } as PendingRequest)).toBe(false);
+            expect(
+                store.canExecute({ ...request, endpoint: '   ' } as PendingRequest),
+            ).toBe(false);
         });
     });
 
@@ -107,7 +110,9 @@ describe('useRequestExecutorStore', () => {
             // Assert
 
             expect(requestUtilsMocks.createRequestTimer).toHaveBeenCalled();
-            expect(mockRequestsHistoryStore.addLog).toHaveBeenCalledWith({ type: 'success' });
+            expect(mockRequestsHistoryStore.addLog).toHaveBeenCalledWith({
+                type: 'success',
+            });
         });
 
         it('logs errors using error log factory', async () => {
@@ -123,7 +128,9 @@ describe('useRequestExecutorStore', () => {
             // Assert
 
             expect(requestUtilsMocks.generateErrorRequestLog).toHaveBeenCalled();
-            expect(mockRequestsHistoryStore.addLog).toHaveBeenCalledWith({ type: 'error' });
+            expect(mockRequestsHistoryStore.addLog).toHaveBeenCalledWith({
+                type: 'error',
+            });
         });
 
         it('cancels current request via http client', () => {

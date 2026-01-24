@@ -1,5 +1,5 @@
-import { RequestHeader } from '@/interfaces/http';
-import { AxiosResponseHeaders } from 'axios';
+import type { RequestHeader } from '@/interfaces/http';
+import type { AxiosResponseHeaders } from 'axios';
 
 /**
  * Normalizes raw HTTP headers into a consistent array format.

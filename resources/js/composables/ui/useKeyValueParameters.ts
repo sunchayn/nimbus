@@ -1,8 +1,16 @@
 import { keyValueParametersConfig } from '@/config';
-import { ParameterContract } from '@/interfaces/ui';
+import type { ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
 import { useCounter, watchDebounced } from '@vueuse/core';
-import { computed, onBeforeMount, reactive, ref, Ref, watch } from 'vue';
+import {
+    type ComputedRef,
+    type Ref,
+    computed,
+    onBeforeMount,
+    reactive,
+    ref,
+    watch,
+} from 'vue';
 
 /**
  * Manages key-value parameter state with unidirectional data flow.
@@ -10,13 +18,24 @@ import { computed, onBeforeMount, reactive, ref, Ref, watch } from 'vue';
  * @param modelValue - The current parameters from the parent (read-only)
  * @param onUpdate - Callback to notify parent of parameter changes
  */
-export function useKeyValueParameters(
-    modelValue: Ref<ParameterContract[]>,
-    onUpdate: (parameters: ParameterContract[]) => void,
-) {
+export function useKeyValueParameters<T extends ParameterContract>(
+    modelValue: Ref<T[]>,
+    onUpdate: (parameters: T[]) => void,
+): {
+    parameters: Ref<T[]>;
+    deletingAll: ComputedRef<boolean>;
+    areAllParametersDisabled: ComputedRef<boolean>;
+    addNewEmptyParameter: () => void;
+    toggleAllParametersEnabledState: () => void;
+    triggerParameterDeletion: (parameters: T[], index: number) => void;
+    deleteAllParameters: () => void;
+    updateParametersFromParentModel: () => void;
+    isParameterMarkedForDeletion: (id: number) => boolean;
+    clearAllDeletionStates: () => void;
+} {
     const { count: nextParameterId, inc: incrementParametersId } = useCounter();
 
-    const parameters: Ref<ParameterContract[]> = ref([]);
+    const parameters: Ref<T[]> = ref([]);
 
     const createParameterSkeleton = (id: number): ParameterContract => ({
         type: ParameterType.Text,
@@ -168,7 +187,7 @@ export function useKeyValueParameters(
             parameters.value.map(parameter => [parameter.id, parameter]),
         );
 
-        const nextParameters: ParameterContract[] = incoming.map(external => {
+        const nextParameters: T[] = incoming.map(external => {
             const existing = currentById.get(external.id);
 
             if (existing) {
@@ -181,19 +200,19 @@ export function useKeyValueParameters(
                     value: external.value,
                     type: external.type,
                     enabled: external.enabled,
-                };
+                } as T;
             }
 
             incrementParametersId();
 
-            return { id: nextParameterId.value, ...external };
-        });
+            return { id: nextParameterId.value, ...external } as T;
+        }) as T[];
 
         // If internal state is empty, we must ensure at least one skeleton
         if (nextParameters.length === 0) {
             incrementParametersId();
 
-            nextParameters.push(createParameterSkeleton(nextParameterId.value));
+            nextParameters.push(createParameterSkeleton(nextParameterId.value) as T);
         }
 
         // Only update if the resulting content is different from current internal state
@@ -217,7 +236,7 @@ export function useKeyValueParameters(
             enabled: p.enabled,
         }));
 
-        onUpdate(clonedParameters);
+        onUpdate(clonedParameters as T[]);
     };
 
     // Watch for internal changes to notify parent
@@ -258,7 +277,7 @@ export function useKeyValueParameters(
 
         const newParameter = createParameterSkeleton(nextParameterId.value);
 
-        parameters.value.push(newParameter);
+        parameters.value.push(newParameter as T);
     };
 
     /**

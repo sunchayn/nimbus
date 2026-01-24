@@ -1,4 +1,5 @@
-import { RequestBodyTypeEnum, RequestHeader } from '@/interfaces/http';
+import type { RequestHeader } from '@/interfaces/http';
+import { RequestBodyTypeEnum } from '@/interfaces/http';
 
 /**
  * Type shape for request body types with their associated metadata.

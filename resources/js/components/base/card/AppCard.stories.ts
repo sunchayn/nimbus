@@ -1,5 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import { AppCard, AppCardContent, AppCardDescription, AppCardFooter, AppCardHeader, AppCardTitle } from './index';
+import {
+    AppCard,
+    AppCardContent,
+    AppCardDescription,
+    AppCardFooter,
+    AppCardHeader,
+    AppCardTitle,
+} from './index';
 
 const meta: Meta<typeof AppCard> = {
     title: 'Base/Card',
@@ -12,7 +19,14 @@ type Story = StoryObj<typeof AppCard>;
 
 export const Default: Story = {
     render: () => ({
-        components: { AppCard, AppCardContent, AppCardDescription, AppCardFooter, AppCardHeader, AppCardTitle },
+        components: {
+            AppCard,
+            AppCardContent,
+            AppCardDescription,
+            AppCardFooter,
+            AppCardHeader,
+            AppCardTitle,
+        },
         template: `
             <AppCard class="w-[350px]">
                 <AppCardHeader>

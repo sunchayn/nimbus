@@ -23,11 +23,11 @@ const props = defineProps<AppRequestBodyErrorDisplayProps>();
 
 <template>
     <div
-        class="px-panel flex items-center justify-between border-b bg-gradient-to-tr from-destructive/10 to-transparent to-50% py-1 dark:from-destructive/15"
+        class="px-panel from-destructive/10 dark:from-destructive/15 flex items-center justify-between border-b bg-gradient-to-tr to-transparent to-50% py-1"
     >
         <div class="flex items-start gap-2 text-xs">
             <div class="px-1 py-2">
-                <TriangleAlertIcon class="size-4 text-destructive" />
+                <TriangleAlertIcon class="text-destructive size-4" />
             </div>
             <div>
                 <span class="flex items-center gap-1 font-bold">Extraction Error</span>

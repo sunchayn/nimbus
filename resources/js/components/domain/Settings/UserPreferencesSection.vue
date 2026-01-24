@@ -11,28 +11,12 @@ import {
     AppSelectTrigger,
     AppSelectValue,
 } from '@/components/base/select';
-import { AuthorizationType } from '@/interfaces/generated';
-import { RequestBodyTypeEnum } from '@/interfaces/http';
+import { AuthorizationType } from '@/interfaces/generated'; // eslint-disable-line @typescript-eslint/consistent-type-imports
+import { RequestBodyTypeEnum } from '@/interfaces/http'; // eslint-disable-line @typescript-eslint/consistent-type-imports
 import { useSettingsStore } from '@/stores';
 import { PaletteIcon, ZapIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { toast } from 'vue-sonner';
-
-/*
- * Types & Interfaces.
- */
-
-export interface AppUserPreferencesSectionProps {}
-
-/*
- * Component Setup.
- */
-
-defineProps<AppUserPreferencesSectionProps>();
-
-defineOptions({
-    name: 'UserPreferencesSection',
-});
 
 /*
  * Stores.
@@ -168,7 +152,7 @@ const updatePreference = <K extends keyof typeof preferences.value>(
         </div>
 
         <!-- Divider -->
-        <div class="border-t border-border"></div>
+        <div class="border-border border-t"></div>
 
         <!-- Request Defaults -->
         <div class="grid gap-2 sm:grid-cols-12 sm:gap-8">

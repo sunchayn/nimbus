@@ -4,8 +4,8 @@
  * @description A visual divider between select items or groups.
  */
 import { cn } from '@/utils/ui';
-import { SelectSeparator, type SelectSeparatorProps } from 'reka-ui';
 import { reactiveOmit } from '@vueuse/core';
+import { SelectSeparator, type SelectSeparatorProps } from 'reka-ui';
 import { type HTMLAttributes } from 'vue';
 
 /*

@@ -4,8 +4,8 @@
  * @description A logical grouping for select items.
  */
 import { cn } from '@/utils/ui';
-import { SelectGroup, type SelectGroupProps } from 'reka-ui';
 import { reactiveOmit } from '@vueuse/core';
+import { SelectGroup, type SelectGroupProps } from 'reka-ui';
 import { type HTMLAttributes } from 'vue';
 
 /*

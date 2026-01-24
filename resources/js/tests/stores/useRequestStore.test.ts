@@ -1,11 +1,9 @@
+import type { AuthorizationContract, PendingRequest } from '@/interfaces';
+import { AuthorizationType } from '@/interfaces/generated';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
-import { AuthorizationContract } from '@/interfaces';
-import { AuthorizationType } from '@/interfaces/generated';
-import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
-import { ParameterType } from '@/interfaces/ui/key-value-parameters';
-import { useRequestStore } from '@/stores/request/useRequestStore';
 
 /*
  * Fixtures.
@@ -13,7 +11,7 @@ import { useRequestStore } from '@/stores/request/useRequestStore';
 
 const mockBuilderStore = reactive({
     hasActiveRequest: false,
-    pendingRequestData: null as any,
+    pendingRequestData: null as PendingRequest | null,
     initializeRequest: vi.fn(),
     resetRequest: vi.fn(),
     updateRequestMethod: vi.fn(),
@@ -101,7 +99,9 @@ describe('useRequestStore', () => {
 
             // Assert
 
-            expect(mockBuilderStore.updateRequestEndpoint).toHaveBeenCalledWith('/api/posts');
+            expect(mockBuilderStore.updateRequestEndpoint).toHaveBeenCalledWith(
+                '/api/posts',
+            );
         });
 
         it('should delegate updateAuthorization to builder store', () => {
@@ -127,7 +127,10 @@ describe('useRequestStore', () => {
         it('should execute current request when pendingRequestData exists', () => {
             // Arrange
 
-            const mockRequestData = { method: 'GET', endpoint: 'api/users' } as any;
+            const mockRequestData = {
+                method: 'GET',
+                endpoint: 'api/users',
+            } as unknown as PendingRequest;
             mockBuilderStore.pendingRequestData = mockRequestData;
             const store = useRequestStore();
 
@@ -137,7 +140,9 @@ describe('useRequestStore', () => {
 
             // Assert
 
-            expect(mockExecutorStore.executeRequestWithTiming).toHaveBeenCalledWith(mockRequestData);
+            expect(mockExecutorStore.executeRequestWithTiming).toHaveBeenCalledWith(
+                mockRequestData,
+            );
         });
 
         it('should delegate cancelCurrentRequest to executor store', () => {

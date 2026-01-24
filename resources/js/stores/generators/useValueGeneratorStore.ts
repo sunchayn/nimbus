@@ -1,5 +1,6 @@
 import { useGeneratorSearch } from '@/composables/data/useGeneratorSearch';
-import { ValueGenerator, ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
+import type { ValueGenerator } from '@/interfaces/ui';
+import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
 import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useGeneratorCommandStore } from './useGeneratorCommandStore';

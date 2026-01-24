@@ -1,8 +1,8 @@
+import { AppLabel } from '@/components/base/label';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppLabel } from '@/components/base/label';
 
 /*
  * Fixtures.
@@ -11,12 +11,11 @@ import { AppLabel } from '@/components/base/label';
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-import type { MountingOptions } from '@vue/test-utils';
 
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
+const createWrapper = (options = {}): VueWrapper => {
     return mount(AppLabel, {
         ...options,
         global: {

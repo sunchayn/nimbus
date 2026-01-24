@@ -80,7 +80,7 @@ const timeToTimeAgo = (timestamp: number): string => {
                         {{ props.log.response.statusText }}
                     </span>
 
-                    <div class="w-8 border-b border-border"></div>
+                    <div class="border-border w-8 border-b"></div>
 
                     <div class="flex w-full items-center justify-between">
                         <div>

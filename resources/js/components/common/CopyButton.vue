@@ -19,7 +19,7 @@ export interface AppCopyButtonProps {
  * Component Setup.
  */
 
-const props = defineProps<AppCopyButtonProps>();
+defineProps<AppCopyButtonProps>();
 </script>
 
 <template>

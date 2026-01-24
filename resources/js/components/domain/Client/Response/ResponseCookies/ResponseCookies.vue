@@ -119,7 +119,7 @@ const copyAll = () => {
                 <span>
                     <small
                         v-if="!item.isDecryptable"
-                        class="mb-1 flex items-center gap-1 text-success"
+                        class="text-success mb-1 flex items-center gap-1"
                     >
                         <LockOpenIcon :size="10" />
                         Non-Encrypted Value

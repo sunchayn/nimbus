@@ -1,8 +1,9 @@
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { RequestLog } from '@/interfaces/history/logs';
+import type { RequestLog } from '@/interfaces/history/logs';
+import type { Request } from '@/interfaces/http';
 import { useSettingsStore } from '@/stores/core/useSettingsStore';
 import { useRequestsHistoryStore } from '@/stores/request/useRequestsHistoryStore';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 /*
  * Fixtures.
@@ -25,9 +26,21 @@ describe('useRequestsHistoryStore', () => {
 
             const store = useRequestsHistoryStore();
             const logs: RequestLog[] = [
-                { durationInMs: 10, isProcessing: false, request: {} as any },
-                { durationInMs: 20, isProcessing: false, request: {} as any },
-                { durationInMs: 30, isProcessing: false, request: {} as any },
+                {
+                    durationInMs: 10,
+                    isProcessing: false,
+                    request: {} as unknown as Request,
+                },
+                {
+                    durationInMs: 20,
+                    isProcessing: false,
+                    request: {} as unknown as Request,
+                },
+                {
+                    durationInMs: 30,
+                    isProcessing: false,
+                    request: {} as unknown as Request,
+                },
             ];
 
             // Act
@@ -44,7 +57,11 @@ describe('useRequestsHistoryStore', () => {
             // Arrange
 
             const store = useRequestsHistoryStore();
-            store.addLog({ durationInMs: 10, isProcessing: false, request: {} as any });
+            store.addLog({
+                durationInMs: 10,
+                isProcessing: false,
+                request: {} as unknown as Request,
+            });
 
             // Act
 
@@ -67,8 +84,16 @@ describe('useRequestsHistoryStore', () => {
 
             const store = useRequestsHistoryStore();
             const logs: RequestLog[] = [
-                { durationInMs: 10, isProcessing: false, request: { method: 'GET' } as any },
-                { durationInMs: 20, isProcessing: false, request: { method: 'POST' } as any },
+                {
+                    durationInMs: 10,
+                    isProcessing: false,
+                    request: { method: 'GET' } as unknown as Request,
+                },
+                {
+                    durationInMs: 20,
+                    isProcessing: false,
+                    request: { method: 'POST' } as unknown as Request,
+                },
             ];
             logs.forEach(log => store.addLog(log));
 
@@ -89,12 +114,20 @@ describe('useRequestsHistoryStore', () => {
             // Arrange
 
             const store = useRequestsHistoryStore();
-            store.addLog({ durationInMs: 10, isProcessing: false, request: {} as any });
+            store.addLog({
+                durationInMs: 10,
+                isProcessing: false,
+                request: {} as unknown as Request,
+            });
             store.setActiveLog(0);
 
             // Act
 
-            store.addLog({ durationInMs: 20, isProcessing: false, request: {} as any });
+            store.addLog({
+                durationInMs: 20,
+                isProcessing: false,
+                request: {} as unknown as Request,
+            });
 
             // Assert
 

@@ -4,13 +4,13 @@
  * @description A button displayed at the top of the select viewport to enable scrolling up.
  */
 import { cn } from '@/utils/ui';
+import { reactiveOmit } from '@vueuse/core';
 import { ChevronUp } from 'lucide-vue-next';
 import {
     SelectScrollUpButton,
     type SelectScrollUpButtonProps,
     useForwardProps,
 } from 'reka-ui';
-import { reactiveOmit } from '@vueuse/core';
 import { type HTMLAttributes } from 'vue';
 
 /*

@@ -1,6 +1,6 @@
 import { httpClientConfig } from '@/config';
-import { ParameterContract, RequestHeader } from '@/interfaces';
-import {
+import type { ParameterContract, RequestHeader } from '@/interfaces';
+import type {
     HttpHeaders,
     PendingRequest,
     RelayProxyResponse,
@@ -9,15 +9,21 @@ import {
 import { useConfigStore } from '@/stores';
 import { convertPayloadToFormData, getStatusGroup } from '@/utils/http';
 import { generateContentTypeHeader } from '@/utils/request/content-type-header-generator';
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import { readonly, ref } from 'vue';
+import type { AxiosError, AxiosResponse } from 'axios';
+import axios from 'axios';
+import { type DeepReadonly, type Ref, readonly, ref } from 'vue';
 
 export interface RequestResult {
     response: Response;
     duration: number;
 }
 
-export function useHttpClient() {
+export function useHttpClient(): {
+    executeRequest: (request: PendingRequest) => Promise<RequestResult | null>;
+    cancelCurrentRequest: () => void;
+    buildRequestUrl: (request: PendingRequest) => string;
+    isExecuting: DeepReadonly<Ref<boolean>>;
+} {
     const configStore = useConfigStore();
 
     const abortController = ref<AbortController | null>(null);

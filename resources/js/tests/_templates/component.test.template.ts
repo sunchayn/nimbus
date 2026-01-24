@@ -30,7 +30,8 @@ const createDefaultProps = () => ({
 const createWrapper = (props = {}): VueWrapper => {
     // Replace with actual component
     const ExampleComponent = {
-        template: '<div><input @input="$emit(\'update:modelValue\', ($event.target as HTMLInputElement).value)"></div>',
+        template:
+            '<div><input @input="$emit(\'update:modelValue\', ($event.target as HTMLInputElement).value)"></div>',
         props: ['modelValue', 'variant', 'disabled', 'mode'],
         emits: ['update:modelValue', 'submit', 'error'],
     };
@@ -57,8 +58,8 @@ describe('ExampleComponent', () => {
      * Rendering tests.
      */
 
-    describe("Rendering", () => {
-        it("renders with default props", () => {
+    describe('Rendering', () => {
+        it('renders with default props', () => {
             // Arrange
 
             const wrapper = createWrapper();
@@ -68,14 +69,14 @@ describe('ExampleComponent', () => {
             expect(wrapper.exists()).toBe(true);
         });
 
-        it("applies variant class correctly", () => {
+        it('applies variant class correctly', () => {
             // Arrange
 
-            const wrapper = createWrapper({ variant: "destructive" });
+            const wrapper = createWrapper({ variant: 'destructive' });
 
             // Assert
 
-            expect(wrapper.classes()).toContain("variant-destructive");
+            expect(wrapper.classes()).toContain('variant-destructive');
         });
     });
 
@@ -83,9 +84,8 @@ describe('ExampleComponent', () => {
      * State Transition tests.
      */
 
-
-    describe("State Transitions", () => {
-        it("transitions from enabled to disabled state", async () => {
+    describe('State Transitions', () => {
+        it('transitions from enabled to disabled state', async () => {
             // Arrange
 
             const wrapper = createWrapper({ disabled: false });
@@ -96,47 +96,41 @@ describe('ExampleComponent', () => {
 
             // Assert
 
-            expect(wrapper.classes()).toContain("is-disabled");
+            expect(wrapper.classes()).toContain('is-disabled');
         });
 
-        it("emits update:modelValue when internal state changes", async () => {
+        it('emits update:modelValue when internal state changes', async () => {
             // Arrange
 
-            const wrapper = createWrapper({ modelValue: "initial" });
+            const wrapper = createWrapper({ modelValue: 'initial' });
 
             // Act
 
-            await wrapper.find("input").setValue("updated");
+            await wrapper.find('input').setValue('updated');
             await nextTick();
 
             // Assert
 
-            expect(wrapper.emitted("update:modelValue")).toHaveLength(1);
-            expect(wrapper.emitted("update:modelValue")![0]).toEqual([
-                "updated",
-            ]);
+            expect(wrapper.emitted('update:modelValue')).toHaveLength(1);
+            expect(wrapper.emitted('update:modelValue')![0]).toEqual(['updated']);
         });
 
-        it("caches and restores state when switching modes", async () => {
+        it('caches and restores state when switching modes', async () => {
             // Arrange
 
             const wrapper = createWrapper();
 
             // Act - Set mode A value
-            await wrapper.setProps({ mode: "A" });
-            await wrapper
-                .find('[data-testid="internal-input"]')
-                .setValue("value-for-A");
+            await wrapper.setProps({ mode: 'A' });
+            await wrapper.find('[data-testid="internal-input"]').setValue('value-for-A');
 
             // Act - Switch to mode B and back
-            await wrapper.setProps({ mode: "B" });
-            await wrapper.setProps({ mode: "A" });
+            await wrapper.setProps({ mode: 'B' });
+            await wrapper.setProps({ mode: 'A' });
 
             // Assert - Previous value should be restored
             const input = wrapper.find('[data-testid="internal-input"]');
-            expect((input.element as HTMLInputElement).value).toBe(
-                "value-for-A",
-            );
+            expect((input.element as HTMLInputElement).value).toBe('value-for-A');
         });
     });
 
@@ -144,27 +138,25 @@ describe('ExampleComponent', () => {
      * Edge Cases.
      */
 
-    describe("Edge Cases", () => {
-        it("handles empty modelValue gracefully", () => {
+    describe('Edge Cases', () => {
+        it('handles empty modelValue gracefully', () => {
             // Arrange
 
-            const wrapper = createWrapper({ modelValue: "" });
+            const wrapper = createWrapper({ modelValue: '' });
 
             // Assert
 
-            expect(wrapper.find('[data-testid="display"]').text()).toBe("");
-            expect(wrapper.emitted("error")).toBeUndefined();
+            expect(wrapper.find('[data-testid="display"]').text()).toBe('');
+            expect(wrapper.emitted('error')).toBeUndefined();
         });
 
-        it("handles null/undefined values without crashing", () => {
+        it('handles null/undefined values without crashing', () => {
             // Arrange & Assert
 
-            expect(() =>
-                createWrapper({ modelValue: null as unknown }),
-            ).not.toThrow();
+            expect(() => createWrapper({ modelValue: null as unknown })).not.toThrow();
         });
 
-        it("handles rapid prop changes", async () => {
+        it('handles rapid prop changes', async () => {
             // Arrange
 
             const wrapper = createWrapper();
@@ -175,17 +167,14 @@ describe('ExampleComponent', () => {
             }
             await flushPromises();
 
-            // Assert - Should handle all changes
-            expect((wrapper as any).props("modelValue")).toBe("value-9");
+            // @ts-expect-error wrapper.props might not be inferred correctly in this template.
+            expect(wrapper.props('modelValue')).toBe('value-9');
         });
 
-        it("cleans up subscriptions on unmount", async () => {
+        it('cleans up subscriptions on unmount', async () => {
             // Arrange
 
-            const removeEventListenerSpy = vi.spyOn(
-                window,
-                "removeEventListener",
-            );
+            const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
             const wrapper = createWrapper();
 
             // Act
@@ -203,8 +192,8 @@ describe('ExampleComponent', () => {
      * Store Integration.
      */
 
-    describe("Store Integration", () => {
-        it("reacts to store state changes", async () => {
+    describe('Store Integration', () => {
+        it('reacts to store state changes', async () => {
             // Arrange
 
             const wrapper = createWrapper();
@@ -217,12 +206,10 @@ describe('ExampleComponent', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="store-value"]').text()).toBe(
-                "new-value",
-            );
+            expect(wrapper.find('[data-testid="store-value"]').text()).toBe('new-value');
         });
 
-        it("dispatches correct action on user interaction", async () => {
+        it('dispatches correct action on user interaction', async () => {
             // Arrange
 
             // const store = useExampleStore();
@@ -231,9 +218,7 @@ describe('ExampleComponent', () => {
 
             // Act
 
-            await wrapper
-                .find('button[data-testid="action-trigger"]')
-                .trigger("click");
+            await wrapper.find('button[data-testid="action-trigger"]').trigger('click');
 
             // Assert
 

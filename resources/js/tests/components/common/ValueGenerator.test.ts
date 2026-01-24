@@ -1,9 +1,9 @@
+import ValueGenerator from '@/components/common/ValueGenerator/ValueGenerator.vue';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, reactive } from 'vue';
-import ValueGenerator from '@/components/common/ValueGenerator/ValueGenerator.vue';
 
 /*
  * Fixtures.
@@ -24,6 +24,7 @@ const mockStore = reactive({
 
 vi.mock('@/stores', async importOriginal => {
     const actual = await importOriginal<object>();
+
     return { ...actual, useValueGeneratorStore: () => mockStore };
 });
 
@@ -33,24 +34,25 @@ vi.mock('@/composables/ui/useTabHorizontalScroll', () => ({
 
 vi.mock('@/components/common/ValueGenerator/ValueGeneratorGeneratorList.vue', () => ({
     default: {
-        template: '<button data-testid="trigger-generator" @click="$emit(\'generator-selected\', \'email\')">Gen</button>',
-        emits: ['generator-selected']
+        template:
+            '<button data-testid="trigger-generator" @click="$emit(\'generator-selected\', \'email\')">Gen</button>',
+        emits: ['generator-selected'],
     },
 }));
 
-const createWrapper = (pinia: any): VueWrapper => {
+const createWrapper = (pinia: ReturnType<typeof createPinia>): VueWrapper => {
     return mount(ValueGenerator, {
         global: {
             plugins: [pinia],
             stubs: {
-                Teleport: true // Disable teleport for easier testing
-            }
+                Teleport: true, // Disable teleport for easier testing
+            },
         },
     });
 };
 
 describe('ValueGenerator', () => {
-    let pinia: any;
+    let pinia: ReturnType<typeof createPinia>;
 
     beforeEach(() => {
         pinia = createPinia();
@@ -72,7 +74,9 @@ describe('ValueGenerator', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="value-generator-overlay"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="value-generator-overlay"]').exists()).toBe(
+                true,
+            );
         });
     });
 

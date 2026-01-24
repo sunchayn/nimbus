@@ -1,9 +1,9 @@
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { nextTick } from 'vue';
 import { AuthorizationType } from '@/interfaces/generated';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
 import { useSettingsStore } from '@/stores/core/useSettingsStore';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
 
 /*
  * Fixtures.

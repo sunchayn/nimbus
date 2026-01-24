@@ -1,10 +1,10 @@
+import AppInput from '@/components/base/input/AppInput.vue';
+import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import AppInput from '@/components/base/input/AppInput.vue';
-import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
 
 /*
  * Fixtures.
@@ -26,7 +26,7 @@ vi.mock('@/stores', async importOriginal => {
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
+const createWrapper = (options = {}): VueWrapper => {
     return mount(AppInput, {
         ...options,
         global: {
@@ -54,24 +54,24 @@ describe('AppInput', () => {
 
             const wrapper = createWrapper({
                 props: {
-                    modelValue: "initial",
-                    "onUpdate:modelValue": async (event: string | number) => {
+                    modelValue: 'initial',
+                    'onUpdate:modelValue': async (event: string | number) => {
                         await (wrapper as VueWrapper).setProps({
                             modelValue: event,
                         });
                     },
                 },
             });
-            const input = wrapper.find("input");
+            const input = wrapper.find('input');
 
             // Act
 
-            await input.setValue("updated");
+            await input.setValue('updated');
 
             // Assert
 
             // @ts-expect-error cannot figure out the argument.
-            expect(wrapper.props("modelValue")).toBe("updated");
+            expect(wrapper.props('modelValue')).toBe('updated');
         });
 
         it('triggers generator command on double shift', async () => {

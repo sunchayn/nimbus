@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import {
-    StringDump,
-    styles,
-} from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
+import type { StringDump } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
+import { styles } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
 
 interface PropsShape {
     dump: StringDump;

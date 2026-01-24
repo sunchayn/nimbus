@@ -1,8 +1,3 @@
-import type { VueWrapper } from '@vue/test-utils';
-import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
 import type {
     ArrayDump,
     ClosureDump,
@@ -14,6 +9,11 @@ import type {
 } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
 import SingleDumpRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/SingleDumpRenderer.vue';
 import { DumpValueType } from '@/interfaces/generated/dump-value-types';
+import type { VueWrapper } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 
 /*
  * Fixtures.
@@ -172,7 +172,7 @@ const createArrayDump = (
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
+const createWrapper = (options = {}): VueWrapper => {
     return mount(SingleDumpRenderer, {
         ...options,
         global: {
@@ -208,8 +208,12 @@ describe('SingleDumpRenderer', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="string-dump-renderer"]').exists()).toBe(true);
-            expect(wrapper.find('[data-testid="string-dump-renderer"]').text()).toBe('test-string');
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').exists()).toBe(
+                true,
+            );
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').text()).toBe(
+                'test-string',
+            );
         });
 
         it('renders NumberDumpRenderer for number type', async () => {
@@ -226,8 +230,12 @@ describe('SingleDumpRenderer', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="number-dump-renderer"]').exists()).toBe(true);
-            expect(wrapper.find('[data-testid="number-dump-renderer"]').text()).toBe('42');
+            expect(wrapper.find('[data-testid="number-dump-renderer"]').exists()).toBe(
+                true,
+            );
+            expect(wrapper.find('[data-testid="number-dump-renderer"]').text()).toBe(
+                '42',
+            );
         });
 
         it('renders ConstDumpRenderer for const type', async () => {
@@ -244,14 +252,22 @@ describe('SingleDumpRenderer', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="const-dump-renderer"]').exists()).toBe(true);
-            expect(wrapper.find('[data-testid="const-dump-renderer"]').text()).toBe('true');
+            expect(wrapper.find('[data-testid="const-dump-renderer"]').exists()).toBe(
+                true,
+            );
+            expect(wrapper.find('[data-testid="const-dump-renderer"]').text()).toBe(
+                'true',
+            );
         });
 
         it('renders ClosureDumpRenderer content', async () => {
             // Arrange
 
-            const dump = createClosureDump('Closure(Application $app)', 'MyClass', 'thisValue');
+            const dump = createClosureDump(
+                'Closure(Application $app)',
+                'MyClass',
+                'thisValue',
+            );
             const wrapper = createWrapper({
                 props: { dump },
             });
@@ -263,7 +279,9 @@ describe('SingleDumpRenderer', () => {
             // Assert
 
             expect(wrapper.find('[data-testid="app-collapsible"]').exists()).toBe(true);
-            expect(wrapper.find('[data-testid="app-collapsible"]').text()).toContain('Closure(Application $app)');
+            expect(wrapper.find('[data-testid="app-collapsible"]').text()).toContain(
+                'Closure(Application $app)',
+            );
         });
 
         it('displays key name when provided for string type', async () => {
@@ -281,7 +299,9 @@ describe('SingleDumpRenderer', () => {
             // Assert
 
             expect(wrapper.text()).toContain('"myKey":');
-            expect(wrapper.find('[data-testid="string-dump-renderer"]').text()).toBe('test');
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').text()).toBe(
+                'test',
+            );
         });
 
         it('shows error message for unknown types', async () => {
@@ -319,7 +339,9 @@ describe('SingleDumpRenderer', () => {
             // Assert
 
             expect(wrapper.find('[data-testid="app-collapsible"]').exists()).toBe(true);
-            expect(wrapper.find('[data-testid="collapsible-trigger"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="collapsible-trigger"]').exists()).toBe(
+                true,
+            );
             expect(wrapper.find('[data-testid="chevron-right"]').exists()).toBe(true);
         });
 
@@ -338,7 +360,9 @@ describe('SingleDumpRenderer', () => {
             // Assert
 
             expect(wrapper.find('[data-testid="app-collapsible"]').exists()).toBe(true);
-            expect(wrapper.find('[data-testid="collapsible-trigger"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="collapsible-trigger"]').exists()).toBe(
+                true,
+            );
             expect(wrapper.find('[data-testid="chevron-right"]').exists()).toBe(true);
         });
 
@@ -426,17 +450,24 @@ describe('SingleDumpRenderer', () => {
 
             const propertyKeys = wrapper.findAll('[data-testid="property-key"]');
             expect(propertyKeys).toHaveLength(2);
-            expect(wrapper.find('[data-testid="string-dump-renderer"]').exists()).toBe(true);
-            expect(wrapper.find('[data-testid="number-dump-renderer"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').exists()).toBe(
+                true,
+            );
+            expect(wrapper.find('[data-testid="number-dump-renderer"]').exists()).toBe(
+                true,
+            );
         });
 
         it('recursively renders array items', async () => {
             // Arrange
 
-            const dump = createArrayDump({
-                'value': createStringDump('item1'),
-                'value-2': createNumberDump(42),
-            }, false);
+            const dump = createArrayDump(
+                {
+                    value: createStringDump('item1'),
+                    'value-2': createNumberDump(42),
+                },
+                false,
+            );
             const wrapper = createWrapper({
                 props: { dump },
             });
@@ -447,9 +478,15 @@ describe('SingleDumpRenderer', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="collapsible-content"]').exists()).toBe(true);
-            expect(wrapper.find('[data-testid="string-dump-renderer"]').exists()).toBe(true);
-            expect(wrapper.find('[data-testid="number-dump-renderer"]').exists()).toBe(true);
+            expect(wrapper.find('[data-testid="collapsible-content"]').exists()).toBe(
+                true,
+            );
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').exists()).toBe(
+                true,
+            );
+            expect(wrapper.find('[data-testid="number-dump-renderer"]').exists()).toBe(
+                true,
+            );
         });
     });
 
@@ -483,8 +520,12 @@ describe('SingleDumpRenderer', () => {
 
             const collapsibles = wrapper.findAll('[data-testid="app-collapsible"]');
             expect(collapsibles.length).toBeGreaterThanOrEqual(3);
-            expect(wrapper.find('[data-testid="string-dump-renderer"]').exists()).toBe(true);
-            expect(wrapper.find('[data-testid="string-dump-renderer"]').text()).toBe('deep');
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').exists()).toBe(
+                true,
+            );
+            expect(wrapper.find('[data-testid="string-dump-renderer"]').text()).toBe(
+                'deep',
+            );
         });
     });
 });

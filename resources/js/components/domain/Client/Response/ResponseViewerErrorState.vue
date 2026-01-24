@@ -37,14 +37,14 @@ const errorBody = computed({
 
 <template>
     <div
-        class="via-background relative max-h-full flex-1 overflow-hidden bg-gradient-to-br from-destructive/10 from-10% p-4 dark:from-destructive/15"
+        class="via-background from-destructive/10 dark:from-destructive/15 relative max-h-full flex-1 overflow-hidden bg-gradient-to-br from-10% p-4"
     >
         <div class="relative z-10 flex max-h-full flex-col p-2">
             <div>
                 <AppBadge variant="outline" class="p-0 px-1 text-xs">
                     Internal Error
                 </AppBadge>
-                <h2 class="text-lg font-medium text-destructive">
+                <h2 class="text-destructive text-lg font-medium">
                     {{ props.error.message }}
                 </h2>
             </div>

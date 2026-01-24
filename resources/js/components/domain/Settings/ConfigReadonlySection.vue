@@ -20,10 +20,6 @@ export interface AppConfigReadonlySectionProps {}
 
 defineProps<AppConfigReadonlySectionProps>();
 
-defineOptions({
-    name: 'ConfigReadonlySection',
-});
-
 /*
  * Stores.
  */
@@ -67,7 +63,7 @@ const configData = computed(() => ({
                                 Route Prefix
                             </AppLabel>
                             <div
-                                class="flex h-9 items-center rounded bg-muted px-3 font-mono text-sm"
+                                class="bg-muted flex h-9 items-center rounded px-3 font-mono text-sm"
                             >
                                 {{ configData.routePrefix }}
                             </div>
@@ -78,9 +74,10 @@ const configData = computed(() => ({
                                 Versioned
                             </AppLabel>
                             <div
-                                class="flex h-9 items-center rounded bg-muted px-3 text-sm"
+                                class="bg-muted flex h-9 items-center rounded px-3 text-sm"
                             >
                                 <div class="flex items-center space-x-2">
+                                    <div
                                         :class="
                                             configData.isVersioned
                                                 ? 'bg-success'
@@ -164,7 +161,7 @@ const configData = computed(() => ({
                         <div
                             v-for="header in configData.globalHeaders"
                             :key="header.header"
-                            class="flex items-center justify-between rounded bg-muted p-3.5"
+                            class="bg-muted flex items-center justify-between rounded p-3.5"
                         >
                             <span class="font-mono text-sm">{{ header.header }}</span>
                             <div class="flex items-center space-x-2">

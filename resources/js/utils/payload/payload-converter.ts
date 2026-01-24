@@ -1,5 +1,5 @@
 import { RequestBodyTypeEnum } from '@/interfaces/http';
-import { PayloadObject } from '@/interfaces/schema/payload';
+import type { PayloadObject } from '@/interfaces/schema/payload';
 import { convertPayloadToFormData } from '@/utils/http';
 
 /**

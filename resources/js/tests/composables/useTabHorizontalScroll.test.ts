@@ -1,6 +1,6 @@
+import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { effectScope } from 'vue';
-import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
 
 /*
  * Fixtures.
@@ -23,8 +23,8 @@ describe('useTabHorizontalScroll', () => {
         vi.clearAllMocks();
     });
 
-    const runComposable = () => {
-        let composable: any;
+    const runComposable = (): ReturnType<typeof useTabHorizontalScroll> => {
+        let composable: ReturnType<typeof useTabHorizontalScroll>;
         effectScope().run(() => {
             composable = useTabHorizontalScroll({
                 MASK_WIDTH: 20,
@@ -34,7 +34,8 @@ describe('useTabHorizontalScroll', () => {
                 DEBOUNCE_DELAY: 0,
             });
         });
-        return composable;
+
+        return composable!;
     };
 
     /*
@@ -50,7 +51,7 @@ describe('useTabHorizontalScroll', () => {
                 scrollLeft: 0,
                 addEventListener: vi.fn(),
                 removeEventListener: vi.fn(),
-            } as any;
+            } as unknown as HTMLElement;
 
             composable.scrollContainer.value = container;
 
@@ -69,7 +70,11 @@ describe('useTabHorizontalScroll', () => {
 
             const composable = runComposable();
             const scrollTo = vi.fn();
-            composable.scrollContainer.value = { scrollTo, addEventListener: vi.fn(), removeEventListener: vi.fn() } as any;
+            composable.scrollContainer.value = {
+                scrollTo,
+                addEventListener: vi.fn(),
+                removeEventListener: vi.fn(),
+            } as unknown as HTMLElement;
             const button = document.createElement('button');
 
             // Act

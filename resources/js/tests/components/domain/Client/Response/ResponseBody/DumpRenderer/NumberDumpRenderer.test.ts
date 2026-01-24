@@ -1,12 +1,11 @@
+import type { NumberDump } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
+import NumberDumpRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/NumberDumpRenderer.vue';
+import { DumpValueType } from '@/interfaces/generated/dump-value-types';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import type { NumberDump } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
-import NumberDumpRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/NumberDumpRenderer.vue';
-import { DumpValueType } from '@/interfaces/generated/dump-value-types';
-import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
 
 /*
  * Fixtures.
@@ -15,7 +14,7 @@ import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
+const createWrapper = (options = {}): VueWrapper => {
     return mount(NumberDumpRenderer, {
         ...options,
         global: {

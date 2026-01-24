@@ -70,6 +70,16 @@ export const getElementVisibility = (
     };
 };
 
+interface ElementAndVisibleArea {
+    elementOffsetLeft: number;
+    elementWidth: number;
+    elementRight: number;
+    visibleAreaLeft: number;
+    visibleAreaRight: number;
+    containerWidth: number;
+    currentScrollLeft: number;
+}
+
 /**
  * Calculates element and visible area positions.
  *
@@ -79,7 +89,7 @@ function calculateElementAndVisibleArea(
     element: HTMLElement,
     container: HTMLElement,
     maskWidth: number,
-) {
+): ElementAndVisibleArea {
     const containerWidth = container.clientWidth;
     const currentScrollLeft = container.scrollLeft;
 
@@ -146,7 +156,9 @@ export const calculateScrollToElement = (
  * Determines when to show left/right gradient masks based on
  * whether the container can scroll in those directions.
  */
-export const getMaskVisibility = (bounds: ScrollBounds) => {
+export const getMaskVisibility = (
+    bounds: ScrollBounds,
+): { showLeftMask: boolean; showRightMask: boolean } => {
     return {
         showLeftMask: !bounds.isAtStart,
         showRightMask: !bounds.isAtEnd,

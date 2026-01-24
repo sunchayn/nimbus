@@ -1,6 +1,6 @@
+import { useRouteSegmentSelection } from '@/composables/request/useRouteSegmentSelection';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref } from 'vue';
-import { useRouteSegmentSelection } from '@/composables/request/useRouteSegmentSelection';
 
 /*
  * Fixtures.
@@ -65,7 +65,10 @@ describe('useRouteSegmentSelection', () => {
             mockInput.selectionStart = 12; // Inside {id}
 
             const event = new MouseEvent('click', { bubbles: true });
-            Object.defineProperty(event, 'target', { value: mockInput, enumerable: true });
+            Object.defineProperty(event, 'target', {
+                value: mockInput,
+                enumerable: true,
+            });
 
             // Act
 

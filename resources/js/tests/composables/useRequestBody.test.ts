@@ -1,9 +1,10 @@
+import { useRequestBody } from '@/composables/request/useRequestBody';
+import { AuthorizationType } from '@/interfaces/generated';
+import type { PendingRequest } from '@/interfaces/http';
+import { RequestBodyTypeEnum } from '@/interfaces/http';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { effectScope, reactive } from 'vue';
-import { AuthorizationType } from '@/interfaces/generated';
-import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
-import { useRequestBody } from '@/composables/request/useRequestBody';
 
 /*
  * Fixtures.
@@ -36,7 +37,10 @@ const createPendingRequest = (): PendingRequest => ({
     headers: [],
     body: {},
     payloadType: RequestBodyTypeEnum.JSON,
-    schema: { shape: { properties: { name: { type: 'string' } } }, extractionErrors: null },
+    schema: {
+        shape: { properties: { name: { type: 'string' } } },
+        extractionErrors: null,
+    },
     queryParameters: [],
     authorization: { type: AuthorizationType.None },
     supportedRoutes: [],
@@ -44,7 +48,10 @@ const createPendingRequest = (): PendingRequest => ({
         method: 'POST',
         endpoint: 'api/users',
         shortEndpoint: 'api/users',
-        schema: { shape: { properties: { name: { type: 'string' } } }, extractionErrors: null },
+        schema: {
+            shape: { properties: { name: { type: 'string' } } },
+            extractionErrors: null,
+        },
     },
     isProcessing: false,
     wasExecuted: false,
@@ -58,11 +65,13 @@ describe('useRequestBody', () => {
         vi.clearAllMocks();
     });
 
-    const runComposable = () => {
-        let composable: any;
-        effectScope().run(() => { composable = useRequestBody(); });
+    const runComposable = (): ReturnType<typeof useRequestBody> => {
+        let composable: ReturnType<typeof useRequestBody>;
+        effectScope().run(() => {
+            composable = useRequestBody();
+        });
 
-        return composable;
+        return composable!;
     };
 
     /*

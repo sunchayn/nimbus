@@ -1,6 +1,6 @@
 const keys: string[] = [];
 
-const render = (key: string) => `nimbus:${key}`;
+const render = (key: string): string => `nimbus:${key}`;
 
 export const uniquePersistenceKey = (key: string): string => {
     if (keys.includes(key)) {
@@ -16,7 +16,7 @@ export const uniquePersistenceKey = (key: string): string => {
     return render(key);
 };
 
-export const clearPersistentKeys = () => {
+export const clearPersistentKeys = (): void => {
     keys.forEach((key: string) => {
         window.localStorage.removeItem(render(key));
     });

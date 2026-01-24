@@ -19,7 +19,7 @@ export interface AppDocumentationLinkButtonProps {
  * Component Setup.
  */
 
-const props = defineProps<AppDocumentationLinkButtonProps>();
+defineProps<AppDocumentationLinkButtonProps>();
 </script>
 
 <template>

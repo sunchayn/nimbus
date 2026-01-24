@@ -6,7 +6,8 @@
  */
 
 import { httpClientConfig } from '@/config';
-import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios from 'axios';
 
 // Make Axios globally available (legacy compatibility and convenience)
 window.axios = axios;

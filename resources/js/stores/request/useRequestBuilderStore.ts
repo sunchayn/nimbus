@@ -1,12 +1,14 @@
-import { AuthorizationContract } from '@/interfaces/auth/authorization';
+import type { AuthorizationContract } from '@/interfaces/auth/authorization';
 import { AuthorizationType } from '@/interfaces/generated';
-import { PendingRequest, Request, RequestBodyTypeEnum } from '@/interfaces/http';
-import { RouteDefinition } from '@/interfaces/routes/routes';
-import { ParameterContract } from '@/interfaces/ui';
+import type { PendingRequest, Request } from '@/interfaces/http';
+import { RequestBodyTypeEnum } from '@/interfaces/http';
+import type { RouteDefinition } from '@/interfaces/routes/routes';
+import type { ParameterContract } from '@/interfaces/ui';
 import { useConfigStore, useSettingsStore } from '@/stores';
 import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
 import { defineStore } from 'pinia';
-import { computed, Ref, ref } from 'vue';
+import type { Ref } from 'vue';
+import { computed, ref } from 'vue';
 
 /**
  * Store for managing request building and configuration.

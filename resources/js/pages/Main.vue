@@ -9,9 +9,10 @@ import ResponseViewer from '@/components/domain/Client/Response/ResponseViewer.v
 import RouteExtractorExceptionRenderer from '@/components/domain/Errors/RouteExtractorExceptionRenderer.vue';
 import RouteExplorer from '@/components/domain/RoutesExplorer/RouteExplorer.vue';
 import { useResponsiveResizable } from '@/composables/ui/useResponsiveResizable';
-import { RouteExtractorException } from '@/interfaces';
+import type { RouteExtractorException } from '@/interfaces';
 import { useRoutesStore } from '@/stores';
-import { onBeforeMount, TemplateRef, useTemplateRef } from 'vue';
+import type { TemplateRef } from 'vue';
+import { onBeforeMount, useTemplateRef } from 'vue';
 
 defineOptions({
     name: 'MainPage',

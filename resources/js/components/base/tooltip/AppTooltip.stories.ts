@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import { AppTooltip, AppTooltipContent, AppTooltipProvider, AppTooltipTrigger } from './index';
 import { AppButton } from '../button';
+import {
+    AppTooltip,
+    AppTooltipContent,
+    AppTooltipProvider,
+    AppTooltipTrigger,
+} from './index';
 
 const meta: Meta<typeof AppTooltip> = {
     title: 'Base/Tooltip',
@@ -13,7 +18,13 @@ type Story = StoryObj<typeof AppTooltip>;
 
 export const Default: Story = {
     render: () => ({
-        components: { AppTooltip, AppTooltipTrigger, AppTooltipContent, AppTooltipProvider, AppButton },
+        components: {
+            AppTooltip,
+            AppTooltipTrigger,
+            AppTooltipContent,
+            AppTooltipProvider,
+            AppButton,
+        },
         template: `
             <AppTooltipProvider>
                 <AppTooltip>

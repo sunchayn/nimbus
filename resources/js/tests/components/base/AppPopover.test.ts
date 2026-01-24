@@ -1,9 +1,12 @@
+import {
+    AppPopover,
+    AppPopoverContent,
+    AppPopoverTrigger,
+} from '@/components/base/popover';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppPopover, AppPopoverContent, AppPopoverTrigger } from '@/components/base/popover';
-import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
 
 /*
  * Fixtures.
@@ -12,22 +15,25 @@ import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
-    return mount({
-        components: { AppPopover, AppPopoverTrigger, AppPopoverContent },
-        template: `
+const createWrapper = (options = {}): VueWrapper => {
+    return mount(
+        {
+            components: { AppPopover, AppPopoverTrigger, AppPopoverContent },
+            template: `
             <AppPopover>
                 <AppPopoverTrigger>Open</AppPopoverTrigger>
                 <AppPopoverContent>Popover Content</AppPopoverContent>
             </AppPopover>
         `,
-        ...options,
-    }, {
-        global: {
-            plugins: [createPinia()],
+            ...options,
         },
-        attachTo: document.body,
-    });
+        {
+            global: {
+                plugins: [createPinia()],
+            },
+            attachTo: document.body,
+        },
+    );
 };
 
 describe('AppPopover', () => {

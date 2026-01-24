@@ -1,5 +1,6 @@
 import { useResizeObserver } from '@vueuse/core';
-import { computed, ComputedRef, Ref, ref, TemplateRef } from 'vue';
+import type { ComputedRef, Ref, TemplateRef } from 'vue';
+import { computed, ref } from 'vue';
 
 /**
  * Manages resizable panel's direction.

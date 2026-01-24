@@ -1,5 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import { AppSelect, AppSelectContent, AppSelectGroup, AppSelectItem, AppSelectLabel, AppSelectSeparator, AppSelectTrigger, AppSelectValue } from './index';
+import {
+    AppSelect,
+    AppSelectContent,
+    AppSelectGroup,
+    AppSelectItem,
+    AppSelectLabel,
+    AppSelectSeparator,
+    AppSelectTrigger,
+    AppSelectValue,
+} from './index';
 
 const meta: Meta<typeof AppSelect> = {
     title: 'Base/Select',
@@ -12,7 +21,16 @@ type Story = StoryObj<typeof AppSelect>;
 
 export const Default: Story = {
     render: () => ({
-        components: { AppSelect, AppSelectContent, AppSelectGroup, AppSelectItem, AppSelectLabel, AppSelectSeparator, AppSelectTrigger, AppSelectValue },
+        components: {
+            AppSelect,
+            AppSelectContent,
+            AppSelectGroup,
+            AppSelectItem,
+            AppSelectLabel,
+            AppSelectSeparator,
+            AppSelectTrigger,
+            AppSelectValue,
+        },
         template: `
             <AppSelect>
                 <AppSelectTrigger class="w-[180px]">

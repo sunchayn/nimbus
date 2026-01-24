@@ -1,6 +1,7 @@
-import { RouteDefinition } from '@/interfaces';
+import type { RouteDefinition } from '@/interfaces';
 import { AuthorizationType } from '@/interfaces/generated';
-import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
+import type { ErrorPlainResponse, PendingRequest, Response } from '@/interfaces/http';
+import { RequestBodyTypeEnum } from '@/interfaces/http';
 import {
     createRequestTimer,
     generateErrorRequestLog,
@@ -73,20 +74,16 @@ describe('request-utils', () => {
             },
         } as PendingRequest;
 
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
         const success = generateSuccessRequestLog(request, 1200, {
             status: 200,
-        } as any);
-        /* eslint-enable  @typescript-eslint/no-explicit-any */
+        } as unknown as Response);
 
         expect(success.durationInMs).toBe(1200);
         expect(success.response).toEqual({ status: 200 });
 
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
         const error = generateErrorRequestLog(request, {
             message: 'fail',
-        } as any);
-        /* eslint-enable  @typescript-eslint/no-explicit-any */
+        } as unknown as ErrorPlainResponse);
 
         expect(error.error).toEqual({ message: 'fail' });
     });

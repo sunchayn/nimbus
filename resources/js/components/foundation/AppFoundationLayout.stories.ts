@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import Layout from './Layout.vue';
+import AppFoundationLayout from './AppFoundationLayout.vue';
 
-const meta: Meta<typeof Layout> = {
+const meta: Meta<typeof AppFoundationLayout> = {
     title: 'Foundation/Layout',
-    component: Layout,
+    component: AppFoundationLayout,
     parameters: {
         layout: 'fullscreen',
     },
 };
 
 export default meta;
-type Story = StoryObj<typeof Layout>;
+type Story = StoryObj<typeof AppFoundationLayout>;
 
 export const SpacingAndRadii: Story = {};

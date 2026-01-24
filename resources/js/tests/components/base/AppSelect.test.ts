@@ -1,15 +1,21 @@
+import {
+    AppSelect,
+    AppSelectContent,
+    AppSelectItem,
+    AppSelectTrigger,
+    AppSelectValue,
+} from '@/components/base/select';
 import type { VueWrapper } from '@vue/test-utils';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { AppSelect, AppSelectContent, AppSelectItem, AppSelectTrigger, AppSelectValue } from '@/components/base/select';
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {
-    observe() { }
-    unobserve() { }
-    disconnect() { }
+    observe() {}
+    unobserve() {}
+    disconnect() {}
 };
 
 // Mock ScrollIntoView
@@ -31,18 +37,23 @@ class MockPointerEvent extends Event {
         this.shiftKey = props.shiftKey || false;
     }
 }
-window.PointerEvent = MockPointerEvent as any;
-
-
+window.PointerEvent = MockPointerEvent as unknown as typeof PointerEvent;
 
 /*
  * Fixtures.
  */
 
-const createWrapper = (options= {}): VueWrapper => {
-    return mount({
-        components: { AppSelect, AppSelectTrigger, AppSelectValue, AppSelectContent, AppSelectItem },
-        template: `
+const createWrapper = (options = {}): VueWrapper => {
+    return mount(
+        {
+            components: {
+                AppSelect,
+                AppSelectTrigger,
+                AppSelectValue,
+                AppSelectContent,
+                AppSelectItem,
+            },
+            template: `
             <AppSelect v-bind="selectProps">
                 <AppSelectTrigger>
                     <AppSelectValue placeholder="Select" />
@@ -52,14 +63,16 @@ const createWrapper = (options= {}): VueWrapper => {
                 </AppSelectContent>
             </AppSelect>
         `,
-        data() {
-            // @ts-expect-error .props not found in object.
-            return { selectProps: options.props || {} };
-        }
-    }, {
-        global: { plugins: [createPinia()] },
-        attachTo: document.body,
-    });
+            data() {
+                // @ts-expect-error .props not found in object.
+                return { selectProps: options.props || {} };
+            },
+        },
+        {
+            global: { plugins: [createPinia()] },
+            attachTo: document.body,
+        },
+    );
 };
 
 describe('AppSelect', () => {
@@ -93,7 +106,9 @@ describe('AppSelect', () => {
             // Assert
 
             const options = document.querySelectorAll('[role="option"]');
-            const hasOption = Array.from(options).some(opt => opt.textContent?.includes('Option 1'));
+            const hasOption = Array.from(options).some(opt =>
+                opt.textContent?.includes('Option 1'),
+            );
 
             expect(hasOption).toBe(true);
             wrapper.unmount();

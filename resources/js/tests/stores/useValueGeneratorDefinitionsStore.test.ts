@@ -1,7 +1,7 @@
+import type { ValueGenerator } from '@/interfaces/ui';
+import { useValueGeneratorDefinitionsStore } from '@/stores/generators/useValueGeneratorDefinitionsStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ValueGenerator } from '@/interfaces/ui';
-import { useValueGeneratorDefinitionsStore } from '@/stores/generators/useValueGeneratorDefinitionsStore';
 
 /*
  * Fixtures.

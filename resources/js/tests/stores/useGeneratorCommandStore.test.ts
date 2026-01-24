@@ -1,7 +1,7 @@
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
 import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
 import { useGeneratorCommandStore } from '@/stores/generators/useGeneratorCommandStore';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 /*
  * Fixtures.

@@ -4,7 +4,7 @@
  * @description Input fields for Basic Authentication (username/password).
  */
 import { AppInput } from '@/components/base/input';
-import { type ModelRef, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 /*
  * Types & Interfaces.

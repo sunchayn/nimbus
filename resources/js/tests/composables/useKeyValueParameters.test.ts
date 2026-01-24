@@ -1,8 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick, Ref, ref } from 'vue';
 import { useKeyValueParameters } from '@/composables/ui/useKeyValueParameters';
-import { ParameterContract } from '@/interfaces';
+import type { ParameterContract } from '@/interfaces';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Ref } from 'vue';
+import { ref } from 'vue';
 
 /*
  * Fixtures.
@@ -81,7 +82,13 @@ describe('useKeyValueParameters', () => {
             // Arrange
 
             modelValue.value = [
-                { id: 1, type: ParameterType.Text, key: 'p1', value: 'v1', enabled: true },
+                {
+                    id: 1,
+                    type: ParameterType.Text,
+                    key: 'p1',
+                    value: 'v1',
+                    enabled: true,
+                },
             ];
 
             // Act

@@ -1,5 +1,6 @@
 // composables/useRouteSegmentSelection.ts
-import { nextTick, ref, Ref, watch } from 'vue';
+import type { Ref } from 'vue';
+import { nextTick, ref, watch } from 'vue';
 
 export interface UseRouteSegmentSelectionOptions {
     /**

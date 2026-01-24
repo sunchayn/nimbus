@@ -1,5 +1,5 @@
 import { allValueGenerators, generatorCategories } from '@/config/generators';
-import { ValueGenerator } from '@/interfaces/ui';
+import type { ValueGenerator } from '@/interfaces/ui';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 

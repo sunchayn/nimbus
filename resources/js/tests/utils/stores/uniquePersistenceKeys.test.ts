@@ -1,4 +1,4 @@
-import { MockInstance } from '@vitest/spy';
+import type { MockInstance } from '@vitest/spy';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('uniquePersistenceKey', () => {

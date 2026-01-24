@@ -22,7 +22,7 @@ export interface AppKeyValueDisplayListProps<T> {
  * Component Setup.
  */
 
-const props = defineProps<AppKeyValueDisplayListProps<T>>();
+defineProps<AppKeyValueDisplayListProps<T>>();
 </script>
 
 <template>

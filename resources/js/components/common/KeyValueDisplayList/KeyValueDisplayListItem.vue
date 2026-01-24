@@ -43,16 +43,12 @@ const copyValue = () => {
         >
             {{ item.key }}
         </AppTableCell>
-        <AppTableCell
-            class="border-b-1 border-border align-top break-words"
-        >
+        <AppTableCell class="border-border border-b-1 align-top break-words">
             <slot name="value" :item="props.item">
                 {{ item.value }}
             </slot>
         </AppTableCell>
-        <AppTableCell
-            class="px-panel w-10 border-b-1 border-border align-top"
-        >
+        <AppTableCell class="px-panel border-border w-10 border-b-1 align-top">
             <CopyButton :on-click="copyValue" :copied="copied" />
         </AppTableCell>
     </AppTableRow>

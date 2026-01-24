@@ -22,7 +22,8 @@ defineOptions({
  * Types & Interfaces.
  */
 
-export interface AppSidebarMenuButtonComponentProps extends AppSidebarMenuButtonChildProps {
+export interface AppSidebarMenuButtonComponentProps
+    extends AppSidebarMenuButtonChildProps {
     tooltip?: string | Component;
 }
 

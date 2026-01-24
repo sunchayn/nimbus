@@ -16,7 +16,7 @@ export interface AppValueGeneratorCategoryFiltersProps {}
  * Component Setup.
  */
 
-const props = defineProps<AppValueGeneratorCategoryFiltersProps>();
+defineProps<AppValueGeneratorCategoryFiltersProps>();
 
 const store = useValueGeneratorStore();
 
@@ -95,7 +95,7 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
                     :key="category.id"
                     tabindex="0"
                     :class="[
-                        'flex flex-shrink-0 items-center justify-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap ring-offset-background transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
+                        'ring-offset-background focus-visible:ring-ring flex flex-shrink-0 items-center justify-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
                         getCategoryButtonClass(category.id),
                     ]"
                     @click="event => handleCategoryClick(event, category.id)"
@@ -108,11 +108,11 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
             <!-- Scroll Gradient Masks -->
             <div
                 v-show="showLeftMask"
-                class="pointer-events-none absolute top-0 bottom-0 left-0 w-8 rounded-l-lg bg-gradient-to-r from-subtle-background via-subtle-background/80 to-transparent transition-opacity duration-200"
+                class="from-subtle-background via-subtle-background/80 pointer-events-none absolute top-0 bottom-0 left-0 w-8 rounded-l-lg bg-gradient-to-r to-transparent transition-opacity duration-200"
             />
             <div
                 v-show="showRightMask"
-                class="pointer-events-none absolute top-0 right-0 bottom-0 w-8 rounded-r-lg bg-gradient-to-l from-subtle-background via-subtle-background/80 to-transparent transition-opacity duration-200"
+                class="from-subtle-background via-subtle-background/80 pointer-events-none absolute top-0 right-0 bottom-0 w-8 rounded-r-lg bg-gradient-to-l to-transparent transition-opacity duration-200"
             />
         </div>
     </div>

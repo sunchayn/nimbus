@@ -1,14 +1,27 @@
-import { PendingRequest, RequestBodyTypeEnum, RequestHeader } from '@/interfaces/http';
+import type { PendingRequest, RequestHeader } from '@/interfaces/http';
+import { RequestBodyTypeEnum } from '@/interfaces/http';
 import { useRequestStore } from '@/stores';
 import {
     generatePlaceholderPayload,
     generateRandomPayload,
     serializeSchemaPayload,
 } from '@/utils/payload';
-import { types, TypeShape } from '@/utils/request/content-type-header-generator';
-import { computed, onMounted, ref, watch } from 'vue';
+import type { TypeShape } from '@/utils/request/content-type-header-generator';
+import { types } from '@/utils/request/content-type-header-generator';
+import { type ComputedRef, type Ref, computed, onMounted, ref, watch } from 'vue';
 
-export function useRequestBody() {
+export function useRequestBody(): {
+    payloadType: Ref<RequestBodyTypeEnum>;
+    payload: Ref<FormData | string | null>;
+    pendingRequestData: ComputedRef<
+        ReturnType<typeof useRequestStore>['pendingRequestData']
+    >;
+    supportsAutoFill: ComputedRef<boolean>;
+    autofill: () => void;
+    generateCurrentPayload: () => FormData | string | null;
+    initializePayloadTypeFromHeaders: () => void;
+    types: TypeShape[];
+} {
     /*
      * Stores & dependencies.
      */

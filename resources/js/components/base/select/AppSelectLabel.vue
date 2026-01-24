@@ -5,7 +5,6 @@
  */
 import { cn } from '@/utils/ui';
 import { SelectLabel, type SelectLabelProps } from 'reka-ui';
-import { reactiveOmit } from '@vueuse/core';
 import { type HTMLAttributes } from 'vue';
 
 /*
@@ -21,12 +20,6 @@ export interface AppSelectLabelProps extends SelectLabelProps {
  */
 
 const props = defineProps<AppSelectLabelProps>();
-
-/*
- * Computed & Methods.
- */
-
-const delegatedProps = reactiveOmit(props, 'class');
 </script>
 
 <template>

@@ -17,7 +17,7 @@ export interface AppValueGeneratorCommandKeepAliveProps {}
  * Component Setup.
  */
 
-const props = defineProps<AppValueGeneratorCommandKeepAliveProps>();
+defineProps<AppValueGeneratorCommandKeepAliveProps>();
 
 const store = useValueGeneratorStore();
 const { filterState } = useCommand();

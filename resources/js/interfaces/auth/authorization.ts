@@ -1,4 +1,4 @@
-import { AuthorizationType } from '@/interfaces/generated';
+import type { AuthorizationType } from '@/interfaces/generated';
 
 /**
  * Base interface for all authorization contracts

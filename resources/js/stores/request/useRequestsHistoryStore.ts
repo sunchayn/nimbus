@@ -1,4 +1,4 @@
-import { RequestLog } from '@/interfaces/history/logs';
+import type { RequestLog } from '@/interfaces/history/logs';
 import { useSettingsStore } from '@/stores';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';

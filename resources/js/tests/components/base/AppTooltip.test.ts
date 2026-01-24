@@ -1,9 +1,13 @@
+import {
+    AppTooltip,
+    AppTooltipContent,
+    AppTooltipProvider,
+    AppTooltipTrigger,
+} from '@/components/base/tooltip';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppTooltip, AppTooltipContent, AppTooltipProvider, AppTooltipTrigger } from '@/components/base/tooltip';
-import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
 
 /*
  * Fixtures.
@@ -12,10 +16,16 @@ import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
-    return mount({
-        components: { AppTooltip, AppTooltipTrigger, AppTooltipContent, AppTooltipProvider },
-        template: `
+const createWrapper = (options = {}): VueWrapper => {
+    return mount(
+        {
+            components: {
+                AppTooltip,
+                AppTooltipTrigger,
+                AppTooltipContent,
+                AppTooltipProvider,
+            },
+            template: `
             <AppTooltipProvider>
                 <AppTooltip>
                     <AppTooltipTrigger>Hover me</AppTooltipTrigger>
@@ -23,12 +33,14 @@ const createWrapper = (options= {}): VueWrapper => {
                 </AppTooltip>
             </AppTooltipProvider>
         `,
-        ...options,
-    }, {
-        global: {
-            plugins: [createPinia()],
+            ...options,
         },
-    });
+        {
+            global: {
+                plugins: [createPinia()],
+            },
+        },
+    );
 };
 
 describe('AppTooltip', () => {

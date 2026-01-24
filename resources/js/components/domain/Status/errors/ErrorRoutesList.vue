@@ -96,9 +96,7 @@ const isRouteSelected = (route: RouteWithError) => {
             class="h-toolbar bg-subtle-background flex flex-shrink-0 items-center justify-between border-b"
         >
             <div class="pl-panel flex items-center">
-                <span class="text-sm font-semibold text-foreground">
-                    Failed Routes
-                </span>
+                <span class="text-foreground text-sm font-semibold">Failed Routes</span>
                 <span class="bg-background ml-2 rounded-full px-2 py-0.5 text-xs">
                     {{ filteredRoutes.length }}
                 </span>
@@ -121,7 +119,7 @@ const isRouteSelected = (route: RouteWithError) => {
                 <div
                     v-for="route in filteredRoutes"
                     :key="`${route.version}-${route.resource}-${route.method}-${route.endpoint}`"
-                    class="px-panel flex cursor-pointer items-center space-x-3 border-b border-l-2 border-l-transparent py-1 transition-colors odd:bg-background even:bg-muted hover:bg-accent/50"
+                    class="px-panel odd:bg-background even:bg-muted hover:bg-accent/50 flex cursor-pointer items-center space-x-3 border-b border-l-2 border-l-transparent py-1 transition-colors"
                     :class="{
                         '!border-l-primary': isRouteSelected(route),
                     }"
@@ -132,7 +130,7 @@ const isRouteSelected = (route: RouteWithError) => {
                         <div class="text-subtle-foreground truncate font-mono text-sm">
                             {{ route.endpoint }}
                         </div>
-                        <div class="truncate text-xs text-muted-foreground">
+                        <div class="text-muted-foreground truncate text-xs">
                             /{{ route.resource }}
                             <span v-if="route.version !== 'n/a'">
                                 • v{{ route.version }}

@@ -1,9 +1,10 @@
+import HistoryItem from '@/components/domain/Client/Response/ResponseStatus/History/HistoryItem.vue';
+import type { Request, Response } from '@/interfaces/http';
+import { createMockRequestLog } from '@/tests/_utils/test-factories';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import HistoryItem from '@/components/domain/Client/Response/ResponseStatus/History/HistoryItem.vue';
-import { createMockRequestLog } from '@/tests/_utils/test-factories';
 
 /*
  * Fixtures.
@@ -15,8 +16,6 @@ vi.mock('@/components/base/dropdown-menu', () => ({
         template: '<div><slot /></div>',
     },
 }));
-
-import type { MountingOptions } from '@vue/test-utils';
 
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
@@ -43,13 +42,13 @@ describe('HistoryItem', () => {
         request: {
             method: 'GET',
             endpoint: '/api/test',
-        } as any,
+        } as unknown as Request,
         response: {
             statusCode: 200,
             statusText: 'OK',
             timestamp: Math.floor(Date.now() / 1000) - 60, // 1 minute ago
             sizeInBytes: 1024,
-        } as any,
+        } as unknown as Response,
     });
 
     /*
@@ -70,8 +69,12 @@ describe('HistoryItem', () => {
             // Assert
 
             expect(wrapper.get('[data-testid="history-item-method"]').text()).toBe('GET');
-            expect(wrapper.get('[data-testid="history-item-endpoint"]').text()).toBe('/api/test');
-            expect(wrapper.get('[data-testid="response-status-badge"]').text()).toContain('200 - OK');
+            expect(wrapper.get('[data-testid="history-item-endpoint"]').text()).toBe(
+                '/api/test',
+            );
+            expect(wrapper.get('[data-testid="response-status-badge"]').text()).toContain(
+                '200 - OK',
+            );
 
             // Assert relative timestamp
             const timestamp = wrapper.find('small');

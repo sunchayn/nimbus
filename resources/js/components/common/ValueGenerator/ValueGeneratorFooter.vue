@@ -17,14 +17,14 @@ export interface AppValueGeneratorFooterProps {}
  * Component Setup.
  */
 
-const props = defineProps<AppValueGeneratorFooterProps>();
+defineProps<AppValueGeneratorFooterProps>();
 
 const store = useValueGeneratorStore();
 </script>
 
 <template>
     <div
-        class="border-t border-border bg-subtle-background p-2 text-center text-xs text-muted-foreground"
+        class="border-border bg-subtle-background text-muted-foreground border-t p-2 text-center text-xs"
     >
         <!-- Shift-Shift Shortcut Hint -->
         <div

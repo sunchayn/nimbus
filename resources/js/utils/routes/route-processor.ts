@@ -1,5 +1,5 @@
-import { RouteExtractorException } from '@/interfaces';
-import { RouteDefinition, RoutesGroup } from '@/interfaces/routes/routes';
+import type { RouteExtractorException } from '@/interfaces';
+import type { RouteDefinition, RoutesGroup } from '@/interfaces/routes/routes';
 import type { JSONSchema7 } from 'json-schema';
 
 /**

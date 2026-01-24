@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useRouteStatistics } from '@/composables/data/useRouteStatistics';
 import { useRoutesStore } from '@/stores';
 import { createMockRouteDefinition } from '@/tests/_utils/test-factories';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 /*
  * Fixtures.
@@ -12,12 +12,14 @@ vi.mock('@/stores', () => ({
 }));
 
 const mockRoutesStore = {
-    routes: null as any,
+    routes: null as ReturnType<typeof useRoutesStore>['routes'],
 };
 
 describe('useRouteStatistics', () => {
     beforeEach(() => {
-        vi.mocked(useRoutesStore).mockReturnValue(mockRoutesStore as any);
+        vi.mocked(useRoutesStore).mockReturnValue(
+            mockRoutesStore as unknown as ReturnType<typeof useRoutesStore>,
+        );
         mockRoutesStore.routes = null;
         vi.clearAllMocks();
     });
@@ -49,7 +51,9 @@ describe('useRouteStatistics', () => {
                     {
                         resource: 'users',
                         routes: [
-                            createMockRouteDefinition({ schema: { shape: {}, extractionErrors: 'Err' } }),
+                            createMockRouteDefinition({
+                                schema: { shape: {}, extractionErrors: 'Err' },
+                            }),
                             createMockRouteDefinition({ method: 'POST' }),
                         ],
                     },

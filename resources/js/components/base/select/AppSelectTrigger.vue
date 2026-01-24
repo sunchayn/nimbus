@@ -4,6 +4,7 @@
  * @description The interactive element that opens the select menu.
  */
 import { cn } from '@/utils/ui';
+import { reactiveOmit } from '@vueuse/core';
 import { ChevronDown } from 'lucide-vue-next';
 import {
     SelectIcon,
@@ -11,7 +12,6 @@ import {
     type SelectTriggerProps,
     useForwardProps,
 } from 'reka-ui';
-import { reactiveOmit } from '@vueuse/core';
 import { type HTMLAttributes } from 'vue';
 
 defineOptions({

@@ -3,10 +3,10 @@
  * @component StatusIndicator
  * @description A colored indicator dot representing the response status (success, error, redirect, etc.).
  */
-import Spinner from "@/components/base/icons/AppSpinner.vue";
-import AppRoundIndicator from "@/components/base/round-indicator/AppRoundIndicator.vue";
-import { STATUS } from "@/interfaces/http";
-import { computed } from "vue";
+import Spinner from '@/components/base/icons/AppSpinner.vue';
+import AppRoundIndicator from '@/components/base/round-indicator/AppRoundIndicator.vue';
+import { STATUS } from '@/interfaces/http';
+import { computed } from 'vue';
 
 /*
  * Types & Interfaces.

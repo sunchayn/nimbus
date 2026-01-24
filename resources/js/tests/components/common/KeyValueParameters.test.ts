@@ -1,10 +1,10 @@
+import KeyValueParameters from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { computed, nextTick, Ref, ref } from 'vue';
-import KeyValueParameters from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
-import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
+import type { Ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 
 /*
  * Fixtures.
@@ -60,7 +60,7 @@ vi.mock('@/stores', async importOriginal => {
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
+const createWrapper = (options = {}): VueWrapper => {
     return mount(KeyValueParameters, {
         props: {
             modelValue: [],
@@ -170,7 +170,9 @@ describe('KeyValueParameters', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="enable-all-button"]').text()).toBe('Disable All');
+            expect(wrapper.find('[data-testid="enable-all-button"]').text()).toBe(
+                'Disable All',
+            );
 
             // Act
 
@@ -179,7 +181,9 @@ describe('KeyValueParameters', () => {
 
             // Assert
 
-            expect(wrapper.find('[data-testid="enable-all-button"]').text()).toBe('Enable All');
+            expect(wrapper.find('[data-testid="enable-all-button"]').text()).toBe(
+                'Enable All',
+            );
         });
 
         it('displays generator button while value input focused and opens command', async () => {
@@ -243,7 +247,9 @@ describe('KeyValueParameters', () => {
             const secondDeleteButton = rows[1].get('[data-testid="delete-button"]');
 
             expect(firstDeleteButton.find('svg').classes()).toContain('text-destructive');
-            expect(secondDeleteButton.find('svg').classes()).not.toContain('text-rose-500');
+            expect(secondDeleteButton.find('svg').classes()).not.toContain(
+                'text-rose-500',
+            );
         });
     });
 });

@@ -1,5 +1,5 @@
 import { useGeneratorSearch } from '@/composables/data/useGeneratorSearch';
-import { ValueGenerator } from '@/interfaces/ui';
+import type { ValueGenerator } from '@/interfaces/ui';
 import { describe, expect, it } from 'vitest';
 
 /*
@@ -39,7 +39,8 @@ describe('useGeneratorSearch', () => {
         it('initializes with empty search query and no category filter', () => {
             // Act
 
-            const { searchQuery, selectedCategory, filteredGenerators } = useGeneratorSearch(mockGenerators);
+            const { searchQuery, selectedCategory, filteredGenerators } =
+                useGeneratorSearch(mockGenerators);
 
             // Assert
 
@@ -57,7 +58,8 @@ describe('useGeneratorSearch', () => {
         it('filters generators by name case-insensitively', () => {
             // Arrange
 
-            const { setSearchQuery, filteredGenerators } = useGeneratorSearch(mockGenerators);
+            const { setSearchQuery, filteredGenerators } =
+                useGeneratorSearch(mockGenerators);
 
             // Act
 
@@ -72,7 +74,8 @@ describe('useGeneratorSearch', () => {
         it('filters generators by description case-insensitively', () => {
             // Arrange
 
-            const { setSearchQuery, filteredGenerators } = useGeneratorSearch(mockGenerators);
+            const { setSearchQuery, filteredGenerators } =
+                useGeneratorSearch(mockGenerators);
 
             // Act
 
@@ -87,7 +90,8 @@ describe('useGeneratorSearch', () => {
         it('filters generators by selected category', () => {
             // Arrange
 
-            const { setSelectedCategory, filteredGenerators } = useGeneratorSearch(mockGenerators);
+            const { setSelectedCategory, filteredGenerators } =
+                useGeneratorSearch(mockGenerators);
 
             // Act
 
@@ -96,13 +100,16 @@ describe('useGeneratorSearch', () => {
             // Assert
 
             expect(filteredGenerators.value).toHaveLength(2);
-            expect(filteredGenerators.value.every(g => g.category.id === 'string')).toBe(true);
+            expect(filteredGenerators.value.every(g => g.category.id === 'string')).toBe(
+                true,
+            );
         });
 
         it('applies both search query and category filter simultaneously', () => {
             // Arrange
 
-            const { setSearchQuery, setSelectedCategory, filteredGenerators } = useGeneratorSearch(mockGenerators);
+            const { setSearchQuery, setSelectedCategory, filteredGenerators } =
+                useGeneratorSearch(mockGenerators);
 
             // Act
 
@@ -112,7 +119,9 @@ describe('useGeneratorSearch', () => {
             // Assert
 
             expect(filteredGenerators.value).toHaveLength(2);
-            expect(filteredGenerators.value.every(g => g.category.id === 'string')).toBe(true);
+            expect(filteredGenerators.value.every(g => g.category.id === 'string')).toBe(
+                true,
+            );
         });
 
         it('clears all filters when clearFilters is called', () => {
@@ -156,7 +165,9 @@ describe('useGeneratorSearch', () => {
                 },
             ];
 
-            const { setSearchQuery, filteredGenerators } = useGeneratorSearch(generatorsWithSpecialChars);
+            const { setSearchQuery, filteredGenerators } = useGeneratorSearch(
+                generatorsWithSpecialChars,
+            );
 
             // Act
 
@@ -170,7 +181,8 @@ describe('useGeneratorSearch', () => {
         it('handles very long search queries', () => {
             // Arrange
 
-            const { setSearchQuery, filteredGenerators } = useGeneratorSearch(mockGenerators);
+            const { setSearchQuery, filteredGenerators } =
+                useGeneratorSearch(mockGenerators);
 
             // Act
 

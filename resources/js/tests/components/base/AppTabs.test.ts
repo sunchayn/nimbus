@@ -1,10 +1,14 @@
+import {
+    AppTabs,
+    AppTabsContent,
+    AppTabsList,
+    AppTabsTrigger,
+} from '@/components/base/tabs';
 import type { VueWrapper } from '@vue/test-utils';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref } from 'vue';
-import { AppTabs, AppTabsContent, AppTabsList, AppTabsTrigger } from '@/components/base/tabs';
-import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
 
 /*
  * Fixtures.
@@ -13,14 +17,16 @@ import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
-    return mount({
-        components: { AppTabs, AppTabsList, AppTabsTrigger, AppTabsContent },
-        setup() {
-            const activeTab = ref('tab1');
-            return { activeTab };
-        },
-        template: `
+const createWrapper = (options = {}): VueWrapper => {
+    return mount(
+        {
+            components: { AppTabs, AppTabsList, AppTabsTrigger, AppTabsContent },
+            setup() {
+                const activeTab = ref('tab1');
+
+                return { activeTab };
+            },
+            template: `
             <AppTabs v-model="activeTab" v-bind="tabsProps">
                 <AppTabsList>
                     <AppTabsTrigger value="tab1">Tab 1</AppTabsTrigger>
@@ -30,18 +36,20 @@ const createWrapper = (options= {}): VueWrapper => {
                 <AppTabsContent value="tab2" data-testid="c2">Content 2</AppTabsContent>
             </AppTabs>
         `,
-        data() {
-            return {
-                // @ts-expect-error .props not found in object.
-                tabsProps: options.props || {},
-            };
+            data() {
+                return {
+                    // @ts-expect-error .props not found in object.
+                    tabsProps: options.props || {},
+                };
+            },
+            ...options,
         },
-        ...options,
-    }, {
-        global: {
-            plugins: [createPinia()],
+        {
+            global: {
+                plugins: [createPinia()],
+            },
         },
-    });
+    );
 };
 
 describe('AppTabs', () => {
@@ -80,7 +88,8 @@ describe('AppTabs', () => {
 
             // Act
 
-            (wrapper.vm as any).activeTab = 'tab2';
+            // @ts-expect-error .activeTab not found in wrapper.vm.
+            wrapper.vm.activeTab = 'tab2';
             await flushPromises();
             await nextTick();
             await nextTick();
@@ -88,7 +97,9 @@ describe('AppTabs', () => {
             // Assert
 
             expect(wrapper.find('[data-testid="c2"]').exists()).toBe(true);
-            expect(wrapper.find('[data-testid="c2"]').attributes('data-state')).toBe('active');
+            expect(wrapper.find('[data-testid="c2"]').attributes('data-state')).toBe(
+                'active',
+            );
         });
     });
 });

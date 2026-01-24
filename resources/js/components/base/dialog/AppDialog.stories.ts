@@ -1,6 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import { AppDialog, AppDialogContent, AppDialogDescription, AppDialogFooter, AppDialogHeader, AppDialogTitle, AppDialogTrigger } from './index';
 import { AppButton } from '../button';
+import {
+    AppDialog,
+    AppDialogContent,
+    AppDialogDescription,
+    AppDialogFooter,
+    AppDialogHeader,
+    AppDialogTitle,
+    AppDialogTrigger,
+} from './index';
 
 const meta: Meta<typeof AppDialog> = {
     title: 'Base/Dialog',
@@ -13,7 +21,16 @@ type Story = StoryObj<typeof AppDialog>;
 
 export const Default: Story = {
     render: () => ({
-        components: { AppDialog, AppDialogTrigger, AppDialogContent, AppDialogHeader, AppDialogTitle, AppDialogDescription, AppDialogFooter, AppButton },
+        components: {
+            AppDialog,
+            AppDialogTrigger,
+            AppDialogContent,
+            AppDialogHeader,
+            AppDialogTitle,
+            AppDialogDescription,
+            AppDialogFooter,
+            AppButton,
+        },
         template: `
             <AppDialog>
                 <AppDialogTrigger asChild>

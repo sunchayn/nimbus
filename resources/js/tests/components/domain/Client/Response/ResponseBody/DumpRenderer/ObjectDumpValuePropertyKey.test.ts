@@ -1,11 +1,11 @@
-import type { MountingOptions, VueWrapper } from "@vue/test-utils";
+import type { ObjectDumpProperty } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
+import ObjectDumpValuePropertyKey from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/ObjectDumpValuePropertyKey.vue';
+import { DumpValueType } from '@/interfaces/generated/dump-value-types';
+import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import type { ObjectDumpProperty } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
-import ObjectDumpValuePropertyKey from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/ObjectDumpValuePropertyKey.vue';
-import { DumpValueType } from '@/interfaces/generated/dump-value-types';
 
 /*
  * Fixtures.

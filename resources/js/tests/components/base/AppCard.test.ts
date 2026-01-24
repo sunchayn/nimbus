@@ -1,9 +1,15 @@
+import {
+    AppCard,
+    AppCardContent,
+    AppCardDescription,
+    AppCardFooter,
+    AppCardHeader,
+    AppCardTitle,
+} from '@/components/base/card';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppCard, AppCardContent, AppCardDescription, AppCardFooter, AppCardHeader, AppCardTitle } from '@/components/base/card';
-import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
 
 /*
  * Fixtures.
@@ -12,10 +18,18 @@ import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
-    return mount({
-        components: { AppCard, AppCardHeader, AppCardTitle, AppCardDescription, AppCardContent, AppCardFooter },
-        template: `
+const createWrapper = (options = {}): VueWrapper => {
+    return mount(
+        {
+            components: {
+                AppCard,
+                AppCardHeader,
+                AppCardTitle,
+                AppCardDescription,
+                AppCardContent,
+                AppCardFooter,
+            },
+            template: `
             <AppCard v-bind="cardProps">
                 <AppCardHeader>
                     <AppCardTitle>Title</AppCardTitle>
@@ -25,18 +39,20 @@ const createWrapper = (options= {}): VueWrapper => {
                 <AppCardFooter>Footer</AppCardFooter>
             </AppCard>
         `,
-        data() {
-            return {
-                // @ts-expect-error .props not found in object.
-                cardProps: options.props || {},
-            };
+            data() {
+                return {
+                    // @ts-expect-error .props not found in object.
+                    cardProps: options.props || {},
+                };
+            },
+            ...options,
         },
-        ...options,
-    }, {
-        global: {
-            plugins: [createPinia()],
+        {
+            global: {
+                plugins: [createPinia()],
+            },
         },
-    });
+    );
 };
 
 describe('AppCard', () => {

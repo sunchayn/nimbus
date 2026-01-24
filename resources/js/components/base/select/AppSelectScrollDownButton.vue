@@ -4,13 +4,13 @@
  * @description A button displayed at the bottom of the select viewport to enable scrolling down.
  */
 import { cn } from '@/utils/ui';
+import { reactiveOmit } from '@vueuse/core';
 import { ChevronDown } from 'lucide-vue-next';
 import {
     SelectScrollDownButton,
     type SelectScrollDownButtonProps,
     useForwardProps,
 } from 'reka-ui';
-import { reactiveOmit } from '@vueuse/core';
 import { type HTMLAttributes } from 'vue';
 
 /*

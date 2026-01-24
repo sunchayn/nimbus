@@ -1,11 +1,11 @@
+import type { DumpValue } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
+import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDumpAndDie.vue';
+import { DumpValueType } from '@/interfaces/generated/dump-value-types';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import type { DumpValue } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
-import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDumpAndDie.vue';
-import { DumpValueType } from '@/interfaces/generated/dump-value-types';
 
 /*
  * Fixtures.
@@ -87,12 +87,10 @@ const createStringDump = (value: string): DumpValue => ({
     value,
 });
 
-import type { MountingOptions } from '@vue/test-utils';
-
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
+const createWrapper = (options = {}): VueWrapper => {
     return mount(ResponseDumpAndDie, {
         ...options,
         global: {
@@ -150,8 +148,12 @@ describe('ResponseDumpAndDie', () => {
         it('navigation updates selected dump correctly', async () => {
             // Arrange
 
-            const snapshot1 = createDumpSnapshot('1', 'First', '2024-01-01 12:00:00', [createStringDump('first')]);
-            const snapshot2 = createDumpSnapshot('2', 'Second', '2024-01-01 12:01:00', [createStringDump('second')]);
+            const snapshot1 = createDumpSnapshot('1', 'First', '2024-01-01 12:00:00', [
+                createStringDump('first'),
+            ]);
+            const snapshot2 = createDumpSnapshot('2', 'Second', '2024-01-01 12:01:00', [
+                createStringDump('second'),
+            ]);
 
             const wrapper = createWrapper({
                 props: { rawContent: JSON.stringify(snapshot1) },
@@ -175,8 +177,12 @@ describe('ResponseDumpAndDie', () => {
         it('first click marks dump for deletion (trash icon turns red)', async () => {
             // Arrange
 
-            const snapshot1 = createDumpSnapshot('1', 'First', '2024-01-01 12:00:00', [createStringDump('first')]);
-            const snapshot2 = createDumpSnapshot('2', 'Second', '2024-01-01 12:01:00', [createStringDump('second')]);
+            const snapshot1 = createDumpSnapshot('1', 'First', '2024-01-01 12:00:00', [
+                createStringDump('first'),
+            ]);
+            const snapshot2 = createDumpSnapshot('2', 'Second', '2024-01-01 12:01:00', [
+                createStringDump('second'),
+            ]);
 
             const wrapper = createWrapper({
                 props: { rawContent: JSON.stringify(snapshot1) },

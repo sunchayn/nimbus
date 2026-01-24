@@ -9,7 +9,7 @@ import {
     AppTooltipProvider,
     AppTooltipTrigger,
 } from '@/components/base/tooltip/index';
-import { AsTag } from 'reka-ui';
+import type { AsTag } from 'reka-ui';
 import { type Component } from 'vue';
 
 /*

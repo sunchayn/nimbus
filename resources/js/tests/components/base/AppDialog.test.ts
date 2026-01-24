@@ -1,8 +1,8 @@
+import { AppDialog, AppDialogContent, AppDialogTrigger } from '@/components/base/dialog';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppDialog, AppDialogContent, AppDialogTrigger } from '@/components/base/dialog';
 
 /*
  * Fixtures.
@@ -12,21 +12,24 @@ import { AppDialog, AppDialogContent, AppDialogTrigger } from '@/components/base
  * Factory function to create a mounted wrapper with sensible defaults.
  */
 const createWrapper = (options = {}): VueWrapper => {
-    return mount({
-        components: { AppDialog, AppDialogTrigger, AppDialogContent },
-        template: `
+    return mount(
+        {
+            components: { AppDialog, AppDialogTrigger, AppDialogContent },
+            template: `
             <AppDialog>
                 <AppDialogTrigger>Open</AppDialogTrigger>
                 <AppDialogContent>Dialog Content</AppDialogContent>
             </AppDialog>
         `,
-        ...options,
-    }, {
-        global: {
-            plugins: [createPinia()],
+            ...options,
         },
-        attachTo: document.body,
-    });
+        {
+            global: {
+                plugins: [createPinia()],
+            },
+            attachTo: document.body,
+        },
+    );
 };
 
 describe('AppDialog', () => {

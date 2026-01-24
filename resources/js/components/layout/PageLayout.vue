@@ -19,7 +19,7 @@ export interface AppPageLayoutProps {
  * Component Setup.
  */
 
-const props = withDefaults(defineProps<AppPageLayoutProps>(), {
+withDefaults(defineProps<AppPageLayoutProps>(), {
     scrollable: true,
     icon: undefined,
 });

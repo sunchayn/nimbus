@@ -1,9 +1,13 @@
+import {
+    AppDropdownMenu,
+    AppDropdownMenuContent,
+    AppDropdownMenuItem,
+    AppDropdownMenuTrigger,
+} from '@/components/base/dropdown-menu';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AppDropdownMenu, AppDropdownMenuContent, AppDropdownMenuItem, AppDropdownMenuTrigger } from '@/components/base/dropdown-menu';
-import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
 
 /*
  * Fixtures.
@@ -12,10 +16,16 @@ import { RenderWithProvidersOptions } from "@/tests/_utils/test-utils";
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
-const createWrapper = (options= {}): VueWrapper => {
-    return mount({
-        components: { AppDropdownMenu, AppDropdownMenuTrigger, AppDropdownMenuContent, AppDropdownMenuItem },
-        template: `
+const createWrapper = (options = {}): VueWrapper => {
+    return mount(
+        {
+            components: {
+                AppDropdownMenu,
+                AppDropdownMenuTrigger,
+                AppDropdownMenuContent,
+                AppDropdownMenuItem,
+            },
+            template: `
             <AppDropdownMenu>
                 <AppDropdownMenuTrigger>Actions</AppDropdownMenuTrigger>
                 <AppDropdownMenuContent>
@@ -23,13 +33,15 @@ const createWrapper = (options= {}): VueWrapper => {
                 </AppDropdownMenuContent>
             </AppDropdownMenu>
         `,
-        ...options,
-    }, {
-        global: {
-            plugins: [createPinia()],
+            ...options,
         },
-        attachTo: document.body,
-    });
+        {
+            global: {
+                plugins: [createPinia()],
+            },
+            attachTo: document.body,
+        },
+    );
 };
 
 describe('AppDropdownMenu', () => {

@@ -37,6 +37,7 @@ const indicatorColor = computed(() => {
         PUT: 'text-success',
         DELETE: 'text-destructive',
     };
+
     return colors[props.method] ?? null;
 });
 

@@ -1,4 +1,5 @@
-import { AuthorizationType, AuthorizationTypeItem } from '@/interfaces/generated';
+import type { AuthorizationTypeItem } from '@/interfaces/generated';
+import { AuthorizationType } from '@/interfaces/generated';
 
 /**
  * Authorization configuration

@@ -1,6 +1,6 @@
+import { useResponsiveResizable } from '@/composables/ui/useResponsiveResizable';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ref } from 'vue';
-import { useResponsiveResizable } from '@/composables/ui/useResponsiveResizable';
 
 /*
  * Fixtures.

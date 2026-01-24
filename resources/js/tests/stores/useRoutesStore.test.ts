@@ -1,14 +1,14 @@
+import { useRoutesStore } from '@/stores/routes/useRoutesStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useRoutesStore } from '@/stores/routes/useRoutesStore';
-import { NimbusConfig } from '../../../types/global';
+import type { NimbusConfig } from '../../../types/global';
 
 /*
  * Fixtures.
  */
 
 vi.mock('@/utils/routes', async () => {
-    const original: any = await vi.importActual('@/utils/routes');
+    const original = (await vi.importActual('@/utils/routes')) as Record<string, unknown>;
 
     return {
         ...original,

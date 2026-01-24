@@ -1,5 +1,5 @@
-import { HttpHeadersArray, RequestHeader, ResponseCookie } from '@/interfaces/http';
-import { STATUS } from '@/interfaces/http/status';
+import type { HttpHeadersArray, RequestHeader, ResponseCookie } from '@/interfaces/http';
+import type { STATUS } from '@/interfaces/http/status';
 
 export interface Response {
     status: STATUS;

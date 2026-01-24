@@ -1,5 +1,5 @@
 import { AuthorizationType } from '@/interfaces/generated';
-import { RequestBodyTypeEnum } from '@/interfaces/http';
+import type { RequestBodyTypeEnum } from '@/interfaces/http';
 import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
 

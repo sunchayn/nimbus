@@ -1,15 +1,18 @@
+import { useRequestAuthorization } from '@/composables/request/useRequestAuthorization';
+import { AuthorizationType } from '@/interfaces/generated';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
-import { useRequestAuthorization } from '@/composables/request/useRequestAuthorization';
-import { AuthorizationType } from '@/interfaces/generated';
 
 /*
  * Fixtures.
  */
 
 const pendingRequestData = reactive({
-    authorization: { type: AuthorizationType.None, value: null as any },
+    authorization: {
+        type: AuthorizationType.None,
+        value: null as string | number | { username: string; password: string } | null,
+    },
 });
 
 const updateAuthorization = vi.fn();

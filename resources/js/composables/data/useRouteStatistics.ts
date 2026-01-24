@@ -1,7 +1,8 @@
-import { RouteDefinition } from '@/interfaces/routes/routes';
+import type { RouteDefinition } from '@/interfaces/routes/routes';
 import { useRoutesStore } from '@/stores';
 import type { JSONSchema7 } from 'json-schema';
-import { computed, ComputedRef } from 'vue';
+import type { ComputedRef } from 'vue';
+import { computed } from 'vue';
 
 export interface RouteStatistics {
     total: number;
@@ -21,7 +22,10 @@ export interface RouteWithError {
     };
 }
 
-export function useRouteStatistics() {
+export function useRouteStatistics(): {
+    routeStatistics: ComputedRef<RouteStatistics>;
+    displayableRoutesWithErrors: ComputedRef<RouteWithError[]>;
+} {
     const routesStore = useRoutesStore();
 
     /**

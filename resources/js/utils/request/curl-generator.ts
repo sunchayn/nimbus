@@ -1,7 +1,8 @@
-import { ParameterContract } from '@/interfaces';
-import { AuthorizationContract } from '@/interfaces/auth/authorization';
+import type { ParameterContract } from '@/interfaces';
+import type { AuthorizationContract } from '@/interfaces/auth/authorization';
 import { AuthorizationType } from '@/interfaces/generated';
-import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
+import type { PendingRequest } from '@/interfaces/http';
+import { RequestBodyTypeEnum } from '@/interfaces/http';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
 import { buildRequestUrl } from '@/utils';
 import { getMimeTypeForPayloadType } from '@/utils/request/content-type-header-generator';

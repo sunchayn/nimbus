@@ -1,11 +1,13 @@
+import type { AuthorizationContract, ParameterContract } from '@/interfaces';
+import { ParameterType } from '@/interfaces';
+import { AuthorizationType } from '@/interfaces/generated';
+import type { PendingRequest } from '@/interfaces/http';
+import { RequestBodyTypeEnum } from '@/interfaces/http';
+import type { RouteDefinition } from '@/interfaces/routes';
+import { useRequestBuilderStore } from '@/stores/request/useRequestBuilderStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
-import { AuthorizationContract, ParameterContract, ParameterType } from '@/interfaces';
-import { AuthorizationType } from '@/interfaces/generated';
-import { PendingRequest, RequestBodyTypeEnum } from '@/interfaces/http';
-import { RouteDefinition } from '@/interfaces/routes';
-import { useRequestBuilderStore } from '@/stores/request/useRequestBuilderStore';
 
 /*
  * Fixtures.
@@ -63,7 +65,9 @@ describe('useRequestBuilderStore', () => {
 
             expect(pending.method).toBe('GET');
             expect(pending.endpoint).toBe('users');
-            expect(pending.authorization).toEqual({ type: AuthorizationType.CurrentUser });
+            expect(pending.authorization).toEqual({
+                type: AuthorizationType.CurrentUser,
+            });
         });
     });
 
@@ -78,10 +82,19 @@ describe('useRequestBuilderStore', () => {
             const store = useRequestBuilderStore();
             store.initializeRequest(baseRoute, [baseRoute]);
 
-            const headers: ParameterContract[] = [{ type: ParameterType.Text, key: 'X-Test', value: '123', enabled: true }];
-            const body: PendingRequest['body'] = { GET: { [RequestBodyTypeEnum.JSON]: '{}' } };
-            const params: ParameterContract[] = [{ type: ParameterType.Text, key: 'page', value: '1', enabled: true }];
-            const auth: AuthorizationContract = { type: AuthorizationType.Bearer, value: 'token' };
+            const headers: ParameterContract[] = [
+                { type: ParameterType.Text, key: 'X-Test', value: '123', enabled: true },
+            ];
+            const body: PendingRequest['body'] = {
+                GET: { [RequestBodyTypeEnum.JSON]: '{}' },
+            };
+            const params: ParameterContract[] = [
+                { type: ParameterType.Text, key: 'page', value: '1', enabled: true },
+            ];
+            const auth: AuthorizationContract = {
+                type: AuthorizationType.Bearer,
+                value: 'token',
+            };
 
             // Act
 

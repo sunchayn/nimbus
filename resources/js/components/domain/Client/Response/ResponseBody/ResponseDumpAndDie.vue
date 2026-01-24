@@ -208,7 +208,7 @@ watch(
 <template>
     <PanelSubHeader class="border-b">
         <div class="gap-.5 flex flex-col">
-            <span class="text-xs text-foreground">
+            <span class="text-foreground text-xs">
                 {{ selectedDumpsLog?.source ?? 'Unknown Source' }}
             </span>
         </div>
@@ -248,8 +248,9 @@ watch(
                         <Trash2Icon
                             class="size-3"
                             :class="{
-                                'text-destructive':
-                                    isDumpMarkedForDeletion(selectedDumpsLog.id),
+                                'text-destructive': isDumpMarkedForDeletion(
+                                    selectedDumpsLog.id,
+                                ),
                             }"
                         />
                     </AppButton>
@@ -262,7 +263,7 @@ watch(
     >
         <div
             v-if="selectedDumpsLog?.timestamp"
-            class="text-xxs my-1 text-muted-foreground"
+            class="text-xxs text-muted-foreground my-1"
         >
             Dumped At:
             {{ selectedDumpsLog?.timestamp ?? '' }}

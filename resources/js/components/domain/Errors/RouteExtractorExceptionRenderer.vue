@@ -60,7 +60,7 @@ const handleIgnoreEndpoint = () => {
 
 <template>
     <div
-        class="relative h-full max-h-full w-full bg-gradient-to-br from-destructive/10 to-transparent p-4 dark:from-destructive/15"
+        class="from-destructive/10 dark:from-destructive/15 relative h-full max-h-full w-full bg-gradient-to-br to-transparent p-4"
     >
         <div class="relative z-10 flex h-full w-full justify-center overflow-auto py-2">
             <div class="flex h-full flex-col space-y-4">
@@ -68,7 +68,7 @@ const handleIgnoreEndpoint = () => {
                     <AppBadge variant="outline" class="p-0 px-1 text-xs">
                         Internal Error
                     </AppBadge>
-                    <h1 class="text-xl font-medium text-destructive">
+                    <h1 class="text-destructive text-xl font-medium">
                         An error occurred while processing your application routes
                     </h1>
                 </div>
@@ -79,7 +79,7 @@ const handleIgnoreEndpoint = () => {
                 />
 
                 <div
-                    class="relative flex flex-1 flex-col overflow-hidden rounded-xl border-1 bg-muted/10 break-words backdrop-blur-md"
+                    class="bg-muted/10 relative flex flex-1 flex-col overflow-hidden rounded-xl border-1 break-words backdrop-blur-md"
                 >
                     <ErrorCardHeader :message="error.exception.message" />
                     <div

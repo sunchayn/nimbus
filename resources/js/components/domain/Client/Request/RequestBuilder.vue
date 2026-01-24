@@ -29,7 +29,7 @@ export interface AppRequestBuilderProps {}
  * Component Setup.
  */
 
-const props = defineProps<AppRequestBuilderProps>();
+defineProps<AppRequestBuilderProps>();
 
 /*
  * State.

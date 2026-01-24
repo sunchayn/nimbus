@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import { AppSwitch } from './index';
 import { AppLabel } from '../label';
+import { AppSwitch } from './index';
 
 const meta: Meta<typeof AppSwitch> = {
     title: 'Base/Switch',
