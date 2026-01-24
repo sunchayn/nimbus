@@ -63,7 +63,7 @@ jobs:
       - name: Install dependencies
         if: needs.changes.outputs.php == 'true'
         run: |
-          composer switch l:${{ matrix.laravel }} -- -- --no-interaction --no-progress --ansi
+          composer switch:l${{ matrix.laravel }} -- -- --no-interaction --no-progress --ansi
           composer dump-autoload --optimize
 
       - name: Execute tests with coverage
