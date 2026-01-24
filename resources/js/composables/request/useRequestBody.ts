@@ -143,7 +143,7 @@ export function useRequestBody() {
             payloadType.value = newValue?.payloadType ?? RequestBodyTypeEnum.EMPTY;
             payload.value = generateCurrentPayload();
         },
-        { deep: true },
+        { deep: true, immediate: true },
     );
 
     watch(payloadType, newValue => {
