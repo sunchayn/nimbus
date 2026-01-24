@@ -307,9 +307,9 @@ export const useRequestBuilderStore = defineStore(
                 // Sync route definition and schema if matching route found
                 ...(matchingRoute
                     ? {
-                        routeDefinition: matchingRoute,
-                        schema: matchingRoute.schema,
-                    }
+                          routeDefinition: matchingRoute,
+                          schema: matchingRoute.schema,
+                      }
                     : {}),
                 wasExecuted: true,
             };

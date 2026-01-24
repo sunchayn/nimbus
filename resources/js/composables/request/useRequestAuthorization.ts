@@ -46,7 +46,10 @@ export function useRequestAuthorization() {
 
     // Initialize with default states
     Object.entries(defaultAuthStates).forEach(([type, state]) => {
-        authorizationStates.set(type as AuthorizationType, state as AuthorizationContract);
+        authorizationStates.set(
+            type as AuthorizationType,
+            state as AuthorizationContract,
+        );
     });
 
     const authorization = computed<AuthorizationContract>(() => {
@@ -92,7 +95,7 @@ export function useRequestAuthorization() {
         if (
             restoredAuth.type !== authorization.value.type ||
             JSON.stringify(restoredAuth.value) !==
-            JSON.stringify(authorization.value.value)
+                JSON.stringify(authorization.value.value)
         ) {
             requestStore.updateAuthorization(restoredAuth);
         }

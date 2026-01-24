@@ -34,7 +34,7 @@ describe('useRequestAuthorization', () => {
     });
 
     it('initializes with default authorization if not set in store', () => {
-        // @ts-ignore
+        // @ts-expect-error Attempt to assign to const or readonly variable
         requestStore.pendingRequestData = null;
 
         const { authorization } = useRequestAuthorization();
@@ -94,9 +94,11 @@ describe('useRequestAuthorization', () => {
         await nextTick();
 
         // Check if it was called with the final expected state
-        expect(spy).toHaveBeenCalledWith(expect.objectContaining({
-            type: AuthorizationType.Bearer,
-            value: 'token',
-        }));
+        expect(spy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: AuthorizationType.Bearer,
+                value: 'token',
+            }),
+        );
     });
 });
