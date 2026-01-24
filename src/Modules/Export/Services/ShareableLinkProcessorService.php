@@ -162,7 +162,7 @@ class ShareableLinkProcessorService
 
     private function routeExistsInCurrentApplication(string $method, string $endpoint): bool
     {
-        return $this->findMatchingRoute($method, $endpoint) !== null;
+        return $this->findMatchingRoute($method, $endpoint) instanceof \Illuminate\Routing\Route;
     }
 
     private function searchRouteInOtherApplications(string $method, string $endpoint): void
@@ -173,7 +173,7 @@ class ShareableLinkProcessorService
         foreach ($applications as $applicationKey => $appConfig) {
             $prefix = $appConfig['routes']['prefix'] ?? 'api';
 
-            if ($this->findMatchingRoute($method, $endpoint, $prefix) !== null) {
+            if ($this->findMatchingRoute($method, $endpoint, $prefix) instanceof \Illuminate\Routing\Route) {
                 $this->targetApplication = $applicationKey;
 
                 return;
@@ -183,10 +183,10 @@ class ShareableLinkProcessorService
 
     private function findMatchingRoute(string $method, string $endpoint, ?string $prefix = null): ?Route
     {
-        /** @var RouteCollection $routes */
-        $routes = RouteFacade::getRoutes();
+        /** @var RouteCollection $routeCollection */
+        $routeCollection = RouteFacade::getRoutes();
 
-        foreach ($routes as $route) {
+        foreach ($routeCollection as $route) {
             if ($this->routeMatches($route, $method, $endpoint, $prefix)) {
                 return $route;
             }

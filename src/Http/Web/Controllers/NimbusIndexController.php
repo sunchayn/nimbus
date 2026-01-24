@@ -23,9 +23,9 @@ class NimbusIndexController
         Actions\BuildCurrentUserAction $buildCurrentUserAction,
         Actions\DisableThirdPartyUiAction $disableThirdPartyUiAction,
         ActiveApplicationResolver $activeApplicationResolver,
-        ShareableLinkProcessorService $shareableLinkProcessor,
+        ShareableLinkProcessorService $shareableLinkProcessorService,
     ): Renderable|RedirectResponse {
-        $incomingShareableLinkPayload = $this->processShareableLink($shareableLinkProcessor, $activeApplicationResolver);
+        $incomingShareableLinkPayload = $this->processShareableLink($shareableLinkProcessorService, $activeApplicationResolver);
 
         $this->handleApplicationSwitch();
 
@@ -50,9 +50,9 @@ class NimbusIndexController
                 'headers' => $buildGlobalHeadersAction->execute(),
                 'currentUser' => $buildCurrentUserAction->execute(),
             ]));
-        } catch (RouteExtractionException $exception) {
+        } catch (RouteExtractionException $routeExtractionException) {
             return view(self::VIEW_NAME, array_merge($baseViewData, [  // @phpstan-ignore-line it cannot find the view.
-                'routeExtractorException' => $this->formatExtractionException($exception),
+                'routeExtractorException' => $this->formatExtractionException($routeExtractionException),
             ]));
         }
     }
@@ -112,7 +112,7 @@ class NimbusIndexController
         Vite::useHotFile(base_path('/vendor/sunchayn/nimbus/resources/dist/hot'));
     }
 
-    private function handleIgnoreRouteError(Actions\IgnoreRouteErrorAction $action): void
+    private function handleIgnoreRouteError(Actions\IgnoreRouteErrorAction $ignoreRouteErrorAction): void
     {
         $ignoreData = request()->get('ignore');
 
@@ -120,7 +120,7 @@ class NimbusIndexController
             return;
         }
 
-        $action->execute(ignoreData: $ignoreData);
+        $ignoreRouteErrorAction->execute(ignoreData: $ignoreData);
 
         abort(redirect()->to(request()->url()));
     }
@@ -128,13 +128,13 @@ class NimbusIndexController
     /**
      * @return array<string, mixed>
      */
-    private function formatExtractionException(RouteExtractionException $exception): array
+    private function formatExtractionException(RouteExtractionException $routeExtractionException): array
     {
-        $previous = $exception->getPrevious();
+        $previous = $routeExtractionException->getPrevious();
 
         return [
             'exception' => [
-                'message' => $exception->getMessage(),
+                'message' => $routeExtractionException->getMessage(),
                 'previous' => $previous instanceof \Throwable ? [
                     'message' => $previous->getMessage(),
                     'file' => $previous->getFile(),
@@ -142,9 +142,9 @@ class NimbusIndexController
                     'trace' => Str::replace("\n", '<br/>', $previous->getTraceAsString()),
                 ] : null,
             ],
-            'routeContext' => $exception->getRouteContext(),
-            'suggestedSolution' => $exception->getSuggestedSolution(),
-            'ignoreData' => $exception->getIgnoreData(),
+            'routeContext' => $routeExtractionException->getRouteContext(),
+            'suggestedSolution' => $routeExtractionException->getSuggestedSolution(),
+            'ignoreData' => $routeExtractionException->getIgnoreData(),
         ];
     }
 }
