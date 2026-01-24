@@ -17,6 +17,7 @@ _ide_helper_models.php
 **/*/.DS_Store
 tools/phpstan/build
 resources/dist/hot
+storybook-static
 
 # Playwright
 node_modules/
