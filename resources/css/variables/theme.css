@@ -40,13 +40,13 @@
     --color-secondary-foreground: oklch(21.03% 0.0318 264.65);
     --color-accent: oklch(96.71% 0.0029 264.54);
     --color-accent-foreground: oklch(21.03% 0.0318 264.65);
-    --color-destructive: oklch(63.68% 0.2078 25.33);
+    --color-destructive: var(--color-rose-500);
     --color-destructive-foreground: oklch(98.43% 0.0017 247.84);
 
     /* Status Colors */
-    --color-success: oklch(60% 0.15 140);
+    --color-success: var(--color-emerald-600);
     --color-success-foreground: oklch(98% 0.01 140);
-    --color-warning: oklch(70% 0.15 60);
+    --color-warning: var(--color-amber-600);
     --color-warning-foreground: oklch(20% 0.01 60);
     --color-info: oklch(60% 0.15 240);
     --color-info-foreground: oklch(98% 0.01 240);

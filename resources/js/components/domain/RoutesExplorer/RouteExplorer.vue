@@ -11,7 +11,6 @@ import {
     AppSidebarGroupLabel,
     AppSidebarInput,
     AppSidebarMenu,
-    AppSidebarRail,
 } from '@/components/base/sidebar';
 import ApplicationSwitcher from '@/components/domain/RoutesExplorer/ApplicationSwitcher.vue';
 import RouteExplorerHeader from '@/components/domain/RoutesExplorer/RouteExplorerHeader.vue';
@@ -112,9 +111,10 @@ const hasMultipleApplications = computed(
         <div>
             <AppSidebarInput
                 v-model="search"
+                variant="toolbar"
                 placeholder="Type to search..."
                 :disabled="routesInVersion.length === 0"
-                class="h-[calc(var(--toolbar-height)+1px)] w-full rounded-none border-0 border-b text-xs shadow-none focus:ring-0 focus-visible:ring-0"
+                class="h-[calc(var(--toolbar-height)+1px)] w-full border-b text-xs"
             />
             <div class="h-sub-toolbar flex items-center overflow-hidden border-b">
                 <ApplicationSwitcher v-if="hasMultipleApplications" class="flex-1" />

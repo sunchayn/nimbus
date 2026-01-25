@@ -3,10 +3,10 @@
  * @component ConfigReadonlySection
  * @description A read-only display of the current application configuration.
  */
-import { AppLabel } from "@/components/base/label";
-import { useConfigStore } from "@/stores";
-import { GlobeIcon, RouteIcon, ShieldIcon } from "lucide-vue-next";
-import { computed } from "vue";
+import { AppLabel } from '@/components/base/label';
+import { useConfigStore } from '@/stores';
+import { GlobeIcon, RouteIcon, ShieldIcon } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 /*
  * Types & Interfaces.
@@ -31,7 +31,7 @@ const configStore = useConfigStore();
  */
 
 const configData = computed(() => ({
-    routePrefix: "api",
+    routePrefix: 'api',
     isVersioned: configStore.isVersioned,
     baseUrl: configStore.apiUrl,
     basePath: configStore.appBasePath,
@@ -88,8 +88,8 @@ const configData = computed(() => ({
                                     <span>
                                         {{
                                             configData.isVersioned
-                                                ? "Enabled"
-                                                : "Disabled"
+                                                ? 'Enabled'
+                                                : 'Disabled'
                                         }}
                                     </span>
                                 </div>
@@ -121,7 +121,7 @@ const configData = computed(() => ({
                                 Base URL
                             </AppLabel>
                             <div
-                                class="flex h-9 items-center rounded bg-subtle px-3 font-mono text-sm"
+                                class="bg-subtle flex h-9 items-center rounded px-3 font-mono text-sm"
                             >
                                 {{ configData.baseUrl }}
                             </div>
@@ -132,9 +132,9 @@ const configData = computed(() => ({
                                 Base Path
                             </AppLabel>
                             <div
-                                class="flex h-9 items-center rounded bg-subtle px-3 font-mono text-sm"
+                                class="bg-subtle flex h-9 items-center rounded px-3 font-mono text-sm"
                             >
-                                {{ configData.basePath || "None" }}
+                                {{ configData.basePath || 'None' }}
                             </div>
                         </div>
                     </div>
@@ -157,18 +157,13 @@ const configData = computed(() => ({
             </div>
             <div class="col-span-8">
                 <div class="rounded-lg border p-3.5">
-                    <div
-                        v-if="configData.globalHeaders.length > 0"
-                        class="space-y-3"
-                    >
+                    <div v-if="configData.globalHeaders.length > 0" class="space-y-3">
                         <div
                             v-for="header in configData.globalHeaders"
                             :key="header.header"
                             class="bg-subtle flex items-center justify-between rounded p-3.5"
                         >
-                            <span class="font-mono text-sm">{{
-                                header.header
-                            }}</span>
+                            <span class="font-mono text-sm">{{ header.header }}</span>
                             <div class="flex items-center space-x-2">
                                 <div
                                     :class="
@@ -180,9 +175,9 @@ const configData = computed(() => ({
                                 ></div>
                                 <span class="text-subtle-foreground text-xs">
                                     {{
-                                        header.type === "generator"
-                                            ? "Generated"
-                                            : "Static"
+                                        header.type === 'generator'
+                                            ? 'Generated'
+                                            : 'Static'
                                     }}
                                 </span>
                             </div>

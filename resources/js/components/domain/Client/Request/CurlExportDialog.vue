@@ -62,21 +62,19 @@ const closeDialog = () => {
                 </AppDialogDescription>
             </AppDialogHeader>
 
-            <div class="flex flex-1 flex-col space-y-4 overflow-hidden">
+            <div class="flex min-h-0 flex-1 flex-col space-y-2.5">
                 <div
                     v-if="hasSpecialAuth"
-                    class="bg-warning/10 dark:bg-warning/20 rounded-md p-3"
+                    class="bg-warning/10 dark:bg-warning/20 rounded-md p-2.5"
                 >
-                    <p class="text-warning text-sm">
-                        Note: Authorization has been dropped as special authorization
-                        types (Current User, Impersonate) are not supported in cURL
-                        commands.
+                    <p class="text-warning text-xs">
+                        Authorization has been dropped as special authorization types
+                        (Current User, Impersonate) are not supported in cURL commands.
                     </p>
                 </div>
 
-                <div class="flex min-h-0 flex-1 flex-col space-y-3">
-                    <div class="mb-2 flex items-center justify-between">
-                        <h4 class="text-foreground text-sm font-medium">Command</h4>
+                <div class="flex min-h-0 flex-1 flex-col space-y-2.5">
+                    <div class="flex items-center justify-end">
                         <AppButton
                             variant="outline"
                             size="sm"
@@ -90,13 +88,13 @@ const closeDialog = () => {
                     </div>
 
                     <pre
-                        class="bg-subtle text-foreground flex-1 overflow-auto rounded-md border p-4 font-mono text-sm leading-relaxed break-all whitespace-break-spaces"
+                        class="bg-subtle text-foreground h-full min-h-0 flex-1 overflow-auto rounded-md border p-2.5 font-mono text-xs leading-relaxed break-all whitespace-break-spaces"
                         >{{ command }}</pre
                     >
                 </div>
             </div>
 
-            <div class="flex justify-end border-t pt-4">
+            <div class="flex justify-end border-t pt-2.5">
                 <AppButton variant="outline" @click="closeDialog">Close</AppButton>
             </div>
         </AppDialogContent>

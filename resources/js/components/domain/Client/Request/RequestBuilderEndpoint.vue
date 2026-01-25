@@ -138,7 +138,8 @@ const populateCurlCommandExporterDialog = () => {
     <div :class="cn('flex', props.class)">
         <AppSelect v-model="method">
             <AppSelectTrigger
-                class="h-full w-[95px] rounded-none border-0 border-r pr-1.5 pl-5 text-xs shadow-none focus:ring-0 focus-visible:ring-0"
+                variant="toolbar"
+                class="h-full w-[95px] border-r pr-1.5 pl-5 text-xs"
             >
                 <AppSelectValue :placeholder="method ? '' : 'Select a Method'">
                     {{ method || 'Select a Method' }}
@@ -171,7 +172,8 @@ const populateCurlCommandExporterDialog = () => {
             <AppInput
                 ref="inputRef"
                 v-model="endpoint"
-                class="h-full flex-1 rounded-none border-0 text-xs shadow-none focus:ring-0 focus-visible:ring-0"
+                variant="toolbar"
+                class="h-full flex-1 text-xs"
                 placeholder="<endpoint>"
                 data-testid="endpoint-input"
                 @click="autoSelectRouteVariableSegmentWhenApplicable"

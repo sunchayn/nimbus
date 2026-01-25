@@ -50,3 +50,32 @@ export const Default: Story = {
         `,
     }),
 };
+export const Toolbar: Story = {
+    render: () => ({
+        components: {
+            AppSelect,
+            AppSelectContent,
+            AppSelectGroup,
+            AppSelectItem,
+            AppSelectLabel,
+            AppSelectTrigger,
+            AppSelectValue,
+        },
+        template: `
+            <AppSelect>
+                <AppSelectTrigger variant="toolbar" class="w-[180px]">
+                    <AppSelectValue placeholder="Select a Method" />
+                </AppSelectTrigger>
+                <AppSelectContent>
+                    <AppSelectGroup>
+                        <AppSelectLabel>Methods</AppSelectLabel>
+                        <AppSelectItem value="GET">GET</AppSelectItem>
+                        <AppSelectItem value="POST">POST</AppSelectItem>
+                        <AppSelectItem value="PUT">PUT</AppSelectItem>
+                        <AppSelectItem value="DELETE">DELETE</AppSelectItem>
+                    </AppSelectGroup>
+                </AppSelectContent>
+            </AppSelect>
+        `,
+    }),
+};

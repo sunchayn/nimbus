@@ -10,7 +10,7 @@
     --sub-toolbar-height: 34px;
 
     /* Panel Content Padding */
-    --panel-padding-x: calc(var(--spacing) * 2);
+    --panel-padding: calc(var(--spacing) * 2);
 
     /* Additional Layout Variables */
     --header-height: 60px;

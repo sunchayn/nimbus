@@ -74,7 +74,7 @@ const handleClick = () => {
 <template>
     <AppSidebarMenuButton
         :is-active="isActive"
-        class="text-sm data-[active=true]:rounded-l-none"
+        class="focus-visible:bg-sidebar-accent data-[active=true]:focus-visible:bg-sidebar-accent text-sm focus-visible:ring-0 data-[active=true]:rounded-l-none"
         @click="handleClick"
     >
         <HttpVerbLabel :method="route.method" />

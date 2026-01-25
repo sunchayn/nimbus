@@ -41,3 +41,11 @@ export const Disabled: Story = {
         modelValue: 'Cannot edit this',
     },
 };
+
+export const Toolbar: Story = {
+    args: {
+        variant: 'toolbar',
+        placeholder: 'Toolbar input...',
+        class: 'border-b',
+    },
+};

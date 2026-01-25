@@ -49,7 +49,9 @@ const isOpen = useStorage(
             @update:open="isOpen = $event"
         >
             <AppCollapsibleTrigger as-child>
-                <AppSidebarMenuButton>
+                <AppSidebarMenuButton
+                    class="focus-visible:bg-sidebar-accent data-[active=true]:focus-visible:bg-sidebar-accent focus-visible:ring-0"
+                >
                     <ChevronRight class="transition-transform" />
                     <Folder />
                     <span

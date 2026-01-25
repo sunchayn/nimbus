@@ -215,6 +215,7 @@ const handleDeleteParameter = (index: number) => {
                         :disabled="!parameter.enabled"
                         name="kv-key"
                         data-testid="kv-key"
+                        autocomplete="off"
                     />
 
                     <!-- Value Input -->
@@ -225,6 +226,7 @@ const handleDeleteParameter = (index: number) => {
                         :disabled="!parameter.enabled"
                         name="kv-value"
                         data-testid="kv-value"
+                        autocomplete="off"
                         @focus="handleValueInputFocus(index, $event.target)"
                         @blur="handleValueInputBlur"
                     />

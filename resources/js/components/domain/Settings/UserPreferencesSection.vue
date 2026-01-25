@@ -4,6 +4,7 @@
  * @description Settings section for configuring user-specific application preferences.
  */
 import { AppLabel } from '@/components/base/label';
+import { AppPanel, AppPanelContent } from '@/components/base/panel';
 import {
     AppSelect,
     AppSelectContent,
@@ -121,9 +122,9 @@ const updatePreference = <K extends keyof typeof preferences.value>(
                 </div>
             </div>
             <div class="col-span-8">
-                <div class="rounded-lg border p-3.5">
-                    <div class="space-y-1">
-                        <AppLabel class="text-sm">Theme</AppLabel>
+                <AppPanel class="rounded-lg border">
+                    <AppPanelContent class="space-y-1 p-3.5 pt-3.5">
+                        <AppLabel>Theme</AppLabel>
                         <p class="text-subtle-foreground mb-2 text-xs">
                             Choose your preferred color scheme
                         </p>
@@ -146,8 +147,8 @@ const updatePreference = <K extends keyof typeof preferences.value>(
                                 <AppSelectItem value="system">System</AppSelectItem>
                             </AppSelectContent>
                         </AppSelect>
-                    </div>
-                </div>
+                    </AppPanelContent>
+                </AppPanel>
             </div>
         </div>
 
@@ -168,10 +169,10 @@ const updatePreference = <K extends keyof typeof preferences.value>(
                 </div>
             </div>
             <div class="col-span-8">
-                <div class="rounded-lg border p-3.5">
-                    <div class="space-y-4">
+                <AppPanel class="rounded-lg border">
+                    <AppPanelContent class="space-y-4 p-3.5 pt-3.5">
                         <div class="space-y-1">
-                            <AppLabel class="text-sm">Default request body type</AppLabel>
+                            <AppLabel>Default request body type</AppLabel>
                             <p class="text-subtle-foreground mb-2 text-xs">
                                 Default content type for request bodies
                             </p>
@@ -211,9 +212,7 @@ const updatePreference = <K extends keyof typeof preferences.value>(
                         </div>
 
                         <div class="space-y-1">
-                            <AppLabel class="text-sm">
-                                Default authorization type
-                            </AppLabel>
+                            <AppLabel>Default authorization type</AppLabel>
                             <p class="text-subtle-foreground mb-2 text-xs">
                                 Default authorization method for new requests
                             </p>
@@ -249,8 +248,8 @@ const updatePreference = <K extends keyof typeof preferences.value>(
                                 </AppSelectContent>
                             </AppSelect>
                         </div>
-                    </div>
-                </div>
+                    </AppPanelContent>
+                </AppPanel>
             </div>
         </div>
     </div>

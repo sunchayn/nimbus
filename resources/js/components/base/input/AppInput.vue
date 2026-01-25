@@ -9,6 +9,7 @@ import { cn } from '@/utils/ui';
 import { useVModel } from '@vueuse/core';
 import type { HTMLAttributes } from 'vue';
 import { ref } from 'vue';
+import { inputVariants, type InputVariants } from './index';
 
 /*
  * Types & Interfaces.
@@ -21,6 +22,7 @@ export interface AppInputProps {
     type?: string;
     placeholder?: string;
     disabled?: boolean;
+    variant?: InputVariants['variant'];
 }
 
 /*
@@ -69,12 +71,7 @@ const handleKeydown = (event: KeyboardEvent) => {
         ref="inputRef"
         v-model="modelValue"
         :type="type ?? 'text'"
-        :class="
-            cn(
-                'flex h-9 w-full rounded-md border border-zinc-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:ring-1 focus-visible:ring-zinc-950 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300',
-                props.class,
-            )
-        "
+        :class="cn(inputVariants({ variant }), props.class)"
         :placeholder="placeholder"
         :disabled="disabled"
         @keydown="handleKeydown"
