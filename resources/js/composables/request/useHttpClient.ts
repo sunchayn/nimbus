@@ -168,8 +168,16 @@ export function useHttpClient(): UseHttpClientResult {
 
                     // HTTP error responses (4xx, 5xx) -> include status and body for debugging.
                     if (error.response) {
+                        let responseMessage = error.message;
+
+                        try {
+                            responseMessage = JSON.parse(error.response.data as string).message ?? error.message;
+                        } catch (e) {
+                            console.error(e);
+                        }
+
                         reject({
-                            message: error.message,
+                            message: responseMessage,
                             status: error.response.status,
                             body: error.response.data,
                         });
