@@ -191,7 +191,7 @@ const openShareableLinkDialog = () => {
                 </AppSelectValue>
             </AppSelectTrigger>
             <AppSelectContent>
-                <AppSelectGroup>
+                <AppSelectGroup v-if="currentRouteSupportedMethods.length">
                     <AppSelectLabel>Supported</AppSelectLabel>
                     <AppSelectItem
                         v-for="supportedMethod in currentRouteSupportedMethods"
@@ -202,7 +202,9 @@ const openShareableLinkDialog = () => {
                     </AppSelectItem>
                 </AppSelectGroup>
                 <AppSelectGroup v-if="currentRouteUnsupportedMethods.length !== 0">
-                    <AppSelectLabel>Other</AppSelectLabel>
+                    <AppSelectLabel v-if="currentRouteSupportedMethods.length">
+                        Other
+                    </AppSelectLabel>
                     <AppSelectItem
                         v-for="unsupportedMethod in currentRouteUnsupportedMethods"
                         :key="unsupportedMethod"
