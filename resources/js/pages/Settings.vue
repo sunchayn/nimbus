@@ -77,7 +77,7 @@ const copyPublishCommand = async () => {
         <PageLayout title="Settings" :icon="SettingsIcon">
             <!-- Header Actions -->
             <template #header-actions>
-                <div v-if="lastResetTime" class="text-muted-foreground mr-3 text-xs">
+                <div v-if="lastResetTime" class="text-subtle-foreground mr-3 text-xs">
                     <CheckCircleIcon class="mr-1 inline h-3 w-3" />
                     Reset {{ lastResetTime.toLocaleTimeString() }}
                 </div>
@@ -109,7 +109,7 @@ const copyPublishCommand = async () => {
                                     <h2 class="text-xl font-semibold">
                                         Server Configuration
                                     </h2>
-                                    <p class="text-muted-foreground text-sm">
+                                    <p class="text-subtle-foreground text-sm">
                                         These values are read from your Laravel
                                         application's
                                         <code
@@ -121,7 +121,7 @@ const copyPublishCommand = async () => {
                                         structured, what base URL is used, and which
                                         headers are automatically included with requests.
                                     </p>
-                                    <small class="text-muted-foreground italic">
+                                    <small class="text-subtle-foreground italic">
                                         To customize these settings,
                                         <AppPopover>
                                             <AppPopoverTrigger
@@ -156,7 +156,7 @@ const copyPublishCommand = async () => {
                                                         />
                                                     </div>
                                                     <p
-                                                        class="text-muted-foreground text-xs"
+                                                        class="text-subtle-foreground text-xs"
                                                     >
                                                         This will create
                                                         <code
@@ -173,7 +173,7 @@ const copyPublishCommand = async () => {
                                     </small>
                                     <div class="my-2 text-xs">
                                         <div
-                                            class="bg-subtle-background inline-flex items-center space-x-2 rounded px-1.5 py-0.5 font-mono"
+                                            class="bg-subtle inline-flex items-center space-x-2 rounded px-1.5 py-0.5 font-mono"
                                         >
                                             <span>{{ VERSION }}</span>
                                             <CopyButton
@@ -197,7 +197,7 @@ const copyPublishCommand = async () => {
                                     <h2 class="text-xl font-semibold">
                                         User Preferences
                                     </h2>
-                                    <p class="text-muted-foreground text-sm">
+                                    <p class="text-subtle-foreground text-sm">
                                         Personal settings that are saved locally and
                                         customize your experience with the application.
                                     </p>

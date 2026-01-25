@@ -44,10 +44,10 @@ const layoutVars = [
             </h2>
             <div class="space-y-4">
                 <div v-for="s in spacing" :key="s.label" class="flex items-center gap-4">
-                    <div class="text-muted-foreground w-12 font-mono text-xs">
+                    <div class="text-subtle-foreground w-12 font-mono text-xs">
                         {{ s.label }}
                     </div>
-                    <div class="text-muted-foreground w-12 font-mono text-xs">
+                    <div class="text-subtle-foreground w-12 font-mono text-xs">
                         {{ s.value }}
                     </div>
                     <div :class="s.class" class="bg-primary h-4 rounded-sm shadow-sm" />
@@ -60,7 +60,7 @@ const layoutVars = [
             <div class="flex flex-wrap gap-8">
                 <div v-for="r in radii" :key="r.label" class="space-y-2 text-center">
                     <div
-                        class="bg-muted border-primary/20 flex h-24 w-24 items-center justify-center border-2 font-bold"
+                        class="bg-subtle border-primary/20 flex h-24 w-24 items-center justify-center border-2 font-bold"
                         :style="r.style"
                     >
                         {{ r.label }}
@@ -76,11 +76,11 @@ const layoutVars = [
                 <div
                     v-for="v in layoutVars"
                     :key="v.name"
-                    class="bg-muted/30 flex items-center justify-between rounded-lg border p-4"
+                    class="bg-subtle/30 flex items-center justify-between rounded-lg border p-4"
                 >
                     <div>
                         <span class="block text-sm font-bold">{{ v.name }}</span>
-                        <code class="text-muted-foreground text-xs">
+                        <code class="text-subtle-foreground text-xs">
                             {{ v.variable }}
                         </code>
                     </div>

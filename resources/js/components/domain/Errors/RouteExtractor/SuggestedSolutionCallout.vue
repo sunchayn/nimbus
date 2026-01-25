@@ -21,7 +21,7 @@ defineProps<AppSuggestedSolutionCalloutProps>();
 </script>
 
 <template>
-    <div class="bg-subtle-background rounded-lg border p-2">
+    <div class="bg-subtle rounded-lg border p-2">
         <div class="flex items-start gap-3">
             <LightbulbIcon class="mt-1 size-5 flex-shrink-0" />
             <div class="flex-1">

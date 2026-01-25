@@ -27,7 +27,7 @@ const props = defineProps<AppPanelSubHeaderProps>();
             cn('px-panel h-sub-toolbar flex items-center justify-between', props.class)
         "
     >
-        <span class="text-muted-foreground text-xs">
+        <span class="text-subtle-foreground text-xs">
             <slot></slot>
         </span>
         <slot name="toolbox"></slot>

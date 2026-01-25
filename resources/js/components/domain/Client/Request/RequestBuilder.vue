@@ -53,7 +53,7 @@ const tab = useStorage(uniquePersistenceKey('request-builder-tab'), 'body');
             data-testid="app-tabs-container"
             @update:model-value="tab = $event as string"
         >
-            <div class="bg-subtle-background border-b">
+            <div class="bg-subtle border-b">
                 <AppTabsList class="h-toolbar px-panel rounded-none">
                     <AppTabsTrigger value="parameters" label="Parameters" />
                     <AppTabsTrigger value="body" label="Body" />

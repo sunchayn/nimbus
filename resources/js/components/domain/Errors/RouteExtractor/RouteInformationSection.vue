@@ -28,7 +28,7 @@ defineProps<AppRouteInformationSectionProps>();
             <!-- URI -->
             <div v-if="routeContext.uri" class="flex items-center gap-2">
                 <span class="text-subtle-foreground w-20 text-sm font-medium">URI:</span>
-                <code class="bg-subtle-background rounded border px-2 py-1 text-sm">
+                <code class="bg-subtle rounded border px-2 py-1 text-sm">
                     {{ routeContext.uri }}
                 </code>
             </div>
@@ -49,20 +49,20 @@ defineProps<AppRouteInformationSectionProps>();
 
             <!-- Controller Class -->
             <div v-if="routeContext.controllerClass" class="flex items-center gap-2">
-                <span class="text-muted-foreground w-20 text-sm font-medium">
+                <span class="text-subtle-foreground w-20 text-sm font-medium">
                     Controller:
                 </span>
-                <code class="bg-subtle-background rounded border px-2 py-1 text-sm">
+                <code class="bg-subtle rounded border px-2 py-1 text-sm">
                     {{ routeContext.controllerClass }}
                 </code>
             </div>
 
             <!-- Controller Method -->
             <div v-if="routeContext.controllerMethod" class="flex items-center gap-2">
-                <span class="text-muted-foreground w-20 text-sm font-medium">
+                <span class="text-subtle-foreground w-20 text-sm font-medium">
                     Method:
                 </span>
-                <code class="bg-subtle-background rounded border px-2 py-1 text-sm">
+                <code class="bg-subtle rounded border px-2 py-1 text-sm">
                     {{ routeContext.controllerMethod }}
                 </code>
             </div>

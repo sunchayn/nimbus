@@ -45,7 +45,7 @@ defineOptions({
 
         <!-- Sub Header -->
         <div
-            class="px-panel h-sub-toolbar bg-subtle-background flex items-center justify-between border-b"
+            class="px-panel h-sub-toolbar bg-subtle flex items-center justify-between border-b"
         >
             <slot name="subheader-left" />
             <slot name="subheader-right" />

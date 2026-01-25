@@ -246,7 +246,7 @@ const handleDeleteParameter = (index: number) => {
                     @mousedown.prevent="handleGeneratorClick"
                 >
                     <SparklesIcon
-                        class="text-subtle hover:text-foreground size-4 transition-colors"
+                        class="text-subtle-foreground hover:text-foreground size-4 transition-colors"
                     />
                 </div>
 

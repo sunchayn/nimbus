@@ -88,7 +88,7 @@ const getGeneratorsForCategory = (categoryId: string) => {
             >
                 <component
                     :is="getGeneratorIcon(generator)"
-                    class="text-muted-foreground size-4 flex-shrink-0"
+                    class="text-subtle-foreground size-4 flex-shrink-0"
                 />
                 <span class="font-medium">{{ generator.name }}</span>
             </AppCommandItem>

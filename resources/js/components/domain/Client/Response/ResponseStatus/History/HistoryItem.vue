@@ -84,7 +84,7 @@ const timeToTimeAgo = (timestamp: number): string => {
 
                     <div class="flex w-full items-center justify-between">
                         <div>
-                            <span class="text-subtle whitespace-nowrap">
+                            <span class="text-subtle-foreground whitespace-nowrap">
                                 {{
                                     prettyMs(props.log.durationInMs, {
                                         compact: true,
@@ -93,14 +93,14 @@ const timeToTimeAgo = (timestamp: number): string => {
                             </span>
                             <span
                                 v-if="props.log.response"
-                                class="text-subtle text-xxs whitespace-nowrap"
+                                class="text-subtle-foreground text-xxs whitespace-nowrap"
                             >
                                 &nbsp;/
                                 {{ prettyBytes(props.log.response.sizeInBytes) }}
                             </span>
                         </div>
 
-                        <small class="text-subtle text-xxs whitespace-nowrap">
+                        <small class="text-subtle-foreground text-xxs whitespace-nowrap">
                             {{ timeToTimeAgo(props.log.response.timestamp) }}
                         </small>
                     </div>

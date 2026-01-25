@@ -28,7 +28,7 @@ const props = defineProps<AppStatusIndicatorProps>();
 const STATUS_COLORS = {
     success: 'text-success',
     error: 'text-destructive',
-    neutral: 'text-muted-foreground',
+    neutral: 'text-subtle-foreground',
 } as const;
 
 const STATUS_MESSAGES = {
@@ -65,7 +65,7 @@ const statusIndicator = computed(() => {
 <template>
     <div class="flex items-center space-x-2">
         <AppRoundIndicator :class="statusIndicator.color" />
-        <span class="text-muted-foreground text-xs">
+        <span class="text-subtle-foreground text-xs">
             {{ statusIndicator.message }}
         </span>
     </div>

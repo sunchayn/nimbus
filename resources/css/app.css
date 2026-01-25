@@ -51,16 +51,17 @@
     }
 
     .cm-gutters {
-        background-color: var(--color-subtle-background) !important;
+        background-color: var(--color-subtle) !important;
         border-color: var(--color-border) !important;
     }
 
-    .cm-activeLineGutter, .cm-activeLine {
+    .cm-activeLineGutter,
+    .cm-activeLine {
         background-color: var(--color-accent) !important;
     }
 
     .cm-line span {
-        color: var(--color-muted-foreground) !important;
+        color: var(--color-subtle-foreground) !important;
     }
 }
 
@@ -97,9 +98,5 @@
 
     .pr-panel {
         padding-right: var(--panel-padding-x);
-    }
-
-    .text-subtle {
-        color: var(--color-subtle-foreground);
     }
 }

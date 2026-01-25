@@ -32,7 +32,7 @@ const model = defineModel<string>({
 
 <template>
     <div class="flex items-center">
-        <span class="text-muted-foreground w-[80px] text-xs">Payload Type:</span>
+        <span class="text-subtle-foreground w-[80px] text-xs">Payload Type:</span>
         <AppSelect v-model="model">
             <AppSelectTrigger
                 class="min-w-[120px] rounded-none border-0 text-xs shadow-none focus:ring-0"

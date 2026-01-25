@@ -182,7 +182,7 @@ watch(isOpen, async newValue => {
                 class="rounded px-1 transition-colors hover:bg-zinc-100 focus:outline-none focus-visible:ring-0 dark:hover:bg-zinc-800 dark:focus-visible:ring-0"
                 data-testid="response-history-trigger"
             >
-                <small class="text-subtle text-xs" :title="absoluteTime">
+                <small class="text-subtle-foreground text-xs" :title="absoluteTime">
                     {{ readableTime }}
                 </small>
 
@@ -245,7 +245,7 @@ watch(isOpen, async newValue => {
 
                 <div
                     v-else
-                    class="text-subtle flex flex-col items-center justify-center gap-2 py-8 text-center text-sm"
+                    class="text-subtle-foreground flex flex-col items-center justify-center gap-2 py-8 text-center text-sm"
                     data-testid="history-empty-state"
                 >
                     <Search class="size-8 opacity-20" />

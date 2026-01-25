@@ -22,7 +22,7 @@ const props = defineProps<AppTableCaptionProps>();
 </script>
 
 <template>
-    <caption :class="cn('text-subtle mt-4 text-sm', props.class)">
+    <caption :class="cn('text-subtle-foreground mt-4 text-sm', props.class)">
         <slot />
     </caption>
 </template>

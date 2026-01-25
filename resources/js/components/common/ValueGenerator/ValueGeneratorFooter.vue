@@ -24,7 +24,7 @@ const store = useValueGeneratorStore();
 
 <template>
     <div
-        class="border-border bg-subtle-background text-muted-foreground border-t p-2 text-center text-xs"
+        class="border-border bg-subtle text-subtle-foreground border-t p-2 text-center text-xs"
     >
         <!-- Shift-Shift Shortcut Hint -->
         <div

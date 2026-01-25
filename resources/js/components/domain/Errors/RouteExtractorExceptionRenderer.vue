@@ -79,7 +79,7 @@ const handleIgnoreEndpoint = () => {
                 />
 
                 <div
-                    class="bg-muted/10 relative flex flex-1 flex-col overflow-hidden rounded-xl border-1 break-words backdrop-blur-md"
+                    class="bg-subtle/10 relative flex flex-1 flex-col overflow-hidden rounded-xl border-1 break-words backdrop-blur-md"
                 >
                     <ErrorCardHeader :message="error.exception.message" />
                     <div

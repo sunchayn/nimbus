@@ -24,7 +24,7 @@ const props = defineProps<AppCommandShortcutProps>();
 <template>
     <span
         data-slot="command-shortcut"
-        :class="cn('text-muted-foreground ml-auto text-xs tracking-widest', props.class)"
+        :class="cn('text-subtle-foreground ml-auto text-xs tracking-widest', props.class)"
     >
         <slot />
     </span>

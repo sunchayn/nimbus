@@ -103,7 +103,7 @@ const cancelRequest = () => {
                 <span class="text-xs">
                     <span data-testid="response-status-duration">{{ duration }}</span>
                     <template v-if="!pendingRequestData?.isProcessing">
-                        <span class="text-color-muted mx-1 text-xs">/</span>
+                        <span class="text-subtle-foreground mx-1 text-xs">/</span>
                         <span data-testid="response-status-size">{{ size }}</span>
                     </template>
                 </span>

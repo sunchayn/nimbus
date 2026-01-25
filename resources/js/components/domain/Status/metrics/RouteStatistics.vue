@@ -30,7 +30,7 @@ defineProps<AppRouteStatisticsProps>();
             <RouteIcon class="size-4" />
             <div>
                 <span class="text-sm font-medium">{{ totalRoutes }}</span>
-                <span class="text-muted-foreground ml-1 text-xs">routes</span>
+                <span class="text-subtle-foreground ml-1 text-xs">routes</span>
             </div>
         </div>
 
@@ -39,7 +39,7 @@ defineProps<AppRouteStatisticsProps>();
             <CheckCircleIcon class="size-4" />
             <div>
                 <span class="text-sm font-medium">{{ routesWithoutErrors }}</span>
-                <span class="text-muted-foreground ml-1 text-xs">success</span>
+                <span class="text-subtle-foreground ml-1 text-xs">success</span>
             </div>
         </div>
 
@@ -48,7 +48,7 @@ defineProps<AppRouteStatisticsProps>();
             <XCircleIcon class="size-4" />
             <div>
                 <span class="text-sm font-medium">{{ routesWithErrors }}</span>
-                <span class="text-muted-foreground ml-1 text-xs">errors</span>
+                <span class="text-subtle-foreground ml-1 text-xs">errors</span>
             </div>
         </div>
 
@@ -57,7 +57,7 @@ defineProps<AppRouteStatisticsProps>();
             <ChartAreaIcon class="size-4" />
             <div>
                 <span class="text-sm font-medium">{{ errorRate }}%</span>
-                <span class="text-muted-foreground ml-1 text-xs">error rate</span>
+                <span class="text-subtle-foreground ml-1 text-xs">error rate</span>
             </div>
         </div>
     </div>

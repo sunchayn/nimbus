@@ -65,7 +65,7 @@ watchOnce(
 
 <template>
     <div class="flex items-center">
-        <span class="text-muted-foreground w-[120px] text-xs">Authorization Type:</span>
+        <span class="text-subtle-foreground w-[120px] text-xs">Authorization Type:</span>
         <AppSelect v-model="model">
             <AppSelectTrigger
                 class="min-w-[120px] rounded-none border-0 text-xs shadow-none focus:ring-0"

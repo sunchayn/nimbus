@@ -37,7 +37,7 @@ const getCategoryButtonClass = (categoryId: string) => {
 
     return isSelected
         ? 'bg-background text-foreground shadow'
-        : 'text-muted-foreground hover:text-foreground';
+        : 'text-subtle-foreground hover:text-foreground';
 };
 
 const changeFocusToTheCommandSearchBox = () => {
@@ -85,7 +85,7 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
         <div class="relative">
             <div
                 ref="scrollContainer"
-                class="scrollbar-hide bg-subtle-background flex items-center gap-1 overflow-x-auto rounded-lg p-1"
+                class="scrollbar-hide bg-subtle flex items-center gap-1 overflow-x-auto rounded-lg p-1"
                 style="scrollbar-width: none; -ms-overflow-style: none"
                 @scroll="updateScrollMasks"
                 @keydown="handleCategoryArrowNavigation"
@@ -108,11 +108,11 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
             <!-- Scroll Gradient Masks -->
             <div
                 v-show="showLeftMask"
-                class="from-subtle-background via-subtle-background/80 pointer-events-none absolute top-0 bottom-0 left-0 w-8 rounded-l-lg bg-gradient-to-r to-transparent transition-opacity duration-200"
+                class="from-subtle via-subtle/80 pointer-events-none absolute top-0 bottom-0 left-0 w-8 rounded-l-lg bg-gradient-to-r to-transparent transition-opacity duration-200"
             />
             <div
                 v-show="showRightMask"
-                class="from-subtle-background via-subtle-background/80 pointer-events-none absolute top-0 right-0 bottom-0 w-8 rounded-r-lg bg-gradient-to-l to-transparent transition-opacity duration-200"
+                class="from-subtle via-subtle/80 pointer-events-none absolute top-0 right-0 bottom-0 w-8 rounded-r-lg bg-gradient-to-l to-transparent transition-opacity duration-200"
             />
         </div>
     </div>

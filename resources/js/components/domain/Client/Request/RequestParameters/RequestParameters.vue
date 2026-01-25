@@ -53,7 +53,7 @@ const copyPreview = () => copy(preview.value);
 
 <template>
     <PanelSubHeader class="border-b">Query Parameters</PanelSubHeader>
-    <div class="px-panel bg-subtle-background flex border-b py-2 text-xs">
+    <div class="px-panel bg-subtle flex border-b py-2 text-xs">
         <div class="flex-1">
             <small class="font-medium">URL Preview</small>
             <p v-if="preview.length">{{ preview }}</p>

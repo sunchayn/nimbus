@@ -22,7 +22,7 @@ const props = defineProps<AppCardDescriptionProps>();
 </script>
 
 <template>
-    <p :class="cn('text-subtle text-sm', props.class)">
+    <p :class="cn('text-subtle-foreground text-sm', props.class)">
         <slot />
     </p>
 </template>

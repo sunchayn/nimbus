@@ -82,7 +82,7 @@ const handleClick = () => {
             <template v-for="(segment, index) in endpointsSegments" :key="index">
                 <span v-if="!segment.isRouteVariable">{{ segment.value }}</span>
                 <span v-else>
-                    <span class="text-muted-foreground">{{ segment.value }}</span>
+                    <span class="text-subtle-foreground">{{ segment.value }}</span>
                 </span>
             </template>
         </span>

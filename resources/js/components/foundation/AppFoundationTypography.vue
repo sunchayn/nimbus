@@ -28,11 +28,11 @@ const fontFamilies = [
                 <div
                     v-for="fs in fontSizes"
                     :key="fs.name"
-                    class="border-muted flex items-baseline gap-8 border-b pb-4 last:border-0"
+                    class="border-subtle flex items-baseline gap-8 border-b pb-4 last:border-0"
                 >
                     <div class="w-32 flex-shrink-0">
                         <span class="block text-sm font-bold">{{ fs.name }}</span>
-                        <code class="text-muted-foreground text-[10px]">
+                        <code class="text-subtle-foreground text-[10px]">
                             {{ fs.size }}
                         </code>
                     </div>
@@ -49,11 +49,11 @@ const fontFamilies = [
                 <div v-for="font in fontFamilies" :key="font.name" class="space-y-2">
                     <div class="flex items-center gap-2">
                         <span class="font-bold">{{ font.name }}</span>
-                        <code class="text-muted-foreground text-xs">
+                        <code class="text-subtle-foreground text-xs">
                             {{ font.variable }}
                         </code>
                     </div>
-                    <div :class="font.class" class="bg-muted/30 rounded-lg p-4 text-xl">
+                    <div :class="font.class" class="bg-subtle/30 rounded-lg p-4 text-xl">
                         Pack my box with five dozen liquor jugs. 1234567890 !@#$%^&*()
                     </div>
                 </div>

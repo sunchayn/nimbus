@@ -90,7 +90,7 @@ const closeDialog = () => {
                     </div>
 
                     <pre
-                        class="bg-subtle-background text-foreground flex-1 overflow-auto rounded-md border p-4 font-mono text-sm leading-relaxed break-all whitespace-break-spaces"
+                        class="bg-subtle text-foreground flex-1 overflow-auto rounded-md border p-4 font-mono text-sm leading-relaxed break-all whitespace-break-spaces"
                         >{{ command }}</pre
                     >
                 </div>

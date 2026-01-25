@@ -224,7 +224,7 @@ watch(
                     >
                         <ChevronLeft class="size-3" />
                     </AppButton>
-                    <span class="text-xxs text-muted-foreground select-none">
+                    <span class="text-xxs text-subtle-foreground select-none">
                         {{ selectedDumpIndex + 1 }} /
                         {{ dumpSnapshots.length }}
                     </span>
@@ -259,11 +259,11 @@ watch(
         </template>
     </PanelSubHeader>
     <div
-        class="p-panel bg-subtle-background flex h-full min-h-0 flex-1 flex-col gap-1 overflow-y-auto"
+        class="p-panel bg-subtle flex h-full min-h-0 flex-1 flex-col gap-1 overflow-y-auto"
     >
         <div
             v-if="selectedDumpsLog?.timestamp"
-            class="text-xxs text-muted-foreground my-1"
+            class="text-xxs text-subtle-foreground my-1"
         >
             Dumped At:
             {{ selectedDumpsLog?.timestamp ?? '' }}
@@ -274,7 +274,7 @@ watch(
             class="border-subtle bg-card rounded-md border text-sm"
         >
             <div class="px-panel flex items-center gap-1.5 border-b py-1">
-                <AppRoundIndicator class="text-muted-foreground" />
+                <AppRoundIndicator class="text-subtle-foreground" />
                 Info
             </div>
             <div class="p-panel">Please make sure one dump snapshot is selected.</div>

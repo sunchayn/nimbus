@@ -39,7 +39,7 @@ const props = defineProps<AppErrorDetailsProps>();
     <div class="flex h-full flex-col">
         <!-- Error Header -->
         <div
-            class="h-toolbar px-panel bg-subtle-background flex flex-shrink-0 items-center justify-between border-b"
+            class="h-toolbar px-panel bg-subtle flex flex-shrink-0 items-center justify-between border-b"
         >
             <span class="text-foreground text-sm font-semibold">Error Details</span>
         </div>
@@ -48,14 +48,14 @@ const props = defineProps<AppErrorDetailsProps>();
         <AppScrollArea class="min-h-0 flex-1">
             <div v-if="props.selectedRoute !== null" class="p-4">
                 <!-- Route Info -->
-                <div class="bg-subtle-background mb-4 rounded-lg p-2">
+                <div class="bg-subtle mb-4 rounded-lg p-2">
                     <div class="mb-2 flex items-center space-x-2">
                         <HttpVerbLabel :method="props.selectedRoute.method" size="sm" />
                         <span class="text-foreground font-mono text-sm">
                             {{ props.selectedRoute.endpoint }}
                         </span>
                     </div>
-                    <div class="text-muted-foreground text-xs">
+                    <div class="text-subtle-foreground text-xs">
                         /{{ props.selectedRoute.resource }}
                         <span v-if="props.selectedRoute.version !== 'n/a'">
                             • v{{ props.selectedRoute.version }}
@@ -79,7 +79,7 @@ const props = defineProps<AppErrorDetailsProps>();
                             </p>
                         </div>
                         <!-- Render HTML content safely to preserve error formatting -->
-                        <div class="bg-subtle-background rounded-sm p-2 text-sm">
+                        <div class="bg-subtle rounded-sm p-2 text-sm">
                             <!-- eslint-disable vue/no-v-html -->
                             <div
                                 class="prose prose-sm max-w-none"

@@ -50,7 +50,7 @@ defineProps<AppSchemaExtractionErrorButtonProps>();
                 </AppDialogDescription>
             </AppDialogHeader>
             <div
-                class="dark:bg-subtle-background bg-destructive/10 max-w-full flex-1 overflow-auto p-2 leading-tight wrap-anywhere"
+                class="dark:bg-subtle bg-destructive/10 max-w-full flex-1 overflow-auto p-2 leading-tight wrap-anywhere"
             >
                 <!-- eslint-disable-next-line vue/no-v-html -->
                 <p v-html="errorHtml" />

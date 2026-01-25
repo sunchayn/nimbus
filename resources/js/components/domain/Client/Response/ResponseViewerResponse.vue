@@ -63,7 +63,7 @@ const pendingRequestData = computed(() => requestStore.pendingRequestData);
             class="mt-0 flex h-full flex-col overflow-auto"
             @update:model-value="tab = $event as string"
         >
-            <div class="bg-subtle-background border-b">
+            <div class="bg-subtle border-b">
                 <AppTabsList class="h-toolbar px-panel rounded-none">
                     <AppTabsTrigger value="response" label="Response" />
                     <AppTabsTrigger value="response-headers" label="Headers" />

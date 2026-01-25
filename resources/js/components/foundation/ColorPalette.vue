@@ -22,7 +22,11 @@ const semanticColors = [
         variable: '--color-destructive',
         foreground: '--color-destructive-foreground',
     },
-    { name: 'Muted', variable: '--color-muted', foreground: '--color-muted-foreground' },
+    {
+        name: 'Subtle',
+        variable: '--color-subtle',
+        foreground: '--color-subtle-foreground',
+    },
     { name: 'Card', variable: '--color-card', foreground: '--color-card-foreground' },
     {
         name: 'Popover',

@@ -67,10 +67,10 @@ export interface ObjectDumpProperty {
 export const styles = {
     key: 'text-success font-mono text-xs',
     numericalKey: 'text-info font-mono text-xs',
-    objectProperty: 'text-muted-foreground font-mono text-xs',
+    objectProperty: 'text-subtle-foreground font-mono text-xs',
     value: 'text-foreground font-mono text-xs',
     stringValue: 'text-success font-mono text-xs',
-    meta: 'text-muted-foreground',
+    meta: 'text-subtle-foreground',
 };
 
 export { default as ConstDumpRenderer } from './ConstDumpRenderer.vue';
