@@ -63,7 +63,7 @@ const handleApplicationChange = (applicationKey: AcceptableValue) => {
                     />
                 </div>
             </AppSelectTrigger>
-            <AppSelectContent class="min-w-52" :alignOffset="2">
+            <AppSelectContent class="min-w-52" :align-offset="2">
                 <AppSelectGroup>
                     <AppSelectLabel>Applications</AppSelectLabel>
                     <AppSelectItem
