@@ -53,7 +53,7 @@ describe('RequestBuilderEndpointInput', () => {
         mockRequestStore.pendingRequestData = {
             endpoint: '/users/1',
             isProcessing: false,
-        };
+        } as unknown as PendingRequest;
     });
 
     it('renders the current endpoint', () => {
@@ -81,7 +81,10 @@ describe('RequestBuilderEndpointInput', () => {
     });
 
     it('disables the send button when processing', () => {
-        mockRequestStore.pendingRequestData.isProcessing = true;
+        if (mockRequestStore.pendingRequestData) {
+            mockRequestStore.pendingRequestData.isProcessing = true;
+        }
+
         const wrapper = createWrapper();
         const button = wrapper.find('button');
 

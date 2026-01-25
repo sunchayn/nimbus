@@ -64,7 +64,7 @@ describe('RequestBuilderOptionsMenu', () => {
 
         mockRequestStore.pendingRequestData = {
             transactionMode: false,
-        };
+        } as unknown as PendingRequest;
     });
 
     it('renders the options button', () => {

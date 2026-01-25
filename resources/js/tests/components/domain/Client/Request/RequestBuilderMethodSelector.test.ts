@@ -49,7 +49,7 @@ describe('RequestBuilderMethodSelector', () => {
                 { method: 'GET', endpoint: '/test' },
                 { method: 'POST', endpoint: '/test' },
             ],
-        };
+        } as unknown as PendingRequest;
     });
 
     it('renders the current method', () => {
