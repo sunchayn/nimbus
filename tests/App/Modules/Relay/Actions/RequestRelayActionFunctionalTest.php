@@ -471,6 +471,55 @@ class RequestRelayActionFunctionalTest extends TestCase
         );
     }
 
+    public function test_it_relays_transaction_mode_header(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'POST',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [
+                'Content-Type' => 'application/json',
+            ],
+            body: ['test' => 'data'],
+            cookies: new ParameterBag,
+            transactionMode: true,
+        );
+
+        // Anticipate
+
+        Http::fake(function (Request $request) {
+            return Http::response([
+                'receivedHeaders' => $request->headers(),
+            ], 200);
+        });
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertEquals(200, $response->statusCode);
+
+        $this->assertArrayHasKey(
+            'x-nimbus-transaction-mode',
+            $response->body->body['receivedHeaders'],
+            'The transaction mode header should be present in the relayed request.',
+        );
+
+        $this->assertEquals(
+            '1',
+            $response->body->body['receivedHeaders']['x-nimbus-transaction-mode'][0],
+            'The transaction mode header should have the value "1".',
+        );
+    }
+
     /*
      * Helpers.
      */
