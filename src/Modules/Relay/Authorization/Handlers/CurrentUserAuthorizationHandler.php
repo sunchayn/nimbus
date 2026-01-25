@@ -6,6 +6,7 @@ use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Request;
 use Illuminate\Session\SessionManager;
@@ -13,6 +14,7 @@ use Illuminate\Session\Store;
 use Illuminate\Support\Arr;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\Concerns\UsesSpecialAuthenticationInjector;
+use Sunchayn\Nimbus\Modules\Relay\Authorization\Exceptions\InvalidAuthorizationValueException;
 
 /**
  * Authorization handler that forwards the current user's session cookies.
@@ -71,6 +73,7 @@ class CurrentUserAuthorizationHandler implements AuthorizationHandler
 
     /**
      * Attempt to retrieve the authenticated user from the Laravel session cookie.
+     * @throws InvalidAuthorizationValueException
      */
     private function getUserFromSession(): ?Authenticatable
     {
@@ -83,7 +86,14 @@ class CurrentUserAuthorizationHandler implements AuthorizationHandler
 
         /** @var Store $session */
         $session = $this->container->make(SessionManager::class)->driver();
-        $session->setId(id: $this->extractSessionIdFromCookie($sessionCookie));
+
+        try {
+            $sessionId = $this->extractSessionIdFromCookie($sessionCookie);
+        } catch (DecryptException) {
+            throw InvalidAuthorizationValueException::becauseCookieIsNotDecryptable();
+        }
+
+        $session->setId(id: $sessionId);
         $session->start();
 
         $tokenPrefix = 'login_'.($this->projectManager->getAuthGuard());
@@ -101,6 +111,8 @@ class CurrentUserAuthorizationHandler implements AuthorizationHandler
      *
      * Laravel’s session cookie is formatted as "payload|signature", where the
      * payload contains the encrypted session identifier.
+     *
+     * @throws \Illuminate\Contracts\Encryption\DecryptException
      */
     private function extractSessionIdFromCookie(string $cookieValue): string
     {

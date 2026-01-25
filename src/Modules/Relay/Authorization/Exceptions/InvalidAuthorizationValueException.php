@@ -12,6 +12,8 @@ class InvalidAuthorizationValueException extends RuntimeException
 
     public const USER_IS_NOT_FOUND = 3;
 
+    public const REMEMBER_ME_COOKIE_IS_CORRUPT = 4;
+
     public static function becauseBearerTokenValueIsNotString(): self
     {
         return new self(
@@ -33,6 +35,14 @@ class InvalidAuthorizationValueException extends RuntimeException
         return new self(
             message: "User ID didn't resolve to a user to impersonate.",
             code: self::USER_IS_NOT_FOUND,
+        );
+    }
+
+    public static function becauseCookieIsNotDecryptable(): self
+    {
+        return new self(
+            message: "The Current User remember me cookie is corrupt. Reload the page, or pick a different authorization method.",
+            code: self::REMEMBER_ME_COOKIE_IS_CORRUPT,
         );
     }
 }
