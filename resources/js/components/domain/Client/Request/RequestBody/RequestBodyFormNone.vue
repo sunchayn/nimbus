@@ -38,8 +38,8 @@ onMounted(() => emit('update:modelValue', null));
 
 <template>
     <AppPanel class="border-b shadow-none">
-        <AppPanelHeader>
-            <CircleSlash2Icon />
+        <AppPanelHeader class="items-start">
+            <CircleSlash2Icon class="size-5 min-w-5" />
             <div class="flex flex-col">
                 <AppPanelTitle>No Body</AppPanelTitle>
                 <AppPanelDescription>
