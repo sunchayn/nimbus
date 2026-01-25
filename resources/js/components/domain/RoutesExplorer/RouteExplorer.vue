@@ -152,6 +152,5 @@ const hasMultipleApplications = computed(
                 </AppSidebarGroupContent>
             </AppSidebarGroup>
         </AppSidebarContent>
-        <AppSidebarRail />
     </AppSidebar>
 </template>
