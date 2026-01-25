@@ -98,7 +98,6 @@ export function useTabHorizontalScroll(
         savedScrollPosition.value = bounds.current;
     };
 
-
     const debouncedUpdateMasks = useDebounceFn(updateScrollMasks, debounceDelay);
 
     /**
