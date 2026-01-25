@@ -114,7 +114,7 @@ test("Dump and Die visualization sanity checklist", async ({ page }) => {
         .click();
 
     await expect(
-        page.locator("#reka-collapsible-content-v-127"),
+        page.locator("#reka-collapsible-content-v-131"),
     ).toMatchAriaSnapshot(`- text: "0: \\"/\\" (1) 1: \\"\\\\\\" (1)"`);
 
     //  dump #3 (runtime object)
