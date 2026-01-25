@@ -10,7 +10,7 @@ import type { TypeShape } from '@/utils/request/content-type-header-generator';
 import { types } from '@/utils/request/content-type-header-generator';
 import { type ComputedRef, type Ref, computed, onMounted, ref, watch } from 'vue';
 
-export function useRequestBody(): {
+export interface UseRequestBodyResult {
     payloadType: Ref<RequestBodyTypeEnum>;
     payload: Ref<FormData | string | null>;
     pendingRequestData: ComputedRef<
@@ -21,9 +21,14 @@ export function useRequestBody(): {
     generateCurrentPayload: () => FormData | string | null;
     initializePayloadTypeFromHeaders: () => void;
     types: TypeShape[];
-} {
+}
+
+/**
+ * Composable for managing the request body state and payload generation.
+ */
+export function useRequestBody(): UseRequestBodyResult {
     /*
-     * Stores & dependencies.
+     * Dependencies.
      */
 
     const requestStore = useRequestStore();

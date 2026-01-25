@@ -180,7 +180,7 @@ const openShareableLinkDialog = () => {
 </script>
 
 <template>
-    <div :class="cn('flex', props.class)">
+    <div :class="cn('flex', props.class)" data-testid="request-builder-endpoint">
         <AppSelect v-model="method">
             <AppSelectTrigger
                 variant="toolbar"

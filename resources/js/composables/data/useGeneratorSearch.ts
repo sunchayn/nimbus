@@ -1,5 +1,22 @@
 import type { ValueGenerator } from '@/interfaces/ui';
-import { type ComputedRef, type Ref, computed, ref } from 'vue';
+import {
+    type ComputedRef,
+    type DeepReadonly,
+    type Ref,
+    computed,
+    readonly,
+    ref,
+} from 'vue';
+
+export interface UseGeneratorSearchResult {
+    searchQuery: DeepReadonly<Ref<string>>;
+    selectedCategory: DeepReadonly<Ref<string | null>>;
+    filteredGenerators: ComputedRef<ValueGenerator[]>;
+    hasActiveFilters: ComputedRef<boolean>;
+    setSearchQuery: (query: string) => void;
+    setSelectedCategory: (categoryId: string | null) => void;
+    clearFilters: () => void;
+}
 
 /**
  * Composable for filtering and searching value generators.
@@ -7,17 +24,19 @@ import { type ComputedRef, type Ref, computed, ref } from 'vue';
  * Provides reactive filtering capabilities for generator lists,
  * supporting both text search and category filtering.
  */
-export function useGeneratorSearch(generators: ValueGenerator[]): {
-    searchQuery: Ref<string>;
-    selectedCategory: Ref<string | null>;
-    filteredGenerators: ComputedRef<ValueGenerator[]>;
-    hasActiveFilters: ComputedRef<boolean>;
-    setSearchQuery: (query: string) => void;
-    setSelectedCategory: (categoryId: string | null) => void;
-    clearFilters: () => void;
-} {
+export function useGeneratorSearch(
+    generators: ValueGenerator[],
+): UseGeneratorSearchResult {
+    /*
+     * State.
+     */
+
     const searchQuery = ref('');
     const selectedCategory = ref<string | null>(null);
+
+    /*
+     * Computed.
+     */
 
     /**
      * Filters generators based on search query and selected category.
@@ -51,6 +70,17 @@ export function useGeneratorSearch(generators: ValueGenerator[]): {
     });
 
     /**
+     * Checks if any filters are currently active.
+     */
+    const hasActiveFilters = computed(() => {
+        return searchQuery.value !== '' || selectedCategory.value !== null;
+    });
+
+    /*
+     * Actions.
+     */
+
+    /**
      * Sets the search query for filtering generators.
      */
     const setSearchQuery = (query: string) => {
@@ -72,17 +102,10 @@ export function useGeneratorSearch(generators: ValueGenerator[]): {
         selectedCategory.value = null;
     };
 
-    /**
-     * Checks if any filters are currently active.
-     */
-    const hasActiveFilters = computed(() => {
-        return searchQuery.value !== '' || selectedCategory.value !== null;
-    });
-
     return {
         // State
-        searchQuery,
-        selectedCategory,
+        searchQuery: readonly(searchQuery),
+        selectedCategory: readonly(selectedCategory),
 
         // Computed
         filteredGenerators,

@@ -12,6 +12,19 @@ import {
     watch,
 } from 'vue';
 
+export interface UseKeyValueParametersResult<T extends ParameterContract> {
+    parameters: Ref<T[]>;
+    deletingAll: ComputedRef<boolean>;
+    areAllParametersDisabled: ComputedRef<boolean>;
+    addNewEmptyParameter: () => void;
+    toggleAllParametersEnabledState: () => void;
+    triggerParameterDeletion: (index: number) => void;
+    deleteAllParameters: () => void;
+    updateParametersFromParentModel: () => void;
+    isParameterMarkedForDeletion: (id: number) => boolean;
+    clearAllDeletionStates: () => void;
+}
+
 /**
  * Manages key-value parameter state with unidirectional data flow.
  *
@@ -21,21 +34,30 @@ import {
 export function useKeyValueParameters<T extends ParameterContract>(
     modelValue: Ref<T[]>,
     onUpdate: (parameters: T[]) => void,
-): {
-    parameters: Ref<T[]>;
-    deletingAll: ComputedRef<boolean>;
-    areAllParametersDisabled: ComputedRef<boolean>;
-    addNewEmptyParameter: () => void;
-    toggleAllParametersEnabledState: () => void;
-    triggerParameterDeletion: (parameters: T[], index: number) => void;
-    deleteAllParameters: () => void;
-    updateParametersFromParentModel: () => void;
-    isParameterMarkedForDeletion: (id: number) => boolean;
-    clearAllDeletionStates: () => void;
-} {
+): UseKeyValueParametersResult<T> {
+    /*
+     * Dependencies.
+     */
+
     const { count: nextParameterId, inc: incrementParametersId } = useCounter();
 
+    /*
+     * State.
+     */
+
     const parameters: Ref<T[]> = ref([]);
+
+    interface DeletionState {
+        deleting: boolean;
+        timeoutId?: number;
+    }
+
+    const deletionStatesForParameters = reactive(new Map<number, DeletionState>());
+    const bulkDeletionState: Ref<DeletionState> = ref({ deleting: false });
+
+    /*
+     * Utilities.
+     */
 
     const createParameterSkeleton = (id: number): ParameterContract => ({
         type: ParameterType.Text,
@@ -44,19 +66,6 @@ export function useKeyValueParameters<T extends ParameterContract>(
         value: '',
         enabled: true,
     });
-
-    /*
-     * Deletion state management.
-     */
-
-    interface DeletionState {
-        deleting: boolean;
-        timeoutId?: number;
-    }
-
-    const deletionStatesForParameters = reactive(new Map<number, DeletionState>());
-
-    const bulkDeletionState: Ref<DeletionState> = ref({ deleting: false });
 
     /**
      * Initiates deletion confirmation for a parameter.
@@ -100,7 +109,7 @@ export function useKeyValueParameters<T extends ParameterContract>(
      * Sets deletion state with automatic timeout.
      */
     const setParameterDeletionState = (parameterId: number): void => {
-        const timeoutId: number = window.setTimeout(() => {
+        const timeoutId = window.setTimeout(() => {
             deletionStatesForParameters.delete(parameterId);
         }, keyValueParametersConfig.DELETION_CONFIRMATION_TIMEOUT);
 
@@ -162,16 +171,6 @@ export function useKeyValueParameters<T extends ParameterContract>(
         deletionStatesForParameters.forEach((_, id) => clearParameterDeletionState(id));
         clearBulkDeletionState();
     };
-
-    /*
-     * Computed.
-     */
-
-    const areAllParametersDisabled = computed(() =>
-        parameters.value.every(parameter => !parameter.enabled),
-    );
-
-    const deletingAll = computed(() => isBulkDeletionMarked());
 
     /**
      * Reconciliation logic to update internal parameters from the parent modelValue.
@@ -239,35 +238,19 @@ export function useKeyValueParameters<T extends ParameterContract>(
         onUpdate(clonedParameters as T[]);
     };
 
-    // Watch for internal changes to notify parent
-    watchDebounced(
-        parameters,
-        () => {
-            notifyParentOfChanges();
-        },
-        {
-            deep: true,
-            debounce: keyValueParametersConfig.SYNC_DEBOUNCE_DELAY,
-        },
+    /*
+     * Computed.
+     */
+
+    const areAllParametersDisabled = computed(() =>
+        parameters.value.every(parameter => !parameter.enabled),
     );
 
-    // Watch for external changes to sync from parent.
-    watch(
-        modelValue,
-        () => {
-            updateParametersFromParentModel();
-        },
-        { deep: true },
-    );
+    const deletingAll = computed(() => isBulkDeletionMarked());
 
-    // Initialize parameters from parent model
-    onBeforeMount(() => {
-        updateParametersFromParentModel();
-
-        if (parameters.value.length === 0) {
-            addNewEmptyParameter();
-        }
-    });
+    /*
+     * Actions.
+     */
 
     /**
      * Adds a new empty parameter to the list for user input.
@@ -297,11 +280,8 @@ export function useKeyValueParameters<T extends ParameterContract>(
      * Prevents accidental deletions by requiring a second click within the configured timeout.
      * First click marks for deletion, second click removes immediately.
      */
-    const triggerParameterDeletion = (
-        parameters: ParameterContract[],
-        index: number,
-    ): void => {
-        const parameter = parameters[index];
+    const triggerParameterDeletion = (index: number): void => {
+        const parameter = parameters.value[index];
 
         if (!parameter) {
             return;
@@ -313,7 +293,7 @@ export function useKeyValueParameters<T extends ParameterContract>(
             return;
         }
 
-        parameters.splice(index, 1);
+        parameters.value.splice(index, 1);
     };
 
     /**
@@ -331,12 +311,43 @@ export function useKeyValueParameters<T extends ParameterContract>(
         parameters.value = [];
     };
 
-    /**
-     * Checks if a parameter is marked for deletion
+    /*
+     * Watchers.
      */
-    const checkParameterDeletion = (id: number): boolean => {
-        return isParameterMarkedForDeletion(id);
-    };
+
+    // Watch for internal changes to notify parent
+    watchDebounced(
+        parameters,
+        () => {
+            notifyParentOfChanges();
+        },
+        {
+            deep: true,
+            debounce: keyValueParametersConfig.SYNC_DEBOUNCE_DELAY,
+        },
+    );
+
+    // Watch for external changes to sync from parent.
+    watch(
+        modelValue,
+        () => {
+            updateParametersFromParentModel();
+        },
+        { deep: true },
+    );
+
+    /*
+     * Lifecycle.
+     */
+
+    // Initialize parameters from parent model
+    onBeforeMount(() => {
+        updateParametersFromParentModel();
+
+        if (parameters.value.length === 0) {
+            addNewEmptyParameter();
+        }
+    });
 
     return {
         // State
@@ -352,7 +363,7 @@ export function useKeyValueParameters<T extends ParameterContract>(
         updateParametersFromParentModel,
 
         // Utilities
-        isParameterMarkedForDeletion: checkParameterDeletion,
+        isParameterMarkedForDeletion,
         clearAllDeletionStates,
     };
 }

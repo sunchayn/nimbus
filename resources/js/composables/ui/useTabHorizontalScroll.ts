@@ -8,8 +8,27 @@ import {
 } from '@/utils/scroll';
 import type { ScrollBounds } from '@/utils/scroll/tab-scroll-utils';
 import { useDebounceFn } from '@vueuse/core';
-import type { ComputedRef } from 'vue';
-import { computed, nextTick, onMounted, onUnmounted, ref, type Ref } from 'vue';
+import {
+    type ComputedRef,
+    type DeepReadonly,
+    type Ref,
+    computed,
+    nextTick,
+    onMounted,
+    onUnmounted,
+    readonly,
+    ref,
+} from 'vue';
+
+export interface UseTabHorizontalScrollResult {
+    scrollContainer: Ref<HTMLElement | null>;
+    showLeftMask: DeepReadonly<Ref<boolean>>;
+    showRightMask: DeepReadonly<Ref<boolean>>;
+    scrollBounds: ComputedRef<ScrollBounds | null>;
+    updateScrollMasks: () => void;
+    scrollTabIntoView: (buttonElement: HTMLElement) => void;
+    restoreScrollPosition: () => Promise<void>;
+}
 
 /**
  * Handles horizontal scroll state and masks for tab containers.
@@ -17,15 +36,9 @@ import { computed, nextTick, onMounted, onUnmounted, ref, type Ref } from 'vue';
  * Manages left/right gradient masks based on scroll position and provides
  * functionality to scroll specific tabs into the visible area.
  */
-export function useTabHorizontalScroll(config?: Partial<TabNavigationScrollConfig>): {
-    scrollContainer: Ref<HTMLElement | null>;
-    showLeftMask: Ref<boolean>;
-    showRightMask: Ref<boolean>;
-    scrollBounds: ComputedRef<ScrollBounds | null>;
-    updateScrollMasks: () => void;
-    scrollTabIntoView: (buttonElement: HTMLElement) => void;
-    restoreScrollPosition: () => Promise<void>;
-} {
+export function useTabHorizontalScroll(
+    config?: Partial<TabNavigationScrollConfig>,
+): UseTabHorizontalScrollResult {
     /*
      * Configuration.
      *
@@ -175,14 +188,14 @@ export function useTabHorizontalScroll(config?: Partial<TabNavigationScrollConfi
 
     return {
         // State
-
         scrollContainer,
-        showLeftMask,
-        showRightMask,
+        showLeftMask: readonly(showLeftMask),
+        showRightMask: readonly(showRightMask),
+
+        // Computed
         scrollBounds,
 
         // Actions
-
         updateScrollMasks,
         scrollTabIntoView,
         restoreScrollPosition,

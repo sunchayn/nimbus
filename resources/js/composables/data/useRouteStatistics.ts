@@ -1,8 +1,7 @@
 import type { RouteDefinition } from '@/interfaces/routes/routes';
 import { useRoutesStore } from '@/stores';
 import type { JSONSchema7 } from 'json-schema';
-import type { ComputedRef } from 'vue';
-import { computed } from 'vue';
+import { type ComputedRef, computed } from 'vue';
 
 export interface RouteStatistics {
     total: number;
@@ -22,11 +21,24 @@ export interface RouteWithError {
     };
 }
 
-export function useRouteStatistics(): {
+export interface UseRouteStatisticsResult {
     routeStatistics: ComputedRef<RouteStatistics>;
     displayableRoutesWithErrors: ComputedRef<RouteWithError[]>;
-} {
+}
+
+/**
+ * Composable for calculating and providing route statistics.
+ */
+export function useRouteStatistics(): UseRouteStatisticsResult {
+    /*
+     * Dependencies.
+     */
+
     const routesStore = useRoutesStore();
+
+    /*
+     * Utilities.
+     */
 
     /**
      * Creates a RouteWithError object from a route definition
@@ -64,6 +76,10 @@ export function useRouteStatistics(): {
             .flat()
             .flatMap(group => group.routes);
     };
+
+    /*
+     * Computed.
+     */
 
     /**
      * Calculates route statistics from all routes across all versions.
@@ -104,6 +120,7 @@ export function useRouteStatistics(): {
     );
 
     return {
+        // Computed
         routeStatistics,
         displayableRoutesWithErrors,
     };

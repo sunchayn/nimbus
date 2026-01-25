@@ -43,10 +43,7 @@ const tab = useStorage(uniquePersistenceKey('request-builder-tab'), 'body');
         class="relative flex h-full max-h-full flex-1 flex-col"
         data-testid="request-builder-root"
     >
-        <RequestBuilderEndpoint
-            class="h-toolbar border-b"
-            data-testid="request-builder-endpoint"
-        />
+        <RequestBuilderEndpoint class="h-toolbar border-b" />
         <AppTabs
             :default-value="tab"
             class="mt-0 flex flex-1 flex-col overflow-hidden"

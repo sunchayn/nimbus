@@ -4,34 +4,7 @@ import { AuthorizationType, type AuthorizationTypeItem } from '@/interfaces/gene
 import { useRequestStore } from '@/stores';
 import { type DeepReadonly, type Ref, computed, readonly, watch } from 'vue';
 
-/**
- * Default authorization states for each type
- */
-const defaultAuthStates = {
-    [AuthorizationType.None]: { type: AuthorizationType.None },
-    [AuthorizationType.Bearer]: {
-        type: AuthorizationType.Bearer,
-        value: '',
-    },
-    [AuthorizationType.Basic]: {
-        type: AuthorizationType.Basic,
-        value: { username: '', password: '' },
-    },
-    [AuthorizationType.CurrentUser]: {
-        type: AuthorizationType.CurrentUser,
-    },
-    [AuthorizationType.Impersonate]: {
-        type: AuthorizationType.Impersonate,
-        value: 0,
-    },
-} as const;
-
-/**
- * Handles reactive authorization state for API requests.
- *
- * Centralizes authorization type selection, validation, and persistence to the request store.
- */
-export function useRequestAuthorization(): {
+export interface UseRequestAuthorizationResult {
     authorization: DeepReadonly<Ref<AuthorizationContract>>;
     selectedType: Ref<AuthorizationType>;
     types: {
@@ -43,12 +16,45 @@ export function useRequestAuthorization(): {
         newValue: string | number | { username: string; password: string },
     ) => void;
     saveAuthorizationToStore: () => void;
-} {
+}
+
+/**
+ * Handles reactive authorization state for API requests.
+ *
+ * Centralizes authorization type selection, validation, and persistence to the request store.
+ */
+export function useRequestAuthorization(): UseRequestAuthorizationResult {
     /*
      * Dependencies.
      */
 
     const requestStore = useRequestStore();
+
+    /*
+     * Constants.
+     */
+
+    /**
+     * Default authorization states for each type
+     */
+    const defaultAuthStates = {
+        [AuthorizationType.None]: { type: AuthorizationType.None },
+        [AuthorizationType.Bearer]: {
+            type: AuthorizationType.Bearer,
+            value: '',
+        },
+        [AuthorizationType.Basic]: {
+            type: AuthorizationType.Basic,
+            value: { username: '', password: '' },
+        },
+        [AuthorizationType.CurrentUser]: {
+            type: AuthorizationType.CurrentUser,
+        },
+        [AuthorizationType.Impersonate]: {
+            type: AuthorizationType.Impersonate,
+            value: 0,
+        },
+    } as const;
 
     /*
      * State.
@@ -63,6 +69,10 @@ export function useRequestAuthorization(): {
             state as AuthorizationContract,
         );
     });
+
+    /*
+     * Computed.
+     */
 
     const authorization = computed<AuthorizationContract>(() => {
         return (
@@ -151,7 +161,7 @@ export function useRequestAuthorization(): {
     watch(authorization, saveAuthorizationToStore, { deep: true });
 
     return {
-        // State (readonly for external consumers)
+        // State
         authorization: readonly(authorization),
         selectedType,
 

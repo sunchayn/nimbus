@@ -110,11 +110,11 @@ describe('useKeyValueParameters', () => {
             const index = 0;
 
             // Act - First click
-            composable.triggerParameterDeletion(composable.parameters.value, index);
+            composable.triggerParameterDeletion(index);
             expect(composable.isParameterMarkedForDeletion(index)).toBe(true);
 
             // Act - Second click
-            composable.triggerParameterDeletion(composable.parameters.value, index);
+            composable.triggerParameterDeletion(index);
 
             // Assert
             expect(composable.parameters.value).toHaveLength(0);

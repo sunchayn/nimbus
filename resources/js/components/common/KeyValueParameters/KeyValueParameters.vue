@@ -124,7 +124,7 @@ const handleGeneratorClick = () => {
 };
 
 const handleDeleteParameter = (index: number) => {
-    triggerParameterDeletion(parameters.value, index);
+    triggerParameterDeletion(index);
 };
 </script>
 <template>
