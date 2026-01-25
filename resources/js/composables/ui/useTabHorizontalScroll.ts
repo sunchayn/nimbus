@@ -172,6 +172,8 @@ export function useTabHorizontalScroll(
 
     onMounted(() => {
         cleanupScrollListeners = setupScrollListeners() ?? null;
+
+        debouncedUpdateMasks();
     });
 
     onUnmounted(() => {
