@@ -261,7 +261,7 @@ class NimbusRelayTest extends TestCase
         Route::post('/test-transaction-rollback', function () {
             app('db')->table('test_users')->insert(['name' => 'Test User']);
 
-            return response()->json(['message' => 'Users Count: ' . app('db')->table('test_users')->count()]);
+            return response()->json(['message' => 'Users Count: '.app('db')->table('test_users')->count()]);
         })->name('test-transaction-rollback');
 
         // Act
