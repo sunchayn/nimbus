@@ -134,4 +134,19 @@ describe('useRequestBody', () => {
             expect(composable.payload.value).toBe('{"serialized":true}');
         });
     });
+
+    it('initializes immediately from store during setup', () => {
+        requestStore.pendingRequestData = createPendingRequest();
+        requestStore.pendingRequestData.payloadType = RequestBodyTypeEnum.JSON;
+        requestStore.pendingRequestData.body = {
+            POST: {
+                [RequestBodyTypeEnum.JSON]: '{"immediate":true}',
+            },
+        };
+
+        const composable = runComposable();
+
+        expect(composable.payloadType.value).toBe(RequestBodyTypeEnum.JSON);
+        expect(composable.payload.value).toBe('{"immediate":true}');
+    });
 });

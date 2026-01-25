@@ -1,1 +1,1 @@
-export { default as AppSonner } from './Sonner.vue';
+export { default as AppSonner } from './AppSonner.vue';

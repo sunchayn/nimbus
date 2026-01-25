@@ -9,6 +9,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    name: TS Types Checks
 
     steps:
       - name: Checkout code

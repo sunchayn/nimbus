@@ -3,8 +3,8 @@
  * @component AppSonner
  * @description A toast notification container using vue-sonner.
  */
+import { inject } from 'vue';
 import type { ToasterProps } from 'vue-sonner';
-import { Toaster as Sonner } from 'vue-sonner';
 
 defineOptions({
     name: 'AppSonner',
@@ -21,6 +21,8 @@ export interface AppSonnerProps extends ToasterProps {}
  */
 
 const props = defineProps<AppSonnerProps>();
+
+const appTheme = inject<'dark' | 'light'>('theme');
 </script>
 
 <template>
@@ -32,5 +34,6 @@ const props = defineProps<AppSonnerProps>();
             '--normal-text': 'var(--color-popover-foreground)',
             '--normal-border': 'var(--color-border)',
         }"
+        :theme="appTheme"
     />
 </template>

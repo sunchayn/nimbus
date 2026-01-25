@@ -39,11 +39,13 @@ export class BasePage {
         await this.executeRequest();
     }
 
-    async addHeader(key: string, value: string, index: number = 0) {
-        await this.page
-            .getByTestId('request-builder-root')
-            .getByRole('tab', { name: 'Headers' })
-            .click();
+    async addHeader(key: string, value: string, index: number = 0, skipTabNavigation: boolean = false) {
+        if (!skipTabNavigation) {
+            await this.page
+                .getByTestId('request-builder-root')
+                .getByRole('tab', { name: 'Headers' })
+                .click();
+        }
 
         await this.page
             .getByTestId('request-headers')
@@ -66,26 +68,28 @@ export class BasePage {
         return { headerKey, headerValue };
     }
 
-    async addQueryParameter(key: string, value: string) {
-        await this.page
-            .getByTestId('request-builder-root')
-            .getByRole('tab', { name: 'Parameters' })
-            .click();
+    async addQueryParameter(key: string, value: string, index: number = 0, skipTabNavigation: boolean = false) {
+        if (!skipTabNavigation) {
+            await this.page
+                .getByTestId('request-builder-root')
+                .getByRole('tab', { name: 'Parameters' })
+                .click();
+        }
 
         await this.page
             .getByTestId('request-parameters')
             .getByRole('button', { name: 'Add' })
             .click();
 
-        const paramKey = this.page
-            .getByTestId('request-parameters')
-            .getByTestId('kv-key')
-            .first();
+        const paramKey =
+            index === 0
+                ? this.page.getByTestId('request-parameters').getByTestId('kv-key').first()
+                : this.page.getByTestId('request-parameters').getByTestId('kv-key').nth(index);
 
-        const paramValue = this.page
-            .getByTestId('request-parameters')
-            .getByTestId('kv-value')
-            .first();
+        const paramValue =
+            index === 0
+                ? this.page.getByTestId('request-parameters').getByTestId('kv-value').first()
+                : this.page.getByTestId('request-parameters').getByTestId('kv-value').nth(index);
 
         await paramKey.fill(key);
         await paramValue.fill(value);

@@ -10,22 +10,30 @@ class DumpAndDieResponse extends Response
 {
     public const DUMP_AND_DIE_STATUS_CODE = 999;
 
+    public function __construct($response)
+    {
+        parent::__construct($response);
+
+        $this->preDecodeBody((string) $this->response->getBody());
+    }
+
     public function getStatusCode(): int
     {
         return self::DUMP_AND_DIE_STATUS_CODE;
     }
 
-    /**
-     * @return array<string, string|array<array-key, mixed>>
-     */
-    public function json($key = null, $default = null): array
+    private function preDecodeBody(string $body): void
     {
+        // Normally, we would overwrite the `->json` method. But there was a breaking change to the method in L12.48.
+        // If we overwrite the new `->json` and conform its new signature, we lose support for earlier versions.
+        // Instead, we need to pre-decode the body so that when calling ->json() it will use the below array.
+
         [
             'source' => $source,
             'dumps' => $dumps,
-        ] = resolve(VarDumpParser::class)->parse($this->response->getBody())->toArray();
+        ] = resolve(VarDumpParser::class)->parse($body)->toArray();
 
-        return [
+        $this->decoded = [
             'id' => Str::uuid()->toString(),
             'timestamp' => now()->format('Y-m-d H:i:s'),
             'source' => $source,

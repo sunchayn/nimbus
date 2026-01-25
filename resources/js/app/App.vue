@@ -4,9 +4,11 @@ import { AppSonner } from '@/components/base/sonner';
 import ValueGenerator from '@/components/common/ValueGenerator/ValueGenerator.vue';
 import ScreenNavigationSidebar from '@/components/layout/ScreenNavigationSidebar.vue';
 import { useSettingsStore } from '@/stores';
-import { onMounted, watch } from 'vue';
+import { onMounted, provide, ref, watch } from 'vue';
 
 const settingsStore = useSettingsStore();
+
+const currentTheme = ref('');
 
 function applyTheme(preference: 'light' | 'dark' | 'system') {
     if (preference === 'system') {
@@ -16,6 +18,8 @@ function applyTheme(preference: 'light' | 'dark' | 'system') {
 
         preference = isDark ? 'dark' : 'light';
     }
+
+    currentTheme.value = preference;
 
     if (preference === 'dark') {
         document.documentElement.classList.add('dark');
@@ -61,6 +65,8 @@ watch(
         applyTheme(theme);
     },
 );
+
+provide('theme', currentTheme);
 </script>
 
 <template>

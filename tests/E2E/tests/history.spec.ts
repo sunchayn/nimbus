@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect } from '../core/fixtures';
 
 
 test.describe('Search Functionality', () => {

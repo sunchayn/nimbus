@@ -185,7 +185,6 @@ watch(isOpen, async newValue => {
                 <small class="text-subtle-foreground text-xs" :title="absoluteTime">
                     {{ readableTime }}
                 </small>
-
                 <HistoryIcon class="size-3" />
             </AppButton>
         </AppDropdownMenuTrigger>

@@ -2,7 +2,7 @@ import { authorizationConfig } from '@/config';
 import type { AuthorizationContract } from '@/interfaces/auth/authorization';
 import { AuthorizationType, type AuthorizationTypeItem } from '@/interfaces/generated';
 import { useRequestStore } from '@/stores';
-import { type DeepReadonly, type Ref, readonly, ref, watch } from 'vue';
+import { type DeepReadonly, type Ref, computed, readonly, ref, watch } from 'vue';
 
 /**
  * Default authorization states for each type
@@ -58,18 +58,28 @@ export function useRequestAuthorization(): {
 
     // Initialize with default states
     Object.entries(defaultAuthStates).forEach(([type, state]) => {
-        authorizationStates.set(type as AuthorizationType, state);
+        authorizationStates.set(
+            type as AuthorizationType,
+            state as AuthorizationContract,
+        );
     });
 
-    const authorization = ref<AuthorizationContract>(
-        requestStore.pendingRequestData?.authorization ?? {
-            type: AuthorizationType.CurrentUser,
-        },
-    );
+    const authorization = computed<AuthorizationContract>(() => {
+        return (
+            requestStore.pendingRequestData?.authorization ?? {
+                type: AuthorizationType.CurrentUser,
+            }
+        );
+    });
 
-    const selectedType = ref<AuthorizationType>(
-        authorization.value?.type ?? authorizationConfig.DEFAULT_TYPE,
-    );
+    const selectedType = computed<AuthorizationType>({
+        get: () => authorization.value.type,
+        set: newValue => {
+            if (newValue !== authorization.value.type) {
+                updateAuthorizationType(newValue);
+            }
+        },
+    });
 
     /*
      * Actions.
@@ -83,24 +93,42 @@ export function useRequestAuthorization(): {
      */
     const updateAuthorizationType = (newValue: AuthorizationType): void => {
         // Save current state before switching
-        if (authorization.value) {
-            authorizationStates.set(authorization.value.type, {
-                ...authorization.value,
-            });
-        }
+        authorizationStates.set(authorization.value.type, {
+            ...authorization.value,
+        });
 
         // Switch to new type and restore its previous state
         const savedState = authorizationStates.get(newValue);
-        const restoredAuth = savedState ? { ...savedState } : defaultAuthStates[newValue];
+        const restoredAuth = (
+            savedState ? { ...savedState } : defaultAuthStates[newValue]
+        ) as AuthorizationContract;
 
-        authorization.value = restoredAuth;
-        selectedType.value = newValue;
+        // Only update if actually different to prevent unnecessary store commits
+        if (
+            restoredAuth.type !== authorization.value.type ||
+            JSON.stringify(restoredAuth.value) !==
+                JSON.stringify(authorization.value.value)
+        ) {
+            requestStore.updateAuthorization(restoredAuth);
+        }
     };
 
     const updateCurrentAuthorizationValue = (
         newValue: string | number | { username: string; password: string },
     ) => {
-        authorization.value.value = newValue;
+        const currentAuth = requestStore.pendingRequestData?.authorization ?? {
+            type: AuthorizationType.CurrentUser,
+        };
+
+        // Prevent redundant updates
+        if (JSON.stringify(newValue) === JSON.stringify(currentAuth.value)) {
+            return;
+        }
+
+        requestStore.updateAuthorization({
+            ...currentAuth,
+            value: newValue,
+        } as AuthorizationContract);
     };
 
     /**
@@ -110,26 +138,15 @@ export function useRequestAuthorization(): {
      * for execution and updates the local state cache.
      */
     const saveAuthorizationToStore = (): void => {
-        if (!authorization.value) {
-            return;
-        }
-
         // Update local state cache
         authorizationStates.set(authorization.value.type, {
             ...authorization.value,
         });
-
-        // Save to request store
-        if (requestStore.pendingRequestData) {
-            requestStore.updateAuthorization(authorization.value);
-        }
     };
 
     /*
      * Watchers.
      */
-
-    watch(selectedType, updateAuthorizationType);
 
     watch(authorization, saveAuthorizationToStore, { deep: true });
 

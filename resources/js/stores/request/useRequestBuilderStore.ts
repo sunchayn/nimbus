@@ -1,9 +1,8 @@
 import type { AuthorizationContract } from '@/interfaces/auth/authorization';
 import { AuthorizationType } from '@/interfaces/generated';
-import type { PendingRequest, Request } from '@/interfaces/http';
-import { RequestBodyTypeEnum } from '@/interfaces/http';
+import type { PendingRequest, Request, RequestBodyTypeEnum } from '@/interfaces/http';
 import type { RouteDefinition } from '@/interfaces/routes/routes';
-import type { ParameterContract } from '@/interfaces/ui';
+import type { ParameterContract, ParameterType } from '@/interfaces/ui';
 import { useConfigStore, useSettingsStore } from '@/stores';
 import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
 import { defineStore } from 'pinia';
@@ -317,6 +316,76 @@ export const useRequestBuilderStore = defineStore(
             };
         };
 
+        /**
+         * Restores request state from a shareable link payload.
+         *
+         * This bypasses normal route initialization to directly restore
+         * all request data from the shared payload.
+         */
+        const restoreFromSharedPayload = (payload: {
+            method: string;
+            endpoint: string;
+            headers: Array<{
+                key: string;
+                value: string | number | boolean | null;
+            }>;
+            queryParameters: Array<{
+                key: string;
+                value: string;
+                type?: 'text' | 'file';
+            }>;
+            body: PendingRequest['body'];
+            payloadType: string;
+            authorization: {
+                type: string;
+                value?: string | number | { username: string; password: string };
+            };
+            durationInMs?: number;
+            wasExecuted?: boolean;
+        }) => {
+            const wasExecuted = payload.wasExecuted ?? payload.durationInMs !== undefined;
+
+            pendingRequestData.value = {
+                method: payload.method.toUpperCase(),
+                endpoint: payload.endpoint,
+                headers: payload.headers.map(header => ({
+                    key: header.key,
+                    value: String(header.value ?? ''),
+                    type: ParameterType.Text,
+                    enabled: true,
+                })),
+                body: payload.body,
+                payloadType: payload.payloadType as RequestBodyTypeEnum,
+                schema: {
+                    shape: {},
+                    extractionErrors: null,
+                },
+                queryParameters: payload.queryParameters.map(param => ({
+                    key: param.key,
+                    value: param.value,
+                    type: param.type === 'file' ? ParameterType.File : ParameterType.Text,
+                    enabled: true,
+                })),
+                authorization: {
+                    type: payload.authorization.type as AuthorizationType,
+                    value: payload.authorization.value,
+                } as AuthorizationContract,
+                supportedRoutes: [],
+                routeDefinition: {
+                    endpoint: payload.endpoint,
+                    method: payload.method.toUpperCase(),
+                    schema: {
+                        shape: {},
+                        extractionErrors: null,
+                    },
+                    shortEndpoint: payload.endpoint,
+                },
+                isProcessing: false,
+                wasExecuted,
+                durationInMs: payload.durationInMs ?? 0,
+            };
+        };
+
         return {
             // State
             pendingRequestData,
@@ -335,6 +404,7 @@ export const useRequestBuilderStore = defineStore(
             resetRequest,
             getRequestUrl,
             restoreFromHistory,
+            restoreFromSharedPayload,
         };
     },
     {

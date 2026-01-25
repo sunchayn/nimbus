@@ -8,6 +8,7 @@ import RequestBuilder from '@/components/domain/Client/Request/RequestBuilder.vu
 import ResponseViewer from '@/components/domain/Client/Response/ResponseViewer.vue';
 import RouteExtractorExceptionRenderer from '@/components/domain/Errors/RouteExtractorExceptionRenderer.vue';
 import RouteExplorer from '@/components/domain/RoutesExplorer/RouteExplorer.vue';
+import { useSharedStateRestoration } from '@/composables/request/useSharedStateRestoration';
 import { useResponsiveResizable } from '@/composables/ui/useResponsiveResizable';
 import type { RouteExtractorException } from '@/interfaces';
 import { useRoutesStore } from '@/stores';
@@ -23,6 +24,12 @@ defineOptions({
  */
 
 const routesStore = useRoutesStore();
+
+/*
+ * Shared state restoration (from shareable links).
+ */
+
+useSharedStateRestoration();
 
 /*
  * Lifecycle.
