@@ -2,7 +2,7 @@ import { authorizationConfig } from '@/config';
 import type { AuthorizationContract } from '@/interfaces/auth/authorization';
 import { AuthorizationType, type AuthorizationTypeItem } from '@/interfaces/generated';
 import { useRequestStore } from '@/stores';
-import { type DeepReadonly, type Ref, computed, readonly, ref, watch } from 'vue';
+import { type DeepReadonly, type Ref, computed, readonly, watch } from 'vue';
 
 /**
  * Default authorization states for each type

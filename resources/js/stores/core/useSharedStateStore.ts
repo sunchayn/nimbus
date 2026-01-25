@@ -5,7 +5,7 @@
  * state from shareable links.
  */
 
-import { SharedState } from '@/interfaces/share';
+import type { SharedState } from '@/interfaces/share';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 

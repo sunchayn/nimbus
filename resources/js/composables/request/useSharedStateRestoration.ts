@@ -17,6 +17,10 @@ import { useRequestBuilderStore } from '@/stores/request/useRequestBuilderStore'
 import { onMounted } from 'vue';
 import { toast } from 'vue-sonner';
 
+/*
+ * Helpers.
+ */
+
 /**
  * Maps header objects to ParameterContract format.
  */
@@ -166,11 +170,10 @@ function addSharedResponseToHistory(
 
 /**
  * Initializes shared state restoration on component mount.
- *
- * This should be called in the main page component to restore
- * request/response state from shareable links.
  */
-export function useSharedStateRestoration() {
+export function useSharedStateRestoration(): {
+    restoreSharedState: () => void;
+} {
     const sharedStateStore = useSharedStateStore();
     const requestBuilderStore = useRequestBuilderStore();
     const historyStore = useRequestsHistoryStore();

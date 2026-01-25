@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component ShareableLinkDialog
+ * @description A dialog component for displaying and copying shareable links.
+ */
 import { AppButton } from '@/components/base/button';
 import {
     AppDialog,
@@ -10,17 +14,33 @@ import {
 import { useClipboard } from '@vueuse/core';
 import { Check, Copy, Link2 } from 'lucide-vue-next';
 
+/*
+ * Types & Interfaces.
+ */
+
 interface ShareableLinkDialogProps {
     open: boolean;
     link: string;
 }
+
+/*
+ * Component Setup.
+ */
 
 const props = defineProps<ShareableLinkDialogProps>();
 const emits = defineEmits<{
     'update:open': [value: boolean];
 }>();
 
+/*
+ * State.
+ */
+
 const { copy, copied } = useClipboard();
+
+/*
+ * Actions.
+ */
 
 const copyLink = () => {
     copy(props.link);

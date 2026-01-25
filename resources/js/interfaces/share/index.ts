@@ -2,8 +2,8 @@
  * Interfaces for shareable links feature
  */
 
-import { RequestLog } from '@/interfaces/history/logs';
-import { STATUS } from '@/interfaces/http/status';
+import type { RequestLog } from '@/interfaces/history/logs';
+import type { STATUS } from '@/interfaces/http/status';
 
 /**
  * The payload structure stored in a shareable link.

@@ -1,10 +1,10 @@
 import { useRequestAuthorization } from '@/composables/request/useRequestAuthorization';
 import { AuthorizationType } from '@/interfaces/generated';
-import { createPinia, setActivePinia } from 'pinia';
 import { useRequestStore } from '@/stores';
 import { createTestingPinia } from '@pinia/testing';
+import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { reactive, nextTick } from 'vue';
+import { nextTick } from 'vue';
 
 /*
  * Fixtures.
@@ -72,7 +72,6 @@ describe('useRequestAuthorization', () => {
 
             // Act
 
-
             // Switch to Bearer
             updateAuthorizationType(AuthorizationType.Bearer);
             await nextTick();
@@ -87,7 +86,6 @@ describe('useRequestAuthorization', () => {
             });
 
             // Act
-
 
             // Switch to Basic
             updateAuthorizationType(AuthorizationType.Basic);

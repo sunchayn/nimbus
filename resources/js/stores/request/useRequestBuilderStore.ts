@@ -1,8 +1,10 @@
 import type { AuthorizationContract } from '@/interfaces/auth/authorization';
 import { AuthorizationType } from '@/interfaces/generated';
-import type { PendingRequest, Request, RequestBodyTypeEnum } from '@/interfaces/http';
+import type { PendingRequest, Request } from '@/interfaces/http';
+import { RequestBodyTypeEnum } from '@/interfaces/http';
 import type { RouteDefinition } from '@/interfaces/routes/routes';
-import type { ParameterContract, ParameterType } from '@/interfaces/ui';
+import type { ParameterContract } from '@/interfaces/ui';
+import { ParameterType } from '@/interfaces/ui';
 import { useConfigStore, useSettingsStore } from '@/stores';
 import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
 import { defineStore } from 'pinia';
@@ -308,9 +310,9 @@ export const useRequestBuilderStore = defineStore(
                 // Sync route definition and schema if matching route found
                 ...(matchingRoute
                     ? {
-                          routeDefinition: matchingRoute,
-                          schema: matchingRoute.schema,
-                      }
+                        routeDefinition: matchingRoute,
+                        schema: matchingRoute.schema,
+                    }
                     : {}),
                 wasExecuted: true,
             };
