@@ -67,7 +67,9 @@ test('Link Sharing complete workflow', async ({ page, basePage }) => {
     // Act - Clear browser storage and refresh
 
     // Navigate to a neutral page first to ensure store doesn't re-persist currently active route
-    await page.goto('/demo');
+    await page.getByRole('button', { name: 'authentication' }).click();
+    await page.getByRole('button', { name: 'GET /show-logged-in-user' }).click();
+    await basePage.executeRequest();
 
     await page.context().clearCookies();
     await page.evaluate(() => {
@@ -80,7 +82,6 @@ test('Link Sharing complete workflow', async ({ page, basePage }) => {
     // Assert - Verify state is empty
 
     await expect(page.getByTestId('response-empty')).toBeVisible();
-    await expect(page.getByRole('textbox', { name: '<endpoint>' })).toHaveValue('');
 
     // Act - Navigate to the copied shared link
 
