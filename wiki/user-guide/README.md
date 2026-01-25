@@ -28,6 +28,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
     - [Global Headers](#global-headers)
     - [Value Generators](#value-generators)
     - [Auto-Fill Payloads](#auto-fill-payloads)
+    - [Transaction Mode](#transaction-mode)
     - [Export to cURL](#export-to-curl)
     - [Shareable Links](#shareable-links)
 - [Configuration](#configuration)
@@ -332,13 +333,28 @@ Generate realistic values for headers and parameters on-demand.
 - Dates (various formats).
 - Phone numbers.
 - URLs.
+- URLs.
 - And more...
+
+### Transaction Mode
+
+Transaction Mode allows you to execute requests without affecting your database. This is particularly useful for testing destructive operations (like creating, updating, or deleting records) without having to manually clean up your test data.
+
+**How it works:**
+1. Click the **Request Options** (sparkles) icon in the endpoint bar.
+2. Toggle **Transaction Mode** to **ON**.
+3. Execute your request.
+4. Nimbus wraps the entire request in a database transaction and automatically rolls it back once the request is complete.
+
+![Transaction Mode](./assets/transaction-mode.png)
+
+**Note:** Only database operations are rolled back. External side effects like sending emails, making external API calls, or file system changes will still occur.
 
 ### Export to cURL
 
 Export configured requests as cURL commands for use in terminals or scripts.
 
-![Click on Export](./assets/click-on-export.png)
+![Export to curl](./assets/export-to-curl.png)
 
 **How to export:**
 1. Configure your request completely

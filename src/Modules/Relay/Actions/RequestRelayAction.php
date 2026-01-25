@@ -78,9 +78,16 @@ class RequestRelayAction
             $requestBody = [];
         }
 
+        $headers = $requestRelayData->headers;
+
+        // Add transaction mode header if enabled
+        if ($requestRelayData->transactionMode) {
+            $headers['x-nimbus-transaction-mode'] = '1';
+        }
+
         // SSL verification is disabled to support development environments with self-signed certificates.
         return Http::withoutVerifying()
-            ->withHeaders($requestRelayData->headers)
+            ->withHeaders($headers)
             ->withQueryParameters($queryParameters)
             ->when(
                 $requestBody !== [],

@@ -3,12 +3,14 @@
  * @component ResponseViewerResponse
  * @description Renders the successful response details, including body, headers, and cookies.
  */
+import { AppBadge } from '@/components/base/badge';
 import {
     AppTabs,
     AppTabsContent,
     AppTabsList,
     AppTabsTrigger,
 } from '@/components/base/tabs';
+import { AppTooltipWrapper } from '@/components/base/tooltip';
 import ResponseBody from '@/components/domain/Client/Response/ResponseBody/ResponseBody.vue';
 import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDumpAndDie.vue';
 import ResponseCookies from '@/components/domain/Client/Response/ResponseCookies/ResponseCookies.vue';
@@ -18,6 +20,7 @@ import { STATUS } from '@/interfaces/http';
 import { useRequestsHistoryStore, useRequestStore } from '@/stores';
 import { uniquePersistenceKey } from '@/utils/stores';
 import { useStorage } from '@vueuse/core';
+import { DatabaseBackupIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 /*
@@ -60,6 +63,10 @@ const {
 const lastLog = computed(() => historyStore.lastLog);
 const pendingRequestData = computed(() => requestStore.pendingRequestData);
 
+const showTransactionAlert = computed(() => {
+    return lastLog.value?.request.transactionMode;
+});
+
 const handleTabClick = (event: Event) => {
     scrollTabIntoView(event.currentTarget as HTMLElement);
 };
@@ -76,11 +83,11 @@ const handleTabClick = (event: Event) => {
             class="mt-0 flex h-full flex-col overflow-auto"
             @update:model-value="tab = $event as string"
         >
-            <div class="bg-subtle border-b">
-                <div class="relative">
+            <div class="bg-subtle flex items-center justify-between border-b">
+                <div class="relative min-w-0 flex-1">
                     <div
                         ref="scrollContainer"
-                        class="scrollbar-hide overflow-x-auto"
+                        class="scrollbar-hide flex items-center justify-between overflow-x-auto"
                         style="scrollbar-width: none; -ms-overflow-style: none"
                         @scroll="updateScrollMasks"
                     >
@@ -112,6 +119,20 @@ const handleTabClick = (event: Event) => {
                         v-show="showRightMask"
                         class="from-subtle via-subtle/80 pointer-events-none absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l to-transparent transition-opacity duration-200"
                     />
+                </div>
+
+                <div class="pr-panel">
+                    <AppTooltipWrapper
+                        v-if="showTransactionAlert"
+                        value="Changes were automatically rolled back for this request"
+                    >
+                        <div class="flex items-center">
+                            <AppBadge variant="outline" class="gap-1">
+                                <DatabaseBackupIcon class="size-3 min-w-3" />
+                                Transaction Mode
+                            </AppBadge>
+                        </div>
+                    </AppTooltipWrapper>
                 </div>
             </div>
             <AppTabsContent

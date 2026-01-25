@@ -141,9 +141,18 @@ export function useHttpClient(): UseHttpClientResult {
             const payload = createRelayPayload(request);
             const formData = convertPayloadToFormData(payload);
 
+            const headers: Record<string, string> = {
+                'Content-Type': 'multipart/form-data',
+            };
+
+            // Add transaction mode header if enabled
+            if (request.transactionMode) {
+                headers['X-Nimbus-Transaction-Mode'] = '1';
+            }
+
             axios
                 .post(url, formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
+                    headers,
                     // Prevent Axios from parsing JSON automatically as we are handling it manually.
                     transformResponse: response => response,
                     signal: abortController.value?.signal,

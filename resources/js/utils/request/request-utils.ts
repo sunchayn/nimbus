@@ -69,6 +69,7 @@ const pendingRequestToRequestLogEntry = function (request: PendingRequest): Requ
         payloadType: request.payloadType,
         authorization: { ...request.authorization },
         routeDefinition: { ...request.routeDefinition },
+        transactionMode: request.transactionMode,
     };
 };
 

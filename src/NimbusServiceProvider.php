@@ -2,6 +2,7 @@
 
 namespace Sunchayn\Nimbus;
 
+use Illuminate\Routing\Events\RouteMatched;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
@@ -42,7 +43,7 @@ class NimbusServiceProvider extends PackageServiceProvider
 
         $this->app->singleton(
             IgnoredRoutesService::class,
-            fn (): \Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService => new IgnoredRoutesService,
+            fn (): IgnoredRoutesService => new IgnoredRoutesService,
         );
     }
 
@@ -55,6 +56,19 @@ class NimbusServiceProvider extends PackageServiceProvider
         parent::boot();
 
         $this->tagAlongsideLaravelAssets();
+
+        // Handle transaction mode for requests
+        $this->app['events']->listen(RouteMatched::class, function (RouteMatched $event) {
+            if ($event->request->header('X-Nimbus-Transaction-Mode') === '1') {
+                app('db')->beginTransaction();
+
+                app()->terminating(function () {
+                    if (app('db')->transactionLevel() > 0) {
+                        app('db')->rollBack();
+                    }
+                });
+            }
+        });
     }
 
     /**

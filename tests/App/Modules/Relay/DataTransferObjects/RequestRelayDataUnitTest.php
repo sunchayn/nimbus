@@ -57,6 +57,7 @@ class RequestRelayDataUnitTest extends TestCase
             );
 
         $mockRequest->shouldReceive('getBody')->andReturn($body);
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturnNull();
 
         // Act
 
@@ -89,6 +90,48 @@ class RequestRelayDataUnitTest extends TestCase
             $expectedParameters,
             $result->queryParameters,
         );
+
+        $this->assertFalse($result->transactionMode);
+    }
+
+    public function test_it_extracts_transaction_mode_from_header(): void
+    {
+        // Arrange
+
+        $mockRequest = Mockery::mock(NimbusRelayRequest::class);
+
+        $mockRequest->shouldReceive('userAgent')->andReturn('::dummy_user_agent::');
+
+        $mockRequest->shouldReceive('host')->andReturn('::dummy_host::');
+
+        $mockRequest->cookies = new InputBag;
+
+        // Anticipate
+
+        $mockRequest
+            ->shouldReceive('validated')
+            ->andReturn(
+                [
+                    'method' => 'POST',
+                    'endpoint' => '/api/test',
+                    'authorization' => [
+                        'type' => AuthorizationTypeEnum::Bearer->value,
+                        'value' => 'foobar',
+                    ],
+                    'body' => [],
+                ],
+            );
+
+        $mockRequest->shouldReceive('getBody')->andReturn([]);
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturn('1');
+
+        // Act
+
+        $result = RequestRelayData::fromRelayApiRequest($mockRequest);
+
+        // Assert
+
+        $this->assertTrue($result->transactionMode);
     }
 
     public static function relayRequestDataDataProvider(): Generator

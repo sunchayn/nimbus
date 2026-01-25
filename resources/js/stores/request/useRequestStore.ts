@@ -67,6 +67,7 @@ export const useRequestStore = defineStore('request', () => {
         updateRequestBody: builderStore.updateRequestBody,
         updateQueryParameters: builderStore.updateQueryParameters,
         updateAuthorization: builderStore.updateAuthorization,
+        updateTransactionMode: builderStore.updateTransactionMode,
         getRequestUrl: builderStore.getRequestUrl,
         restoreFromHistory: builderStore.restoreFromHistory,
 

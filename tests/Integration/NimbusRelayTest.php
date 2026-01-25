@@ -250,4 +250,43 @@ class NimbusRelayTest extends TestCase
             'timestamp',
         ]);
     }
+
+    public function test_it_rolls_back_database_changes_when_transaction_mode_is_enabled(): void
+    {
+        // Arrange
+
+        // Create a test table for this test
+        app('db')->statement('CREATE TABLE IF NOT EXISTS test_users (id INTEGER PRIMARY KEY, name TEXT)');
+
+        Route::post('/test-transaction-rollback', function () {
+            app('db')->table('test_users')->insert(['name' => 'Test User']);
+
+            return response()->json(['message' => 'Users Count: ' . app('db')->table('test_users')->count()]);
+        })->name('test-transaction-rollback');
+
+        // Act
+
+        $response = $this->postJson(
+            route('test-transaction-rollback'),
+            [],
+            ['X-Nimbus-Transaction-Mode' => '1']
+        );
+
+        // Assert
+
+        $response->assertStatus(200);
+
+        $response->assertJson([
+            'message' => 'Users Count: 1',
+        ]);
+
+        // Verify the database change was rolled back
+        $userCount = app('db')->table('test_users')->count();
+
+        $this->assertEquals(0, $userCount, 'Database changes should be rolled back when transaction mode is enabled');
+
+        // Cleanup
+
+        app('db')->statement('DROP TABLE IF EXISTS test_users');
+    }
 }

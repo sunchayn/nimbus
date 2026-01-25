@@ -174,6 +174,7 @@ export const useRequestBuilderStore = defineStore(
                 isProcessing: false,
                 wasExecuted: false,
                 durationInMs: 0,
+                transactionMode: false,
             };
 
             // Ensure global headers are synced for the fresh request
@@ -256,6 +257,17 @@ export const useRequestBuilderStore = defineStore(
             }
 
             pendingRequestData.value.authorization = authorization;
+        };
+
+        /**
+         * Updates the transaction mode for the current request.
+         */
+        const updateTransactionMode = (transactionMode: boolean) => {
+            if (!pendingRequestData.value) {
+                return;
+            }
+
+            pendingRequestData.value.transactionMode = transactionMode;
         };
 
         /**
@@ -370,6 +382,7 @@ export const useRequestBuilderStore = defineStore(
                       }
                     : {}),
                 wasExecuted: true,
+                transactionMode: pendingRequestData.value.transactionMode ?? false,
             };
         };
 
@@ -440,6 +453,7 @@ export const useRequestBuilderStore = defineStore(
                 isProcessing: false,
                 wasExecuted,
                 durationInMs: payload.durationInMs ?? 0,
+                transactionMode: false,
             };
         };
 
@@ -476,6 +490,7 @@ export const useRequestBuilderStore = defineStore(
             updateRequestBody,
             updateQueryParameters,
             updateAuthorization,
+            updateTransactionMode,
             resetRequest,
             syncGlobalHeadersWhenApplicable,
             getRequestUrl,

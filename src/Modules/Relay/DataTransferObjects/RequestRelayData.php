@@ -24,6 +24,7 @@ readonly class RequestRelayData
         public array|string $body,
         public ParameterBag $cookies,
         public array $queryParameters = [],
+        public bool $transactionMode = false,
     ) {}
 
     public static function fromRelayApiRequest(NimbusRelayRequest $nimbusRelayRequest): self
@@ -58,6 +59,8 @@ readonly class RequestRelayData
             'queryParameters' => $queryParameters,
         ] = self::extractAndRemoveQueryParametersFromEndpoint($data['endpoint']);
 
+        $transactionMode = $nimbusRelayRequest->header('X-Nimbus-Transaction-Mode') === '1';
+
         return new self(
             method: strtolower($data['method']),
             endpoint: $endpoint,
@@ -71,6 +74,7 @@ readonly class RequestRelayData
             body: $nimbusRelayRequest->getBody(),
             cookies: $nimbusRelayRequest->cookies,
             queryParameters: $queryParameters,
+            transactionMode: $transactionMode,
         );
     }
 

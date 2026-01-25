@@ -103,6 +103,9 @@ export interface PendingRequest {
 
     /** Whether the request was executed at least once */
     wasExecuted?: boolean;
+
+    /** Whether to execute the request in transaction mode (rollback on completion) */
+    transactionMode?: boolean;
 }
 
 export interface Request {
@@ -114,4 +117,5 @@ export interface Request {
     payloadType: RequestBodyTypeEnum;
     authorization: AuthorizationContract;
     routeDefinition: RouteDefinition;
+    transactionMode?: boolean;
 }
