@@ -1,12 +1,18 @@
 import type { AuthorizationContract } from '@/interfaces/auth/authorization';
 import { AuthorizationType } from '@/interfaces/generated';
-import type { PendingRequest, Request } from '@/interfaces/http';
+import type {
+    GeneratorType,
+    PendingRequest,
+    Request,
+    SourceGlobalHeaders,
+} from '@/interfaces/http';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
 import type { RouteDefinition } from '@/interfaces/routes/routes';
 import type { ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui';
-import { useConfigStore, useSettingsStore } from '@/stores';
+import { useConfigStore, useSettingsStore, useValueGeneratorStore } from '@/stores';
 import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
+import { generateValueFromType } from '@/utils/value-generator/generateValueFromType';
 import { defineStore } from 'pinia';
 import type { Ref } from 'vue';
 import { computed, ref } from 'vue';
@@ -26,6 +32,7 @@ export const useRequestBuilderStore = defineStore(
 
         const settingsStore = useSettingsStore();
         const configStore = useConfigStore();
+        const valueGeneratorStore = useValueGeneratorStore();
 
         /*
          * State.
@@ -34,6 +41,12 @@ export const useRequestBuilderStore = defineStore(
         const pendingRequestData: Ref<PendingRequest | null> = ref<PendingRequest | null>(
             null,
         );
+
+        const activeApplication: Ref<string | null> = ref<string | null>(null);
+
+        const lastSyncedGlobalHeaders: Ref<ParameterContract[]> = ref<
+            ParameterContract[]
+        >([]);
 
         /*
          * Computed.
@@ -162,6 +175,9 @@ export const useRequestBuilderStore = defineStore(
                 wasExecuted: false,
                 durationInMs: 0,
             };
+
+            // Ensure global headers are synced for the fresh request
+            useCurrentApplicationGlobalHeaders();
         };
 
         /**
@@ -249,6 +265,45 @@ export const useRequestBuilderStore = defineStore(
             pendingRequestData.value = null;
         };
 
+        /**
+         * Re-synchronizes global headers when switching between applications.
+         *
+         * Removes headers that were previously injected as global and
+         * injects the new global headers from the current application.
+         */
+        const useCurrentApplicationGlobalHeaders = () => {
+            if (!pendingRequestData.value) {
+                return;
+            }
+
+            const previousGlobalHeaderKeys = lastSyncedGlobalHeaders.value.map(
+                header => header.key,
+            );
+
+            const filteredHeaders = pendingRequestData.value.headers.filter(
+                header => !previousGlobalHeaderKeys.includes(header.key),
+            );
+
+            const newGlobalHeaders = configStore.headers.map(
+                (globalHeader: SourceGlobalHeaders): ParameterContract => ({
+                    type: ParameterType.Text,
+                    key: globalHeader.header,
+                    value:
+                        globalHeader.type === 'generator'
+                            ? generateValueFromType(
+                                globalHeader.value as GeneratorType,
+                                valueGeneratorStore,
+                            )
+                            : String(globalHeader.value),
+                    enabled: true,
+                }),
+            );
+
+            pendingRequestData.value.headers = [...newGlobalHeaders, ...filteredHeaders];
+
+            lastSyncedGlobalHeaders.value = newGlobalHeaders;
+        };
+
         /*
          * Helper functions.
          */
@@ -310,9 +365,9 @@ export const useRequestBuilderStore = defineStore(
                 // Sync route definition and schema if matching route found
                 ...(matchingRoute
                     ? {
-                          routeDefinition: matchingRoute,
-                          schema: matchingRoute.schema,
-                      }
+                        routeDefinition: matchingRoute,
+                        schema: matchingRoute.schema,
+                    }
                     : {}),
                 wasExecuted: true,
             };
@@ -388,9 +443,27 @@ export const useRequestBuilderStore = defineStore(
             };
         };
 
+        /*
+         * Startup Logic.
+         */
+
+        const syncGlobalHeadersWhenApplicable = () => {
+            if (activeApplication.value === configStore.activeApplication) {
+                return;
+            }
+
+            useCurrentApplicationGlobalHeaders();
+
+            // Update the active application for the next time.
+            // It will be preserved because we persist the store state.
+            activeApplication.value = configStore.activeApplication;
+        };
+
         return {
             // State
             pendingRequestData,
+            activeApplication,
+            lastSyncedGlobalHeaders,
 
             // Computed
             hasActiveRequest,
@@ -404,12 +477,17 @@ export const useRequestBuilderStore = defineStore(
             updateQueryParameters,
             updateAuthorization,
             resetRequest,
+            syncGlobalHeadersWhenApplicable,
             getRequestUrl,
             restoreFromHistory,
             restoreFromSharedPayload,
         };
     },
     {
-        persist: true,
+        persist: {
+            afterHydrate: context => {
+                context.store.syncGlobalHeadersWhenApplicable();
+            },
+        },
     },
 );

@@ -5,10 +5,12 @@
  */
 import KeyValueParametersBuilder from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
-import { GeneratorType, type SourceGlobalHeaders } from '@/interfaces/http';
+import type { GeneratorType } from '@/interfaces/http';
+import { type SourceGlobalHeaders } from '@/interfaces/http';
 import { type ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
 import { useConfigStore, useRequestStore, useValueGeneratorStore } from '@/stores';
+import { generateValueFromType } from '@/utils/value-generator/generateValueFromType';
 import { computed, onBeforeMount, type Ref, ref } from 'vue';
 
 /*
@@ -42,19 +44,6 @@ const globalHeaders: Ref<ParameterContract[]> = ref([]);
  */
 
 const pendingRequestData = computed(() => requestStore.pendingRequestData);
-
-const generateValue = (value: GeneratorType): string => {
-    switch (value) {
-        case GeneratorType.Uuid:
-            return valueGeneratorStore.generateValue('uuid') as string;
-        case GeneratorType.Email:
-            return valueGeneratorStore.generateValue('email') as string;
-        case GeneratorType.String:
-            return valueGeneratorStore.generateValue('word') as string;
-        default:
-            return valueGeneratorStore.generateValue('word') as string;
-    }
-};
 
 const syncHeadersWithPendingRequest = (headers: ParameterContract[]) => {
     requestStore.updateRequestHeaders(headers);
@@ -91,7 +80,10 @@ onBeforeMount(() => {
             key: globalHeader.header,
             value:
                 globalHeader.type === 'generator'
-                    ? generateValue(globalHeader.value as GeneratorType)
+                    ? generateValueFromType(
+                          globalHeader.value as GeneratorType,
+                          valueGeneratorStore,
+                      )
                     : String(globalHeader.value),
             enabled: true,
         }),

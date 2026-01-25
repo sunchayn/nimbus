@@ -112,4 +112,20 @@ export class BasePage {
     async searchHistory(query: string) {
         await this.page.getByTestId('history-search-input').fill(query);
     }
+
+    async switchApplication(applicationKey: string) {
+        await this.page.goto(`/demo?application=${applicationKey}`);
+        await this.page.waitForLoadState('networkidle');
+    }
+
+    async getHeaderCount() {
+        return await this.page.getByTestId('request-headers').getByTestId('kv-key').count();
+    }
+
+    async getHeaderAt(index: number) {
+        const headerKey = this.page.getByTestId('request-headers').getByTestId('kv-key').nth(index);
+        const headerValue = this.page.getByTestId('request-headers').getByTestId('kv-value').nth(index);
+
+        return { headerKey, headerValue };
+    }
 }

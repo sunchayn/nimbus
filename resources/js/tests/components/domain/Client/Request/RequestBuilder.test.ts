@@ -49,6 +49,9 @@ describe('RequestBuilder', () => {
     beforeEach(() => {
         setActivePinia(createPinia());
         vi.clearAllMocks();
+
+        // Mock scrollTo for JSDOM environment
+        Element.prototype.scrollTo = vi.fn();
     });
 
     /*
