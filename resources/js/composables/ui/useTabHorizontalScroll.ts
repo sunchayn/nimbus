@@ -9,15 +9,15 @@ import {
 import type { ScrollBounds } from '@/utils/scroll/tab-scroll-utils';
 import { useDebounceFn } from '@vueuse/core';
 import {
-    type ComputedRef,
-    type DeepReadonly,
-    type Ref,
     computed,
     nextTick,
     onMounted,
     onUnmounted,
     readonly,
     ref,
+    type ComputedRef,
+    type DeepReadonly,
+    type Ref,
 } from 'vue';
 
 export interface UseTabHorizontalScrollResult {
@@ -83,9 +83,7 @@ export function useTabHorizontalScroll(
      */
 
     /**
-     * Updates gradient mask visibility based on scroll position
-     *
-     * Uses debounced updates for better performance during scroll events.
+     * Updates gradient mask visibility based on scroll position.
      */
     const updateScrollMasks = () => {
         if (!scrollContainer.value) {
@@ -100,15 +98,11 @@ export function useTabHorizontalScroll(
         savedScrollPosition.value = bounds.current;
     };
 
-    /**
-     * Debounced version of updateScrollMasks for scroll events
-     */
+
     const debouncedUpdateMasks = useDebounceFn(updateScrollMasks, debounceDelay);
 
     /**
-     * Scrolls a tab button into view, accounting for gradient masks
-     *
-     * Uses extracted calculation utilities for cleaner logic and better maintainability.
+     * Scrolls a tab button into view, accounting for gradient masks.
      */
     const scrollTabIntoView = (buttonElement: HTMLElement) => {
         if (!scrollContainer.value) {
@@ -142,7 +136,7 @@ export function useTabHorizontalScroll(
     };
 
     /**
-     * Restores the previously saved scroll position when menu reopens
+     * Restores the previously saved scroll position.
      */
     const restoreScrollPosition = async () => {
         await nextTick();
@@ -155,7 +149,7 @@ export function useTabHorizontalScroll(
     };
 
     /**
-     * Sets up scroll event listeners
+     * Sets up scroll event listeners.
      */
     const setupScrollListeners = () => {
         if (!scrollContainer.value) {
