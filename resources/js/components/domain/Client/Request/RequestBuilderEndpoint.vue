@@ -182,7 +182,9 @@ const openShareableLinkDialog = () => {
 
 <template>
     <div :class="cn('flex', props.class)" data-testid="request-builder-endpoint">
-        <AppSelect v-model="method">
+        <AppSelect
+            v-model="method"
+        >
             <AppSelectTrigger
                 variant="toolbar"
                 class="h-full w-[95px] border-r pr-1.5 pl-5 text-xs"
@@ -191,7 +193,7 @@ const openShareableLinkDialog = () => {
                     {{ method || 'Select a Method' }}
                 </AppSelectValue>
             </AppSelectTrigger>
-            <AppSelectContent>
+            <AppSelectContent :alignOffset="2">
                 <AppSelectGroup v-if="currentRouteSupportedMethods.length">
                     <AppSelectLabel>Supported</AppSelectLabel>
                     <AppSelectItem
