@@ -58,11 +58,11 @@ class NimbusServiceProvider extends PackageServiceProvider
         $this->tagAlongsideLaravelAssets();
 
         // Handle transaction mode for requests
-        $this->app->get('events')->listen(RouteMatched::class, function (RouteMatched $event) {
-            if ($event->request->header('X-Nimbus-Transaction-Mode') === '1') {
+        $this->app->get('events')->listen(RouteMatched::class, function (RouteMatched $routeMatched): void {
+            if ($routeMatched->request->header('X-Nimbus-Transaction-Mode') === '1') {
                 app('db')->beginTransaction();
 
-                app()->terminating(function () {
+                app()->terminating(function (): void {
                     if (app('db')->transactionLevel() > 0) {
                         app('db')->rollBack();
                     }
