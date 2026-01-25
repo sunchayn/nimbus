@@ -19,6 +19,7 @@ import {
     AppSelectGroup,
     AppSelectItem,
     AppSelectLabel,
+    AppSelectSeparator,
     AppSelectTrigger,
     AppSelectValue,
 } from '@/components/base/select';
@@ -202,9 +203,10 @@ const openShareableLinkDialog = () => {
                     </AppSelectItem>
                 </AppSelectGroup>
                 <AppSelectGroup v-if="currentRouteUnsupportedMethods.length !== 0">
-                    <AppSelectLabel v-if="currentRouteSupportedMethods.length">
-                        Other
-                    </AppSelectLabel>
+                    <template v-if="currentRouteSupportedMethods.length">
+                        <AppSelectSeparator />
+                        <AppSelectLabel>Other</AppSelectLabel>
+                    </template>
                     <AppSelectItem
                         v-for="unsupportedMethod in currentRouteUnsupportedMethods"
                         :key="unsupportedMethod"

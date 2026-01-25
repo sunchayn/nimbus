@@ -23,7 +23,7 @@ const props = defineProps<AppSelectLabelProps>();
 </script>
 
 <template>
-    <SelectLabel :class="cn('px-2 py-1.5 text-sm font-semibold', props.class)">
+    <SelectLabel :class="cn('p-1 text-xs font-semibold', props.class)">
         <slot />
     </SelectLabel>
 </template>

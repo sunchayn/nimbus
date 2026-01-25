@@ -65,7 +65,7 @@ const handleApplicationChange = (applicationKey: AcceptableValue) => {
             </AppSelectTrigger>
             <AppSelectContent>
                 <AppSelectGroup>
-                    <AppSelectLabel>Available Applications</AppSelectLabel>
+                    <AppSelectLabel>Applications</AppSelectLabel>
                     <AppSelectItem
                         v-for="(name, key) in configStore.applications"
                         :key="key"
