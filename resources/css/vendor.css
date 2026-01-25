@@ -1,1 +1,114 @@
 @import 'vue-sonner/style.css';
+
+@layer components {
+    .cm-focused {
+        outline: none !important;
+    }
+
+    .cm-tooltip {
+        background-color: var(--color-background) !important;
+        border-color: var(--color-border) !important;
+    }
+
+    .gw {
+        position: fixed;
+        will-change: contents, height, width;
+    }
+
+    .gw-glitched {
+        @apply text-gray-500;
+    }
+
+    .cm-gutters {
+        background-color: var(--color-subtle) !important;
+        border-color: var(--color-border) !important;
+    }
+
+    .cm-activeLineGutter,
+    .cm-activeLine {
+        background-color: var(--color-accent) !important;
+    }
+
+    .cm-line span {
+        color: var(--color-subtle-foreground) !important;
+    }
+
+    .cm-tooltip-lint {
+        background-color: var(--color-popover) !important;
+        border: 1px solid var(--color-border) !important;
+        box-shadow: var(--shadow-lg) !important;
+        overflow: hidden !important;
+        transform: translateY(5px);
+    }
+
+    .cm-diagnosticText {
+        color: var(--color-foreground) !important;
+        & code {
+            font-family: inherit !important;
+            font-weight: 600 !important;
+        }
+    }
+
+    .cm-diagnosticSource {
+        color: var(--color-foreground) !important;
+    }
+
+    .cm-lint-tooltip-item {
+        padding: 4px 8px !important;
+        border-bottom: 1px solid var(--color-border) !important;
+    }
+
+    .cm-lint-tooltip-item:last-child {
+        border-bottom: none !important;
+    }
+
+    .cm-diagnostic {
+        font-size: 0.75rem !important;
+        line-height: calc(1 / 0.75) !important;
+        color: var(--color-popover-foreground) !important;
+    }
+
+    .cm-diagnostic-error {
+        border-left: inherit !important;
+        --mixed-color: color-mix(in oklab, var(--color-destructive) 10%, var(--color-popover) 100%);
+        background: linear-gradient(to right, var(--mixed-color), var(--color-popover) 80%, var(--color-popover)) !important;
+    }
+
+    .dark .cm-diagnostic-error {
+        --mixed-color: color-mix(in oklab, var(--color-destructive) 40%, var(--color-popover) 100%);
+    }
+
+    .cm-diagnostic-warning {
+        border-left: inherit !important;
+        --mixed-color: color-mix(in oklab, var(--color-warning) 10%, var(--color-popover) 100%);
+        background: linear-gradient(to right, var(--mixed-color), var(--color-popover) 80%, var(--color-popover)) !important;
+    }
+
+    .dark .cm-diagnostic-error {
+        --mixed-color: color-mix(in oklab, var(--color-warning) 30%, var(--color-popover) 100%);
+    }
+
+    .cm-gutterElement {
+        font-size: var(--text-xs) !important;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cm-lint-marker {
+        width: 0.8em !important;
+        height: 0.8em !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .cm-lint-marker-error {
+        content: url("data:image/svg+xml,%3Csvg%20width%3D%228%22%20height%3D%228%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cdefs%3E%3CradialGradient%20id%3D%22roseBall%22%20cx%3D%2230%25%22%20cy%3D%2230%25%22%20r%3D%2250%25%22%3E%3Cstop%20offset%3D%220%25%22%20style%3D%22stop-color%3A%20oklch(0.9%200.12%2016.44)%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20style%3D%22stop-color%3A%20oklch(0.645%200.246%2016.44)%22%2F%3E%3C%2FradialGradient%3E%3C%2Fdefs%3E%3Ccircle%20cx%3D%224%22%20cy%3D%224%22%20r%3D%223.5%22%20fill%3D%22url(%23roseBall)%22%20%2F%3E%3C%2Fsvg%3E") !important;;
+    }
+
+    .cm-lint-marker-warning {
+        color: var(--color-warning);
+        font-size: 0.75rem;
+    }
+}

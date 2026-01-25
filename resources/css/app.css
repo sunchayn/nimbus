@@ -31,40 +31,6 @@
     }
 }
 
-@layer components {
-    .cm-focused {
-        outline: none !important;
-    }
-
-    .cm-tooltip {
-        background-color: var(--color-background) !important;
-        border-color: var(--color-border) !important;
-    }
-
-    .gw {
-        position: fixed;
-        will-change: contents, height, width;
-    }
-
-    .gw-glitched {
-        @apply text-gray-500;
-    }
-
-    .cm-gutters {
-        background-color: var(--color-subtle) !important;
-        border-color: var(--color-border) !important;
-    }
-
-    .cm-activeLineGutter,
-    .cm-activeLine {
-        background-color: var(--color-accent) !important;
-    }
-
-    .cm-line span {
-        color: var(--color-subtle-foreground) !important;
-    }
-}
-
 @layer utilities {
     /*
      * Height utilities.
