@@ -73,6 +73,7 @@ class CurrentUserAuthorizationHandler implements AuthorizationHandler
 
     /**
      * Attempt to retrieve the authenticated user from the Laravel session cookie.
+     *
      * @throws InvalidAuthorizationValueException
      */
     private function getUserFromSession(): ?Authenticatable

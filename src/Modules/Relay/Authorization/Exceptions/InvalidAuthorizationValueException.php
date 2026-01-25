@@ -41,7 +41,7 @@ class InvalidAuthorizationValueException extends RuntimeException
     public static function becauseCookieIsNotDecryptable(): self
     {
         return new self(
-            message: "The Current User remember me cookie is corrupt. Reload the page, or pick a different authorization method.",
+            message: 'The Current User remember me cookie is corrupt. Reload the page, or pick a different authorization method.',
             code: self::REMEMBER_ME_COOKIE_IS_CORRUPT,
         );
     }

@@ -125,7 +125,7 @@ class CurrentUserAuthorizationHandlerFunctionalTest extends TestCase
         $sessionCookieName = config('session.cookie');
 
         // Create encrypted session cookie value
-        $cookieValue = $encrypter->encrypt($sessionId . '|' . $sessionId, serialize: false);
+        $cookieValue = $encrypter->encrypt($sessionId.'|'.$sessionId, serialize: false);
 
         $relayRequest = Request::create('ping');
         $relayRequest->cookies->set($sessionCookieName, $cookieValue);
@@ -246,7 +246,7 @@ class CurrentUserAuthorizationHandlerFunctionalTest extends TestCase
         $sessionId = fake()->uuid();
         $sessionCookieName = config('session.cookie');
 
-        $cookieValue = $encrypter->encrypt($sessionId . '|' . $sessionId, serialize: false);
+        $cookieValue = $encrypter->encrypt($sessionId.'|'.$sessionId, serialize: false);
 
         $relayRequest = Request::create('ping');
         $relayRequest->cookies->set($sessionCookieName, $cookieValue);
