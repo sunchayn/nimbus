@@ -171,7 +171,9 @@ export function useHttpClient(): UseHttpClientResult {
                         let responseMessage = error.message;
 
                         try {
-                            responseMessage = JSON.parse(error.response.data as string).message ?? error.message;
+                            responseMessage =
+                                JSON.parse(error.response.data as string).message ??
+                                error.message;
                         } catch (e) {
                             console.error(e);
                         }
