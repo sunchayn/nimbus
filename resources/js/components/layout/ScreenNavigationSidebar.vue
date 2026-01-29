@@ -15,13 +15,7 @@ import {
     AppSidebarMenuItem,
     type SidebarProps,
 } from '@/components/base/sidebar';
-import {
-    BookOpenIcon,
-    GithubIcon,
-
-    SettingsIcon,
-    TerminalIcon,
-} from 'lucide-vue-next';
+import { BookOpenIcon, GithubIcon, SettingsIcon, TerminalIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 

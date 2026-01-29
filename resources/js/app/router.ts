@@ -13,8 +13,6 @@ const routes = [
         name: 'settings',
     },
 
-
-
     /*
      * Catch-all Route for 404 Handling.
      *
