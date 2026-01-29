@@ -23,6 +23,7 @@ use Sunchayn\Nimbus\Tests\App\Modules\Routes\Factories\Stubs\RequestStub;
 
 #[CoversClass(ExtractableRouteFactory::class)]
 #[CoversClass(InvalidRouteDefinitionException::class)]
+#[CoversClass(RouteExtractionException::class)]
 class ExtractableRouteFactoryUnitTest extends TestCase
 {
     private ExtractableRouteFactory $factory;

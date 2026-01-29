@@ -9,8 +9,12 @@ import {
 } from '@/components/domain/Client/Request';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import { useRequestBody } from '@/composables/request/useRequestBody';
+import { useRequestStore, useRoutesStore } from '@/stores';
+import { computed } from 'vue';
+import ImplementationMissingWarning from './Hints/ImplementationMissingWarning.vue';
+import RouteAbsentInPrimarySourceInfo from './Hints/MissingRouteInPrimarySourceInfo.vue';
+import RouteExtractionError from './Hints/RouteExtractionError.vue';
 import RequestBodyContent from './RequestBodyContent.vue';
-import RequestBodyErrorDisplay from './RequestBodyErrorDisplay.vue';
 
 /*
  * Types & Interfaces.
@@ -25,11 +29,46 @@ export interface AppRequestBodyProps {}
 defineProps<AppRequestBodyProps>();
 
 /*
+ * Stores & dependencies.
+ */
+
+const requestStore = useRequestStore();
+const routesStore = useRoutesStore();
+
+/*
  * Composables.
  */
 
 const { payloadType, payload, pendingRequestData, supportsAutoFill, autofill, types } =
     useRequestBody();
+
+/*
+ * Computed & Methods.
+ */
+
+const currentRoute = computed(() => requestStore.pendingRequestData?.routeDefinition);
+
+const isImplementationMissing = computed(() => {
+    if (!currentRoute.value) {
+        return false;
+    }
+
+    return routesStore.isMissingImplementation(currentRoute.value);
+});
+
+const showPrimarySourceRouteImplementationMissingWarning = computed(() => {
+    return isImplementationMissing.value;
+});
+
+const showRouteAbsentInPrimaryProcessorInfo = computed(function () {
+    const route = requestStore.pendingRequestData?.routeDefinition;
+
+    if (!route) {
+        return false;
+    }
+
+    return routesStore.isUndocumented(route);
+});
 </script>
 
 <template>
@@ -44,7 +83,13 @@ const { payloadType, payload, pendingRequestData, supportsAutoFill, autofill, ty
             </template>
         </PanelSubHeader>
 
-        <RequestBodyErrorDisplay
+        <ImplementationMissingWarning
+            v-if="showPrimarySourceRouteImplementationMissingWarning"
+        />
+
+        <RouteAbsentInPrimarySourceInfo v-if="showRouteAbsentInPrimaryProcessorInfo" />
+
+        <RouteExtractionError
             v-if="pendingRequestData?.schema?.extractionErrors != null"
             :extraction-error="pendingRequestData?.schema?.extractionErrors"
         />

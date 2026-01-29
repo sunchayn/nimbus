@@ -73,6 +73,10 @@ describe('shareableLinks', () => {
                     method: 'GET',
                     schema: { shape: {}, extractionErrors: null },
                     shortEndpoint: '/health',
+                    metadata: {
+                        isMissingImplementation: false,
+                        isUndocumented: false,
+                    },
                 },
             };
 

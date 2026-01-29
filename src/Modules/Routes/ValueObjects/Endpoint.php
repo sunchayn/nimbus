@@ -12,9 +12,10 @@ readonly class Endpoint
         public string $version,
         public string $resource,
         public string $value,
+        public ?string $shortUriOverride = null,
     ) {}
 
-    public static function fromRaw(string $uri, string $routesPrefix, bool $isVersioned): self
+    public static function fromRaw(string $uri, string $routesPrefix, bool $isVersioned, ?string $shortUriOverride = null): self
     {
         $uriObject = $isVersioned
             ? new VersionedUri($uri, routesPrefix: $routesPrefix)
@@ -24,11 +25,16 @@ readonly class Endpoint
             version: $uriObject->getVersion(),
             resource: $uriObject->getResource(),
             value: $uri,
+            shortUriOverride: $shortUriOverride,
         );
     }
 
     public function getShortUri(): string
     {
+        if ($this->shortUriOverride !== null) {
+            return $this->shortUriOverride;
+        }
+
         if ($this->resource === '') {
             throw new RuntimeException('Invalid ValueObject. The resource cannot be empty.');
         }

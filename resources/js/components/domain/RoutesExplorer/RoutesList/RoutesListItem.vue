@@ -6,6 +6,8 @@
 import { AppSidebarMenuButton } from '@/components/base/sidebar';
 import HttpVerbLabel from '@/components/domain/HttpVerbLabel/HttpVerbLabel.vue';
 import { type RouteDefinition } from '@/interfaces/routes/routes';
+import { useConfigStore, useRoutesStore } from '@/stores';
+import { AlertTriangleIcon, InfoIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 /*
@@ -33,6 +35,9 @@ const props = withDefaults(defineProps<AppRoutesListItemProps>(), {
 });
 
 const emit = defineEmits<AppRoutesListItemEmits>();
+
+const routesStore = useRoutesStore();
+const configStore = useConfigStore();
 
 /*
  * Computed & Methods.
@@ -62,6 +67,16 @@ const endpointsSegments = computed(() => {
     });
 });
 
+const showOperationId = computed(
+    () => configStore.showOperationId && props.route.metadata?.operationId,
+);
+
+const showUndocumented = computed(() => routesStore.isUndocumented(props.route));
+
+const showMissingImplementation = computed(() =>
+    routesStore.isMissingImplementation(props.route),
+);
+
 const handleClick = () => {
     if (props.onClick) {
         props.onClick();
@@ -78,13 +93,24 @@ const handleClick = () => {
         @click="handleClick"
     >
         <HttpVerbLabel :method="route.method" />
-        <span class="whitespace-nowrap">
-            <template v-for="(segment, index) in endpointsSegments" :key="index">
+        <span class="flex-1 whitespace-nowrap">
+            <template v-if="showOperationId">
+                {{ route.metadata?.operationId }}
+            </template>
+            <template v-for="(segment, index) in endpointsSegments" v-else :key="index">
                 <span v-if="!segment.isRouteVariable">{{ segment.value }}</span>
                 <span v-else>
                     <span class="text-subtle-foreground">{{ segment.value }}</span>
                 </span>
             </template>
+        </span>
+
+        <span v-if="showUndocumented" class="justify-self-end">
+            <InfoIcon class="size-3" />
+        </span>
+
+        <span v-if="showMissingImplementation" class="justify-self-end text-amber-500">
+            <AlertTriangleIcon class="size-3" />
         </span>
     </AppSidebarMenuButton>
 </template>

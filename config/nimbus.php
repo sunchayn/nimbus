@@ -66,6 +66,71 @@ return [
             */
 
             'routes' => [
+                /*
+                |--------------------------------------------------------------------------
+                | Route Extraction Strategy
+                |--------------------------------------------------------------------------
+                |
+                | Defines how Nimbus discovers and extracts routes for the application.
+                | Available strategies:
+                |   - 'AutoDetect': Automatically extract routes from Laravel's route
+                |                    registry (default). This is the recommended option
+                |                    for most applications.
+                |   - 'OpenAPI':     Load routes from OpenAPI specification files. This
+                |                    requires the 'devizzent/cebe-php-openapi' package to be installed.
+                |
+                */
+
+                'strategy' => \Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum::AutoDetect,
+
+                /*
+                |--------------------------------------------------------------------------
+                | OpenAPI Configuration
+                |--------------------------------------------------------------------------
+                |
+                | This section contains settings specific to the 'OpenAPI' route
+                | extraction strategy. It is only required if the 'strategy' above
+                | is set to RoutesProcessingStrategyEnum::OpenAPI.
+                |
+                */
+
+                'openapi' => [
+                    /*
+                    |--------------------------------------------------------------------------
+                    | OpenAPI Specification Files
+                    |--------------------------------------------------------------------------
+                    |
+                    | Maps version identifiers to OpenAPI specification file paths.
+                    |
+                    | Example:
+                    | 'files' => [
+                    |     'v1' => base_path('docs/openapi-v1.yaml'),
+                    |     'v2' => base_path('docs/openapi-v2.json'),
+                    | ],
+                    |
+                    | For non-versioned APIs, use any key (e.g., 'default'):
+                    | 'files' => [
+                    |     'default' => base_path('docs/openapi.yaml'),
+                    | ],
+                    |
+                    */
+
+                    'files' => [
+                        // 'v1' => base_path('docs/openapi-v1.yaml'),
+                    ],
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Show Operation ID
+                    |--------------------------------------------------------------------------
+                    |
+                    | If enabled, Nimbus will display the Operation ID from the OpenAPI
+                    | specification instead of the short endpoint URI in the sidebar.
+                    |
+                    */
+
+                    'show_operation_id' => false,
+                ],
 
                 /*
                 |--------------------------------------------------------------------------

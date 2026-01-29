@@ -6,3 +6,6 @@
  */
 
 export * from './authorization-types';
+export * from './dump-value-types';
+export * from './global-request-types';
+export * from './routes-processing-strategies';

@@ -1,3 +1,7 @@
+import type { ExceptionData } from '@/interfaces/common/exceptions';
+
+export type { ExceptionPrevious, GlobalException } from '@/interfaces/common/exceptions';
+
 export type RouteExtractorException = {
     exception: ExceptionData;
     routeContext: ExceptionRouteContext;
@@ -10,16 +14,4 @@ export interface ExceptionRouteContext {
     methods?: string[];
     controllerClass?: string;
     controllerMethod?: string;
-}
-
-export interface ExceptionPrevious {
-    message: string;
-    file?: string;
-    line?: number;
-    trace?: string;
-}
-
-export interface ExceptionData {
-    message: string;
-    previous?: ExceptionPrevious | null;
 }

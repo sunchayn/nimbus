@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
- * @component RequestBodyErrorDisplay
- * @description Displays a banner alerting the user about schema extraction errors in the request body.
+ * @component RouteExtractionError
+ * @description Displays a banner alerting the user about schema extraction errors.
  */
-import SchemaExtractionErrorButton from '@/components/domain/Client/Errors/SchemaExtractionErrorButton.vue';
+import SchemaExtractionErrorButton from '@/components/domain/Client/Request/RequestBody/Hints/SchemaExtractionErrorButton.vue';
 import { TriangleAlertIcon } from 'lucide-vue-next';
 
 /*
@@ -23,13 +23,13 @@ const props = defineProps<AppRequestBodyErrorDisplayProps>();
 
 <template>
     <div
-        class="px-panel from-destructive/10 dark:from-destructive/15 flex items-center justify-between border-b bg-gradient-to-tr to-transparent to-50% py-1"
+        class="px-panel from-destructive/5 dark:from-destructive/15 flex items-center justify-between border-b bg-gradient-to-tr to-transparent to-50% py-0.5"
     >
-        <div class="flex items-start gap-2 text-xs">
+        <div class="flex items-center gap-2 text-xs">
             <div class="px-1 py-2">
                 <TriangleAlertIcon class="text-destructive size-4" />
             </div>
-            <div>
+            <div class="leading-3.5">
                 <span class="flex items-center gap-1 font-bold">Extraction Error</span>
                 <p class="text-subtle-foreground mb-0">
                     It wasn't possible to fully extract the shape of this route, there was

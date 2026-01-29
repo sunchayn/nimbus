@@ -23,7 +23,7 @@ use Throwable;
  * Filters routes by prefix, excludes ignored routes, and transforms each
  * route into a structured configuration with extracted validation schemas.
  */
-class ExtractRoutesAction
+class ExtractApplicationRoutesAction
 {
     public function __construct(
         protected SchemaExtractor $schemaExtractor,

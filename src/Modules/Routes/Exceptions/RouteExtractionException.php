@@ -2,10 +2,11 @@
 
 namespace Sunchayn\Nimbus\Modules\Routes\Exceptions;
 
+use Illuminate\Support\Str;
 use RuntimeException;
 use Throwable;
 
-abstract class RouteExtractionException extends RuntimeException
+abstract class RouteExtractionException extends RuntimeException implements RoutesProcessingException
 {
     private readonly string $controllerClass;
 
@@ -58,6 +59,34 @@ abstract class RouteExtractionException extends RuntimeException
             'methods' => $this->routeMethods,
             'controllerClass' => $this->controllerClass,
             'controllerMethod' => $this->controllerMethod,
+        ];
+    }
+
+    public function getFrontEndIdentifier(): string
+    {
+        return 'routeExtractorException';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        $previous = $this->getPrevious();
+
+        return [
+            'exception' => [
+                'message' => $this->getMessage(),
+                'previous' => $previous instanceof Throwable ? [
+                    'message' => $previous->getMessage(),
+                    'file' => $previous->getFile(),
+                    'line' => $previous->getLine(),
+                    'trace' => Str::replace("\n", '<br/>', $previous->getTraceAsString()),
+                ] : null,
+            ],
+            'routeContext' => $this->getRouteContext(),
+            'suggestedSolution' => $this->getSuggestedSolution(),
+            'ignoreData' => $this->getIgnoreData(),
         ];
     }
 }

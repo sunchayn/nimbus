@@ -7,7 +7,7 @@ import RoutesListItem from '@/components/domain/RoutesExplorer/RoutesList/Routes
 import RoutesResource from '@/components/domain/RoutesExplorer/RoutesResourceGroup.vue';
 import { type RouteDefinition, type RoutesGroup } from '@/interfaces/routes/routes';
 import { useRequestStore } from '@/stores';
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 
 /*
  * Types & Interfaces.
@@ -15,7 +15,6 @@ import { computed } from 'vue';
 
 export interface AppRoutesListProps {
     routes: RoutesGroup[];
-    filteringEnabled: boolean;
 }
 
 /*
@@ -62,6 +61,8 @@ const setPendingRequest = (route: RouteDefinition, resourceGroup: RoutesGroup) =
 
     requestStore.initializeRequest(route, availableRoutesForEndpoint);
 };
+
+const showingSearchResults = inject('showingSearchResults');
 </script>
 
 <template>
@@ -81,7 +82,7 @@ const setPendingRequest = (route: RouteDefinition, resourceGroup: RoutesGroup) =
             />
         </RoutesResource>
     </template>
-    <template v-else-if="!filteringEnabled">
+    <template v-else-if="!showingSearchResults">
         <div class="px-2">
             <p class="mb-2 text-xs">
                 No routes have been detected. Make sure to check the Wiki in case of

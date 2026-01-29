@@ -22,6 +22,7 @@ class GenerateIntellisenseCommand extends SymfonyCommand
         IntellisenseProviders\AuthorizationTypeIntellisense::class,
         IntellisenseProviders\RandomValueGeneratorIntellisense::class,
         IntellisenseProviders\DumpValueTypeIntellisense::class,
+        IntellisenseProviders\RoutesProcessingStrategyIntellisense::class,
     ];
 
     const TARGET_BASE_PATH = '/resources/js/interfaces/generated/';

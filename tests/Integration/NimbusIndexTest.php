@@ -8,13 +8,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Http\Web\Controllers\NimbusIndexController;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
+use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Export\Services\ShareableLinkProcessorService;
 use Sunchayn\Nimbus\Modules\Routes\Actions\BuildCurrentUserAction;
 use Sunchayn\Nimbus\Modules\Routes\Actions\BuildGlobalHeadersAction;
 use Sunchayn\Nimbus\Modules\Routes\Actions\DisableThirdPartyUiAction;
-use Sunchayn\Nimbus\Modules\Routes\Actions\ExtractRoutesAction;
+use Sunchayn\Nimbus\Modules\Routes\Actions\ExtractApplicationRoutesAction;
 use Sunchayn\Nimbus\Modules\Routes\Collections\ExtractedRoutesCollection;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionException;
+use Sunchayn\Nimbus\Modules\Routes\RoutesProcessors\Strategies\RoutesProcessorContract;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
 use Sunchayn\Nimbus\Tests\TestCase;
 
@@ -51,7 +53,7 @@ class NimbusIndexTest extends TestCase
         $ignoreRoutesServiceSpy = $this->spy(IgnoredRoutesService::class);
         $buildGlobalHeadersActionMock = $this->mock(BuildGlobalHeadersAction::class);
         $buildCurrentUserActionMock = $this->mock(BuildCurrentUserAction::class);
-        $extractRoutesActionMock = $this->mock(ExtractRoutesAction::class);
+        $extractRoutesActionMock = $this->mock(ExtractApplicationRoutesAction::class);
         $shareableLinkProcessorMock = $this->mock(ShareableLinkProcessorService::class);
 
         // Anticipate
@@ -157,7 +159,7 @@ class NimbusIndexTest extends TestCase
         $buildCurrentUserActionSpy = $this->spy(BuildCurrentUserAction::class);
         $shareableLinkProcessorMock = $this->mock(ShareableLinkProcessorService::class);
 
-        $extractionRoutesActionMock = $this->mock(ExtractRoutesAction::class);
+        $extractionRoutesActionMock = $this->mock(ExtractApplicationRoutesAction::class);
 
         $exception = new class(message: fake()->words(asText: true), routeUri: fake()->url(), routeMethods: fake()->words(2), controllerClass: fake()->word(), controllerMethod: fake()->word(), suggestedSolution: fake()->words(asText: true)) extends RouteExtractionException {};
 
@@ -352,6 +354,8 @@ class NimbusIndexTest extends TestCase
 
         $activeApplicationResolverMock = $this->mock(ActiveApplicationResolver::class);
 
+        $routesProviderMock = $this->mock(RoutesProcessorContract::class);
+
         // Anticipate
 
         $activeApplicationResolverMock
@@ -401,9 +405,9 @@ class NimbusIndexTest extends TestCase
         $disableThirdPartyUiActionSpy = $this->spy(DisableThirdPartyUiAction::class);
         $buildGlobalHeadersActionMock = $this->mock(BuildGlobalHeadersAction::class);
         $buildCurrentUserActionMock = $this->mock(BuildCurrentUserAction::class);
-        $extractRoutesActionMock = $this->mock(ExtractRoutesAction::class);
         $shareableLinkProcessorMock = $this->mock(ShareableLinkProcessorService::class);
         $activeApplicationResolverMock = $this->mock(ActiveApplicationResolver::class);
+        $routesProviderMock = $this->mock(RoutesProcessorContract::class);
 
         // Anticipate
 
@@ -414,6 +418,7 @@ class NimbusIndexTest extends TestCase
         $activeApplicationResolverMock->shouldReceive('isVersioned')->andReturn(false);
         $activeApplicationResolverMock->shouldReceive('getApiBaseUrl')->andReturn('http://localhost');
         $activeApplicationResolverMock->shouldReceive('getAvailableApplications')->andReturn('{}');
+        $activeApplicationResolverMock->shouldReceive('showOperationId')->andReturn(false);
 
         $buildGlobalHeadersActionMock->shouldReceive('execute')->andReturn(['::global-headers::']);
         $buildCurrentUserActionMock->shouldReceive('execute')->andReturn(['::current-user::']);
@@ -435,7 +440,8 @@ class NimbusIndexTest extends TestCase
                 'error' => null,
             ]);
 
-        $extractRoutesActionMock->shouldReceive('execute')->andReturn($this->mock(ExtractedRoutesCollection::class)->shouldReceive('toFrontendArray')->andReturn([])->getMock());
+        $routesProviderMock->shouldReceive('getName')->andReturn(RoutesProcessingStrategyEnum::AutoDetect);
+        $routesProviderMock->shouldReceive('process')->andReturn($this->mock(ExtractedRoutesCollection::class)->shouldReceive('toFrontendArray')->andReturn([])->getMock());
 
         // Act
 

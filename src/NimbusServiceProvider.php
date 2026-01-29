@@ -2,9 +2,15 @@
 
 namespace Sunchayn\Nimbus;
 
+use Illuminate\Container\Container;
 use Illuminate\Routing\Events\RouteMatched;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
+use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
+use Sunchayn\Nimbus\Modules\Routes\RoutesProcessors\Strategies\AutoDetectRoutesProcessor;
+use Sunchayn\Nimbus\Modules\Routes\RoutesProcessors\Strategies\OpenAPISchemaRoutesProcessor;
+use Sunchayn\Nimbus\Modules\Routes\RoutesProcessors\Strategies\RoutesProcessorContract;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
 
 class NimbusServiceProvider extends PackageServiceProvider
@@ -45,6 +51,15 @@ class NimbusServiceProvider extends PackageServiceProvider
             IgnoredRoutesService::class,
             fn (): IgnoredRoutesService => new IgnoredRoutesService,
         );
+
+        $this->app->bind(RoutesProcessorContract::class, function (Container $app) {
+            $routesProcessingStrategyEnum = $app->make(ActiveApplicationResolver::class)->getRouteExtractionStrategy();
+
+            return match ($routesProcessingStrategyEnum) {
+                RoutesProcessingStrategyEnum::OpenAPI => $app->make(OpenAPISchemaRoutesProcessor::class),
+                default => $app->make(AutoDetectRoutesProcessor::class),
+            };
+        });
     }
 
     public function boot(): void

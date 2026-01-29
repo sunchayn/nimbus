@@ -1,3 +1,4 @@
+import { RoutesProcessingStrategy } from '@/interfaces/generated';
 import { defineStore } from 'pinia';
 
 export interface CurrentUser {
@@ -25,6 +26,10 @@ export const useConfigStore = defineStore('config', () => {
         ? JSON.parse(window.Nimbus.applications as string)
         : {};
     const activeApplication = window.Nimbus?.activeApplication || null;
+    const primaryProcessorName =
+        (window.Nimbus?.primaryProcessorName as RoutesProcessingStrategy) ||
+        RoutesProcessingStrategy.AutoDetect;
+    const showOperationId = (window.Nimbus?.showOperationId as boolean) || false;
 
     // Derived values
     const isLoggedIn = currentUser !== null;
@@ -39,5 +44,7 @@ export const useConfigStore = defineStore('config', () => {
         userId,
         applications,
         activeApplication,
+        primaryProcessorName,
+        showOperationId,
     };
 });

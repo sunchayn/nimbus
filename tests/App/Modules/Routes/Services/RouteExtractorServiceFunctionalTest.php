@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route as RouteFacade;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use RuntimeException;
-use Sunchayn\Nimbus\Modules\Routes\Actions\ExtractRoutesAction;
+use Sunchayn\Nimbus\Modules\Routes\Actions\ExtractApplicationRoutesAction;
 use Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionInternalException;
 use Sunchayn\Nimbus\Modules\Routes\Extractor\SchemaExtractor;
@@ -19,7 +19,7 @@ use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 use Sunchayn\Nimbus\Tests\TestCase;
 
-#[CoversClass(ExtractRoutesAction::class)]
+#[CoversClass(ExtractApplicationRoutesAction::class)]
 #[CoversClass(RouteExtractionInternalException::class)]
 class RouteExtractorServiceFunctionalTest extends TestCase
 {
@@ -74,7 +74,7 @@ class RouteExtractorServiceFunctionalTest extends TestCase
 
         // Arrange
 
-        $routeExtractorService = resolve(ExtractRoutesAction::class);
+        $routeExtractorService = resolve(ExtractApplicationRoutesAction::class);
 
         $routes = RouteFacade::getRoutes()->getRoutes();
 
@@ -151,7 +151,7 @@ class RouteExtractorServiceFunctionalTest extends TestCase
 
         $ignoredRoutesServiceMock = $this->mock(IgnoredRoutesService::class)->makePartial();
 
-        $routeExtractorService = resolve(ExtractRoutesAction::class);
+        $routeExtractorService = resolve(ExtractApplicationRoutesAction::class);
 
         $routes = RouteFacade::getRoutes()->getRoutes();
 
@@ -187,7 +187,7 @@ class RouteExtractorServiceFunctionalTest extends TestCase
     {
         // Arrange
 
-        $routeExtractorService = resolve(ExtractRoutesAction::class);
+        $routeExtractorService = resolve(ExtractApplicationRoutesAction::class);
 
         $routes = [];
 
@@ -209,7 +209,7 @@ class RouteExtractorServiceFunctionalTest extends TestCase
 
         $activeApplicationResolverMock = $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class);
 
-        $routeExtractorService = resolve(ExtractRoutesAction::class);
+        $routeExtractorService = resolve(ExtractApplicationRoutesAction::class);
 
         $routes = RouteFacade::getRoutes()->getRoutes();
 
@@ -254,7 +254,7 @@ class RouteExtractorServiceFunctionalTest extends TestCase
 
         // Arrange
 
-        $routeExtractorService = resolve(ExtractRoutesAction::class);
+        $routeExtractorService = resolve(ExtractApplicationRoutesAction::class);
 
         $routes = RouteFacade::getRoutes()->getRoutes();
 

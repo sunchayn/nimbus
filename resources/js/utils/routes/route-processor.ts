@@ -12,6 +12,7 @@ export interface SourceRouteConfig {
     methods: string[];
     schema: JSONSchema7;
     extractionError: string | null;
+    metadata: Record<string, unknown>;
 }
 
 export type SourceRouteConfigArray = {
@@ -54,6 +55,7 @@ export async function processRoutesData(sourceRoutes: SourceRouteConfigArray): P
                                     shape: route.schema,
                                     extractionErrors: route.extractionError,
                                 },
+                                metadata: route.metadata,
                             }),
                         );
                     })

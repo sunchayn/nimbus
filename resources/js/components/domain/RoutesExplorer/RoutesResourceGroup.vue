@@ -16,6 +16,7 @@ import {
 import { uniquePersistenceKey } from '@/utils/stores';
 import { useStorage } from '@vueuse/core';
 import { ChevronRight, Folder } from 'lucide-vue-next';
+import { inject } from 'vue';
 
 /*
  * Types & Interfaces.
@@ -39,6 +40,8 @@ const isOpen = useStorage(
     uniquePersistenceKey(`routes-explorer-resource-${props.resource}-expanded`),
     false,
 );
+
+const showingSearchResults = inject('showingSearchResults');
 </script>
 
 <template>
@@ -46,6 +49,7 @@ const isOpen = useStorage(
         <AppCollapsible
             class="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90"
             :default-open="isOpen"
+            :open="showingSearchResults ? true : undefined"
             @update:open="isOpen = $event"
         >
             <AppCollapsibleTrigger as-child>

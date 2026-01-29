@@ -36,12 +36,15 @@
             'routes' => isset($routes) ? json_encode($routes) : null,
             'headers' => isset($headers) ? json_encode($headers) : null,
             'routeExtractorException' => isset($routeExtractorException) ? json_encode($routeExtractorException) : null,
+            'globalException' => isset($globalException) ? json_encode($globalException) : null,
             'isVersioned' => $activeApplicationResolver->isVersioned(),
             'apiBaseUrl' => $activeApplicationResolver->getApiBaseUrl(),
             'currentUser' => isset($currentUser) ? json_encode($currentUser) : null,
             'applications' => $activeApplicationResolver->getAvailableApplications(),
             'activeApplication' => $activeApplicationResolver->getActiveApplicationKey(),
             'sharedState' => isset($sharedState) ? $sharedState : null,
+            'primaryProcessorName' => isset($primaryProcessorName) ? $primaryProcessorName : null,
+            'showOperationId' => isset($showOperationId) ? $showOperationId : false,
         ]);
 
         $configTag = new \Illuminate\Support\HtmlString(<<<HTML

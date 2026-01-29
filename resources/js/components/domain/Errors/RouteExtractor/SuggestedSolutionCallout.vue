@@ -3,7 +3,9 @@
  * @component SuggestedSolutionCallout
  * @description A callout box displaying a suggested solution for the error.
  */
+import { cn } from '@/utils/ui';
 import { LightbulbIcon } from 'lucide-vue-next';
+import type { HTMLAttributes } from 'vue';
 
 /*
  * Types & Interfaces.
@@ -11,21 +13,22 @@ import { LightbulbIcon } from 'lucide-vue-next';
 
 export interface AppSuggestedSolutionCalloutProps {
     solution: string;
+    class?: HTMLAttributes['class'];
 }
 
 /*
  * Component Setup.
  */
 
-defineProps<AppSuggestedSolutionCalloutProps>();
+const props = defineProps<AppSuggestedSolutionCalloutProps>();
 </script>
 
 <template>
-    <div class="bg-subtle rounded-lg border p-2">
-        <div class="flex items-start gap-3">
+    <div :class="cn('bg-subtle rounded-lg border p-2', props.class)">
+        <div class="flex items-start gap-2.5">
             <LightbulbIcon class="mt-1 size-5 flex-shrink-0" />
             <div class="flex-1">
-                <h3 class="mb-1 font-semibold">Suggested Solution</h3>
+                <h3 class="font-semibold">Suggested Solution</h3>
                 <!-- eslint-disable-next-line vue/no-v-html -->
                 <p class="text-sm" v-html="solution" />
             </div>

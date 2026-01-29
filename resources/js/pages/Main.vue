@@ -6,12 +6,13 @@ import {
 } from '@/components/base/resizable';
 import RequestBuilder from '@/components/domain/Client/Request/RequestBuilder.vue';
 import ResponseViewer from '@/components/domain/Client/Response/ResponseViewer.vue';
+import GlobalErrorRenderer from '@/components/domain/Errors/GlobalErrorRenderer.vue';
 import RouteExtractorExceptionRenderer from '@/components/domain/Errors/RouteExtractorExceptionRenderer.vue';
 import RouteExplorer from '@/components/domain/RoutesExplorer/RouteExplorer.vue';
 import { useSharedStateRestoration } from '@/composables/request/useSharedStateRestoration';
 import { useResponsiveResizable } from '@/composables/ui/useResponsiveResizable';
-import type { RouteExtractorException } from '@/interfaces';
-import { useRoutesStore } from '@/stores';
+import type { GlobalException, RouteExtractorException } from '@/interfaces';
+import { useErrorStore, useRoutesStore } from '@/stores';
 import type { TemplateRef } from 'vue';
 import { onBeforeMount, useTemplateRef } from 'vue';
 
@@ -24,6 +25,7 @@ defineOptions({
  */
 
 const routesStore = useRoutesStore();
+const errorStore = useErrorStore();
 
 /*
  * Shared state restoration (from shareable links).
@@ -36,6 +38,7 @@ useSharedStateRestoration();
  */
 
 onBeforeMount(() => {
+    errorStore.initializeGlobalErrors();
     routesStore.initializeRoutes();
 });
 
@@ -58,7 +61,7 @@ const { 0: mainDirection, 1: clientDirection } = useResponsiveResizable(
                 <RouteExplorer :routes="routesStore.routes" />
             </AppResizablePanel>
             <AppResizableHandle />
-            <template v-if="!routesStore.hasExtractionError">
+            <template v-if="!routesStore.hasAnyError && !errorStore.hasGlobalError">
                 <AppResizablePanel :min-size="60" :default-size="80">
                     <AppResizablePanelGroup
                         auto-save-id="client-splitter-group"
@@ -72,6 +75,13 @@ const { 0: mainDirection, 1: clientDirection } = useResponsiveResizable(
                             <ResponseViewer />
                         </AppResizablePanel>
                     </AppResizablePanelGroup>
+                </AppResizablePanel>
+            </template>
+            <template v-else-if="errorStore.hasGlobalError">
+                <AppResizablePanel :min-size="60" :default-size="85">
+                    <GlobalErrorRenderer
+                        :error="errorStore.globalError as GlobalException"
+                    />
                 </AppResizablePanel>
             </template>
             <template v-else>

@@ -21,7 +21,12 @@ export type {
 
 export { RequestBodyTypeEnum } from './http';
 
-export type { RouteDefinition, RouteExtractorException, RoutesGroup } from './routes';
+export type {
+    GlobalException,
+    RouteDefinition,
+    RouteExtractorException,
+    RoutesGroup,
+} from './routes';
 
 export type { JSONSchema7 } from './schema';
 

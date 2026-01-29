@@ -28,6 +28,7 @@
     },
     "require-dev": {
         "brianium/paratest": "^7.0 || ^8.0",
+        "devizzent/cebe-php-openapi": "^1.1",
         "larastan/larastan": "^2.9||^3.0",
         "laravel/pint": "^1.14",
         "nunomaduro/collision": "^8.1||^7.10",
@@ -39,7 +40,8 @@
         "spatie/laravel-data": "^4.18"
     },
     "suggest": {
-        "ext-zlib": "Required for shareable links feature."
+        "ext-zlib": "Required for shareable links feature.",
+        "devizzent/cebe-php-openapi": "Required for OpenAPI route extraction strategy."
     },
     "autoload": {
         "psr-4": {

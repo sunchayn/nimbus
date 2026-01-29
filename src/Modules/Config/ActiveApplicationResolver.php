@@ -5,6 +5,7 @@ namespace Sunchayn\Nimbus\Modules\Config;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\Contracts\SpecialAuthenticationInjectorContract;
 
@@ -39,6 +40,11 @@ class ActiveApplicationResolver
         return $this->activeApplicationConfig['routes']['versioned'] ?? false;
     }
 
+    public function showOperationId(): bool
+    {
+        return $this->activeApplicationConfig['routes']['openapi']['show_operation_id'] ?? false;
+    }
+
     public function getApiBaseUrl(): string
     {
         return $this->activeApplicationConfig['routes']['api_base_url'] ?? $this->request->getSchemeAndHttpHost();
@@ -46,7 +52,9 @@ class ActiveApplicationResolver
 
     public function getRoutesPrefix(): string
     {
-        return $this->activeApplicationConfig['routes']['prefix'] ?? 'api';
+        $prefix = $this->activeApplicationConfig['routes']['prefix'] ?? 'api';
+
+        return trim($prefix, '/');
     }
 
     public function getAuthGuard(): string
@@ -66,6 +74,24 @@ class ActiveApplicationResolver
     public function getHeaders(): array
     {
         return $this->activeApplicationConfig['headers'] ?? [];
+    }
+
+    /**
+     * Get the route extraction strategy for the active application.
+     */
+    public function getRouteExtractionStrategy(): RoutesProcessingStrategyEnum
+    {
+        return $this->activeApplicationConfig['routes']['strategy'] ?? RoutesProcessingStrategyEnum::AutoDetect;
+    }
+
+    /**
+     * Get the OpenAPI file mappings (version => file path) for the active application.
+     *
+     * @return array<string, string>
+     */
+    public function getOpenApiFiles(): array
+    {
+        return $this->activeApplicationConfig['routes']['openapi']['files'] ?? [];
     }
 
     public function getAvailableApplications(): string

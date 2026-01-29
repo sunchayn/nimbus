@@ -20,7 +20,7 @@ import { type RouteDefinition, type RoutesGroup } from '@/interfaces/routes/rout
 import { useConfigStore } from '@/stores';
 import { uniquePersistenceKey } from '@/utils/stores';
 import { useStorage } from '@vueuse/core';
-import { computed, ref, watch } from 'vue';
+import { computed, provide, ref, watch } from 'vue';
 
 /*
  * Types & Interfaces.
@@ -90,8 +90,10 @@ const filteredRoutes = computed(() => {
     return (
         routesInVersion.value
             .map((group: RoutesGroup) => {
-                const filtered = group.routes.filter((route: RouteDefinition) =>
-                    route.endpoint.toLowerCase().includes(keyword),
+                const filtered = group.routes.filter(
+                    (route: RouteDefinition) =>
+                        route.endpoint.toLowerCase().includes(keyword) ||
+                        route.shortEndpoint.toLowerCase().includes(keyword),
                 );
 
                 return filtered.length > 0 ? { ...group, routes: filtered } : null;
@@ -103,6 +105,10 @@ const filteredRoutes = computed(() => {
 const hasMultipleApplications = computed(
     () => Object.keys(configStore.applications).length > 1,
 );
+
+const showingSearchResults = computed(() => search.value.trim().length > 0);
+
+provide('showingSearchResults', showingSearchResults);
 </script>
 
 <template>
@@ -137,11 +143,7 @@ const hasMultipleApplications = computed(
                 <AppSidebarGroupLabel>Routes</AppSidebarGroupLabel>
                 <AppSidebarGroupContent>
                     <AppSidebarMenu>
-                        <RoutesList
-                            v-if="routes !== null"
-                            :routes="filteredRoutes"
-                            :filtering-enabled="search.trim().length > 0"
-                        />
+                        <RoutesList v-if="routes !== null" :routes="filteredRoutes" />
                         <div v-else class="px-2">
                             <p class="mb-2 text-xs">
                                 Routes extraction was Interrupted, check the error on the

@@ -8,7 +8,16 @@ export type RouteDefinition = {
         extractionErrors: string | null;
     };
     shortEndpoint: string;
+    metadata?: Record<string, unknown>;
 };
+
+/**
+ * Metadata for a single route from OpenAPI strategy.
+ */
+export interface RouteDetectionMetadata {
+    isPrimarySourceRouteImplementationMissing: boolean;
+    isRouteMissingFromPrimarySource: boolean;
+}
 
 export interface RoutesGroup {
     /** The resource name that groups these routes */

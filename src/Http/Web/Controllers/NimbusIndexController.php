@@ -4,20 +4,19 @@ namespace Sunchayn\Nimbus\Http\Web\Controllers;
 
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Route as RouteFacade;
 use Illuminate\Support\Facades\Vite;
-use Illuminate\Support\Str;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Export\Services\ShareableLinkProcessorService;
 use Sunchayn\Nimbus\Modules\Routes\Actions;
-use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionException;
+use Sunchayn\Nimbus\Modules\Routes\Exceptions\RoutesProcessingException;
+use Sunchayn\Nimbus\Modules\Routes\RoutesProcessors\Strategies\RoutesProcessorContract;
 
 class NimbusIndexController
 {
     private const VIEW_NAME = 'nimbus::app';
 
     public function __invoke(
-        Actions\ExtractRoutesAction $extractRoutesAction,
+        RoutesProcessorContract $routesProcessorContract,
         Actions\IgnoreRouteErrorAction $ignoreRouteErrorAction,
         Actions\BuildGlobalHeadersAction $buildGlobalHeadersAction,
         Actions\BuildCurrentUserAction $buildCurrentUserAction,
@@ -41,18 +40,20 @@ class NimbusIndexController
         ];
 
         try {
-            $routes = $extractRoutesAction->execute(
-                routes: RouteFacade::getRoutes()->getRoutes(),
-            );
+            $routes = $routesProcessorContract->process();
 
-            return view(self::VIEW_NAME, array_merge($baseViewData, [ // @phpstan-ignore-line it cannot find the view.
+            $viewData = [
                 'routes' => $routes->toFrontendArray(),
                 'headers' => $buildGlobalHeadersAction->execute(),
                 'currentUser' => $buildCurrentUserAction->execute(),
-            ]));
-        } catch (RouteExtractionException $routeExtractionException) {
+                'primaryProcessorName' => $routesProcessorContract->getName()->value,
+                'showOperationId' => $activeApplicationResolver->showOperationId(),
+            ];
+
+            return view(self::VIEW_NAME, array_merge($baseViewData, $viewData)); // @phpstan-ignore-line it cannot find the view.
+        } catch (RoutesProcessingException $routesProcessingException) {
             return view(self::VIEW_NAME, array_merge($baseViewData, [  // @phpstan-ignore-line it cannot find the view.
-                'routeExtractorException' => $this->formatExtractionException($routeExtractionException),
+                $routesProcessingException->getFrontEndIdentifier() => $routesProcessingException->toArray(),
             ]));
         }
     }
@@ -123,28 +124,5 @@ class NimbusIndexController
         $ignoreRouteErrorAction->execute(ignoreData: $ignoreData);
 
         abort(redirect()->to(request()->url()));
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function formatExtractionException(RouteExtractionException $routeExtractionException): array
-    {
-        $previous = $routeExtractionException->getPrevious();
-
-        return [
-            'exception' => [
-                'message' => $routeExtractionException->getMessage(),
-                'previous' => $previous instanceof \Throwable ? [
-                    'message' => $previous->getMessage(),
-                    'file' => $previous->getFile(),
-                    'line' => $previous->getLine(),
-                    'trace' => Str::replace("\n", '<br/>', $previous->getTraceAsString()),
-                ] : null,
-            ],
-            'routeContext' => $routeExtractionException->getRouteContext(),
-            'suggestedSolution' => $routeExtractionException->getSuggestedSolution(),
-            'ignoreData' => $routeExtractionException->getIgnoreData(),
-        ];
     }
 }

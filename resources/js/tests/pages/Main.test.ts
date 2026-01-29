@@ -1,17 +1,17 @@
 import { AppSidebarProvider } from '@/components/base/sidebar';
-import type { RouteExtractorException, RoutesGroup } from '@/interfaces';
+import type { GlobalException, RouteExtractorException, RoutesGroup } from '@/interfaces';
 import MainPage from '@/pages/Main.vue';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { h, nextTick } from 'vue';
+import { h, nextTick, reactive } from 'vue';
 
 /*
  * Fixtures.
  */
 
-const mockRoutesStore = {
+const mockRoutesStore = reactive({
     routes: {
         v1: [
             {
@@ -28,9 +28,19 @@ const mockRoutesStore = {
         ],
     } as { [key: string]: RoutesGroup[] } | null,
     hasExtractionError: false,
+    hasAnyError: false,
     routeExtractorException: null as RouteExtractorException | null,
     initializeRoutes: vi.fn(),
-};
+    isMissingImplementation: vi.fn().mockReturnValue(false),
+    isUndocumented: vi.fn().mockReturnValue(false),
+});
+
+const mockErrorStore = reactive({
+    globalError: null as GlobalException | null,
+    hasGlobalError: false,
+    initializeGlobalErrors: vi.fn(),
+    clearGlobalError: vi.fn(),
+});
 
 const mockConfigStore = {
     apiUrl: 'https://api.example.com',
@@ -52,6 +62,7 @@ vi.mock('@/stores', async () => {
         ...original,
         useRoutesStore: () => mockRoutesStore,
         useConfigStore: () => mockConfigStore,
+        useErrorStore: () => mockErrorStore,
         useValueGeneratorStore: () => mockValueGeneratorStore,
     };
 });
@@ -96,6 +107,9 @@ describe('MainPage', () => {
                 },
             ],
         };
+        mockRoutesStore.hasAnyError = false;
+        mockErrorStore.hasGlobalError = false;
+        mockErrorStore.globalError = null;
     });
 
     /*
@@ -131,6 +145,7 @@ describe('MainPage', () => {
             // Arrange
 
             mockRoutesStore.hasExtractionError = true;
+            mockRoutesStore.hasAnyError = true;
             mockRoutesStore.routeExtractorException = {
                 exception: { message: 'Extraction failed' },
                 routeContext: {},
@@ -152,6 +167,26 @@ describe('MainPage', () => {
                 false,
             );
         });
+
+        it('renders GlobalErrorRenderer when global error exists', () => {
+            // Arrange
+
+            mockErrorStore.hasGlobalError = true;
+            mockErrorStore.globalError = {
+                exception: { message: 'Global error' },
+            };
+
+            const wrapper = createWrapper();
+
+            // Assert
+
+            expect(wrapper.findComponent({ name: 'GlobalErrorRenderer' }).exists()).toBe(
+                true,
+            );
+            expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(
+                false,
+            );
+        });
     });
 
     /*
@@ -167,11 +202,16 @@ describe('MainPage', () => {
 
             // Assert
 
+            expect(mockErrorStore.initializeGlobalErrors).toHaveBeenCalled();
             expect(mockRoutesStore.initializeRoutes).toHaveBeenCalled();
         });
 
         it('reactively updates UI when extraction error state changes', async () => {
             // Arrange
+
+            mockRoutesStore.routes = { v1: [] };
+            mockRoutesStore.hasAnyError = false;
+            mockRoutesStore.hasExtractionError = false;
 
             const wrapper = createWrapper();
             expect(wrapper.findComponent({ name: 'RequestBuilder' }).exists()).toBe(true);
@@ -179,12 +219,12 @@ describe('MainPage', () => {
             // Act
 
             mockRoutesStore.hasExtractionError = true;
+            mockRoutesStore.hasAnyError = true;
             mockRoutesStore.routeExtractorException = {
-                exception: { message: 'Error' },
+                exception: { message: 'Updated Error' },
                 routeContext: {},
             };
             await nextTick();
-            // multiple nextTicks might be needed due to nested components or store refs
             await nextTick();
 
             // Assert

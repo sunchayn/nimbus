@@ -99,6 +99,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                                 'additionalProperties' => false,
                             ],
                             'extractionError' => null,
+                            'metadata' => [],
                         ],
                         [
                             'uri' => '/api/users',
@@ -112,6 +113,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                                 'additionalProperties' => false,
                             ],
                             'extractionError' => null,
+                            'metadata' => [],
                         ],
                     ],
                     'posts' => [
@@ -131,6 +133,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                                 'additionalProperties' => false,
                             ],
                             'extractionError' => null,
+                            'metadata' => [],
                         ],
                     ],
                 ],
@@ -178,6 +181,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                                 'additionalProperties' => false,
                             ],
                             'extractionError' => null,
+                            'metadata' => [],
                         ],
                         [
                             'uri' => '/api/users',
@@ -191,8 +195,9 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                                 'additionalProperties' => false,
                             ],
                             'extractionError' => '<b>[no error message]</b><br />
-<small>'.__FILE__.'::161</small>
+<small>'.__FILE__.'::164</small>
 <p class="text-xs">[trace]</p>',
+                            'metadata' => [],
                         ],
                     ],
                 ],

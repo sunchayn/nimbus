@@ -20,8 +20,8 @@ class IntegerSchemaProperty implements SchemaPropertyInterface
     public function __construct(
         private readonly string $name,
         private readonly bool $required = false,
-        private readonly ?int $minimum = null,
-        private readonly ?int $maximum = null,
+        private readonly int|float|null $minimum = null,
+        private readonly int|float|null $maximum = null,
         private readonly ?array $enum = null,
     ) {}
 

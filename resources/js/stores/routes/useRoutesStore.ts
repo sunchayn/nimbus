@@ -1,5 +1,5 @@
 import type { RouteExtractorException } from '@/interfaces';
-import type { RoutesGroup } from '@/interfaces/routes/routes';
+import type { RouteDefinition, RoutesGroup } from '@/interfaces/routes/routes';
 import {
     calculateTotalRouteCount,
     parseRouteExtractionException,
@@ -56,6 +56,14 @@ export const useRoutesStore = defineStore('routes', () => {
         await fetchAvailableRoutes();
     };
 
+    const isMissingImplementation = (route: RouteDefinition) => {
+        return route.metadata?.isMissingImplementation ?? false;
+    };
+
+    const isUndocumented = (route: RouteDefinition) => {
+        return route.metadata?.isUndocumented ?? false;
+    };
+
     const resetRoutesState = () => {
         routes.value = null;
         routeExtractorException.value = null;
@@ -71,6 +79,8 @@ export const useRoutesStore = defineStore('routes', () => {
     );
 
     const hasExtractionError = computed(() => routeExtractorException.value !== null);
+
+    const hasAnyError = computed(() => hasExtractionError.value);
 
     const routeVersions = computed(() => (routes.value ? Object.keys(routes.value) : []));
 
@@ -97,10 +107,13 @@ export const useRoutesStore = defineStore('routes', () => {
         fetchAvailableRoutes,
         initializeRoutes,
         resetRoutesState,
+        isMissingImplementation,
+        isUndocumented,
 
         // Computed
         hasRoutes,
         hasExtractionError,
+        hasAnyError,
         routeVersions,
         totalRouteCount,
         getRoutesByVersion,

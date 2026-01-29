@@ -152,6 +152,7 @@ class EndpointUnitTest extends TestCase
         string $resource,
         string $value,
         string $expectedShortUri,
+        ?string $shortUriOverride = null,
     ): void {
         // Arrange
 
@@ -159,6 +160,7 @@ class EndpointUnitTest extends TestCase
             version: $version,
             resource: $resource,
             value: $value,
+            shortUriOverride: $shortUriOverride,
         );
 
         // Act & Assert
@@ -215,6 +217,14 @@ class EndpointUnitTest extends TestCase
             'resource' => 'products',
             'value' => '/api/1.0/products/{id}',
             'expectedShortUri' => '/products/{id}',
+        ];
+
+        yield 'uri with shortUriOverride returns the override' => [
+            'version' => 'v1',
+            'resource' => 'users',
+            'value' => '/api/v1/users',
+            'expectedShortUri' => 'listUsers',
+            'shortUriOverride' => 'listUsers',
         ];
     }
 

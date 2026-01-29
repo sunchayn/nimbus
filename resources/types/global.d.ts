@@ -11,6 +11,9 @@ interface NimbusConfig {
     applications: string | null;
     activeApplication: string | null;
     sharedState: SharedState | null;
+    primaryProcessorName: string | null;
+    showOperationId: boolean | null;
+    globalException: string | null;
 }
 
 declare global {

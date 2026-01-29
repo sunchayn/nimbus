@@ -45,6 +45,9 @@ describe('useConfigStore', () => {
                 applications: JSON.stringify({ main: 'Main API' }),
                 activeApplication: 'main',
                 sharedState: null,
+                primaryProcessorName: null,
+                showOperationId: null,
+                globalException: null,
             };
 
             // Act

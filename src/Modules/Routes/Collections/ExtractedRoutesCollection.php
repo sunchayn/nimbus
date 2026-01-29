@@ -43,6 +43,7 @@ class ExtractedRoutesCollection extends Collection
                                     'methods' => $extractedRoute->methods,
                                     'schema' => $extractedRoute->schema->toJsonSchema(),
                                     'extractionError' => $extractedRoute->schema->extractionError?->toHtml(),
+                                    'metadata' => $extractedRoute->metadata,
                                 ],
                             ),
                         );
