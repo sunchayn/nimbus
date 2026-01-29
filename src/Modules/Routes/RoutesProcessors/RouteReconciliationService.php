@@ -30,8 +30,8 @@ class RouteReconciliationService
         $signatures = [];
 
         $applicationRoutesBySignature = $autoDetectedRoutes
-            ->flatMap(fn (ExtractedRoute $route) => collect($route->getRouteSignatures())
-                ->mapWithKeys(fn (string $signature) => [$signature => $route])
+            ->flatMap(fn (ExtractedRoute $extractedRoute) => collect($extractedRoute->getRouteSignatures())
+                ->mapWithKeys(fn (string $signature): array => [$signature => $extractedRoute])
             );
 
         $lookup = $applicationRoutesBySignature->all();
@@ -90,11 +90,11 @@ class RouteReconciliationService
         $matched = array_flip($matchedSignatures);
 
         return $routesBySignature
-            ->reject(fn ($_, string $signature) => isset($matched[$signature]))
-            ->map(fn (ExtractedRoute $route) => new ExtractedRoute(
-                uri: $route->uri,
-                methods: $route->methods,
-                schema: $route->schema,
+            ->reject(fn ($_, string $signature): bool => isset($matched[$signature]))
+            ->map(fn (ExtractedRoute $extractedRoute): \Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute => new ExtractedRoute(
+                uri: $extractedRoute->uri,
+                methods: $extractedRoute->methods,
+                schema: $extractedRoute->schema,
                 metadata: [
                     'isMissingImplementation' => false,
                     'isUndocumented' => true,

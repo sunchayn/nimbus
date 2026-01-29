@@ -52,12 +52,12 @@ class NimbusServiceProvider extends PackageServiceProvider
             fn (): IgnoredRoutesService => new IgnoredRoutesService,
         );
 
-        $this->app->bind(RoutesProcessorContract::class, function (Container $app) {
-            $routesProcessingStrategyEnum = $app->make(ActiveApplicationResolver::class)->getRouteExtractionStrategy();
+        $this->app->bind(RoutesProcessorContract::class, function (Container $container) {
+            $routesProcessingStrategyEnum = $container->make(ActiveApplicationResolver::class)->getRouteExtractionStrategy();
 
             return match ($routesProcessingStrategyEnum) {
-                RoutesProcessingStrategyEnum::OpenAPI => $app->make(OpenAPISchemaRoutesProcessor::class),
-                default => $app->make(AutoDetectRoutesProcessor::class),
+                RoutesProcessingStrategyEnum::OpenAPI => $container->make(OpenAPISchemaRoutesProcessor::class),
+                default => $container->make(AutoDetectRoutesProcessor::class),
             };
         });
     }

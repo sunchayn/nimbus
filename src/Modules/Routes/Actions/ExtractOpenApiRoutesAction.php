@@ -66,7 +66,7 @@ class ExtractOpenApiRoutesAction
         $path = ltrim($path, '/');
 
         if (! str_starts_with($path, $prefix)) {
-            $path = "{$prefix}/{$path}";
+            $path = sprintf('%s/%s', $prefix, $path);
         }
 
         $uri = $this->normalizeUri($path, $version);
@@ -255,9 +255,9 @@ class ExtractOpenApiRoutesAction
         $cleanedPath = ltrim(substr($path, strlen($prefix)), '/');
 
         if ($this->activeApplicationResolver->isVersioned()) {
-            return "{$prefix}/{$version}/{$cleanedPath}";
+            return sprintf('%s/%s/%s', $prefix, $version, $cleanedPath);
         }
 
-        return "{$prefix}/{$cleanedPath}";
+        return sprintf('%s/%s', $prefix, $cleanedPath);
     }
 }
