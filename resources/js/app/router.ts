@@ -13,11 +13,7 @@ const routes = [
         name: 'settings',
     },
 
-    {
-        path: '/status',
-        component: () => import('@/pages/Status.vue'),
-        name: 'status',
-    },
+
 
     /*
      * Catch-all Route for 404 Handling.

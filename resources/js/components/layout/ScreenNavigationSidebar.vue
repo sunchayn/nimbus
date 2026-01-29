@@ -18,7 +18,7 @@ import {
 import {
     BookOpenIcon,
     GithubIcon,
-    RadioIcon,
+
     SettingsIcon,
     TerminalIcon,
 } from 'lucide-vue-next';
@@ -53,12 +53,7 @@ const coreItems = [
         icon: TerminalIcon,
         isActive: true,
     },
-    {
-        title: 'Status',
-        route: { name: 'status' },
-        icon: RadioIcon,
-        isActive: false,
-    },
+
     {
         title: 'Settings',
         route: { name: 'settings' },
