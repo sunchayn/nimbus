@@ -1,5 +1,6 @@
 import ResponseViewer from '@/components/domain/Client/Response/ResponseViewer.vue';
 import type { RequestLog } from '@/interfaces';
+import { STATUS } from '@/interfaces/http';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
@@ -78,7 +79,9 @@ describe('ResponseViewer', () => {
 
             // Act
 
-            mockTabsStore.activeResponse = { error: { message: 'Failed' } };
+            mockTabsStore.activeResponse = {
+                error: { message: 'Failed' },
+            } as unknown as RequestLog;
             await nextTick();
 
             // Assert
@@ -93,7 +96,9 @@ describe('ResponseViewer', () => {
 
             // Act
 
-            mockTabsStore.activeResponse = { response: { status: 200 } };
+            mockTabsStore.activeResponse = {
+                response: { status: STATUS.SUCCESS },
+            } as unknown as RequestLog;
             await nextTick();
 
             // Assert
