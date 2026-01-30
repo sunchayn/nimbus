@@ -1,6 +1,5 @@
 import ResponseStatus from '@/components/domain/Client/Response/ResponseStatus/ResponseStatus.vue';
 import type { RequestLog } from '@/interfaces';
-import { useTabsStore } from '@/stores';
 import { AuthorizationType } from '@/interfaces/generated';
 import {
     type PendingRequest,

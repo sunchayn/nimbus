@@ -1,10 +1,10 @@
 import ResponseViewer from '@/components/domain/Client/Response/ResponseViewer.vue';
 import type { RequestLog } from '@/interfaces';
-import { useTabsStore } from '@/stores';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Ref } from 'vue';
 import { nextTick, reactive, ref } from 'vue';
 
 /*
@@ -28,7 +28,7 @@ vi.mock('@/components/domain/Client/Response/ResponseViewerResponse.vue', () => 
 }));
 
 const mockTabsStore = reactive({
-    activeResponse: ref(null) as any,
+    activeResponse: ref(null) as Ref<RequestLog | null>,
 });
 
 vi.mock('@/stores', () => ({

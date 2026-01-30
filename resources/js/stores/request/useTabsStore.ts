@@ -1,18 +1,22 @@
-import type {AuthorizationContract} from '@/interfaces/auth/authorization';
-import {AuthorizationType} from '@/interfaces/generated';
-import type {RequestLog} from '@/interfaces/history/logs';
-import type {GeneratorType, PendingRequest, SourceGlobalHeaders,} from '@/interfaces/http';
-import {RequestBodyTypeEnum} from '@/interfaces/http';
-import type {RouteDefinition} from '@/interfaces/routes/routes';
-import type {ShareableLinkPayload} from '@/interfaces/share';
-import type {ParameterContract} from '@/interfaces/ui';
-import {ParameterType} from '@/interfaces/ui';
-import type {Tab} from '@/interfaces/ui/tabs';
-import {useConfigStore, useSettingsStore, useValueGeneratorStore} from '@/stores';
-import {buildRequestUrl, getDefaultPayloadTypeForRoute} from '@/utils/request';
-import {generateValueFromType} from '@/utils/value-generator/generateValueFromType';
-import {defineStore} from 'pinia';
-import {computed, ref} from 'vue';
+import type { AuthorizationContract } from '@/interfaces/auth/authorization';
+import { AuthorizationType } from '@/interfaces/generated';
+import type { RequestLog } from '@/interfaces/history/logs';
+import type {
+    GeneratorType,
+    PendingRequest,
+    SourceGlobalHeaders,
+} from '@/interfaces/http';
+import { RequestBodyTypeEnum } from '@/interfaces/http';
+import type { RouteDefinition } from '@/interfaces/routes/routes';
+import type { ShareableLinkPayload } from '@/interfaces/share';
+import type { ParameterContract } from '@/interfaces/ui';
+import { ParameterType } from '@/interfaces/ui';
+import type { Tab } from '@/interfaces/ui/tabs';
+import { useConfigStore, useSettingsStore, useValueGeneratorStore } from '@/stores';
+import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
+import { generateValueFromType } from '@/utils/value-generator/generateValueFromType';
+import { defineStore } from 'pinia';
+import { computed, ref } from 'vue';
 
 /**
  * Store for managing application tabs and their associated request states.
@@ -416,9 +420,9 @@ export const useTabsStore = defineStore(
                 // Sync route definition and schema if matching route found
                 ...(matchingRoute
                     ? {
-                        routeDefinition: matchingRoute,
-                        schema: matchingRoute.schema,
-                    }
+                          routeDefinition: matchingRoute,
+                          schema: matchingRoute.schema,
+                      }
                     : {}),
                 wasExecuted: true,
                 transactionMode: activeRequest.value.transactionMode ?? false,
