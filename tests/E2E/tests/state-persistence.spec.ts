@@ -51,7 +51,7 @@ test("State Persistence sanity checklist", async ({page}) => {
 
     await expect(page.getByTestId("kv-value").nth(3)).toHaveValue("x-value");
 
-    await expect(page.locator("#reka-splitter-panel-v-6")).toMatchAriaSnapshot(`
+    await expect(page.locator("#reka-splitter-panel-v-5")).toMatchAriaSnapshot(`
     - list:
       - listitem:
         - button "authentication":
@@ -121,7 +121,7 @@ test("State Persistence sanity checklist", async ({page}) => {
 
     await page.reload();
 
-    await expect(page.locator("#reka-splitter-panel-v-6")).toMatchAriaSnapshot(`
+    await expect(page.locator("#reka-splitter-panel-v-5")).toMatchAriaSnapshot(`
     - text: Routes
     - list:
       - listitem:
