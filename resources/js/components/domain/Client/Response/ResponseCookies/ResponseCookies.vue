@@ -9,7 +9,7 @@ import KeyValueDisplayList from '@/components/common/KeyValueDisplayList/KeyValu
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import { type ResponseCookie } from '@/interfaces/http';
 import { useTabsStore } from '@/stores';
-import { uniquePersistenceKey } from '@/utils/stores';
+import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useClipboard, useStorage } from '@vueuse/core';
 import { LockIcon, LockOpenIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
@@ -45,7 +45,9 @@ const tabsStore = useTabsStore();
  */
 
 const decryptedCookies = useStorage(
-    uniquePersistenceKey('response-viewer-cookies-decrypted-' + tabsStore.activeTab?.id),
+    singletonPersistenceKey(
+        'response-viewer-cookies-decrypted-' + tabsStore.activeTab?.id,
+    ),
     false,
 );
 

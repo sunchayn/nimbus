@@ -28,6 +28,7 @@ import { useConfigStore, useTabsStore } from '@/stores';
 import { uniquePersistenceKey } from '@/utils/stores';
 import { useStorage } from '@vueuse/core';
 import { computed, provide, ref, watch } from 'vue';
+import {singletonPersistenceKey} from "@/utils/stores/uniquePersistenceKey";
 
 /*
  * Types & Interfaces.
@@ -50,7 +51,7 @@ const tabsStore = useTabsStore();
  * State.
  */
 
-const search = useStorage(uniquePersistenceKey('routes-explorer-search-keyword'), '');
+const search = useStorage(singletonPersistenceKey('routes-explorer-search-keyword'), '');
 const currentVersion = ref('');
 
 const openTabsPanel = ref<InstanceType<typeof AppResizablePanel> | null>(null);

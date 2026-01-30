@@ -63,9 +63,9 @@ const pendingRequestToRequestLogEntry = function (request: PendingRequest): Requ
     return {
         method: request.method,
         endpoint: request.endpoint,
-        headers: [...request.headers],
+        headers: request.headers.map(header => ({ ...header })),
         body: currentBody,
-        queryParameters: [...request.queryParameters],
+        queryParameters: request.queryParameters.map(param => ({ ...param })),
         payloadType: request.payloadType,
         authorization: { ...request.authorization },
         routeDefinition: { ...request.routeDefinition },

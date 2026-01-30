@@ -15,8 +15,7 @@ test('Multiple tabs support and isolated responses', async ({ page, basePage }) 
     await basePage.executeRequest();
     await expect(page.getByTestId('response-status-badge')).toContainText('200');
 
-    // Assert - Verify it appears in Sidebar Tabs (Expanding first)
-    await page.getByTestId('open-tabs-trigger').click();
+    // Assert - Verify it appears in Sidebar Tabs
     const tabs = page.getByTestId('sidebar-tab');
     await expect(tabs.filter({ hasText: /GET\s*verbs\/verbs/ })).toBeVisible();
 

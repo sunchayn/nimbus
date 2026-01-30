@@ -61,23 +61,11 @@ export const useTabsStore = defineStore(
         const hasActiveRequest = computed(() => activeRequest.value !== null);
 
         /*
-         * Private Helpers.
+         * Internal Helpers.
          */
 
-        const useCurrentApplicationGlobalHeaders = () => {
-            if (!activeRequest.value) {
-                return;
-            }
-
-            const previousGlobalHeaderKeys = lastSyncedGlobalHeaders.value.map(
-                header => header.key,
-            );
-
-            const filteredHeaders = activeRequest.value.headers.filter(
-                header => !previousGlobalHeaderKeys.includes(header.key),
-            );
-
-            const newGlobalHeaders = configStore.headers.map(
+        const generateGlobalHeaders = (): ParameterContract[] => {
+            return configStore.headers.map(
                 (globalHeader: SourceGlobalHeaders): ParameterContract => ({
                     type: ParameterType.Text,
                     key: globalHeader.header,
@@ -91,11 +79,26 @@ export const useTabsStore = defineStore(
                     enabled: true,
                 }),
             );
+        };
+
+        function useCurrentApplicationGlobalHeaders() {
+            if (!activeRequest.value) {
+                return;
+            }
+
+            const previousGlobalHeaderKeys = lastSyncedGlobalHeaders.value.map(
+                header => header.key,
+            );
+
+            const filteredHeaders = activeRequest.value.headers.filter(
+                header => !previousGlobalHeaderKeys.includes(header.key),
+            );
+
+            const newGlobalHeaders = generateGlobalHeaders();
 
             activeRequest.value.headers = [...newGlobalHeaders, ...filteredHeaders];
-
             lastSyncedGlobalHeaders.value = newGlobalHeaders;
-        };
+        }
 
         const getAuthorizationForNewRequest = (): AuthorizationContract => {
             if (activeRequest.value !== null) {
@@ -144,52 +147,46 @@ export const useTabsStore = defineStore(
             return settingsStore.preferences.defaultRequestBodyType;
         };
 
-        const createPendingRequest = (
+        function syncGlobalHeadersForRequest(request: PendingRequest) {
+            const newGlobalHeaders = generateGlobalHeaders();
+
+            const newGlobalHeaderKeys = newGlobalHeaders.map(header => header.key);
+            const filteredHeaders = request.headers.filter(
+                header => !newGlobalHeaderKeys.includes(header.key),
+            );
+
+            request.headers = [...newGlobalHeaders, ...filteredHeaders];
+            lastSyncedGlobalHeaders.value = newGlobalHeaders;
+        }
+
+        function createPendingRequest(
             route: RouteDefinition,
             availableRoutesForEndpoint: RouteDefinition[],
-        ): PendingRequest => {
+        ): PendingRequest {
             const request: PendingRequest = {
                 method: route.method,
                 endpoint: route.endpoint,
-                headers: [],
+                headers: activeRequest.value?.headers
+                    ? cloneParameters(activeRequest.value.headers)
+                    : [],
                 body: {},
                 payloadType: getDefaultPayload(route),
                 schema: route.schema,
                 queryParameters: [],
-                authorization: getAuthorizationForNewRequest(),
+                authorization:
+                    activeRequest.value?.authorization ?? getAuthorizationForNewRequest(),
                 supportedRoutes: availableRoutesForEndpoint,
                 routeDefinition: route,
                 isProcessing: false,
                 wasExecuted: false,
                 durationInMs: 0,
-                transactionMode: false,
+                transactionMode: activeRequest.value?.transactionMode ?? false,
             };
 
-            // Sync global headers for the new request
             syncGlobalHeadersForRequest(request);
 
             return request;
-        };
-
-        const syncGlobalHeadersForRequest = (request: PendingRequest) => {
-            const newGlobalHeaders = configStore.headers.map(
-                (globalHeader: SourceGlobalHeaders): ParameterContract => ({
-                    type: ParameterType.Text,
-                    key: globalHeader.header,
-                    value:
-                        globalHeader.type === 'generator'
-                            ? generateValueFromType(
-                                  globalHeader.value as GeneratorType,
-                                  valueGeneratorStore,
-                              )
-                            : String(globalHeader.value),
-                    enabled: true,
-                }),
-            );
-
-            // Filter out old global headers if any (though for new request there shouldn't be)
-            request.headers = [...newGlobalHeaders, ...request.headers];
-        };
+        }
 
         /*
          * Actions.
@@ -199,10 +196,10 @@ export const useTabsStore = defineStore(
          * Opens a tab for the specified route.
          * If the tab already exists, it is activated.
          */
-        const openTab = (
+        function openTab(
             route: RouteDefinition,
             availableRoutesForEndpoint: RouteDefinition[],
-        ) => {
+        ) {
             const existingTab = tabs.value.find(
                 tab =>
                     tab.method.toUpperCase() === route.method.toUpperCase() &&
@@ -226,12 +223,12 @@ export const useTabsStore = defineStore(
 
             tabs.value.push(newTab);
             activeTabId.value = id;
-        };
+        }
 
         /**
          * Closes a tab by its ID.
          */
-        const closeTab = (id: string) => {
+        function closeTab(id: string) {
             const index = tabs.value.findIndex(tab => tab.id === id);
 
             if (index === -1) {
@@ -248,29 +245,21 @@ export const useTabsStore = defineStore(
                     activeTabId.value = null;
                 }
             }
-        };
+        }
 
         /**
          * Activates a tab by its ID.
          */
-        const setActiveTab = (id: string) => {
+        function setActiveTab(id: string) {
             if (tabs.value.some(tab => tab.id === id)) {
                 activeTabId.value = id;
             }
-        };
-
-        /**
-         * Closes all tabs and resets state.
-         */
-        const closeAllTabs = () => {
-            tabs.value = [];
-            activeTabId.value = null;
-        };
+        }
 
         /**
          * Reorders tabs by moving a tab from one index to another.
          */
-        const moveTab = (fromIndex: number, toIndex: number) => {
+        function moveTab(fromIndex: number, toIndex: number) {
             if (
                 fromIndex < 0 ||
                 fromIndex >= tabs.value.length ||
@@ -282,22 +271,22 @@ export const useTabsStore = defineStore(
 
             const element = tabs.value.splice(fromIndex, 1)[0];
             tabs.value.splice(toIndex, 0, element);
-        };
+        }
 
         /**
          * Updates the response log for the active tab.
          */
-        const updateActiveTabResponse = (log: RequestLog) => {
+        function updateActiveTabResponse(log: RequestLog) {
             if (activeTab.value) {
                 activeTab.value.response = log;
             }
-        };
+        }
 
         /*
          * Request Building Actions (work on active tab).
          */
 
-        const updateRequestMethod = (method: string) => {
+        function updateRequestMethod(method: string) {
             if (!activeRequest.value) {
                 return;
             }
@@ -328,43 +317,43 @@ export const useTabsStore = defineStore(
 
             activeRequest.value.payloadType = getDefaultPayloadTypeForRoute(targetRoute);
             activeRequest.value.schema = targetRoute.schema;
-        };
+        }
 
-        const updateRequestEndpoint = (endpoint: string) => {
+        function updateRequestEndpoint(endpoint: string) {
             if (activeRequest.value) {
                 activeRequest.value.endpoint = endpoint;
             }
-        };
+        }
 
-        const updateRequestHeaders = (headers: ParameterContract[]) => {
+        function updateRequestHeaders(headers: ParameterContract[]) {
             if (activeRequest.value) {
                 activeRequest.value.headers = headers;
             }
-        };
+        }
 
-        const updateRequestBody = (body: PendingRequest['body']) => {
+        function updateRequestBody(body: PendingRequest['body']) {
             if (activeRequest.value) {
                 activeRequest.value.body = body;
             }
-        };
+        }
 
-        const updateQueryParameters = (parameters: ParameterContract[]) => {
+        function updateQueryParameters(parameters: ParameterContract[]) {
             if (activeRequest.value) {
                 activeRequest.value.queryParameters = parameters;
             }
-        };
+        }
 
-        const updateAuthorization = (authorization: AuthorizationContract) => {
+        function updateAuthorization(authorization: AuthorizationContract) {
             if (activeRequest.value) {
                 activeRequest.value.authorization = authorization;
             }
-        };
+        }
 
-        const updateTransactionMode = (transactionMode: boolean) => {
+        function updateTransactionMode(transactionMode: boolean) {
             if (activeRequest.value) {
                 activeRequest.value.transactionMode = transactionMode;
             }
-        };
+        }
 
         const resetRequest = () => {
             if (activeTabId.value) {
@@ -375,71 +364,37 @@ export const useTabsStore = defineStore(
         /**
          * Restores the request builder state from a historical request.
          */
-        const restoreFromHistory = (historicalRequest: RequestLog) => {
-            if (!activeRequest.value) {
-                return;
-            }
-
-            const method = historicalRequest.request.method.toUpperCase();
-            const payloadType = historicalRequest.request.payloadType;
-
-            // Try to find and sync the route definition
-            const matchingRoute = activeRequest.value.supportedRoutes.find(
-                (route: RouteDefinition) =>
-                    route.method.toUpperCase() === method &&
-                    route.endpoint === historicalRequest.request.endpoint,
-            );
-
-            activeTab.value!.request = {
-                ...activeRequest.value,
-                method,
-                endpoint: historicalRequest.request.endpoint,
-                headers: historicalRequest.request.headers.map(
-                    (h: ParameterContract) => ({
-                        ...h,
-                    }),
-                ),
-                queryParameters: historicalRequest.request.queryParameters.map(
-                    (p: ParameterContract) => ({
-                        ...p,
-                    }),
-                ),
-                payloadType,
-                // Restore body into the correct slot with reactivity in mind
-                body: {
-                    ...activeRequest.value.body,
-                    [method]: {
-                        ...(activeRequest.value.body[method] ?? {}),
-                        [payloadType]: historicalRequest.request.body,
-                    },
-                },
-                // Restore authorization
-                authorization: {
-                    ...historicalRequest.request.authorization,
-                },
-                // Sync route definition and schema if matching route found
-                ...(matchingRoute
-                    ? {
-                          routeDefinition: matchingRoute,
-                          schema: matchingRoute.schema,
-                      }
-                    : {}),
-                wasExecuted: true,
-                transactionMode: activeRequest.value.transactionMode ?? false,
-            };
-
-            activeTab.value!.response = historicalRequest;
+        const cloneParameters = (
+            parameters: ParameterContract[],
+        ): ParameterContract[] => {
+            return parameters.map(p => ({ ...p }));
         };
 
-        /**
-         * Restores request state from a shareable link payload.
-         */
-        const restoreFromSharedPayload = (payload: ShareableLinkPayload) => {
+        const restoreResponseBody = (
+            currentBody: PendingRequest['body'],
+            method: string,
+            payloadType: RequestBodyTypeEnum,
+            newBodyContent: FormData | string | null,
+        ): PendingRequest['body'] => {
+            const body = { ...currentBody };
+            const methodBody = body[method] ?? {};
+
+            body[method] = {
+                ...methodBody,
+                [payloadType]: newBodyContent,
+            };
+
+            return body;
+        };
+
+        const createRequestFromShearableLinkPayload = (
+            payload: ShareableLinkPayload,
+        ): PendingRequest => {
             const wasExecuted =
                 payload.response !== undefined &&
                 payload.response.durationInMs !== undefined;
 
-            const newRequest: PendingRequest = {
+            return {
                 method: payload.method.toUpperCase(),
                 endpoint: payload.endpoint,
                 headers: payload.headers.map(
@@ -489,6 +444,59 @@ export const useTabsStore = defineStore(
                 durationInMs: payload.response?.durationInMs ?? 0,
                 transactionMode: false,
             };
+        };
+
+        const restoreFromHistory = (historicalRequest: RequestLog) => {
+            if (!activeRequest.value) {
+                return;
+            }
+
+            const method = historicalRequest.request.method.toUpperCase();
+            const payloadType = historicalRequest.request.payloadType;
+
+            // Try to find and sync the route definition
+            const matchingRoute = activeRequest.value.supportedRoutes.find(
+                (route: RouteDefinition) =>
+                    route.method.toUpperCase() === method &&
+                    route.endpoint === historicalRequest.request.endpoint,
+            );
+
+            activeTab.value!.request = {
+                ...activeRequest.value,
+                method,
+                endpoint: historicalRequest.request.endpoint,
+                headers: cloneParameters(historicalRequest.request.headers),
+                queryParameters: cloneParameters(
+                    historicalRequest.request.queryParameters,
+                ),
+                payloadType,
+                // Restore body into the correct slot with reactivity in mind
+                body: restoreResponseBody(
+                    activeRequest.value.body,
+                    method,
+                    payloadType,
+                    historicalRequest.request.body,
+                ),
+                // Restore authorization
+                authorization: {
+                    ...historicalRequest.request.authorization,
+                },
+                // Sync route definition and schema if matching route found
+                ...(matchingRoute
+                    ? {
+                          routeDefinition: matchingRoute,
+                          schema: matchingRoute.schema,
+                      }
+                    : {}),
+                wasExecuted: true,
+                transactionMode: activeRequest.value.transactionMode ?? false,
+            };
+
+            activeTab.value!.response = historicalRequest;
+        };
+
+        const restoreFromSharedPayload = (payload: ShareableLinkPayload) => {
+            const newRequest = createRequestFromShearableLinkPayload(payload);
 
             const id = crypto.randomUUID();
             const newTab: Tab = {
@@ -496,7 +504,27 @@ export const useTabsStore = defineStore(
                 title: payload.endpoint,
                 method: payload.method,
                 request: newRequest,
-                response: null,
+                response:
+                    newRequest.wasExecuted && payload.response
+                        ? {
+                              durationInMs: payload.response.durationInMs,
+                              isProcessing: false,
+                              request: {
+                                  ...newRequest,
+                                  headers: cloneParameters(newRequest.headers),
+                                  queryParameters: cloneParameters(
+                                      newRequest.queryParameters,
+                                  ),
+                                  body: newRequest.body
+                                      ? (newRequest.body[newRequest.method]?.[
+                                            newRequest.payloadType
+                                        ] ?? null)
+                                      : null,
+                              },
+                              response: payload.response,
+                              importedFromShare: true,
+                          }
+                        : null,
             };
 
             tabs.value.push(newTab);
@@ -548,7 +576,6 @@ export const useTabsStore = defineStore(
             openTab,
             closeTab,
             setActiveTab,
-            closeAllTabs,
             moveTab,
             updateActiveTabResponse,
             updateRequestMethod,
@@ -567,6 +594,7 @@ export const useTabsStore = defineStore(
     },
     {
         persist: {
+            pick: ['tabs', 'activeTabId', 'activeApplication', 'lastSyncedGlobalHeaders'],
             afterHydrate: context => {
                 context.store.syncGlobalHeadersWhenApplicable();
             },
