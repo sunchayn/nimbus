@@ -6,8 +6,8 @@ on:
     branches: [ base ]
 jobs:
   test:
-    timeout-minutes: 5
-    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    runs-on: ubuntu-22.04
     name: E2E Tests
     steps:
       - name: Checkout code

@@ -18,7 +18,7 @@ export default defineConfig({
     /* Fail the build on CI if you accidentally left test.only in the source code. */
     forbidOnly: !!process.env.CI,
     retries: 1,
-    workers: process.env.CI ? 3 : 8,
+    workers: 8,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: "html",
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -33,22 +33,15 @@ export default defineConfig({
     },
 
     /* Configure projects for major browsers */
-    projects: process.env.CI
-        ? [
-            {
-                name: "chromium",
-                use: { ...devices["Desktop Chrome"] },
-            },
-        ]
-        : [
-            {
-                name: "chromium",
-                use: { ...devices["Desktop Chrome"] },
-            },
+    projects: [
+        {
+            name: "chromium",
+            use: { ...devices["Desktop Chrome"] },
+        },
 
-            {
-                name: "firefox",
-                use: { ...devices["Desktop Firefox"] },
-            },
-        ],
+        {
+            name: "firefox",
+            use: { ...devices["Desktop Firefox"] },
+        },
+    ],
 });

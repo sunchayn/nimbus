@@ -95,12 +95,12 @@ trap cleanup EXIT
 cd "$TARGET_DIR"
 
 echo "Starting main PHP server on port $PORT1..."
-php artisan serve --host=127.0.0.1 --port="$PORT1" > php_server1.log 2>&1 &
+PHP_CLI_SERVER_WORKERS=8 php artisan serve --host=127.0.0.1 --port="$PORT1" > php_server1.log 2>&1 &
 PID1=$!
 echo "Main PHP server PID: $PID1"
 
 echo "Starting secondary PHP server on port $PORT2..."
-php artisan serve --host=127.0.0.1 --port="$PORT2" > php_server2.log 2>&1 &
+PHP_CLI_SERVER_WORKERS=8 php artisan serve --host=127.0.0.1 --port="$PORT2" > php_server2.log 2>&1 &
 PID2=$!
 echo "Secondary PHP server PID: $PID2"
 
@@ -135,6 +135,7 @@ append_env_var() {
 
 append_env_var "APP_URL" "$BACKEND_URL"
 append_env_var "NIMBUS_RELAY_ENDPOINT" "$SECONDARY_URL"
+append_env_var "CACHE_STORE" "array"
 
 echo "Servers are running..."
 
