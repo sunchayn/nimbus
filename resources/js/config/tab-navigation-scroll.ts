@@ -6,9 +6,9 @@
  */
 export const tabNavigationScrollConfig = {
     /**
-     * Mask width in pixels.
+     * Mask width in pixels (Horizontal).
      *
-     * Width of the gradient masks that fade content at scroll boundaries.
+     * Width of the gradient masks that fade content at scroll boundaries horizontally.
      * Provides visual indication of scrollable content beyond viewport.
      */
     MASK_WIDTH: 32,

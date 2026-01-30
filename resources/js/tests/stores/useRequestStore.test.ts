@@ -9,7 +9,7 @@ import { reactive } from 'vue';
  * Fixtures.
  */
 
-const mockBuilderStore = reactive({
+const mockTabsStore = reactive({
     hasActiveRequest: false,
     pendingRequestData: null as PendingRequest | null,
     initializeRequest: vi.fn(),
@@ -21,6 +21,7 @@ const mockBuilderStore = reactive({
     updateQueryParameters: vi.fn(),
     updateAuthorization: vi.fn(),
     getRequestUrl: vi.fn(),
+    openTab: vi.fn(),
 });
 
 const mockExecutorStore = reactive({
@@ -31,8 +32,9 @@ const mockExecutorStore = reactive({
     cancelCurrentRequest: vi.fn(),
 });
 
-vi.mock('@/stores/request/useRequestBuilderStore', () => ({
-    useRequestBuilderStore: () => mockBuilderStore,
+vi.mock('@/stores', async importOriginal => ({
+    ...(await importOriginal<object>()),
+    useTabsStore: () => mockTabsStore,
 }));
 
 vi.mock('@/stores/request/useRequestExecutorStore', () => ({
@@ -44,9 +46,9 @@ describe('useRequestStore', () => {
         setActivePinia(createPinia());
         vi.clearAllMocks();
 
-        // Reset builder/executor mocks and state between tests
-        mockBuilderStore.pendingRequestData = null;
-        mockBuilderStore.hasActiveRequest = false;
+        // Reset tabs/executor mocks and state between tests
+        mockTabsStore.pendingRequestData = null;
+        mockTabsStore.hasActiveRequest = false;
         mockExecutorStore.isProcessing = false;
     });
 
@@ -85,7 +87,7 @@ describe('useRequestStore', () => {
 
             // Assert
 
-            expect(mockBuilderStore.updateRequestMethod).toHaveBeenCalledWith('POST');
+            expect(mockTabsStore.updateRequestMethod).toHaveBeenCalledWith('POST');
         });
 
         it('should delegate updateRequestEndpoint to builder store', () => {
@@ -99,7 +101,7 @@ describe('useRequestStore', () => {
 
             // Assert
 
-            expect(mockBuilderStore.updateRequestEndpoint).toHaveBeenCalledWith(
+            expect(mockTabsStore.updateRequestEndpoint).toHaveBeenCalledWith(
                 '/api/posts',
             );
         });
@@ -119,7 +121,7 @@ describe('useRequestStore', () => {
 
             // Assert
 
-            expect(mockBuilderStore.updateAuthorization).toHaveBeenCalledWith(auth);
+            expect(mockTabsStore.updateAuthorization).toHaveBeenCalledWith(auth);
         });
     });
 
@@ -131,7 +133,7 @@ describe('useRequestStore', () => {
                 method: 'GET',
                 endpoint: 'api/users',
             } as unknown as PendingRequest;
-            mockBuilderStore.pendingRequestData = mockRequestData;
+            mockTabsStore.pendingRequestData = mockRequestData;
             const store = useRequestStore();
 
             // Act

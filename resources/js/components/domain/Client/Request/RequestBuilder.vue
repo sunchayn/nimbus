@@ -17,7 +17,7 @@ import {
     RequestParameters,
 } from '@/components/domain/Client/Request';
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
-import { uniquePersistenceKey } from '@/utils/stores';
+import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
 
 /*
@@ -36,7 +36,7 @@ defineProps<AppRequestBuilderProps>();
  * State.
  */
 
-const tab = useStorage(uniquePersistenceKey('request-builder-tab'), 'body');
+const tab = useStorage(singletonPersistenceKey('request-builder-tab'), 'body');
 
 const {
     scrollContainer,

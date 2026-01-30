@@ -6,8 +6,9 @@
 import { AppButton } from '@/components/base/button';
 import RequestHistory from '@/components/domain/Client/Response/ResponseStatus/History/RequestHistory.vue';
 import ResponseStatusCode from '@/components/domain/Client/Response/ResponseStatus/ResponseStatusCode.vue';
+import type { RequestLog } from '@/interfaces/history/logs';
 import { type PendingRequest, STATUS } from '@/interfaces/http';
-import { useRequestsHistoryStore, useRequestStore } from '@/stores';
+import { useRequestStore } from '@/stores';
 import { cn } from '@/utils/ui';
 import { Import, RefreshCwOffIcon } from 'lucide-vue-next';
 import prettyBytes from 'pretty-bytes';
@@ -22,6 +23,7 @@ import AppTooltipWrapper from '../../../../base/tooltip/AppTooltipWrapper.vue';
 
 export interface AppResponseStatusProps extends PrimitiveProps {
     class?: HTMLAttributes['class'];
+    response?: RequestLog | null;
 }
 
 /*
@@ -35,7 +37,6 @@ const props = defineProps<AppResponseStatusProps>();
  */
 
 const requestStore = useRequestStore();
-const historyStore = useRequestsHistoryStore();
 
 /*
  * Computed & Methods.
@@ -45,7 +46,7 @@ const pendingRequestData: ComputedRef<PendingRequest | null> = computed(
     () => requestStore.pendingRequestData,
 );
 
-const lastLog = computed(() => historyStore.lastLog);
+const lastLog = computed(() => props.response);
 
 const status = computed(() => {
     if (pendingRequestData.value?.isProcessing) {
@@ -60,19 +61,16 @@ const status = computed(() => {
 });
 
 const size = computed(() =>
-    prettyBytes(
-        pendingRequestData.value?.wasExecuted
-            ? (lastLog.value?.response?.sizeInBytes ?? 0)
-            : 0, // <- When a new endpoint is initialized, we reset the size as well.
-        { space: false },
-    ),
+    prettyBytes(lastLog.value?.response?.sizeInBytes ?? 0, { space: false }),
 );
 
 const duration = computed(() => {
     return prettyMs(
         // If there's a pending request that's processing, use its duration
-        // Otherwise, use the last completed request's duration
-        pendingRequestData.value?.durationInMs ?? lastLog.value?.durationInMs ?? 0,
+        // Otherwise, use the provided response's duration
+        pendingRequestData.value?.isProcessing
+            ? (pendingRequestData.value?.durationInMs ?? 0)
+            : (lastLog.value?.durationInMs ?? 0),
         {
             verbose: false,
             secondsDecimalDigits: 2,

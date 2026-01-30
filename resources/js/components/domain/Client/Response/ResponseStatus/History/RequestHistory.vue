@@ -99,7 +99,7 @@ const selectHistoryItem = (index: number) => {
 
     historyStore.setActiveLog(index);
 
-    requestStore.restoreFromHistory(log.request);
+    requestStore.restoreFromHistory(log);
 };
 
 const reversedLogs = computed(() => {

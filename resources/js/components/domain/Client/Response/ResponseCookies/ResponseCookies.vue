@@ -8,6 +8,7 @@ import CopyButton from '@/components/common/CopyButton.vue';
 import KeyValueDisplayList from '@/components/common/KeyValueDisplayList/KeyValueDisplayList.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import { type ResponseCookie } from '@/interfaces/http';
+import { useTabsStore } from '@/stores';
 import { uniquePersistenceKey } from '@/utils/stores';
 import { useClipboard, useStorage } from '@vueuse/core';
 import { LockIcon, LockOpenIcon } from 'lucide-vue-next';
@@ -37,12 +38,14 @@ defineSlots<{
     value: (props: { item: ResponseCookie }) => string | number | boolean;
 }>();
 
+const tabsStore = useTabsStore();
+
 /*
  * State.
  */
 
 const decryptedCookies = useStorage(
-    uniquePersistenceKey('response-viewer-cookies-decrypted'),
+    uniquePersistenceKey('response-viewer-cookies-decrypted-' + tabsStore.activeTab?.id),
     false,
 );
 

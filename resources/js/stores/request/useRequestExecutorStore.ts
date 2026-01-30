@@ -1,6 +1,6 @@
 import { useHttpClient } from '@/composables/request/useHttpClient';
 import type { ErrorPlainResponse, PendingRequest } from '@/interfaces/http';
-import { useRequestsHistoryStore } from '@/stores';
+import { useRequestsHistoryStore, useTabsStore } from '@/stores';
 import {
     createRequestTimer,
     generateErrorRequestLog,
@@ -21,6 +21,7 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
      */
 
     const historyStore = useRequestsHistoryStore();
+    const tabsStore = useTabsStore();
     const { executeRequest, cancelCurrentRequest } = useHttpClient();
 
     /*
@@ -103,6 +104,7 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
             );
 
             historyStore.addLog(requestLog);
+            tabsStore.updateActiveTabResponse(requestLog);
         } catch (error) {
             // Create RequestLog for history with error using utility function
             const requestLog = generateErrorRequestLog(
@@ -111,6 +113,7 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
             );
 
             historyStore.addLog(requestLog);
+            tabsStore.updateActiveTabResponse(requestLog);
 
             console.error('Request failed:', error);
         } finally {

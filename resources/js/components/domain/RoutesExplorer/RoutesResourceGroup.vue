@@ -13,7 +13,7 @@ import {
     AppSidebarMenuItem,
     AppSidebarMenuSub,
 } from '@/components/base/sidebar';
-import { uniquePersistenceKey } from '@/utils/stores';
+import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
 import { ChevronRight, Folder } from 'lucide-vue-next';
 import { inject } from 'vue';
@@ -37,7 +37,7 @@ const props = defineProps<AppRoutesResourceGroupProps>();
  */
 
 const isOpen = useStorage(
-    uniquePersistenceKey(`routes-explorer-resource-${props.resource}-expanded`),
+    singletonPersistenceKey(`routes-explorer-resource-${props.resource}-expanded`),
     false,
 );
 
@@ -49,7 +49,7 @@ const showingSearchResults = inject('showingSearchResults');
         <AppCollapsible
             class="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90"
             :default-open="isOpen"
-            :open="showingSearchResults ? true : undefined"
+            :open="showingSearchResults ? true : isOpen"
             @update:open="isOpen = $event"
         >
             <AppCollapsibleTrigger as-child>

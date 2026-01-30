@@ -16,9 +16,10 @@ import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody
 import ResponseCookies from '@/components/domain/Client/Response/ResponseCookies/ResponseCookies.vue';
 import ResponseHeaders from '@/components/domain/Client/Response/ResponseHeaders/ResponseHeaders.vue';
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
+import type { RequestLog } from '@/interfaces/history/logs';
 import { STATUS } from '@/interfaces/http';
-import { useRequestsHistoryStore, useRequestStore } from '@/stores';
-import { uniquePersistenceKey } from '@/utils/stores';
+import { useRequestStore } from '@/stores';
+import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
 import { DatabaseBackupIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
@@ -27,26 +28,27 @@ import { computed } from 'vue';
  * Types & Interfaces.
  */
 
-export interface AppResponseViewerResponseProps {}
+export interface AppResponseViewerResponseProps {
+    response?: RequestLog | null;
+}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppResponseViewerResponseProps>();
+const props = defineProps<AppResponseViewerResponseProps>();
 
 /*
  * Stores.
  */
 
-const historyStore = useRequestsHistoryStore();
 const requestStore = useRequestStore();
 
 /*
  * State.
  */
 
-const tab = useStorage(uniquePersistenceKey('response-viewer-tab'), 'response');
+const tab = useStorage(singletonPersistenceKey('response-viewer-tab'), 'response');
 
 const {
     scrollContainer,
@@ -60,7 +62,7 @@ const {
  * Computed & Methods.
  */
 
-const lastLog = computed(() => historyStore.lastLog);
+const lastLog = computed(() => props.response);
 const pendingRequestData = computed(() => requestStore.pendingRequestData);
 
 const showTransactionAlert = computed(() => {

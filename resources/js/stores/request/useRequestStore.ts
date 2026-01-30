@@ -1,6 +1,6 @@
+import { useTabsStore } from '@/stores';
 import { defineStore } from 'pinia';
 import { computed } from 'vue';
-import { useRequestBuilderStore } from './useRequestBuilderStore';
 import { useRequestExecutorStore } from './useRequestExecutorStore';
 
 /**
@@ -14,17 +14,17 @@ export const useRequestStore = defineStore('request', () => {
      * Stores & dependencies.
      */
 
-    const builderStore = useRequestBuilderStore();
+    const tabsStore = useTabsStore();
     const executorStore = useRequestExecutorStore();
 
     /*
      * Computed.
      */
 
-    const hasActiveRequest = computed(() => builderStore.hasActiveRequest);
-    const pendingRequestData = computed(() => builderStore.pendingRequestData);
+    const hasActiveRequest = computed(() => tabsStore.hasActiveRequest);
+    const pendingRequestData = computed(() => tabsStore.pendingRequestData);
     const canExecute = computed(() =>
-        executorStore.canExecute(builderStore.pendingRequestData),
+        executorStore.canExecute(tabsStore.pendingRequestData),
     );
 
     /*
@@ -35,8 +35,8 @@ export const useRequestStore = defineStore('request', () => {
      * Initializes a new request (forward to builder store) and resets the execution state.
      */
     const initializeRequest = (
-        route: Parameters<typeof builderStore.initializeRequest>[0],
-        supportedRoutes: Parameters<typeof builderStore.initializeRequest>[1],
+        route: Parameters<typeof tabsStore.openTab>[0],
+        supportedRoutes: Parameters<typeof tabsStore.openTab>[1],
     ) => {
         if (
             route.endpoint === pendingRequestData.value?.endpoint &&
@@ -48,7 +48,7 @@ export const useRequestStore = defineStore('request', () => {
         // Cancel ongoing request.
         executorStore.cancelCurrentRequest();
 
-        builderStore.initializeRequest(route, supportedRoutes);
+        tabsStore.openTab(route, supportedRoutes);
     };
 
     return {
@@ -60,26 +60,25 @@ export const useRequestStore = defineStore('request', () => {
         pendingRequestData,
         canExecute,
 
-        // Request Building Actions (delegated to builder store)
-        updateRequestMethod: builderStore.updateRequestMethod,
-        updateRequestEndpoint: builderStore.updateRequestEndpoint,
-        updateRequestHeaders: builderStore.updateRequestHeaders,
-        updateRequestBody: builderStore.updateRequestBody,
-        updateQueryParameters: builderStore.updateQueryParameters,
-        updateAuthorization: builderStore.updateAuthorization,
-        updateTransactionMode: builderStore.updateTransactionMode,
-        getRequestUrl: builderStore.getRequestUrl,
-        restoreFromHistory: builderStore.restoreFromHistory,
+        // Request Building Actions (delegated to tabs store)
+        updateRequestMethod: tabsStore.updateRequestMethod,
+        updateRequestEndpoint: tabsStore.updateRequestEndpoint,
+        updateRequestHeaders: tabsStore.updateRequestHeaders,
+        updateRequestBody: tabsStore.updateRequestBody,
+        updateQueryParameters: tabsStore.updateQueryParameters,
+        updateAuthorization: tabsStore.updateAuthorization,
+        updateTransactionMode: tabsStore.updateTransactionMode,
+        getRequestUrl: tabsStore.getRequestUrl,
+        resetRequest: tabsStore.resetRequest,
+        restoreFromHistory: tabsStore.restoreFromHistory,
 
         // Request Execution Actions (delegated to executor store)
         executeCurrentRequest: () => {
-            if (!builderStore.pendingRequestData) {
+            if (!tabsStore.pendingRequestData) {
                 return;
             }
 
-            return executorStore.executeRequestWithTiming(
-                builderStore.pendingRequestData,
-            );
+            return executorStore.executeRequestWithTiming(tabsStore.pendingRequestData);
         },
         cancelCurrentRequest: executorStore.cancelCurrentRequest,
 

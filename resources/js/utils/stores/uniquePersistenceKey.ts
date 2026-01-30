@@ -16,6 +16,14 @@ export const uniquePersistenceKey = (key: string): string => {
     return render(key);
 };
 
+export const singletonPersistenceKey = (key: string): string => {
+    if (!keys.includes(key)) {
+        keys.push(key);
+    }
+
+    return render(key);
+};
+
 export const clearPersistentKeys = (): void => {
     keys.forEach((key: string) => {
         window.localStorage.removeItem(render(key));

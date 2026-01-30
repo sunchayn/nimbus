@@ -1,11 +1,11 @@
 import ResponseViewer from '@/components/domain/Client/Response/ResponseViewer.vue';
 import type { RequestLog } from '@/interfaces';
-import { useRequestsHistoryStore } from '@/stores';
+import { useTabsStore } from '@/stores';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
+import { nextTick, reactive, ref } from 'vue';
 
 /*
  * Fixtures.
@@ -25,6 +25,15 @@ vi.mock('@/components/domain/Client/Response/ResponseViewerErrorState.vue', () =
 
 vi.mock('@/components/domain/Client/Response/ResponseViewerResponse.vue', () => ({
     default: { template: '<div data-testid="response-content" />' },
+}));
+
+const mockTabsStore = reactive({
+    activeResponse: ref(null) as any,
+});
+
+vi.mock('@/stores', () => ({
+    useTabsStore: () => mockTabsStore,
+    useRequestsHistoryStore: () => ({ allLogs: [], lastLog: null }), // Mock legacy if needed or just empty
 }));
 
 /**
@@ -66,13 +75,10 @@ describe('ResponseViewer', () => {
             // Arrange
 
             const wrapper = createWrapper(pinia);
-            const historyStore = useRequestsHistoryStore();
 
             // Act
 
-            historyStore.logs = [
-                { error: { message: 'Failed' } } as unknown as RequestLog,
-            ];
+            mockTabsStore.activeResponse = { error: { message: 'Failed' } };
             await nextTick();
 
             // Assert
@@ -84,11 +90,10 @@ describe('ResponseViewer', () => {
             // Arrange
 
             const wrapper = createWrapper(pinia);
-            const historyStore = useRequestsHistoryStore();
 
             // Act
 
-            historyStore.logs = [{ response: { status: 200 } } as unknown as RequestLog];
+            mockTabsStore.activeResponse = { response: { status: 200 } };
             await nextTick();
 
             // Assert

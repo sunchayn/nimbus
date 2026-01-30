@@ -19,10 +19,19 @@ describe('useRequestAuthorization', () => {
                 createSpy: vi.fn,
                 stubActions: false,
                 initialState: {
-                    _requestBuilder: {
-                        pendingRequestData: {
-                            authorization: { type: AuthorizationType.None, value: null },
-                        },
+                    tabs: {
+                        tabs: [
+                            {
+                                id: 'tab1',
+                                request: {
+                                    authorization: {
+                                        type: AuthorizationType.None,
+                                        value: null,
+                                    },
+                                },
+                            },
+                        ],
+                        activeTabId: 'tab1',
                     },
                 },
             }),
@@ -53,8 +62,7 @@ describe('useRequestAuthorization', () => {
 
     describe('Behavior', () => {
         it('initializes with default authorization if not set in store', () => {
-            // @ts-expect-error Attempt to assign to const or readonly variable
-            requestStore.pendingRequestData = null;
+            requestStore.resetRequest();
 
             const { authorization } = useRequestAuthorization();
 

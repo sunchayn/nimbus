@@ -179,7 +179,7 @@ describe('RequestHistory', () => {
             // Assert
 
             expect(mockRequestsHistoryStore.setActiveLog).toHaveBeenCalledWith(0);
-            expect(mockRequestStore.restoreFromHistory).toHaveBeenCalledWith(log.request);
+            expect(mockRequestStore.restoreFromHistory).toHaveBeenCalledWith(log);
         });
 
         it('requires double click to clear history (confirmation logic)', async () => {

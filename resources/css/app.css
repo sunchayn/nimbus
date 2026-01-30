@@ -65,4 +65,8 @@
     .pr-panel {
         padding-right: var(--panel-padding);
     }
+
+    .no-scrollbar {
+        @apply [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+    }
 }

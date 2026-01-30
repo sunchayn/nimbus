@@ -6,8 +6,7 @@ import type { RouteDefinition } from '@/interfaces/routes/routes';
 import type { ShareableLinkPayload, SharedState } from '@/interfaces/share';
 import type { ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui';
-import { useRequestsHistoryStore, useSharedStateStore } from '@/stores';
-import { useRequestBuilderStore } from '@/stores/request/useRequestBuilderStore';
+import { useRequestsHistoryStore, useSharedStateStore, useTabsStore } from '@/stores';
 import { onMounted } from 'vue';
 import { toast } from 'vue-sonner';
 
@@ -26,7 +25,7 @@ export function useSharedStateRestoration(): UseSharedStateRestorationResult {
      */
 
     const sharedStateStore = useSharedStateStore();
-    const requestBuilderStore = useRequestBuilderStore();
+    const tabsStore = useTabsStore();
     const historyStore = useRequestsHistoryStore();
 
     /*
@@ -209,17 +208,7 @@ export function useSharedStateRestoration(): UseSharedStateRestorationResult {
             return;
         }
 
-        requestBuilderStore.restoreFromSharedPayload({
-            method: sharedState.payload.method,
-            endpoint: sharedState.payload.endpoint,
-            headers: sharedState.payload.headers,
-            queryParameters: sharedState.payload.queryParameters,
-            body: sharedState.payload.body,
-            payloadType: sharedState.payload.payloadType,
-            authorization: sharedState.payload.authorization,
-            durationInMs: sharedState.payload.response?.durationInMs,
-            wasExecuted: !!sharedState.payload.response,
-        });
+        tabsStore.restoreFromSharedPayload(sharedState.payload);
 
         addSharedResponseToHistory(sharedState.payload, historyStore);
 
