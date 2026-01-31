@@ -1,40 +1,10 @@
 {
-  "_CopyButton.vue_vue_type_script_setup_true_lang-DV6Po-VK.js": {
-    "file": "assets/CopyButton.vue_vue_type_script_setup_true_lang-DV6Po-VK.js",
-    "name": "CopyButton.vue_vue_type_script_setup_true_lang",
-    "imports": [
-      "resources/js/app/app.ts",
-      "_index-DcuoLOFL.js"
-    ]
-  },
-  "_PageLayout.vue_vue_type_script_setup_true_lang-DO3NWuYB.js": {
-    "file": "assets/PageLayout.vue_vue_type_script_setup_true_lang-DO3NWuYB.js",
-    "name": "PageLayout.vue_vue_type_script_setup_true_lang",
+  "_AppPopoverTrigger.vue_vue_type_script_setup_true_lang-CvMdocUs.js": {
+    "file": "assets/AppPopoverTrigger.vue_vue_type_script_setup_true_lang-CvMdocUs.js",
+    "name": "AppPopoverTrigger.vue_vue_type_script_setup_true_lang",
     "imports": [
       "resources/js/app/app.ts"
     ]
-  },
-  "_index-DcuoLOFL.js": {
-    "file": "assets/index-DcuoLOFL.js",
-    "name": "index",
-    "imports": [
-      "resources/js/app/app.ts"
-    ]
-  },
-  "_useResponsiveResizable-BO8UC-GV.js": {
-    "file": "assets/useResponsiveResizable-BO8UC-GV.js",
-    "name": "useResponsiveResizable",
-    "imports": [
-      "resources/js/app/app.ts",
-      "_index-DcuoLOFL.js"
-    ],
-    "css": [
-      "assets/useResponsiveResizable-BxyqjwMB.css"
-    ]
-  },
-  "_useResponsiveResizable-BxyqjwMB.css": {
-    "file": "assets/useResponsiveResizable-BxyqjwMB.css",
-    "src": "_useResponsiveResizable-BxyqjwMB.css"
   },
   "node_modules/shiki/dist/langs/javascript.mjs": {
     "file": "assets/javascript-ySlJ1b_l.js",
@@ -55,34 +25,31 @@
     "isDynamicEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-CSOVcLR1.css",
+    "file": "assets/app-5tLSh9Fn.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app/app.ts": {
-    "file": "assets/app-D3FAS97P.js",
+    "file": "assets/app-C6VkUBdm.js",
     "name": "app",
     "src": "resources/js/app/app.ts",
     "isEntry": true,
     "dynamicImports": [
       "resources/js/pages/Main.vue",
-      "resources/js/pages/Settings.vue",
-      "resources/js/pages/Status.vue"
+      "resources/js/pages/Settings.vue"
     ],
     "css": [
-      "assets/app-CSOVcLR1.css"
+      "assets/app-5tLSh9Fn.css"
     ]
   },
   "resources/js/pages/Main.vue": {
-    "file": "assets/Main-DZwmmPC3.js",
+    "file": "assets/Main-BHI4Qeo7.js",
     "name": "Main",
     "src": "resources/js/pages/Main.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_useResponsiveResizable-BO8UC-GV.js",
       "resources/js/app/app.ts",
-      "_CopyButton.vue_vue_type_script_setup_true_lang-DV6Po-VK.js",
-      "_index-DcuoLOFL.js"
+      "_AppPopoverTrigger.vue_vue_type_script_setup_true_lang-CvMdocUs.js"
     ],
     "dynamicImports": [
       "node_modules/shiki/dist/themes/vitesse-light.mjs",
@@ -90,38 +57,21 @@
       "node_modules/shiki/dist/langs/javascript.mjs"
     ],
     "css": [
-      "assets/Main-DTcswQTP.css",
-      "assets/app-CSOVcLR1.css"
+      "assets/Main-BJKJQt2p.css",
+      "assets/app-5tLSh9Fn.css"
     ]
   },
   "resources/js/pages/Settings.vue": {
-    "file": "assets/Settings-CD3lDt1W.js",
+    "file": "assets/Settings-CNViBy3D.js",
     "name": "Settings",
     "src": "resources/js/pages/Settings.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_index-DcuoLOFL.js",
-      "resources/js/app/app.ts",
-      "_CopyButton.vue_vue_type_script_setup_true_lang-DV6Po-VK.js",
-      "_PageLayout.vue_vue_type_script_setup_true_lang-DO3NWuYB.js"
+      "_AppPopoverTrigger.vue_vue_type_script_setup_true_lang-CvMdocUs.js",
+      "resources/js/app/app.ts"
     ],
     "css": [
-      "assets/app-CSOVcLR1.css"
-    ]
-  },
-  "resources/js/pages/Status.vue": {
-    "file": "assets/Status-bKji1uDz.js",
-    "name": "Status",
-    "src": "resources/js/pages/Status.vue",
-    "isDynamicEntry": true,
-    "imports": [
-      "_useResponsiveResizable-BO8UC-GV.js",
-      "_index-DcuoLOFL.js",
-      "resources/js/app/app.ts",
-      "_PageLayout.vue_vue_type_script_setup_true_lang-DO3NWuYB.js"
-    ],
-    "css": [
-      "assets/app-CSOVcLR1.css"
+      "assets/app-5tLSh9Fn.css"
     ]
   }
 }
