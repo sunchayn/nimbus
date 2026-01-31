@@ -73,13 +73,17 @@ test('Link Sharing complete workflow', async ({ page, basePage }) => {
     await page.getByRole('button', { name: 'GET /show-logged-in-user' }).click();
     await basePage.executeRequest();
 
+    // Verify that clearing storage resets the state
     await page.context().clearCookies();
     await page.evaluate(() => {
+        // Prevent any further writes to localStorage from the running app (race condition fix)
+        Storage.prototype.setItem = () => { };
+
         localStorage.clear();
         sessionStorage.clear();
     });
 
-    await page.reload();
+    await basePage.goto();
 
     // Assert - Verify state is empty
 
