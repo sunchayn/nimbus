@@ -1,5 +1,7 @@
 import { test, expect } from '../core/fixtures';
 
+test.describe.configure({ mode: 'serial' });
+
 test('Link Sharing complete workflow', async ({ page, basePage }) => {
     // Arrange
 
