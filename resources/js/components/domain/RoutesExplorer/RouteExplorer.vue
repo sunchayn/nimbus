@@ -26,9 +26,9 @@ import { useTabVerticalScroll } from '@/composables/ui/useTabVerticalScroll';
 import { type RouteDefinition, type RoutesGroup } from '@/interfaces/routes/routes';
 import { useConfigStore, useTabsStore } from '@/stores';
 import { uniquePersistenceKey } from '@/utils/stores';
+import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
 import { computed, provide, ref, watch } from 'vue';
-import {singletonPersistenceKey} from "@/utils/stores/uniquePersistenceKey";
 
 /*
  * Types & Interfaces.
