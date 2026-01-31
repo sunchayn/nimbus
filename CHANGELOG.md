@@ -1,2 +1,62 @@
 # Changelog
 
+## [0.4.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.3.0-alpha...v0.4.0-alpha) (2026-01-31)
+
+
+### Features
+
+* **client:** add `tabs` support ([#52](https://github.com/sunchayn/nimbus/issues/52)) ([8c02877](https://github.com/sunchayn/nimbus/commit/8c028773d8d402fd392a5dfd38ab6018fc9d22af))
+* **export:** add shareable links ([#41](https://github.com/sunchayn/nimbus/issues/41)) ([2895a0d](https://github.com/sunchayn/nimbus/commit/2895a0ddc6ee6e3ff53132980ec05db34b754b59))
+* **history:** add history viewer and rewind ([#38](https://github.com/sunchayn/nimbus/issues/38)) ([e1b844c](https://github.com/sunchayn/nimbus/commit/e1b844cee0d4ee2919d98b43c4e719261ae8e213))
+* persist UI state ([#32](https://github.com/sunchayn/nimbus/issues/32)) ([8780a79](https://github.com/sunchayn/nimbus/commit/8780a79557e02e5a600439480c911ec7bce4aefd))
+* **relay:** add transaction mode to requests ([#49](https://github.com/sunchayn/nimbus/issues/49)) ([aa99eac](https://github.com/sunchayn/nimbus/commit/aa99eacd2cbd71b1e96fd2ca5bf340e513cb6419))
+* **relay:** render `dd()` responses properly ([#29](https://github.com/sunchayn/nimbus/issues/29)) ([e3b3370](https://github.com/sunchayn/nimbus/commit/e3b3370ebe0000575c98897ef1335d0e603a37ae))
+* **routes:** add support for processing OpenAPI specs ([#50](https://github.com/sunchayn/nimbus/issues/50)) ([c015e62](https://github.com/sunchayn/nimbus/commit/c015e625339a55b2082fc94edbf2ed105e71b63f))
+* **routes:** auto-select route variables on click ([#24](https://github.com/sunchayn/nimbus/issues/24)) ([8e05ce4](https://github.com/sunchayn/nimbus/commit/8e05ce4978a552871eb4074001e5f05a0b4f937a))
+* **routes:** support multi-applications in config [breaking] ([#34](https://github.com/sunchayn/nimbus/issues/34)) ([a090c48](https://github.com/sunchayn/nimbus/commit/a090c484f8a55b0bd526e5e4c05f8a159e22061c))
+* **routes:** support Spatie Data objects ([#23](https://github.com/sunchayn/nimbus/issues/23)) ([052cdde](https://github.com/sunchayn/nimbus/commit/052cddeca6c01def957db713a704034e59417c4f))
+
+
+### Bug Fixes
+
+* **config:** use normalized key for config ([#26](https://github.com/sunchayn/nimbus/issues/26)) ([32ef39e](https://github.com/sunchayn/nimbus/commit/32ef39ef8e4e01a5db9d8817be823f64a64ac167))
+* **curl:** properly export get requests with body payload ([#25](https://github.com/sunchayn/nimbus/issues/25)) ([4adb5a1](https://github.com/sunchayn/nimbus/commit/4adb5a1bbf93752daf2891c982de5b1cf985557d))
+* **curl:** properly wrap JSON payload ([#31](https://github.com/sunchayn/nimbus/issues/31)) ([8bdd510](https://github.com/sunchayn/nimbus/commit/8bdd510f179b0c86175557d41fbda2797a41a507))
+* **relay:** don't crash request on corrupt cookies ([#48](https://github.com/sunchayn/nimbus/issues/48)) ([0a4d444](https://github.com/sunchayn/nimbus/commit/0a4d44448b12b785bedf76f60286be098899634e))
+* **relay:** properly process plain text payload ([#39](https://github.com/sunchayn/nimbus/issues/39)) ([7b0af6f](https://github.com/sunchayn/nimbus/commit/7b0af6feff1bb29b96ab2da45b7e13c97212db4e))
+* **relay:** properly relay request paramters ([#28](https://github.com/sunchayn/nimbus/issues/28)) ([64ef46a](https://github.com/sunchayn/nimbus/commit/64ef46a8a4311d1d958bb30a557748bbf9a8f0ea))
+* **ui:** ui improvements follow up (tabs + state persistence + error viewer) ([#47](https://github.com/sunchayn/nimbus/issues/47)) ([9118ad6](https://github.com/sunchayn/nimbus/commit/9118ad6d20108334ec7d66354ef0a928a8b36441))
+* work around l12 breaking change ([#43](https://github.com/sunchayn/nimbus/issues/43)) ([562b02d](https://github.com/sunchayn/nimbus/commit/562b02d207efc57c6b062be8bbd95c64165c8526))
+
+
+### Maintenance Tasks
+
+* improve code mirror theme consistency ([#46](https://github.com/sunchayn/nimbus/issues/46)) ([33e1ff0](https://github.com/sunchayn/nimbus/commit/33e1ff0c7256c50f3a0a18a9673b6e9732f93395))
+* move roadmap to a discussion ([07f0106](https://github.com/sunchayn/nimbus/commit/07f0106b167275b52bdd8d46a003f8adb7f441b2))
+* remove the status page ([#51](https://github.com/sunchayn/nimbus/issues/51)) ([bc43530](https://github.com/sunchayn/nimbus/commit/bc43530a9eb5ad54b63ef8051067e6d6a5004b72))
+* setup E2E foundation ([#22](https://github.com/sunchayn/nimbus/issues/22)) ([dc1f76b](https://github.com/sunchayn/nimbus/commit/dc1f76b4a6cddff44f1dcababda96fca474d7003))
+* update roadmap ([35f6632](https://github.com/sunchayn/nimbus/commit/35f663206fbd0c95b502c82f7812574f72583b91))
+
+
+### CI/CD
+
+* add automated release flow ([#35](https://github.com/sunchayn/nimbus/issues/35)) ([141724e](https://github.com/sunchayn/nimbus/commit/141724eb8479cb65d5b62c9266bf821127ab24c9))
+* elevate release-please permission ([1eb1f14](https://github.com/sunchayn/nimbus/commit/1eb1f14416f0c1a73964d09d58597af89b1ef6fb))
+* fix auth token issue ([#42](https://github.com/sunchayn/nimbus/issues/42)) ([6cff0e9](https://github.com/sunchayn/nimbus/commit/6cff0e9ebdf08539e49a12a46c61d8da677dc0a4))
+* fix gha issues ([#40](https://github.com/sunchayn/nimbus/issues/40)) ([edd9b7b](https://github.com/sunchayn/nimbus/commit/edd9b7be4f51d0232f8c16919d8883f89a5acb94))
+* fix lock file ([ac44e19](https://github.com/sunchayn/nimbus/commit/ac44e19dbaf9c1592e456cdd0ed074d993cb4a32))
+* fix release-please workflow ([cbd690a](https://github.com/sunchayn/nimbus/commit/cbd690a272ec307d3a335997726e8ed4890290d3))
+* make release please workflow more explicit ([7fa6a8e](https://github.com/sunchayn/nimbus/commit/7fa6a8e901de4dd72d07cb5caf102d42b4b155f4))
+* mark builds as success when skipped ([#37](https://github.com/sunchayn/nimbus/issues/37)) ([f818eee](https://github.com/sunchayn/nimbus/commit/f818eee454b2be03d31b33afdc39cd25220cd2ed))
+* properly configure release please ([35db665](https://github.com/sunchayn/nimbus/commit/35db6654b17cba2e194a8922a08d1a9079ad1c87))
+* properly set required jobs ([#44](https://github.com/sunchayn/nimbus/issues/44)) ([106bba7](https://github.com/sunchayn/nimbus/commit/106bba75399b0f9d3211a762aa8a33cc327e6dde))
+* run E2E tests with the current branch ([#27](https://github.com/sunchayn/nimbus/issues/27)) ([7b4c37d](https://github.com/sunchayn/nimbus/commit/7b4c37d10d07bf707cd6ef76ef0bd355f390981e))
+* use a hook for the version ([a9e4e12](https://github.com/sunchayn/nimbus/commit/a9e4e121ad6b8e61bc6b6939cba3ebee21653627))
+
+
+### Code Refactoring
+
+* **schemas:** use standardized schema shapes ([#33](https://github.com/sunchayn/nimbus/issues/33)) ([78d91a3](https://github.com/sunchayn/nimbus/commit/78d91a39c136c850de8aba9e0f36a988fb210123))
+* solidify the FE codebase and improve UI consistency ([#45](https://github.com/sunchayn/nimbus/issues/45)) ([35b9604](https://github.com/sunchayn/nimbus/commit/35b96042f06d4a49ef07762ea76af1123cecc936))
+
+## Changelog
