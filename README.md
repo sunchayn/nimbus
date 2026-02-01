@@ -20,49 +20,47 @@ Traditional API testing tools require manual setup for every endpoint. Nimbus re
 
 ### What Nimbus Is NOT
 
-Nimbus is **NOT** an API documentation generator. It doesn't produce client-facing API documentation. Instead, it's a **developer-focused API playground** designed to improve your development experience while building and testing APIs.
+Nimbus is **NOT** an API documentation generator like Swagger or Scribe. It doesn't produce customer-facing API documentation. Instead, it's a **developer-focused API playground** designed to improve your iteration speed while building and testing APIs.
 
-## Features
+## Key Features
 
-- Automatic route and schema discovery from Laravel routes and validation rules.
-- Built-in, polished interface for testing API endpoints in your browser.
-- Response viewer with JSON formatting and syntax highlighting.
-- Cookie inspection with automatic Laravel cookie decryption.
-- Special authentication modes:
-    - Make requests as the currently logged-in user.
-    - Impersonate other users by ID.
-    - Bearer token and Basic Auth support.
-- Inline value generators for realistic test data (UUIDs, emails, names, dates, etc.).
+- Automatic Discovery: Routes and schemas generated directly from your Laravel `FormRequest`, `SpatieData` classes and inline validation rules.
+- Built-in, polished interface for inspecting API endpoints in your browser.
+- Shareable Links: Capture a request state (headers, body, auth) and send it to a colleague.
+- Safe Testing (Transaction Mode): Run a request and automatically roll back database changes. Test `DELETE` or `UPDATE` endpoints without dirtying your data.
+- OpenAPI as a First-Class Citizen: Use your OpenAPI schema to super-charge discovery while retaining Nimbus's automatic detection for undocumented routes.
+- Magic `dd()` Handling: Intercepts `dd()` calls and renders them in a paginated window that doesn't break your UI.
+- Multi-Application Support: Switch between different APIs (e.g., `rest-api`, `admin-api`) within the same interface.
+- Special Authentication: 
+    - Act as the currently logged-in user.
+    - Impersonate any user by ID.
+    - Bearer and Basic Auth support.
 - Global headers automatically applied to every request.
-- One-click payload population with realistic test data.
-- Export requests as cURL commands.
+- Value Generators: One-click payload population with realistic test data (UUIDs, names, emails, etc.).
 
 ---
 
 ## Quick Start
 
-### Requirements
+### 1. Requirements
 
-- PHP 8.2 or higher.
-- Laravel 10.x, 11.x, or 12.x.
+- PHP 8.2+
+- Laravel 10.x, 11.x, or 12.x
+- A real web server (Herd, Sail, Docker, Nginx). *Note: `php artisan serve` is not supported.*
 
-### Installation
-
-Install via Composer:
+### 2. Installation
 
 ```bash
 composer require sunchayn/nimbus
 ```
 
-Publish the configuration and assets:
+### 3. Setup
 
 ```bash
 php artisan vendor:publish --tag=nimbus-assets --tag=nimbus-config
 ```
 
-This publishes `config/nimbus.php` and the necessary frontend assets.
-
-### Access Nimbus
+### 4. Access Nimbus
 
 Start your Laravel application and navigate to:
 
@@ -85,20 +83,11 @@ That's it! Nimbus will automatically discover your API routes and their validati
 
 ## Alpha Release Notice
 
-Nimbus is currently an **alpha** release to validate the concept. You may encounter unexpected behaviors or bugs. All feedback is welcome:
+Nimbus is currently an **alpha**. You may encounter unexpected behaviors or bugs. All feedback is welcome:
 
 - Report bugs: [Open an issue](https://github.com/sunchayn/nimbus/issues/new/choose)
 - Share ideas: [Start a discussion](https://github.com/sunchayn/nimbus/discussions/categories/ideas)
 - Ask questions: [Q&A discussions](https://github.com/sunchayn/nimbus/discussions/categories/q-a)
-
-## Contributing
-
-Thanks for considering contributing! Please read the [Contributor Guide](wiki/contribution-guide/README.md) for the following:
-
-- Architecture overview and design principles.
-- Development environment setup.
-- Coding standards and testing guidelines.
-- Pull request process.
 
 ## License
 
