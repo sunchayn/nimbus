@@ -31,6 +31,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
     - [Transaction Mode](#transaction-mode)
     - [Export to cURL](#export-to-curl)
     - [Shareable Links](#shareable-links)
+    - [OpenAPI Support](#openapi-support)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
 - [Getting Help](#getting-help)
@@ -397,6 +398,46 @@ When a shareable link is opened, Nimbus will:
 - Automatically restore all request data.
 - **Switch Applications**: If the link points to a route in a different application (e.g., from `Rest API` to `Admin API`), Nimbus will automatically switch the active application context for you.
 
+### OpenAPI Support
+
+By default, Nimbus auto-detects routes from your Laravel application. However, you can also configure Nimbus to load routes directly from OpenAPI specification files.
+
+**Prerequisites:**
+
+This feature requires the `devizzent/cebe-php-openapi` package:
+
+```bash
+composer require devizzent/cebe-php-openapi
+```
+
+**Configuration:**
+
+To enable OpenAPI support, update your `config/nimbus.php`:
+
+1.  Set the strategy to OpenAPI:
+    ```php
+    'strategy' => \Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum::OpenAPI,
+    ```
+
+2.  Configure the `openapi` section:
+    ```php
+    'openapi' => [
+        'files' => [
+            // For unversioned APIs
+            'default' => base_path('docs/openapi.yaml'),
+
+            // OR for versioned APIs (keys must match version segments)
+            'v1' => base_path('docs/v1/openapi.yaml'),
+            'v2' => base_path('docs/v2/openapi.json'),
+        ],
+
+        // Toggle display of Operation IDs in the sidebar instead of the route path
+        'show_operation_id' => false,
+    ],
+    ```
+
+![OpenAPI Support](./assets/open-api-support.png)
+
 ---
 
 ## Configuration
@@ -436,6 +477,9 @@ return [
 | **`applications.*.routes.prefix`**         | The base path used to detect application routes. Only routes starting with this prefix are analyzed.                                                                                                            | `'api'`                           | `'api/v1'`                                                |
 | **`applications.*.routes.versioned`**      | Enables version parsing for routes like `/api/v1/...`.                                                                                                                                                          | `false`                           | `true`                                                    |
 | **`applications.*.routes.api_base_url`**   | The base URL used when Nimbus relays API requests from the UI. Useful when the API runs on a different domain or port. If set to null, Nimbus will default to the same host and scheme as the incoming request. | null                              | `http://127.0.0.1:8001`                                   |
+| **`applications.*.routes.strategy`**       | The strategy used to discover routes. Options: `AutoDetect` or `OpenAPI`.                                                                                                                                       | `AutoDetect`                      | `RoutesProcessingStrategyEnum::OpenAPI`                   |
+| **`applications.*.routes.openapi.files`**  | Map of versions to OpenAPI file paths. Required when strategy is `OpenAPI`.                                                                                                                                     | `[]`                              | `['v1' => base_path('docs/v1.yaml')]`                     |
+| **`applications.*.routes.openapi.show_operation_id`** | Defines whether to show the Operation ID in the sidebar.                                                                                                                                                        | `false`                           | `true`                                                    |
 | **`applications.*.auth.guard`**            | The Laravel guard used for the API requests authentication.                                                                                                                                                     | `'api'`                           | `'web'`                                                   |
 | **`applications.*.auth.special.injector`** | Injector class used to attach authentication credentials to outgoing requests. Must implement `SpecialAuthenticationInjectorContract`.                                                                          | `RememberMeCookieInjector::class` | `TymonJwtTokenInjector::class`                            |
 | **`headers`**                              | Global headers applied to all outgoing requests. Supports static values or enum generators.                                                                                                                     | `[]`                              | `['x-request-id' => GlobalHeaderGeneratorTypeEnum::UUID]` |
