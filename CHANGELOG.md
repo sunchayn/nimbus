@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1-alpha](https://github.com/sunchayn/nimbus/compare/v0.4.0-alpha...v0.4.1-alpha) (2026-02-02)
+
+
+### Maintenance Tasks
+
+* wiki and artificats cleanups ([#56](https://github.com/sunchayn/nimbus/issues/56)) ([e1fe4ee](https://github.com/sunchayn/nimbus/commit/e1fe4eefeb647cd7555bb5889926941c60f32d7f))
+
 ## [0.4.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.3.0-alpha...v0.4.0-alpha) (2026-01-31)
 
 
