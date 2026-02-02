@@ -143,7 +143,6 @@ const handlePanelExpand = () => {
     isOpenTabsExpanded.value = true;
 };
 
-
 watch(isOpenTabsExpanded, newValue => {
     if (newValue) {
         openTabsPanel.value?.expand();

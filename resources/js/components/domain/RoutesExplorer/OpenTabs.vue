@@ -8,6 +8,7 @@ import {
     AppCollapsibleContent,
     AppCollapsibleTrigger,
 } from '@/components/base/collapsible';
+import { AppScrollArea } from '@/components/base/scroll-area';
 import {
     AppSidebarGroup,
     AppSidebarGroupContent,
@@ -15,7 +16,6 @@ import {
     AppSidebarMenuItem,
 } from '@/components/base/sidebar';
 import HttpVerbLabel from '@/components/domain/HttpVerbLabel/HttpVerbLabel.vue';
-import { AppScrollArea } from '@/components/base/scroll-area';
 import { useTabVerticalScroll } from '@/composables/ui/useTabVerticalScroll';
 import { useTabsStore } from '@/stores';
 import { ChevronRight, XIcon } from 'lucide-vue-next';
@@ -32,11 +32,16 @@ const tabsStore = useTabsStore();
  * Vertical Scroll.
  */
 
-const { scrollContainer, showTopMask, showBottomMask, updateScrollMasks, scrollTabIntoView } =
-    useTabVerticalScroll({
-        SCROLL_PADDING: 20,
-        MASK_HEIGHT: 32,
-    });
+const {
+    scrollContainer,
+    showTopMask,
+    showBottomMask,
+    updateScrollMasks,
+    scrollTabIntoView,
+} = useTabVerticalScroll({
+    SCROLL_PADDING: 20,
+    MASK_HEIGHT: 32,
+});
 
 const tabElements = ref<Record<string, HTMLElement>>({});
 

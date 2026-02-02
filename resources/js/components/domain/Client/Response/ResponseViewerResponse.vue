@@ -4,6 +4,7 @@
  * @description Renders the successful response details, including body, headers, and cookies.
  */
 import { AppBadge } from '@/components/base/badge';
+import { AppScrollArea } from '@/components/base/scroll-area';
 import {
     AppTabs,
     AppTabsContent,
@@ -11,7 +12,6 @@ import {
     AppTabsTrigger,
 } from '@/components/base/tabs';
 import { AppTooltipWrapper } from '@/components/base/tooltip';
-import { AppScrollArea } from '@/components/base/scroll-area';
 import ResponseBody from '@/components/domain/Client/Response/ResponseBody/ResponseBody.vue';
 import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDumpAndDie.vue';
 import ResponseCookies from '@/components/domain/Client/Response/ResponseCookies/ResponseCookies.vue';
