@@ -29,6 +29,23 @@
     [role='button']:disabled {
         cursor: default;
     }
+
+    /*
+     * Global Scrollbar Styling.
+     */
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: transparent transparent;
+    }
+
+    *:hover {
+        scrollbar-color: var(--color-zinc-400) transparent;
+    }
+
+    .dark *:hover {
+        scrollbar-color: var(--color-zinc-600) transparent;
+    }
 }
 
 @layer utilities {

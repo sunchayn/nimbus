@@ -8,6 +8,7 @@ import {
     AppResizablePanel,
     AppResizablePanelGroup,
 } from '@/components/base/resizable';
+import { AppScrollArea } from '@/components/base/scroll-area';
 import {
     AppSidebar,
     AppSidebarContent,
@@ -59,6 +60,8 @@ const isOpenTabsExpanded = useStorage(
     uniquePersistenceKey(`routes-explorer-open-tabs-expanded`),
     false,
 );
+
+const scrollAreaRef = ref<InstanceType<typeof AppScrollArea> | null>(null);
 
 const {
     scrollContainer: routesScrollContainer,
@@ -140,6 +143,7 @@ const handlePanelExpand = () => {
     isOpenTabsExpanded.value = true;
 };
 
+
 watch(isOpenTabsExpanded, newValue => {
     if (newValue) {
         openTabsPanel.value?.expand();
@@ -147,6 +151,15 @@ watch(isOpenTabsExpanded, newValue => {
         openTabsPanel.value?.collapse();
     }
 });
+
+watch(
+    () => scrollAreaRef.value?.viewport,
+    viewport => {
+        if (viewport) {
+            routesScrollContainer.value = viewport;
+        }
+    },
+);
 
 provide('showingSearchResults', showingSearchResults);
 </script>
@@ -207,9 +220,9 @@ provide('showingSearchResults', showingSearchResults);
                         <AppSidebarGroupContent
                             class="relative min-h-0 flex-1 overflow-hidden"
                         >
-                            <div
-                                ref="routesScrollContainer"
-                                class="h-full overflow-y-auto"
+                            <AppScrollArea
+                                ref="scrollAreaRef"
+                                class="h-full"
                                 @scroll="updateRoutesScrollMasks"
                             >
                                 <div
@@ -228,12 +241,11 @@ provide('showingSearchResults', showingSearchResults);
                                         </p>
                                     </div>
                                 </AppSidebarMenu>
-                            </div>
-
-                            <div
-                                v-show="showRoutesBottomMask"
-                                class="from-sidebar pointer-events-none absolute right-0 bottom-0 left-0 z-10 h-8 bg-gradient-to-t from-20% to-transparent transition-opacity duration-300"
-                            />
+                                <div
+                                    v-show="showRoutesBottomMask"
+                                    class="from-sidebar pointer-events-none absolute right-0 bottom-0 left-0 z-10 h-8 bg-gradient-to-t from-20% to-transparent transition-opacity duration-300"
+                                />
+                            </AppScrollArea>
                         </AppSidebarGroupContent>
                     </AppSidebarGroup>
                 </AppResizablePanel>

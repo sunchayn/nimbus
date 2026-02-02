@@ -5,6 +5,7 @@
  */
 import { RequestBodyTypeEnum } from '@/interfaces/http';
 import type { JSONSchema7 } from 'json-schema';
+import { AppScrollArea } from '@/components/base/scroll-area';
 import RequestBodyFormData from './RequestBodyFormData.vue';
 import RequestBodyFormNone from './RequestBodyFormNone.vue';
 import RequestBodyJson from './RequestBodyJson.vue';
@@ -42,7 +43,7 @@ const updatePayload = (value: FormData | string | null) => {
 </script>
 
 <template>
-    <div class="min-h-0 w-full flex-1">
+    <AppScrollArea class="min-h-0 w-full flex-1">
         <RequestBodyJson
             v-if="payloadType === RequestBodyTypeEnum.JSON"
             :model-value="payload as string"
@@ -60,5 +61,5 @@ const updatePayload = (value: FormData | string | null) => {
             @update:model-value="updatePayload"
         />
         <RequestBodyFormNone v-else @update:model-value="updatePayload" />
-    </div>
+    </AppScrollArea>
 </template>

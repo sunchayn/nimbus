@@ -27,5 +27,6 @@ defineProps<AppResponseBodyProps>();
         :placeholder="content === '' ? 'Empty' : 'Response JSON Payload'"
         :model-value="content"
         :disabled="content === ''"
+        :auto-height="false"
     />
 </template>

@@ -23,6 +23,7 @@ export interface AppCodeEditorProps extends PrimitiveProps {
     readonly?: boolean;
     disabled?: boolean;
     validationSchema?: JSONSchema7;
+    autoHeight?: boolean;
 }
 
 /*
@@ -35,6 +36,7 @@ const props = withDefaults(defineProps<AppCodeEditorProps>(), {
     disabled: false,
     class: '',
     validationSchema: undefined,
+    autoHeight: false,
 });
 
 const model = defineModel<string>({
@@ -61,7 +63,7 @@ const updateModel = (value: string) => {
 <template>
     <Codemirror
         :placeholder="placeholder"
-        :style="{ height: '100%' }"
+        :style="{ height: autoHeight ? 'auto' : '100%', minHeight: '100%' }"
         :extensions="extensions"
         :indent-with-tab="true"
         :tab-size="4"

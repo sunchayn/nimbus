@@ -11,6 +11,7 @@ import {
     AppTabsTrigger,
 } from '@/components/base/tabs';
 import { AppTooltipWrapper } from '@/components/base/tooltip';
+import { AppScrollArea } from '@/components/base/scroll-area';
 import ResponseBody from '@/components/domain/Client/Response/ResponseBody/ResponseBody.vue';
 import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDumpAndDie.vue';
 import ResponseCookies from '@/components/domain/Client/Response/ResponseCookies/ResponseCookies.vue';
@@ -141,11 +142,15 @@ const handleTabClick = (event: Event) => {
                 value="response"
                 class="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden"
             >
-                <ResponseBody
+                <AppScrollArea
                     v-if="lastLog?.response?.status !== STATUS.DUMP_AND_DIE"
-                    class="min-h-0 overflow-auto"
-                    :content="lastLog?.response?.body ?? ''"
-                />
+                    class="min-h-0 flex-1"
+                >
+                    <ResponseBody
+                        class="min-h-0"
+                        :content="lastLog?.response?.body ?? ''"
+                    />
+                </AppScrollArea>
 
                 <ResponseDumpAndDie
                     v-else
