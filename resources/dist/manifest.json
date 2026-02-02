@@ -1,6 +1,6 @@
 {
-  "_AppPopoverTrigger.vue_vue_type_script_setup_true_lang-CvMdocUs.js": {
-    "file": "assets/AppPopoverTrigger.vue_vue_type_script_setup_true_lang-CvMdocUs.js",
+  "_AppPopoverTrigger.vue_vue_type_script_setup_true_lang-nBfag7CV.js": {
+    "file": "assets/AppPopoverTrigger.vue_vue_type_script_setup_true_lang-nBfag7CV.js",
     "name": "AppPopoverTrigger.vue_vue_type_script_setup_true_lang",
     "imports": [
       "resources/js/app/app.ts"
@@ -25,12 +25,12 @@
     "isDynamicEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-5tLSh9Fn.css",
+    "file": "assets/app-PzvJiV8M.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app/app.ts": {
-    "file": "assets/app-C6VkUBdm.js",
+    "file": "assets/app-9y4VsaPU.js",
     "name": "app",
     "src": "resources/js/app/app.ts",
     "isEntry": true,
@@ -39,17 +39,17 @@
       "resources/js/pages/Settings.vue"
     ],
     "css": [
-      "assets/app-5tLSh9Fn.css"
+      "assets/app-PzvJiV8M.css"
     ]
   },
   "resources/js/pages/Main.vue": {
-    "file": "assets/Main-BHI4Qeo7.js",
+    "file": "assets/Main-ChqJeGTY.js",
     "name": "Main",
     "src": "resources/js/pages/Main.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app/app.ts",
-      "_AppPopoverTrigger.vue_vue_type_script_setup_true_lang-CvMdocUs.js"
+      "_AppPopoverTrigger.vue_vue_type_script_setup_true_lang-nBfag7CV.js"
     ],
     "dynamicImports": [
       "node_modules/shiki/dist/themes/vitesse-light.mjs",
@@ -57,21 +57,21 @@
       "node_modules/shiki/dist/langs/javascript.mjs"
     ],
     "css": [
-      "assets/Main-BJKJQt2p.css",
-      "assets/app-5tLSh9Fn.css"
+      "assets/Main-DT_Im_ve.css",
+      "assets/app-PzvJiV8M.css"
     ]
   },
   "resources/js/pages/Settings.vue": {
-    "file": "assets/Settings-CNViBy3D.js",
+    "file": "assets/Settings-BVB2dB75.js",
     "name": "Settings",
     "src": "resources/js/pages/Settings.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_AppPopoverTrigger.vue_vue_type_script_setup_true_lang-CvMdocUs.js",
+      "_AppPopoverTrigger.vue_vue_type_script_setup_true_lang-nBfag7CV.js",
       "resources/js/app/app.ts"
     ],
     "css": [
-      "assets/app-5tLSh9Fn.css"
+      "assets/app-PzvJiV8M.css"
     ]
   }
 }
