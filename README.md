@@ -46,7 +46,6 @@ Nimbus is **NOT** an API documentation generator like Swagger or Scribe. It does
 
 - PHP 8.2+
 - Laravel 10.x, 11.x, or 12.x
-- A real web server (Herd, Sail, Docker, Nginx). *Note: `php artisan serve` is not supported.*
 
 ### 2. Installation
 
@@ -70,8 +69,13 @@ http://your-app.test/nimbus
 
 That's it! Nimbus will automatically discover your API routes and their validation schemas.
 
-> **Note:** Nimbus requires a real web server (Herd, Sail, Docker, Nginx, etc.). PHP's built-in server (`php artisan serve`) will not work properly due to single-threaded request handling limitations.
+#### Using Sail or Built-in Server?
 
+If you're using Laravel Sail or `php artisan serve`, Nimbus requires a workaround because these are single-threaded servers. The relay endpoint will hang waiting for API requests that can't be processed on the same thread.
+
+**Solution:** Run two server instances on different ports and configure Nimbus to use the second instance for API requests.
+
+See the detailed guide: [Making Nimbus work with single-threaded servers](wiki/user-guide/README.md#making-nimbus-work-with-single-threaded-servers)
 ## Documentation
 
 - **[User Guide](wiki/user-guide/README.md)** - Complete guide on using Nimbus's interface, features, and troubleshooting.

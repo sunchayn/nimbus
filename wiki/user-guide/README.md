@@ -34,6 +34,12 @@ This guide covers everything you need to know about using Nimbus to test and exp
     - [OpenAPI Support](#openapi-support)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
+    - [Making Nimbus work with single-threaded servers](#making-nimbus-work-with-single-threaded-servers)
+    - [Routes Not Appearing](#routes-not-appearing)
+    - [Interface Not Loading](#interface-not-loading)
+    - [Relay Endpoint Not Working](#relay-endpoint-not-working)
+    - [Authentication Issues](#authentication-issues)
+    - [Schema Validation Errors](#schema-validation-errors)
 - [Getting Help](#getting-help)
 
 ---
@@ -71,7 +77,7 @@ Once installed, start your Laravel application using a real web server (Herd, Sa
 http://your-app.test/nimbus
 ```
 
-**Important**: Do not use PHP's built-in server (`php artisan serve`). The relay endpoint requires a web server that can handle concurrent requests.
+**Important**: If you're using Laravel Sail or `php artisan serve`, see [Making Nimbus work with single-threaded servers](#making-nimbus-work-with-single-threaded-servers) for a workaround.
 
 ### Interface Overview
 
@@ -533,6 +539,67 @@ Nimbus will automatically extract and display version segments when generating s
 
 ## Troubleshooting
 
+### Making Nimbus work with single-threaded servers
+
+**Problem:** Nimbus will not work out of the box if you are using Laravel Sail, `php artisan serve`, or directly booting up a PHP built-in server.
+
+**Why this happens:**
+
+These server options are single-threaded, meaning they can only handle one request at a time. When Nimbus relays a request from the UI to your API:
+
+1. The relay endpoint receives the initial request from the browser
+2. The relay endpoint tries to make an HTTP request to your API
+3. The API request never completes because the same PHP process is busy serving the relay request
+4. The request hangs indefinitely
+
+**Workaround:**
+
+You can work around this limitation by running two separate server instances on different ports. This allows one instance to handle the Nimbus relay endpoint while the other processes the actual API requests.
+
+**Step-by-step solution:**
+
+1. **Start the first server instance** (for Nimbus UI and relay endpoint):
+   ```bash
+   php artisan serve --port=8000
+   ```
+   Or with Sail:
+   ```bash
+   ./vendor/bin/sail up
+   ```
+
+2. **Start a second server instance** (for API requests):
+   ```bash
+   php artisan serve --port=8001
+   ```
+   Or with Sail (in a new terminal):
+   ```bash
+   ./vendor/bin/sail artisan serve --port=8001
+   ```
+
+3. **Configure the relay endpoint** to use the second server:
+
+   Edit `config/nimbus.php` and set the `api_base_url` for your application:
+
+   ```php
+   'applications' => [
+       'main' => [
+           'name' => 'Main API',
+           'routes' => [
+               'prefix' => 'api',
+               'api_base_url' => 'http://127.0.0.1:8001',
+           ],
+       ],
+   ],
+   ```
+
+4. **Access Nimbus** at `http://127.0.0.1:8000/nimbus`
+
+Now when you send requests through Nimbus:
+- The relay endpoint runs on port 8000
+- API requests are forwarded to port 8001
+- Both requests can be processed concurrently
+
+
 ### Routes Not Appearing
 
 **Problem:** Your API routes don't show up in the Route Explorer.
@@ -582,9 +649,8 @@ Nimbus will automatically extract and display version segments when generating s
 **Solutions:**
 
 1. **Use a proper web server**
-    - Do NOT use `php artisan serve`.
-    - Use Herd, Sail, Docker, Nginx, or Apache.
-    - The built-in PHP server cannot handle concurrent requests.
+    - If using `php artisan serve` or Sail, see [Making Nimbus work with single-threaded servers](#making-nimbus-work-with-single-threaded-servers) for a workaround.
+    - For best results, set up a proper webserver, Apache, Nginx, Herd, etc.
 
 2. **Check application URL**
     - Verify `APP_URL` in `.env` is correct.
