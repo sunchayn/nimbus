@@ -51,9 +51,6 @@ describe('SidebarTabsFunctionalTest', () => {
             scrollContainer: ref(null),
             showTopMask: ref(false),
             showBottomMask: ref(false),
-            scrollBounds: ref(
-                null,
-            ) as scrollComposable.UseTabVerticalScrollResult['scrollBounds'],
             updateScrollMasks: vi.fn(),
             scrollTabIntoView: mockScrollTabIntoView,
         });

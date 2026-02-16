@@ -39,8 +39,7 @@ const {
     updateScrollMasks,
     scrollTabIntoView,
 } = useTabVerticalScroll({
-    SCROLL_PADDING: 20,
-    MASK_HEIGHT: 32,
+    MASK_HEIGHT: 24,
 });
 
 const tabElements = ref<Record<string, HTMLElement>>({});
@@ -111,6 +110,7 @@ watch(
             scrollContainer.value = viewport;
         }
     },
+    { immediate: true },
 );
 </script>
 

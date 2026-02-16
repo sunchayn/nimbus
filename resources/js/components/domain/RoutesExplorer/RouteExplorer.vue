@@ -69,7 +69,7 @@ const {
     showBottomMask: showRoutesBottomMask,
     updateScrollMasks: updateRoutesScrollMasks,
 } = useTabVerticalScroll({
-    MASK_HEIGHT: 32,
+    MASK_HEIGHT: 24,
 });
 
 /*
@@ -158,6 +158,7 @@ watch(
             routesScrollContainer.value = viewport;
         }
     },
+    { immediate: true },
 );
 
 provide('showingSearchResults', showingSearchResults);
@@ -218,16 +219,19 @@ provide('showingSearchResults', showingSearchResults);
                         <AppSidebarGroupLabel>Routes</AppSidebarGroupLabel>
                         <AppSidebarGroupContent
                             class="relative min-h-0 flex-1 overflow-hidden"
+                            :class="{
+                                'border-t': showRoutesTopMask,
+                            }"
                         >
+                            <div
+                                v-show="showRoutesTopMask"
+                                class="from-sidebar pointer-events-none absolute top-0 right-0 left-0 z-10 h-8 bg-gradient-to-b from-20% to-transparent transition-opacity duration-300"
+                            />
                             <AppScrollArea
                                 ref="scrollAreaRef"
                                 class="h-full"
                                 @scroll="updateRoutesScrollMasks"
                             >
-                                <div
-                                    v-show="showRoutesTopMask"
-                                    class="from-sidebar pointer-events-none absolute top-0 right-0 left-0 z-10 h-8 bg-gradient-to-b from-20% to-transparent transition-opacity duration-300"
-                                />
                                 <AppSidebarMenu>
                                     <RoutesList
                                         v-if="routes !== null"
@@ -240,11 +244,11 @@ provide('showingSearchResults', showingSearchResults);
                                         </p>
                                     </div>
                                 </AppSidebarMenu>
-                                <div
-                                    v-show="showRoutesBottomMask"
-                                    class="from-sidebar pointer-events-none absolute right-0 bottom-0 left-0 z-10 h-8 bg-gradient-to-t from-20% to-transparent transition-opacity duration-300"
-                                />
                             </AppScrollArea>
+                            <div
+                                v-show="showRoutesBottomMask"
+                                class="from-sidebar pointer-events-none absolute right-0 bottom-0 left-0 z-10 h-8 bg-gradient-to-t from-20% to-transparent transition-opacity duration-300"
+                            />
                         </AppSidebarGroupContent>
                     </AppSidebarGroup>
                 </AppResizablePanel>

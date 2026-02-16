@@ -23,29 +23,38 @@ export interface AppScrollAreaProps extends ScrollAreaRootProps {
  */
 
 const props = defineProps<AppScrollAreaProps>();
-const delegatedProps = reactiveOmit(props, 'class');
+const delegatedProps = reactiveOmit(props, 'class', 'type');
 
-const viewport = ref<HTMLElement | null>(null);
+const emit = defineEmits<{
+    scroll: [event: Event];
+}>();
+
+const viewportComponent = ref<InstanceType<typeof ScrollAreaViewport> | null>(null);
 
 defineExpose({
-    viewport,
+    get viewport() {
+        return viewportComponent.value?.viewportElement ?? null;
+    },
 });
 </script>
 
 <template>
     <ScrollAreaRoot
+        type="hover"
         data-slot="scroll-area"
         v-bind="delegatedProps"
         :class="cn('relative', props.class)"
     >
         <ScrollAreaViewport
-            ref="viewport"
+            ref="viewportComponent"
+            :as-child="true"
             data-slot="scroll-area-viewport"
             class="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 [&>div]:h-full"
+            @scroll="event => emit('scroll', event)"
         >
             <slot />
         </ScrollAreaViewport>
-        <AppScrollBar />
+        <AppScrollBar class="z-[50]" />
         <ScrollAreaCorner />
     </ScrollAreaRoot>
 </template>

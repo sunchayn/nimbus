@@ -2,13 +2,11 @@ import type { TabNavigationScrollConfig } from '@/config/tab-navigation-scroll';
 import { tabNavigationScrollConfig } from '@/config/tab-navigation-scroll';
 import { useDebounceFn, useMutationObserver, useResizeObserver } from '@vueuse/core';
 import {
-    computed,
     nextTick,
-    onMounted,
     onUnmounted,
     readonly,
     ref,
-    type ComputedRef,
+    watch,
     type DeepReadonly,
     type Ref,
 } from 'vue';
@@ -17,20 +15,14 @@ export interface UseTabVerticalScrollResult {
     scrollContainer: Ref<HTMLElement | null>;
     showTopMask: DeepReadonly<Ref<boolean>>;
     showBottomMask: DeepReadonly<Ref<boolean>>;
-    scrollBounds: ComputedRef<{
-        current: number;
-        max: number;
-        isAtStart: boolean;
-        isAtEnd: boolean;
-    } | null>;
     updateScrollMasks: () => void;
     scrollTabIntoView: (element: HTMLElement) => void;
 }
 
 /**
- * Handles vertical scroll state and masks for tab containers.
+ * Handles vertical scroll state and masks.
  *
- * Manages top/bottom gradient masks based on scroll position and provides
+ * Manages top/bottom masks based on scroll position and provides
  * functionality to scroll specific elements into the visible area.
  */
 export function useTabVerticalScroll(
@@ -47,10 +39,6 @@ export function useTabVerticalScroll(
     /*
      * Configuration.
      */
-
-    const maskHeightTop = config.MASK_HEIGHT;
-
-    const maskHeightBottom = config.MASK_HEIGHT;
 
     const scrollThreshold =
         config?.SCROLL_THRESHOLD ?? tabNavigationScrollConfig.SCROLL_THRESHOLD;
@@ -71,32 +59,6 @@ export function useTabVerticalScroll(
     const scrollContainer = ref<HTMLElement | null>(null);
     const showTopMask = ref(false);
     const showBottomMask = ref(false);
-
-    /*
-     * Computed.
-     */
-
-    const scrollBounds = computed(() => {
-        if (!scrollContainer.value) {
-            return null;
-        }
-
-        const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value;
-        const roundedScrollTop = Math.round(scrollTop);
-        const maxScroll = Math.max(
-            0,
-            Math.round(scrollHeight) - Math.round(clientHeight),
-        );
-
-        return {
-            current: roundedScrollTop,
-            max: maxScroll,
-            isAtStart: roundedScrollTop <= scrollThreshold,
-            isAtEnd:
-                maxScroll <= scrollThreshold ||
-                roundedScrollTop >= maxScroll - scrollThreshold,
-        };
-    });
 
     /*
      * Actions.
@@ -147,13 +109,13 @@ export function useTabVerticalScroll(
 
         // Safety check: ensure mask height doesn't exceed container height
         const activeMaskHeightTop =
-            container.clientHeight < maskHeightTop * 2.5
+            container.clientHeight < config.MASK_HEIGHT * 2.5
                 ? container.clientHeight / 4
-                : maskHeightTop;
+                : config.MASK_HEIGHT;
         const activeMaskHeightBottom =
-            container.clientHeight < maskHeightBottom * 2.5
+            container.clientHeight < config.MASK_HEIGHT * 2.5
                 ? container.clientHeight / 4
-                : maskHeightBottom;
+                : config.MASK_HEIGHT;
 
         const visibleTop = container.scrollTop + activeMaskHeightTop;
         const visibleBottom =
@@ -229,11 +191,11 @@ export function useTabVerticalScroll(
     let cleanupResizeObserver: (() => void | undefined) | null = null;
     let cleanupMutationObserver: (() => void | undefined) | null = null;
 
-    onMounted(() => {
+    watch(scrollContainer, () => {
         cleanupScrollListeners = setupScrollListeners() ?? null;
         cleanupResizeObserver = setupResizeObserver().stop;
         cleanupMutationObserver = setupMutationObserver().stop;
-        // Initial update
+
         nextTick(() => {
             updateScrollMasks();
         });
@@ -250,9 +212,6 @@ export function useTabVerticalScroll(
         scrollContainer,
         showTopMask: readonly(showTopMask),
         showBottomMask: readonly(showBottomMask),
-
-        // Computed
-        scrollBounds,
 
         // Actions
         updateScrollMasks,
