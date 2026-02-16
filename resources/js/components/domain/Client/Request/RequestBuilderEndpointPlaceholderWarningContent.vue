@@ -22,7 +22,9 @@ defineProps<Props>();
 
 <template>
     <AppPanel class="flex flex-col gap-1.5 px-2 py-1.5 shadow-none">
-        <AppPanelTitle class="px-0">Please add the missing route placeholders</AppPanelTitle>
+        <AppPanelTitle class="px-0">
+            Please add the missing route placeholders
+        </AppPanelTitle>
 
         <AppPanelDescription class="text-xs">
             Fill the following placeholders to proceed with the request
