@@ -118,7 +118,9 @@ const filteredRoutes = computed(() => {
         routesInVersion.value
             .map((group: RoutesGroup) => {
                 const filtered = group.routes.filter((route: RouteDefinition) => {
-                   return route.keywords?.some((keyword: string) => keyword.toLowerCase().includes(searchTerm));
+                    return route.keywords?.some((keyword: string) =>
+                        keyword.toLowerCase().includes(searchTerm),
+                    );
                 });
 
                 return filtered.length > 0 ? { ...group, routes: filtered } : null;

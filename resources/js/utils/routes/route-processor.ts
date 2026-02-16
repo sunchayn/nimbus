@@ -46,7 +46,8 @@ export async function processRoutesData(sourceRoutes: SourceRouteConfigArray): P
                 resource: resource,
                 routes: resourceRoutes
                     .flatMap((route: SourceRouteConfig) => {
-                        return route.methods.map( // <- Each method becomes its own individual route.
+                        return route.methods.map(
+                            // <- Each method becomes its own individual route.
                             (method: string): RouteDefinition => ({
                                 method: method,
                                 endpoint: route.uri,
