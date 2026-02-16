@@ -72,24 +72,33 @@ class ExtractOpenApiRoutesAction
         $uri = $this->normalizeUri($path, $version);
 
         return collect(self::HTTP_METHODS)
-            ->filter(fn (string $method): bool => $pathItem->$method instanceof Operation)
+            ->filter(fn (string $method): bool => $pathItem->{$method} instanceof Operation)
             ->map(
                 function ($method) use ($uri, $pathItem): ExtractedRoute {
-                    $operation = $pathItem->$method;
+                    $operation = $pathItem->{$method};
+
+                    $endpoint = Endpoint::fromRaw(
+                        uri: $uri,
+                        routesPrefix: $this->activeApplicationResolver->getRoutesPrefix(),
+                        isVersioned: $this->activeApplicationResolver->isVersioned(),
+                    );
+
+                    $operationId = $operation->operationId !== null
+                        ? trim($operation->operationId, '/')
+                        : null;
+
+                    $keywords = $operationId
+                        ? [$operationId]
+                        : [];
 
                     return new ExtractedRoute(
-                        uri: Endpoint::fromRaw(
-                            uri: $uri,
-                            routesPrefix: $this->activeApplicationResolver->getRoutesPrefix(),
-                            isVersioned: $this->activeApplicationResolver->isVersioned(),
-                        ),
+                        uri: $endpoint,
                         methods: [strtoupper($method)],
                         schema: $this->extractSchemaFromOperation($operation),
-                        metadata: [
-                            'operationId' => $operation->operationId !== null
-                                ? trim($operation->operationId, '/')
-                                : null,
-                        ],
+                        metadata: array_filter([
+                            'operationId' => $operationId,
+                        ]),
+                        keywords: $keywords,
                     );
                 },
             )

@@ -11,12 +11,14 @@ class ExtractedRoute
     /**
      * @param  string[]  $methods
      * @param  array<string, mixed>  $metadata
+     * @param  string[]  $keywords
      */
     public function __construct(
         public readonly Endpoint $uri,
         public readonly array $methods,
         public readonly Schema $schema,
         public readonly array $metadata = [],
+        public readonly array $keywords = [],
     ) {}
 
     /**

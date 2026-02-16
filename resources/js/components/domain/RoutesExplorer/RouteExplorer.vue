@@ -112,16 +112,14 @@ const filteredRoutes = computed(() => {
         return routesInVersion.value;
     }
 
-    const keyword = search.value.toLowerCase();
+    const searchTerm = search.value.toLowerCase();
 
     return (
         routesInVersion.value
             .map((group: RoutesGroup) => {
-                const filtered = group.routes.filter(
-                    (route: RouteDefinition) =>
-                        route.endpoint.toLowerCase().includes(keyword) ||
-                        route.shortEndpoint.toLowerCase().includes(keyword),
-                );
+                const filtered = group.routes.filter((route: RouteDefinition) => {
+                   return route.keywords?.some((keyword: string) => keyword.toLowerCase().includes(searchTerm));
+                });
 
                 return filtered.length > 0 ? { ...group, routes: filtered } : null;
             })

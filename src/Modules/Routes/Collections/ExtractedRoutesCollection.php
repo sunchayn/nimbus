@@ -44,6 +44,7 @@ class ExtractedRoutesCollection extends Collection
                                     'schema' => $extractedRoute->schema->toJsonSchema(),
                                     'extractionError' => $extractedRoute->schema->extractionError?->toHtml(),
                                     'metadata' => $extractedRoute->metadata,
+                                    'keywords' => $extractedRoute->keywords,
                                 ],
                             ),
                         );

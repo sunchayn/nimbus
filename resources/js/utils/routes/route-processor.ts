@@ -13,6 +13,7 @@ export interface SourceRouteConfig {
     schema: JSONSchema7;
     extractionError: string | null;
     metadata: Record<string, unknown>;
+    keywords: string[];
 }
 
 export type SourceRouteConfigArray = {
@@ -45,8 +46,7 @@ export async function processRoutesData(sourceRoutes: SourceRouteConfigArray): P
                 resource: resource,
                 routes: resourceRoutes
                     .flatMap((route: SourceRouteConfig) => {
-                        return route.methods.map(
-                            // <- Each method becomes its own indivual route.
+                        return route.methods.map( // <- Each method becomes its own individual route.
                             (method: string): RouteDefinition => ({
                                 method: method,
                                 endpoint: route.uri,
@@ -56,6 +56,7 @@ export async function processRoutesData(sourceRoutes: SourceRouteConfigArray): P
                                     extractionErrors: route.extractionError,
                                 },
                                 metadata: route.metadata,
+                                keywords: route.keywords,
                             }),
                         );
                     })

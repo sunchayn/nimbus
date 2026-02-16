@@ -9,6 +9,7 @@ export type RouteDefinition = {
     };
     shortEndpoint: string;
     metadata?: Record<string, unknown>;
+    keywords?: string[];
 };
 
 /**

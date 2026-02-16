@@ -2,6 +2,7 @@
 
 namespace Sunchayn\Nimbus\Modules\Routes\RoutesProcessors;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Sunchayn\Nimbus\Modules\Routes\Collections\ExtractedRoutesCollection;
 use Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
@@ -34,12 +35,15 @@ class RouteReconciliationService
                 ->mapWithKeys(fn (string $signature): array => [$signature => $extractedRoute])
             );
 
+        /** @var array<string, ExtractedRoute> $lookup */
         $lookup = $applicationRoutesBySignature->all();
 
         foreach ($externalSourceRoutes as $externalSourceRoute) {
             $routeSignatures = $externalSourceRoute->getRouteSignatures();
 
-            $matchesApplication = $this->signaturesExist($routeSignatures, $lookup);
+            $matchingRouteInApplication = $this->findMatchingRoute($routeSignatures, $lookup);
+
+            $isMatching = $matchingRouteInApplication instanceof \Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
 
             $signatures = [...$signatures, ...array_values($routeSignatures)];
 
@@ -49,9 +53,13 @@ class RouteReconciliationService
                 schema: $externalSourceRoute->schema,
                 metadata: [
                     ...$externalSourceRoute->metadata,
-                    'isMissingImplementation' => ! $matchesApplication,
+                    'isMissingImplementation' => ! $isMatching,
                     'isUndocumented' => false,
                 ],
+                keywords: array_merge(
+                    $matchingRouteInApplication->keywords ?? [],
+                    $externalSourceRoute->keywords,
+                ),
             );
         }
 
@@ -65,17 +73,20 @@ class RouteReconciliationService
 
     /**
      * @param  array<string, string>  $signatures  Method => Signature map
-     * @param  array<string, mixed>  $lookup  Signature lookup table
+     * @param  array<string, ExtractedRoute>  $lookup  Signature lookup table
      */
-    protected function signaturesExist(array $signatures, array $lookup): bool
+    protected function findMatchingRoute(array $signatures, array $lookup): ?ExtractedRoute
     {
-        foreach ($signatures as $signature) {
-            if (array_key_exists($signature, $lookup)) {
-                return true;
-            }
+        $matchingSignature = Arr::first(
+            $signatures,
+            fn (string $signature): bool => array_key_exists($signature, $lookup),
+        );
+
+        if (! $matchingSignature) {
+            return null;
         }
 
-        return false;
+        return $lookup[$matchingSignature];
     }
 
     /**
@@ -91,7 +102,7 @@ class RouteReconciliationService
 
         return $routesBySignature
             ->reject(fn ($_, string $signature): bool => isset($matched[$signature]))
-            ->map(fn (ExtractedRoute $extractedRoute): \Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute => new ExtractedRoute(
+            ->map(fn (ExtractedRoute $extractedRoute): ExtractedRoute => new ExtractedRoute(
                 uri: $extractedRoute->uri,
                 methods: $extractedRoute->methods,
                 schema: $extractedRoute->schema,
@@ -99,6 +110,7 @@ class RouteReconciliationService
                     'isMissingImplementation' => false,
                     'isUndocumented' => true,
                 ],
+                keywords: $extractedRoute->keywords,
             ))
             ->values()
             ->all();

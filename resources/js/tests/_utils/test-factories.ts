@@ -48,6 +48,7 @@ export const createMockRouteDefinition = (
         shape: {},
         extractionErrors: null,
     },
+    keywords: [],
     ...overrides,
 });
 

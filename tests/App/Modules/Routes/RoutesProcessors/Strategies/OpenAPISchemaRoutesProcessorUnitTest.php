@@ -281,6 +281,77 @@ class OpenAPISchemaRoutesProcessorUnitTest extends TestCase
             $this->assertInstanceOf(\Throwable::class, $e->getPrevious());
         }
     }
+
+    public function test_openapi_routes_include_only_operation_id_in_keywords(): void
+    {
+        // Arrange
+
+        $openApiFile = getcwd().'/tests/Stubs/OpenApi/valid_openapi.yaml';
+
+        $autoDetectedRoutes = ExtractedRoutesCollection::make([]);
+
+        // Anticipate
+
+        $this->activeApplicationResolverMock
+            ->shouldReceive('isVersioned')
+            ->andReturn(true);
+
+        $this->activeApplicationResolverMock
+            ->shouldReceive('getRoutesPrefix')
+            ->andReturn('api');
+
+        $this->activeApplicationResolverMock
+            ->shouldReceive('getOpenApiFiles')
+            ->once()
+            ->andReturn(['v1' => $openApiFile]);
+
+        // Let the real ExtractOpenApiRoutesAction run
+        $realExtractAction = new ExtractOpenApiRoutesAction($this->activeApplicationResolverMock);
+
+        $this->extractOpenApiRoutesActionMock
+            ->shouldReceive('execute')
+            ->once()
+            ->andReturnUsing(fn ($openapi, $version) => $realExtractAction->execute($openapi, $version));
+
+        $this->autoDetectRoutesProcessorMock
+            ->shouldReceive('process')
+            ->once()
+            ->andReturn($autoDetectedRoutes);
+
+        // Capture the reconciliation call to verify keywords
+        $capturedOpenApiRoutes = null;
+        $this->reconciliationServiceMock
+            ->shouldReceive('execute')
+            ->once()
+            ->andReturnUsing(function ($openApiRoutes, $appRoutes) use (&$capturedOpenApiRoutes) {
+                $capturedOpenApiRoutes = $openApiRoutes;
+
+                return $openApiRoutes; // Just return as-is for this test
+            });
+
+        // Act
+
+        $this->openAPISchemaRoutesProcessor->process();
+
+        // Assert
+
+        $this->assertNotNull($capturedOpenApiRoutes);
+        $this->assertGreaterThan(0, $capturedOpenApiRoutes->count());
+
+        // Check that OpenAPI routes only have operation ID in keywords (not endpoint/shortUri)
+        $routeWithOperationId = $capturedOpenApiRoutes->first(
+            fn (ExtractedRoute $r) => isset($r->metadata['operationId'])
+        );
+
+        if ($routeWithOperationId) {
+            // Should only contain operation ID, not endpoint or short URI
+            $this->assertCount(1, $routeWithOperationId->keywords);
+            $this->assertEquals(
+                [$routeWithOperationId->metadata['operationId']],
+                $routeWithOperationId->keywords
+            );
+        }
+    }
 }
 
 namespace Sunchayn\Nimbus\Modules\Routes\RoutesProcessors\Strategies;

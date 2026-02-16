@@ -58,6 +58,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                     ),
                     methods: ['GET'],
                     schema: Schema::empty(),
+                    keywords: ['/api/users', '/users'],
                 ),
                 new ExtractedRoute(
                     uri: new Endpoint(
@@ -67,6 +68,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                     ),
                     methods: ['POST'],
                     schema: Schema::empty(),
+                    keywords: ['/api/users', '/users'],
                 ),
                 new ExtractedRoute(
                     uri: new Endpoint(
@@ -82,6 +84,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                             ),
                         ],
                     ),
+                    keywords: ['/api/posts', '/posts'],
                 ),
             ],
             'expected' => [
@@ -100,6 +103,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                             ],
                             'extractionError' => null,
                             'metadata' => [],
+                            'keywords' => ['/api/users', '/users'],
                         ],
                         [
                             'uri' => '/api/users',
@@ -114,6 +118,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                             ],
                             'extractionError' => null,
                             'metadata' => [],
+                            'keywords' => ['/api/users', '/users'],
                         ],
                     ],
                     'posts' => [
@@ -134,6 +139,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                             ],
                             'extractionError' => null,
                             'metadata' => [],
+                            'keywords' => ['/api/posts', '/posts'],
                         ],
                     ],
                 ],
@@ -150,6 +156,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                     ),
                     methods: ['GET'],
                     schema: Schema::empty(),
+                    keywords: ['/api/users', '/users'],
                 ),
                 new ExtractedRoute(
                     uri: new Endpoint(
@@ -164,6 +171,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                             throwable: new Error,
                         )
                     ),
+                    keywords: ['/api/users', '/users'],
                 ),
             ],
             'expected' => [
@@ -182,6 +190,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                             ],
                             'extractionError' => null,
                             'metadata' => [],
+                            'keywords' => ['/api/users', '/users'],
                         ],
                         [
                             'uri' => '/api/users',
@@ -195,9 +204,10 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                                 'additionalProperties' => false,
                             ],
                             'extractionError' => '<b>[no error message]</b><br />
-<small>'.__FILE__.'::164</small>
+<small>'.__FILE__.'::171</small>
 <p class="text-xs">[trace]</p>',
                             'metadata' => [],
+                            'keywords' => ['/api/users', '/users'],
                         ],
                     ],
                 ],

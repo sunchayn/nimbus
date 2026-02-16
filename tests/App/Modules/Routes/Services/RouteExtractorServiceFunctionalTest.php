@@ -130,6 +130,15 @@ class RouteExtractorServiceFunctionalTest extends TestCase
 
             $this->assertNotNull($originalRoute);
 
+            $this->assertEqualsCanonicalizing(
+                array_filter([
+                    $extractedRoute->uri->value,
+                    $extractedRoute->uri->getShortUri(),
+                    $originalRoute->getName(),
+                ]),
+                $extractedRoute->keywords,
+            );
+
             $routeFactoryMock
                 ->shouldHaveReceived(
                     'fromLaravelRoute',

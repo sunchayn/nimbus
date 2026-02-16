@@ -274,6 +274,7 @@ YAML;
 
         $this->assertCount(1, $routes);
         $this->assertEquals('getAllUsers', $routes[0]->metadata['operationId']);
+        $this->assertEquals(['getAllUsers'], $routes[0]->keywords);
     }
 
     public function test_it_handles_openapi_3_1_schemas(): void

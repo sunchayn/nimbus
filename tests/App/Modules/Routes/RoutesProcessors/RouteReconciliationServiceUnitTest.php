@@ -216,4 +216,78 @@ class RouteReconciliationServiceUnitTest extends TestCase
         $this->assertTrue($reconciledRoute->metadata['deprecated']);
         $this->assertFalse($reconciledRoute->metadata['isMissingImplementation']);
     }
+
+    public function test_it_merges_keywords_from_both_sources(): void
+    {
+        // Arrange
+
+        $processor = new RouteReconciliationService;
+
+        // OpenAPI route with operation ID keyword
+        $externalRoute = new ExtractedRoute(
+            uri: Endpoint::fromRaw('api/users', 'api', false),
+            methods: ['GET'],
+            schema: Schema::empty(),
+            metadata: ['operationId' => 'getAllUsers'],
+            keywords: ['getAllUsers'], // Only operation ID
+        );
+
+        // Laravel route with endpoint, short URI, and route name keywords
+        $appRoute = new ExtractedRoute(
+            uri: Endpoint::fromRaw('api/users', 'api', false),
+            methods: ['GET'],
+            schema: Schema::empty(),
+            keywords: ['api/users', '/users', 'users.index'],
+        );
+
+        $externalRoutes = ExtractedRoutesCollection::make([$externalRoute]);
+        $appRoutes = ExtractedRoutesCollection::make([$appRoute]);
+
+        // Act
+
+        $result = $processor->execute($externalRoutes, $appRoutes);
+
+        // Assert
+
+        $this->assertCount(1, $result);
+        $reconciledRoute = $result->first();
+
+        // Should have merged keywords: Laravel keywords first, then OpenAPI keywords
+        $this->assertEquals(
+            ['api/users', '/users', 'users.index', 'getAllUsers'],
+            $reconciledRoute->keywords
+        );
+    }
+
+    public function test_it_preserves_openapi_keywords_when_no_matching_application_route(): void
+    {
+        // Arrange
+
+        $processor = new RouteReconciliationService;
+
+        // OpenAPI route with no matching Laravel route
+        $externalRoute = new ExtractedRoute(
+            uri: Endpoint::fromRaw('api/products', 'api', false),
+            methods: ['GET'],
+            schema: Schema::empty(),
+            metadata: ['operationId' => 'getAllProducts'],
+            keywords: ['getAllProducts'],
+        );
+
+        $externalRoutes = ExtractedRoutesCollection::make([$externalRoute]);
+        $appRoutes = ExtractedRoutesCollection::make([]);
+
+        // Act
+
+        $result = $processor->execute($externalRoutes, $appRoutes);
+
+        // Assert
+
+        $this->assertCount(1, $result);
+        $reconciledRoute = $result->first();
+
+        // Should only have OpenAPI keywords (no Laravel route to merge with)
+        $this->assertEquals(['getAllProducts'], $reconciledRoute->keywords);
+        $this->assertTrue($reconciledRoute->metadata['isMissingImplementation']);
+    }
 }

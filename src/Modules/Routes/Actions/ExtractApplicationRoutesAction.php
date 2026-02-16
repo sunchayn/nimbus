@@ -36,7 +36,7 @@ class ExtractApplicationRoutesAction
     /**
      * Processes application routes and extracts schemas.
      *
-     * @param  array<int, \Illuminate\Routing\Route>  $routes
+     * @param  array<int, Route>  $routes
      */
     public function execute(array $routes): ExtractedRoutesCollection
     {
@@ -53,7 +53,7 @@ class ExtractApplicationRoutesAction
                 fn (Collection $routes) => $routes->reject(fn (Route $route): bool => $this->ignoredRoutesService->isIgnored($route))
             )
             ->values()
-            ->map(fn (Route $route): \Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute => $this->transformRoute($route));
+            ->map(fn (Route $route): ExtractedRoute => $this->transformRoute($route));
 
         return ExtractedRoutesCollection::make($configs);
     }
@@ -92,14 +92,23 @@ class ExtractApplicationRoutesAction
             fn (string $method): bool => $method !== 'HEAD',
         );
 
+        $endpoint = Endpoint::fromRaw(
+            $route->uri(),
+            routesPrefix: $this->activeApplicationResolver->getRoutesPrefix(),
+            isVersioned: $this->activeApplicationResolver->isVersioned(),
+        );
+
+        $keywords = array_filter([
+            $endpoint->value,
+            $endpoint->getShortUri(),
+            $route->getName(),
+        ]);
+
         return new ExtractedRoute(
-            uri: Endpoint::fromRaw(
-                $route->uri(),
-                routesPrefix: $this->activeApplicationResolver->getRoutesPrefix(),
-                isVersioned: $this->activeApplicationResolver->isVersioned(),
-            ),
+            uri: $endpoint,
             methods: $methods,
             schema: $schema,
+            keywords: $keywords,
         );
     }
 }
