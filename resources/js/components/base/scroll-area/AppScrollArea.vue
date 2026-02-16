@@ -7,7 +7,7 @@ import { cn } from '@/utils/ui';
 import { reactiveOmit } from '@vueuse/core';
 import type { ScrollAreaRootProps } from 'reka-ui';
 import { ScrollAreaCorner, ScrollAreaRoot, ScrollAreaViewport } from 'reka-ui';
-import { type HTMLAttributes, ref } from 'vue';
+import { computed, type HTMLAttributes, ref } from 'vue';
 import AppScrollBar from './AppScrollBar.vue';
 
 /*
@@ -16,20 +16,41 @@ import AppScrollBar from './AppScrollBar.vue';
 
 export interface AppScrollAreaProps extends ScrollAreaRootProps {
     class?: HTMLAttributes['class'];
+    viewportChildTag: string;
 }
 
 /*
  * Component Setup.
  */
 
-const props = defineProps<AppScrollAreaProps>();
+const props = withDefaults(defineProps<AppScrollAreaProps>(), {
+    class: undefined,
+    viewportChildTag: 'div',
+});
+
 const delegatedProps = reactiveOmit(props, 'class', 'type');
 
 const emit = defineEmits<{
     scroll: [event: Event];
 }>();
 
+/*
+ * State.
+ */
+
 const viewportComponent = ref<InstanceType<typeof ScrollAreaViewport> | null>(null);
+
+/*
+ * Computed.
+ */
+
+const viewportClassForChildHeight = computed(
+    () => `[&>${props.viewportChildTag}]:h-full`,
+);
+
+/*
+ * Exposes.
+ */
 
 defineExpose({
     get viewport() {
@@ -49,7 +70,12 @@ defineExpose({
             ref="viewportComponent"
             :as-child="true"
             data-slot="scroll-area-viewport"
-            class="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 [&>div]:h-full"
+            :class="
+                cn(
+                    'focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1',
+                    viewportClassForChildHeight,
+                )
+            "
             @scroll="event => emit('scroll', event)"
         >
             <slot />

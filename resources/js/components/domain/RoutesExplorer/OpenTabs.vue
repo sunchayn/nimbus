@@ -155,6 +155,7 @@ watch(
                         <AppScrollArea
                             ref="scrollAreaRef"
                             class="min-h-0 flex-1"
+                            viewport-child-tag="ul"
                             @scroll="updateScrollMasks"
                         >
                             <draggable
