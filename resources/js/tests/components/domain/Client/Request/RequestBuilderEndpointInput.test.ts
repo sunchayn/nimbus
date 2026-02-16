@@ -90,4 +90,18 @@ describe('RequestBuilderEndpointInput', () => {
 
         expect(button.attributes('disabled')).toBeDefined();
     });
+
+    it('does not execute the request if the endpoint has placeholders', async () => {
+        mockRequestStore.pendingRequestData = {
+            endpoint: '/users/{id}',
+            isProcessing: false,
+        } as unknown as PendingRequest;
+
+        const wrapper = createWrapper();
+        const button = wrapper.find('button');
+
+        await button.trigger('click');
+
+        expect(mockRequestStore.executeCurrentRequest).not.toHaveBeenCalled();
+    });
 });
