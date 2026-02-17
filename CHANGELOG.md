@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.5.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.4.1-alpha...v0.5.0-alpha) (2026-02-17)
+
+
+### Features
+
+* **routes:** search by route name and Operation ID ([#64](https://github.com/sunchayn/nimbus/issues/64)) ([775a880](https://github.com/sunchayn/nimbus/commit/775a8807040b02c9001b612ffb57570ed8445c3e))
+* **ui:** show warning for requests with placeholders ([#66](https://github.com/sunchayn/nimbus/issues/66)) ([991a1b5](https://github.com/sunchayn/nimbus/commit/991a1b5710d44152bd5f09c365a995bd32f16b8c))
+
+
+### Bug Fixes
+
+* **ui:** add the open tabs rail back ([#62](https://github.com/sunchayn/nimbus/issues/62)) ([2b10034](https://github.com/sunchayn/nimbus/commit/2b10034f5919ff4abd8c4fa4da94c59f53c91852))
+* **ui:** empty request body has accidental full height ([432adf6](https://github.com/sunchayn/nimbus/commit/432adf64d8fb9f103dfeaacb52090598b99a041a))
+* **ui:** scrollable content masks in sidebar are not reactive ([#60](https://github.com/sunchayn/nimbus/issues/60)) ([b1213a5](https://github.com/sunchayn/nimbus/commit/b1213a582cf81c6200e2c7bd418040a4f39cd5ec))
+
+
+### Maintenance Tasks
+
+* `viewportChildTag` is not required ([c8069c8](https://github.com/sunchayn/nimbus/commit/c8069c87408b15a743776c51d0d06446a27448fa))
+* explain how to workaround single-threaded servers ([#63](https://github.com/sunchayn/nimbus/issues/63)) ([1bd0c94](https://github.com/sunchayn/nimbus/commit/1bd0c94e78a8b93f69501cf4511cbd253452924c))
+* refine readme ([#67](https://github.com/sunchayn/nimbus/issues/67)) ([034d6f3](https://github.com/sunchayn/nimbus/commit/034d6f3877c95c6f5e83b7f232de15ab3442e0a4))
+
+
+### CI/CD
+
+* adjust E2E env ([#65](https://github.com/sunchayn/nimbus/issues/65)) ([c725a1f](https://github.com/sunchayn/nimbus/commit/c725a1fb9f93e678cfa1da91582ff8b41cba650d))
+
 ## [0.4.1-alpha](https://github.com/sunchayn/nimbus/compare/v0.4.0-alpha...v0.4.1-alpha) (2026-02-02)
 
 
