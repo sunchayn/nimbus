@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1-alpha](https://github.com/sunchayn/nimbus/compare/v0.5.0-alpha...v0.5.1-alpha) (2026-02-18)
+
+
+### Bug Fixes
+
+* **core:** properly handle sub-folder installation ([#69](https://github.com/sunchayn/nimbus/issues/69)) ([dbf6869](https://github.com/sunchayn/nimbus/commit/dbf6869d5923ea7e9b24cecb19c9af33d276c161))
+
 ## [0.5.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.4.1-alpha...v0.5.0-alpha) (2026-02-17)
 
 
