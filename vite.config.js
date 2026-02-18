@@ -5,7 +5,7 @@ import path from 'node:path';
 import { defineConfig } from 'vite';
 
 export default defineConfig(({ mode }) => ({
-    base: '/vendor/nimbus/',
+    base: '',
     plugins: [
         vue(),
         tailwindcss(),

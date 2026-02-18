@@ -109,7 +109,7 @@ class NimbusIndexController
 
     private function configureVite(): void
     {
-        Vite::useBuildDirectory('/vendor/nimbus');
+        Vite::useBuildDirectory('vendor/nimbus');
         Vite::useHotFile(base_path('/vendor/sunchayn/nimbus/resources/dist/hot'));
     }
 

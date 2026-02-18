@@ -35,7 +35,7 @@ class NimbusIndexTest extends TestCase
         parent::setUp();
 
         // Mock Vite to prevent asset loading issues
-        Vite::shouldReceive('useBuildDirectory')->with('/vendor/nimbus')->atMost()->once();
+        Vite::shouldReceive('useBuildDirectory')->with('vendor/nimbus')->atMost()->once();
         Vite::shouldReceive('useHotFile')->with(base_path('/vendor/sunchayn/nimbus/resources/dist/hot'))->atMost()->once();
         Vite::shouldReceive('__invoke')->andReturn('<script src="/nimbus/app.js"></script>')->atMost()->once();
     }
@@ -265,8 +265,7 @@ class NimbusIndexTest extends TestCase
             ->andReturnSelf();
 
         $shareableLinkProcessorMock
-            ->shouldReceive('getTargetApplication')
-            ->andReturnNull();
+            ->shouldReceive('getTargetApplication')->andReturnNull();
 
         $shareableLinkProcessorMock
             ->shouldReceive('toFrontendState')
@@ -307,8 +306,7 @@ class NimbusIndexTest extends TestCase
             ->andReturnSelf();
 
         $shareableLinkProcessorMock
-            ->shouldReceive('getTargetApplication')
-            ->andReturnNull();
+            ->shouldReceive('getTargetApplication')->andReturnNull();
 
         $shareableLinkProcessorMock
             ->shouldReceive('toFrontendState')
@@ -460,5 +458,60 @@ class NimbusIndexTest extends TestCase
         ]);
 
         $disableThirdPartyUiActionSpy->shouldHaveReceived('execute')->once();
+    }
+
+    #[DataProvider('basePathDataProvider')]
+    public function test_it_calculates_base_path_correctly(string $appUrl, string $prefix, string $expectedBasePath): void
+    {
+        // Arrange
+
+        config(['app.url' => $appUrl]);
+        config(['nimbus.prefix' => $prefix]);
+
+        // Act
+
+        $response = $this->get(route('nimbus.index'));
+
+        // Assert
+
+        $response->assertStatus(200);
+
+        // We check for the basePath in the window.Nimbus config.
+        // Js::from() produces a JSON.parse() call where slashes are escaped with triple backslashes in the output string
+        $escapedPath = str_replace('/', '\\\\\\/', $expectedBasePath);
+        $response->assertSee($escapedPath, false);
+    }
+
+    public static function basePathDataProvider(): Generator
+    {
+        yield 'standard url and prefix' => [
+            'appUrl' => 'http://localhost',
+            'prefix' => 'nimbus',
+            'expectedBasePath' => '/nimbus',
+        ];
+
+        yield 'app in subdirectory' => [
+            'appUrl' => 'http://localhost/my-app',
+            'prefix' => 'nimbus',
+            'expectedBasePath' => '/my-app/nimbus',
+        ];
+
+        yield 'app in deeper subdirectory' => [
+            'appUrl' => 'http://localhost/deep/path/app',
+            'prefix' => 'nimbus',
+            'expectedBasePath' => '/deep/path/app/nimbus',
+        ];
+
+        yield 'prefix with leading/trailing slashes' => [
+            'appUrl' => 'http://localhost/my-app',
+            'prefix' => '/nimbus/',
+            'expectedBasePath' => '/my-app/nimbus',
+        ];
+
+        yield 'app url with trailing slash' => [
+            'appUrl' => 'http://localhost/my-app/',
+            'prefix' => 'nimbus',
+            'expectedBasePath' => '/my-app/nimbus',
+        ];
     }
 }

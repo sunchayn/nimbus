@@ -31,8 +31,16 @@
     </script>
     @php
         /** @var \Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver $activeApplicationResolver */
+        $appBasePath = rtrim(
+            \Illuminate\Support\Str::start(
+                parse_url(config('app.url'), PHP_URL_PATH) ?? '',
+                prefix: '/'
+            ),
+            characters: '/',
+        );
+
         $config = \Illuminate\Support\Js::from([
-            'basePath' => rtrim(\Illuminate\Support\Str::start(config('nimbus.prefix'), '/'), '/'),
+            'basePath' => $appBasePath . '/' . ltrim(config('nimbus.prefix'), '/'),
             'routes' => isset($routes) ? json_encode($routes) : null,
             'headers' => isset($headers) ? json_encode($headers) : null,
             'routeExtractorException' => isset($routeExtractorException) ? json_encode($routeExtractorException) : null,
