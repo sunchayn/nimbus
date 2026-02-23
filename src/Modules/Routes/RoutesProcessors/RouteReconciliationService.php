@@ -68,7 +68,13 @@ class RouteReconciliationService
             $this->getAbsentRoutes($applicationRoutesBySignature, $signatures),
         );
 
-        return ExtractedRoutesCollection::make($routes);
+        $collection = ExtractedRoutesCollection::make($routes);
+
+        // Forward skipped routes from auto-detected routes only.
+        // The external source (e.g. OpenAPI) does not produce skipped routes.
+        $collection->setSkippedRoutes($autoDetectedRoutes->getSkippedRoutes());
+
+        return $collection;
     }
 
     /**

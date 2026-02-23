@@ -12,6 +12,7 @@ readonly class Endpoint
         public string $version,
         public string $resource,
         public string $value,
+        public string $prefix = '',
         public ?string $shortUriOverride = null,
     ) {}
 
@@ -25,6 +26,7 @@ readonly class Endpoint
             version: $uriObject->getVersion(),
             resource: $uriObject->getResource(),
             value: $uri,
+            prefix: $routesPrefix,
             shortUriOverride: $shortUriOverride,
         );
     }

@@ -50,11 +50,14 @@ class ActiveApplicationResolver
         return $this->activeApplicationConfig['routes']['api_base_url'] ?? $this->request->getSchemeAndHttpHost();
     }
 
-    public function getRoutesPrefix(): string
+    /**
+     * @return string[]
+     */
+    public function getRoutesPrefix(): array
     {
-        $prefix = $this->activeApplicationConfig['routes']['prefix'] ?? 'api';
+        $prefix = $this->activeApplicationConfig['routes']['prefix'] ?? [];
 
-        return trim($prefix, '/');
+        return array_map(fn (string $p): string => trim($p, '/'), $prefix);
     }
 
     public function getAuthGuard(): string
@@ -92,6 +95,22 @@ class ActiveApplicationResolver
     public function getOpenApiFiles(): array
     {
         return $this->activeApplicationConfig['routes']['openapi']['files'] ?? [];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getIncludedPrefixes(): array
+    {
+        return $this->activeApplicationConfig['routes']['included_prefixes'] ?? [];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getExcludedPrefixes(): array
+    {
+        return $this->activeApplicationConfig['routes']['excluded_prefixes'] ?? [];
     }
 
     public function getAvailableApplications(): string

@@ -10,6 +10,7 @@ export type RouteDefinition = {
     shortEndpoint: string;
     metadata?: Record<string, unknown>;
     keywords?: string[];
+    prefix?: string;
 };
 
 /**
@@ -21,9 +22,15 @@ export interface RouteDetectionMetadata {
 }
 
 export interface RoutesGroup {
-    /** The resource name that groups these routes */
+    /** The resource name that groups these routes (or prefix name for prefix-level groups) */
     resource: string;
 
     /** Array of route definitions belonging to this group */
     routes: Array<RouteDefinition>;
+
+    /** Present when this is a prefix-level group */
+    prefix?: string;
+
+    /** Child resource groups within this prefix group */
+    children?: Array<RoutesGroup>;
 }

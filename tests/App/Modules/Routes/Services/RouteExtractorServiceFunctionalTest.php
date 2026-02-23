@@ -47,8 +47,10 @@ class RouteExtractorServiceFunctionalTest extends TestCase
         // Anticipate
 
         $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class, function (MockInterface $mock) {
-            $mock->shouldReceive('getRoutesPrefix')->andReturn('api');
+            $mock->shouldReceive('getRoutesPrefix')->andReturn(['api']);
             $mock->shouldReceive('isVersioned')->andReturn($this->isVersioned = fake()->boolean());
+            $mock->shouldReceive('getIncludedPrefixes')->andReturn([]);
+            $mock->shouldReceive('getExcludedPrefixes')->andReturn([]);
         });
 
         $routeFactoryMock = $this->mock(ExtractableRouteFactory::class, function (MockInterface $mock) {
@@ -93,14 +95,14 @@ class RouteExtractorServiceFunctionalTest extends TestCase
 
         $result->each(function (ExtractedRoute $extractedRoute) use ($routeFactoryMock, $schemaExtractorMock, $routes) {
             $this->assertTrue(
-                str_starts_with($extractedRoute->uri->value, 'api'),
+                str_starts_with($extractedRoute->uri->value, '/api'),
                 "Route should start with api prefix: {$extractedRoute->uri->value}.",
             );
 
             $originalRoute = Arr::first(
                 $routes,
                 // We can do this simple check because we didn't set up routes that share the same URI.
-                fn (Route $route) => $route->uri() === $extractedRoute->uri->value,
+                fn (Route $route) => '/'.$route->uri() === $extractedRoute->uri->value,
             );
 
             $this->assertEquals(
@@ -182,7 +184,7 @@ class RouteExtractorServiceFunctionalTest extends TestCase
         $this->assertCount(2, $result);
 
         $ignoredRouteWithinResult = $result->first(
-            fn (ExtractedRoute $extractedRoute) => $extractedRoute->uri->value === 'api/users'
+            fn (ExtractedRoute $extractedRoute) => $extractedRoute->uri->value === '/api/users'
                 && in_array('POST', $extractedRoute->methods),
         );
 
@@ -224,8 +226,10 @@ class RouteExtractorServiceFunctionalTest extends TestCase
 
         // Anticipate
 
-        $activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn('custom');
+        $activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn(['custom']);
         $activeApplicationResolverMock->shouldReceive('isVersioned')->andReturn(false);
+        $activeApplicationResolverMock->shouldReceive('getIncludedPrefixes')->andReturn([]);
+        $activeApplicationResolverMock->shouldReceive('getExcludedPrefixes')->andReturn([]);
 
         // Act
 
@@ -234,7 +238,7 @@ class RouteExtractorServiceFunctionalTest extends TestCase
         // Assert
 
         $customRouteWithinResult = $result->first(
-            fn (ExtractedRoute $extractedRoute) => str_starts_with($extractedRoute->uri->value, 'custom'),
+            fn (ExtractedRoute $extractedRoute) => str_starts_with($extractedRoute->uri->value, '/custom'),
         );
 
         $this->assertNotNull(
@@ -243,22 +247,22 @@ class RouteExtractorServiceFunctionalTest extends TestCase
         );
     }
 
-    public function test_it_handles_extraction_errors_gracefully(): void
+    public function test_it_returns_routes_with_error_schema_when_extraction_fails(): void
     {
         // Anticipate
 
         $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class, function (MockInterface $mock) {
-            $mock->shouldReceive('getRoutesPrefix')->andReturn('api');
-            $mock->shouldReceive('isVersioned')->andReturn(fake()->boolean());
+            $mock->shouldReceive('getRoutesPrefix')->andReturn(['api']);
+            $mock->shouldReceive('isVersioned')->andReturn(false);
+            $mock->shouldReceive('getIncludedPrefixes')->andReturn([]);
+            $mock->shouldReceive('getExcludedPrefixes')->andReturn([]);
         });
 
-        $dummyFailingException = new RuntimeException(message: $dummyFailingExceptionMessage = fake()->sentence());
-
-        $this->mock(SchemaExtractor::class, function (MockInterface $mock) use ($dummyFailingException) {
+        $this->mock(SchemaExtractor::class, function (MockInterface $mock) {
             $mock
                 ->shouldReceive('extract')
                 ->withAnyArgs()
-                ->andThrow($dummyFailingException);
+                ->andThrow(new RuntimeException('Schema extraction failed'));
         });
 
         // Arrange
@@ -267,41 +271,70 @@ class RouteExtractorServiceFunctionalTest extends TestCase
 
         $routes = RouteFacade::getRoutes()->getRoutes();
 
-        // Act
+        // Act — no exception should be thrown; routes are returned with error schemas
 
-        try {
-            $result = $routeExtractorService->execute($routes);
-        } catch (RouteExtractionInternalException $exception) {
+        $result = $routeExtractorService->execute($routes);
+
+        // Assert — routes are returned, each with an extractionError on the schema
+
+        $this->assertGreaterThan(0, $result->count());
+
+        foreach ($result as $extractedRoute) {
+            $this->assertNotNull($extractedRoute->schema->extractionError);
         }
+    }
 
-        // Assert
+    public function test_it_skips_routes_when_factory_fails(): void
+    {
+        // Anticipate
 
-        $this->assertNotNull($exception);
+        $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class, function (MockInterface $mock) {
+            $mock->shouldReceive('getRoutesPrefix')->andReturn(['api']);
+            $mock->shouldReceive('isVersioned')->andReturn(false);
+            $mock->shouldReceive('getIncludedPrefixes')->andReturn([]);
+            $mock->shouldReceive('getExcludedPrefixes')->andReturn([]);
+        });
 
-        $this->assertSame(
-            $dummyFailingException,
-            $exception->getPrevious(),
-        );
+        $this->mock(ExtractableRouteFactory::class, function (MockInterface $mock) {
+            $mock
+                ->shouldReceive('fromLaravelRoute')
+                ->withAnyArgs()
+                ->andThrow(new RuntimeException('Controller method not found'));
+        });
 
-        $this->assertEquals(
-            [
-                'uri' => 'api/users', // <- First route from the list self::defineRoutes.
-                'methods' => ['POST'],
-                'controllerClass' => '[unspecified]',
-                'controllerMethod' => '[unspecified]',
-            ],
-            $exception->getRouteContext()
-        );
+        // Arrange
 
-        $this->assertEquals(
-            "Failed to extract route information for 'api/users' due to an unexpected error: {$dummyFailingExceptionMessage}",
-            $exception->getMessage(),
-        );
+        $routeExtractorService = resolve(ExtractApplicationRoutesAction::class);
 
-        $this->assertEquals(
-            'Check the application logs for more details and ensure all dependencies are properly installed.'
-            .'<br />In case of internal errors, please open an issue: <a class="hover:underline" href="https://github.com/sunchayn/nimbus/issues/new/choose">https://github.com/sunchayn/nimbus/issues/new/choose</a>',
-            $exception->getSuggestedSolution()
-        );
+        $routes = RouteFacade::getRoutes()->getRoutes();
+
+        // Act — no exception thrown; routes are skipped gracefully
+
+        $result = $routeExtractorService->execute($routes);
+
+        // Assert — all api routes skipped, none returned
+
+        $this->assertCount(0, $result);
+        $this->assertTrue($result->hasSkippedRoutes());
+
+        $skippedRoutes = $result->getSkippedRoutes();
+
+        $this->assertCount(3, $skippedRoutes);
+
+        foreach ($skippedRoutes as $skippedRoute) {
+            $this->assertStringStartsWith('api/', $skippedRoute['uri']);
+            $this->assertNotContains('HEAD', $skippedRoute['methods']);
+
+            // RouteExtractionInternalException wraps the original message
+            $this->assertStringContainsString(
+                'Controller method not found',
+                $skippedRoute['reason'],
+            );
+
+            $this->assertStringContainsString(
+                'due to an unexpected error',
+                $skippedRoute['reason'],
+            );
+        }
     }
 }

@@ -298,7 +298,7 @@ class OpenAPISchemaRoutesProcessorUnitTest extends TestCase
 
         $this->activeApplicationResolverMock
             ->shouldReceive('getRoutesPrefix')
-            ->andReturn('api');
+            ->andReturn(['api']);
 
         $this->activeApplicationResolverMock
             ->shouldReceive('getOpenApiFiles')

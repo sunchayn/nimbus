@@ -61,7 +61,7 @@ paths:
 YAML;
         $openapi = Reader::readFromYaml($yaml);
 
-        $this->activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn('api');
+        $this->activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn(['api']);
         $this->activeApplicationResolverMock->shouldReceive('isVersioned')->andReturn(true);
 
         // Act
@@ -89,7 +89,7 @@ paths:
 YAML;
         $openapi = Reader::readFromYaml($yaml);
 
-        $this->activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn('api');
+        $this->activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn(['api']);
         $this->activeApplicationResolverMock->shouldReceive('isVersioned')->andReturn(false);
 
         // Act
@@ -123,7 +123,7 @@ paths:
 YAML;
         $openapi = Reader::readFromYaml($yaml);
 
-        $this->activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn('api');
+        $this->activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn(['api']);
         $this->activeApplicationResolverMock->shouldReceive('isVersioned')->andReturn(true);
 
         // Act
@@ -219,7 +219,7 @@ paths:
 YAML;
         $openapi = Reader::readFromYaml($yaml);
 
-        $this->activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn('api');
+        $this->activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn(['api']);
         $this->activeApplicationResolverMock->shouldReceive('isVersioned')->andReturn(true);
 
         // Act
@@ -263,7 +263,7 @@ paths:
 YAML;
         $openapi = Reader::readFromYaml($yaml);
 
-        $this->activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn('api');
+        $this->activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn(['api']);
         $this->activeApplicationResolverMock->shouldReceive('isVersioned')->andReturn(true);
 
         // Act
@@ -299,7 +299,7 @@ paths:
 YAML;
         $openapi = Reader::readFromYaml($yaml);
 
-        $this->activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn('api');
+        $this->activeApplicationResolverMock->shouldReceive('getRoutesPrefix')->andReturn(['api']);
         $this->activeApplicationResolverMock->shouldReceive('isVersioned')->andReturn(true);
 
         // Act

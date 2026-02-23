@@ -42,6 +42,7 @@
         $config = \Illuminate\Support\Js::from([
             'basePath' => $appBasePath . '/' . ltrim(config('nimbus.prefix'), '/'),
             'routes' => isset($routes) ? json_encode($routes) : null,
+            'skippedRoutes' => isset($skippedRoutes) ? json_encode($skippedRoutes) : null,
             'headers' => isset($headers) ? json_encode($headers) : null,
             'routeExtractorException' => isset($routeExtractorException) ? json_encode($routeExtractorException) : null,
             'globalException' => isset($globalException) ? json_encode($globalException) : null,

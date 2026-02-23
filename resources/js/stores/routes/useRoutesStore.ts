@@ -7,6 +7,7 @@ import {
     searchRoutes,
 } from '@/utils/routes';
 import { defineStore } from 'pinia';
+import { toast } from 'vue-sonner';
 import { computed, ref } from 'vue';
 
 export const useRoutesStore = defineStore('routes', () => {
@@ -54,6 +55,33 @@ export const useRoutesStore = defineStore('routes', () => {
         );
 
         await fetchAvailableRoutes();
+
+        notifySkippedRoutes();
+    };
+
+    const notifySkippedRoutes = () => {
+        const raw = window.Nimbus?.skippedRoutes;
+
+        if (!raw || typeof raw !== 'string') {
+            return;
+        }
+
+        let skippedRoutes: { uri: string; methods: string[]; reason: string }[];
+
+        try {
+            skippedRoutes = JSON.parse(raw);
+        } catch {
+            return;
+        }
+
+        if (skippedRoutes.length === 0) {
+            return;
+        }
+
+        toast.warning(`${skippedRoutes.length} route(s) skipped during extraction`, {
+            description: skippedRoutes.map(r => r.uri).join(', '),
+            duration: 8000,
+        });
     };
 
     const isMissingImplementation = (route: RouteDefinition) => {

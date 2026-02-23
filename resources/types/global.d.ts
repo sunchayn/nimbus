@@ -3,6 +3,7 @@ import { SharedState } from '../js/interfaces/share';
 interface NimbusConfig {
     basePath: string;
     routes: string | null;
+    skippedRoutes: string | null;
     headers: string | null;
     apiBaseUrl: string;
     isVersioned: boolean;

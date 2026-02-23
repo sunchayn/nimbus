@@ -114,15 +114,35 @@ const filteredRoutes = computed(() => {
 
     const searchTerm = search.value.toLowerCase();
 
+    const matchesSearch = (route: RouteDefinition): boolean => {
+        return (
+            route.keywords?.some((keyword: string) =>
+                keyword.toLowerCase().includes(searchTerm),
+            ) ?? false
+        );
+    };
+
     return (
         routesInVersion.value
             .map((group: RoutesGroup) => {
-                const filtered = group.routes.filter((route: RouteDefinition) => {
-                    return route.keywords?.some((keyword: string) =>
-                        keyword.toLowerCase().includes(searchTerm),
-                    );
-                });
+                // Prefix group: filter within each child resource group
+                if (group.children) {
+                    const filteredChildren = group.children
+                        .map(child => {
+                            const filtered = child.routes.filter(matchesSearch);
+                            return filtered.length > 0
+                                ? { ...child, routes: filtered }
+                                : null;
+                        })
+                        .filter((child): child is RoutesGroup => child !== null);
 
+                    return filteredChildren.length > 0
+                        ? { ...group, children: filteredChildren }
+                        : null;
+                }
+
+                // Regular group: filter routes directly
+                const filtered = group.routes.filter(matchesSearch);
                 return filtered.length > 0 ? { ...group, routes: filtered } : null;
             })
             .filter((group): group is RoutesGroup => group !== null) || []
