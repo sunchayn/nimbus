@@ -104,6 +104,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                             'extractionError' => null,
                             'metadata' => [],
                             'keywords' => ['/api/users', '/users'],
+                            'prefix' => '',
                         ],
                         [
                             'uri' => '/api/users',
@@ -119,6 +120,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                             'extractionError' => null,
                             'metadata' => [],
                             'keywords' => ['/api/users', '/users'],
+                            'prefix' => '',
                         ],
                     ],
                     'posts' => [
@@ -140,6 +142,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                             'extractionError' => null,
                             'metadata' => [],
                             'keywords' => ['/api/posts', '/posts'],
+                            'prefix' => '',
                         ],
                     ],
                 ],
@@ -191,6 +194,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                             'extractionError' => null,
                             'metadata' => [],
                             'keywords' => ['/api/users', '/users'],
+                            'prefix' => '',
                         ],
                         [
                             'uri' => '/api/users',
@@ -204,10 +208,11 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                                 'additionalProperties' => false,
                             ],
                             'extractionError' => '<b>[no error message]</b><br />
-<small>'.__FILE__.'::171</small>
+<small>'.__FILE__.'::174</small>
 <p class="text-xs">[trace]</p>',
                             'metadata' => [],
                             'keywords' => ['/api/users', '/users'],
+                            'prefix' => '',
                         ],
                     ],
                 ],

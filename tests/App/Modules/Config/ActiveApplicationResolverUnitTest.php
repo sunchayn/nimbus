@@ -121,10 +121,12 @@ class ActiveApplicationResolverUnitTest extends TestCase
 
         $this->assertFalse($resolver->isVersioned());
         $this->assertEquals('http://localhost', $resolver->getApiBaseUrl());
-        $this->assertEquals('api', $resolver->getRoutesPrefix());
+        $this->assertEquals([], $resolver->getRoutesPrefix());
         $this->assertEquals('web', $resolver->getAuthGuard());
         $this->assertNull($resolver->getSpecialAuthInjector());
         $this->assertEquals([], $resolver->getHeaders());
+        $this->assertEquals([], $resolver->getIncludedPrefixes());
+        $this->assertEquals([], $resolver->getExcludedPrefixes());
     }
 
     public function test_it_provides_specialized_getters_from_config(): void
@@ -135,7 +137,9 @@ class ActiveApplicationResolverUnitTest extends TestCase
             'routes' => [
                 'versioned' => true,
                 'api_base_url' => 'https://api.example.com',
-                'prefix' => 'v1',
+                'prefix' => ['v1'],
+                'included_prefixes' => ['telescope'],
+                'excluded_prefixes' => ['internal'],
             ],
             'auth' => [
                 'guard' => 'api',
@@ -155,10 +159,12 @@ class ActiveApplicationResolverUnitTest extends TestCase
 
         $this->assertTrue($resolver->isVersioned());
         $this->assertEquals('https://api.example.com', $resolver->getApiBaseUrl());
-        $this->assertEquals('v1', $resolver->getRoutesPrefix());
+        $this->assertEquals(['v1'], $resolver->getRoutesPrefix());
         $this->assertEquals('api', $resolver->getAuthGuard());
         $this->assertEquals('SomeInjector', $resolver->getSpecialAuthInjector());
         $this->assertEquals(['X-Test' => 'value'], $resolver->getHeaders());
+        $this->assertEquals(['telescope'], $resolver->getIncludedPrefixes());
+        $this->assertEquals(['internal'], $resolver->getExcludedPrefixes());
     }
 
     public function test_it_returns_available_applications_as_json(): void

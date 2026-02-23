@@ -13,6 +13,7 @@ import type { ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui';
 import type { Tab } from '@/interfaces/ui/tabs';
 import { useConfigStore, useSettingsStore, useValueGeneratorStore } from '@/stores';
+import { generateId } from '@/utils/generateId';
 import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
 import { generateValueFromType } from '@/utils/value-generator/generateValueFromType';
 import { defineStore } from 'pinia';
@@ -212,7 +213,7 @@ export const useTabsStore = defineStore(
                 return;
             }
 
-            const id = crypto.randomUUID();
+            const id = generateId();
             const newTab: Tab = {
                 id,
                 title: route.shortEndpoint || route.endpoint,
@@ -498,7 +499,7 @@ export const useTabsStore = defineStore(
         const restoreFromSharedPayload = (payload: ShareableLinkPayload) => {
             const newRequest = createRequestFromShearableLinkPayload(payload);
 
-            const id = crypto.randomUUID();
+            const id = generateId();
             const newTab: Tab = {
                 id,
                 title: payload.endpoint,

@@ -4,6 +4,7 @@
  * @description A list of grouped route resources and their endpoints.
  */
 import RoutesListItem from '@/components/domain/RoutesExplorer/RoutesList/RoutesListItem.vue';
+import RoutesPrefixGroup from '@/components/domain/RoutesExplorer/RoutesPrefixGroup.vue';
 import RoutesResource from '@/components/domain/RoutesExplorer/RoutesResourceGroup.vue';
 import { type RouteDefinition, type RoutesGroup } from '@/interfaces/routes/routes';
 import { useRequestStore } from '@/stores';
@@ -62,25 +63,54 @@ const setPendingRequest = (route: RouteDefinition, resourceGroup: RoutesGroup) =
     requestStore.initializeRequest(route, availableRoutesForEndpoint);
 };
 
+const getPrefixRouteCount = (group: RoutesGroup): number => {
+    if (!group.children) {
+        return 0;
+    }
+
+    return group.children.reduce((sum, child) => sum + child.routes.length, 0);
+};
+
 const showingSearchResults = inject('showingSearchResults');
 </script>
 
 <template>
     <template v-if="routes && routes.length">
-        <RoutesResource
-            v-for="resourceGroup in routes"
-            :key="resourceGroup.resource"
-            :resource="resourceGroup.resource"
-        >
-            <RoutesListItem
-                v-for="route in resourceGroup.routes"
-                :key="route.endpoint + '-' + route.method"
-                :route="route"
-                :resource="resourceGroup.resource"
-                :on-click="() => setPendingRequest(route, resourceGroup)"
-                :is-active="isRouteActive(route)"
-            />
-        </RoutesResource>
+        <template v-for="group in routes" :key="group.resource">
+            <!-- Prefix group: renders nested collapsible with child resource groups -->
+            <RoutesPrefixGroup
+                v-if="group.children"
+                :prefix="group.prefix ?? group.resource"
+                :route-count="getPrefixRouteCount(group)"
+            >
+                <RoutesResource
+                    v-for="childGroup in group.children"
+                    :key="childGroup.resource"
+                    :resource="childGroup.resource"
+                >
+                    <RoutesListItem
+                        v-for="route in childGroup.routes"
+                        :key="route.endpoint + '-' + route.method"
+                        :route="route"
+                        :resource="childGroup.resource"
+                        :on-click="() => setPendingRequest(route, childGroup)"
+                        :is-active="isRouteActive(route)"
+                    />
+                </RoutesResource>
+            </RoutesPrefixGroup>
+
+            <!-- Regular resource group: existing flat behavior -->
+            <RoutesResource v-else :resource="group.resource">
+                <RoutesListItem
+                    v-for="route in group.routes"
+                    :key="route.endpoint + '-' + route.method"
+                    :route="route"
+                    :resource="group.resource"
+                    :on-click="() => setPendingRequest(route, group)"
+                    :is-active="isRouteActive(route)"
+                />
+            </RoutesResource>
+        </template>
     </template>
     <template v-else-if="!showingSearchResults">
         <div class="px-2">

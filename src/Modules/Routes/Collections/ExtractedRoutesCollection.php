@@ -13,12 +13,39 @@ use Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
  *     methods: string[],
  *     schema: array<string, mixed>,
  *     extractionError: string|null,
+ *     prefix: string,
  * }
  *
  * @extends Collection<array-key, ExtractedRoute>
  */
 class ExtractedRoutesCollection extends Collection
 {
+    /** @var array<int, array{uri: string, methods: string[], reason: string}> */
+    private array $skippedRoutes = [];
+
+    /**
+     * @param  array<int, array{uri: string, methods: string[], reason: string}>  $skippedRoutes
+     */
+    public function setSkippedRoutes(array $skippedRoutes): self
+    {
+        $this->skippedRoutes = $skippedRoutes;
+
+        return $this;
+    }
+
+    /**
+     * @return array<int, array{uri: string, methods: string[], reason: string}>
+     */
+    public function getSkippedRoutes(): array
+    {
+        return $this->skippedRoutes;
+    }
+
+    public function hasSkippedRoutes(): bool
+    {
+        return $this->skippedRoutes !== [];
+    }
+
     /**
      * @return array<string, array<string, RouteDefinitionShape[]>>
      */
@@ -45,6 +72,7 @@ class ExtractedRoutesCollection extends Collection
                                     'extractionError' => $extractedRoute->schema->extractionError?->toHtml(),
                                     'metadata' => $extractedRoute->metadata,
                                     'keywords' => $extractedRoute->keywords,
+                                    'prefix' => $extractedRoute->uri->prefix,
                                 ],
                             ),
                         );

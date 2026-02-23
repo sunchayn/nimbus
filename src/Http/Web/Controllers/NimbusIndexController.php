@@ -44,6 +44,7 @@ class NimbusIndexController
 
             $viewData = [
                 'routes' => $routes->toFrontendArray(),
+                'skippedRoutes' => $routes->hasSkippedRoutes() ? $routes->getSkippedRoutes() : null,
                 'headers' => $buildGlobalHeadersAction->execute(),
                 'currentUser' => $buildCurrentUserAction->execute(),
                 'primaryProcessorName' => $routesProcessorContract->getName()->value,

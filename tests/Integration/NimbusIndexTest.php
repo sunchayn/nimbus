@@ -439,7 +439,12 @@ class NimbusIndexTest extends TestCase
             ]);
 
         $routesProviderMock->shouldReceive('getName')->andReturn(RoutesProcessingStrategyEnum::AutoDetect);
-        $routesProviderMock->shouldReceive('process')->andReturn($this->mock(ExtractedRoutesCollection::class)->shouldReceive('toFrontendArray')->andReturn([])->getMock());
+
+        $extractedRoutesCollectionMock = $this->mock(ExtractedRoutesCollection::class);
+        $extractedRoutesCollectionMock->shouldReceive('toFrontendArray')->andReturn([]);
+        $extractedRoutesCollectionMock->shouldReceive('hasSkippedRoutes')->andReturn(false);
+
+        $routesProviderMock->shouldReceive('process')->andReturn($extractedRoutesCollectionMock);
 
         // Act
 

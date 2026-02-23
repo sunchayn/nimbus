@@ -259,6 +259,43 @@ class RouteReconciliationServiceUnitTest extends TestCase
         );
     }
 
+    public function test_it_forwards_skipped_routes_from_auto_detected_collection(): void
+    {
+        // Arrange
+
+        $processor = new RouteReconciliationService;
+
+        $externalRoutes = ExtractedRoutesCollection::make([
+            new ExtractedRoute(
+                uri: Endpoint::fromRaw('api/users', 'api', false),
+                methods: ['GET'],
+                schema: Schema::empty(),
+            ),
+        ]);
+
+        $appRoutes = ExtractedRoutesCollection::make([
+            new ExtractedRoute(
+                uri: Endpoint::fromRaw('api/users', 'api', false),
+                methods: ['GET'],
+                schema: Schema::empty(),
+            ),
+        ]);
+
+        $appRoutes->setSkippedRoutes([
+            ['uri' => 'broken/route', 'methods' => ['POST'], 'reason' => 'Controller method not found'],
+        ]);
+
+        // Act
+
+        $result = $processor->execute($externalRoutes, $appRoutes);
+
+        // Assert
+
+        $this->assertTrue($result->hasSkippedRoutes());
+        $this->assertCount(1, $result->getSkippedRoutes());
+        $this->assertEquals('broken/route', $result->getSkippedRoutes()[0]['uri']);
+    }
+
     public function test_it_preserves_openapi_keywords_when_no_matching_application_route(): void
     {
         // Arrange

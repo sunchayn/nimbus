@@ -25,7 +25,7 @@ class TestCase extends BaseTestCase
             'main' => [
                 'name' => 'Main Application',
                 'routes' => [
-                    'prefix' => 'api',
+                    'prefix' => ['api'],
                     'versioned' => false,
                 ],
                 'headers' => [
@@ -36,7 +36,7 @@ class TestCase extends BaseTestCase
             'other' => [
                 'name' => 'Other Application',
                 'routes' => [
-                    'prefix' => 'other-api',
+                    'prefix' => ['other-api'],
                     'versioned' => true,
                 ],
             ],

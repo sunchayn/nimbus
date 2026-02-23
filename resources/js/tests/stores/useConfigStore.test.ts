@@ -48,6 +48,7 @@ describe('useConfigStore', () => {
                 primaryProcessorName: null,
                 showOperationId: null,
                 globalException: null,
+                skippedRoutes: null,
             };
 
             // Act

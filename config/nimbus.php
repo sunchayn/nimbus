@@ -137,13 +137,43 @@ return [
                 | Route Prefix
                 |--------------------------------------------------------------------------
                 |
-                | The prefix used to discover and filter the routes for inclusion in Nimbus.
-                | Only routes whose URIs begin with this prefix will be loaded in the UI.
-                | Adjust this value if your API endpoints use a different root segment.
+                | An array of URI prefixes used to filter which routes are loaded in
+                | Nimbus. Only routes whose URIs begin with one of these prefixes will
+                | be included. For example, ['api'] loads only routes under /api/*.
+                |
+                | Use an empty array to load all application-defined routes without
+                | any prefix filtering.
                 |
                 */
 
-                'prefix' => 'api',
+                'prefix' => [],
+
+                /*
+                |--------------------------------------------------------------------------
+                | Included Prefixes (Package Routes)
+                |--------------------------------------------------------------------------
+                |
+                | By default, only routes defined in the app (not vendor packages)
+                | are shown. To also include specific package routes, add their
+                | first URI segment here. For example, ['telescope'] to include
+                | Laravel Telescope routes.
+                |
+                */
+
+                'included_prefixes' => [],
+
+                /*
+                |--------------------------------------------------------------------------
+                | Excluded Prefixes
+                |--------------------------------------------------------------------------
+                |
+                | Exclude routes by their first URI segment, even if they are
+                | app-defined routes. For example, ['api'] to hide all
+                | routes under the /api/* path.
+                |
+                */
+
+                'excluded_prefixes' => [],
 
                 /*
                 |--------------------------------------------------------------------------

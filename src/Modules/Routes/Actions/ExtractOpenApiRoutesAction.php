@@ -62,11 +62,12 @@ class ExtractOpenApiRoutesAction
         PathItem $pathItem,
         string $version,
     ): array {
-        $prefix = $this->activeApplicationResolver->getRoutesPrefix();
+        $prefixes = $this->activeApplicationResolver->getRoutesPrefix();
+        $primaryPrefix = $prefixes[0] ?? '';
         $path = ltrim($path, '/');
 
-        if (! str_starts_with($path, $prefix)) {
-            $path = sprintf('%s/%s', $prefix, $path);
+        if ($primaryPrefix !== '' && ! str_starts_with($path, $primaryPrefix)) {
+            $path = sprintf('%s/%s', $primaryPrefix, $path);
         }
 
         $uri = $this->normalizeUri($path, $version);
@@ -79,7 +80,7 @@ class ExtractOpenApiRoutesAction
 
                     $endpoint = Endpoint::fromRaw(
                         uri: $uri,
-                        routesPrefix: $this->activeApplicationResolver->getRoutesPrefix(),
+                        routesPrefix: $this->findMatchingPrefix($uri),
                         isVersioned: $this->activeApplicationResolver->isVersioned(),
                     );
 
@@ -258,15 +259,31 @@ class ExtractOpenApiRoutesAction
 
     private function normalizeUri(string $path, string $version): string
     {
-        $prefix = $this->activeApplicationResolver->getRoutesPrefix();
+        $prefixes = $this->activeApplicationResolver->getRoutesPrefix();
+        $primaryPrefix = $prefixes[0] ?? '';
 
         // Remove prefix to handle base path consistently
-        $cleanedPath = ltrim(substr($path, strlen($prefix)), '/');
+        $cleanedPath = ltrim(substr($path, strlen($primaryPrefix)), '/');
 
         if ($this->activeApplicationResolver->isVersioned()) {
-            return sprintf('%s/%s/%s', $prefix, $version, $cleanedPath);
+            return sprintf('%s/%s/%s', $primaryPrefix, $version, $cleanedPath);
         }
 
-        return sprintf('%s/%s', $prefix, $cleanedPath);
+        return sprintf('%s/%s', $primaryPrefix, $cleanedPath);
+    }
+
+    private function findMatchingPrefix(string $uri): string
+    {
+        foreach ($this->activeApplicationResolver->getRoutesPrefix() as $prefix) {
+            if ($prefix === '') {
+                continue;
+            }
+
+            if (str_starts_with($uri, $prefix) || str_starts_with($uri, '/'.$prefix)) {
+                return $prefix;
+            }
+        }
+
+        return '';
     }
 }
