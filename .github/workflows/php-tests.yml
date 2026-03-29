@@ -30,8 +30,29 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.4, 8.3, 8.2]
-        laravel: [12, 11, 10]
+        php: [8.5, 8.4, 8.3, 8.2]
+        laravel: [13, 12, 11, 10]
+        exclude:
+          - laravel: 13
+            php: 8.2
+          - laravel: 12
+            php: 8.3
+          - laravel: 12
+            php: 8.4
+          - laravel: 12
+            php: 8.5
+          - laravel: 11
+            php: 8.3
+          - laravel: 11
+            php: 8.4
+          - laravel: 11
+            php: 8.5
+          - laravel: 10
+            php: 8.3
+          - laravel: 10
+            php: 8.4
+          - laravel: 10
+            php: 8.5
 
     name: PHP Tests P${{ matrix.php }} - Laravel ${{ matrix.laravel }}
 
@@ -65,15 +86,15 @@ jobs:
           composer dump-autoload --optimize
 
       - name: Execute tests with coverage
-        if: needs.changes.outputs.php == 'true' && matrix.php == '8.3' && matrix.laravel == 12
+        if: needs.changes.outputs.php == 'true' && matrix.php == '8.5' && matrix.laravel == 13
         run: composer test:coverage-ci
 
       - name: Execute tests
-        if: needs.changes.outputs.php == 'true' && (matrix.php != '8.3' || matrix.laravel != 12)
+        if: needs.changes.outputs.php == 'true' && (matrix.php != '8.5' || matrix.laravel != 13)
         run: composer test:parallel
 
       - name: Upload coverage reports to Codecov
-        if: needs.changes.outputs.php == 'true' && matrix.php == '8.3' && matrix.laravel == 12
+        if: needs.changes.outputs.php == 'true' && matrix.php == '8.5' && matrix.laravel == 13
         uses: codecov/codecov-action@v4
         with:
           file: ./build/coverage.xml
