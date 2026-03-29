@@ -55,7 +55,7 @@ const timeToTimeAgo = (timestamp: number): string => {
             <div class="flex flex-1 flex-col gap-2">
                 <div
                     class="flex w-full justify-between gap-1 leading-tight"
-                    :title="props.log.request.endpoint.raw"
+                    :title="props.log.request.endpoint"
                 >
                     <div class="flex-1 truncate">
                         <HttpVerbLabel
@@ -64,7 +64,7 @@ const timeToTimeAgo = (timestamp: number): string => {
                         />
 
                         <span class="ml-1 text-xs" data-testid="history-item-endpoint">
-                            {{ props.log.request.endpoint.raw }}
+                            {{ props.log.request.endpoint }}
                         </span>
                     </div>
 

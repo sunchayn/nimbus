@@ -10,13 +10,11 @@ import { computed, nextTick, ref } from 'vue';
  * Fixtures.
  */
 
-import type { ResolvableString } from '@/interfaces/common/resolvable-string';
-
 const parameters: Ref<
     Array<{
         id: string;
         key: string;
-        value: ResolvableString;
+        value: string;
         enabled: boolean;
         type: string;
     }>
@@ -60,7 +58,7 @@ vi.mock('@/composables/ui/useTabHorizontalScroll', () => ({
 const mockActiveVariables = ref([
     {
         key: 'resolvedKey',
-        value: { raw: 'someValue', resolved: 'someValue' },
+        value: 'someValue',
         enabled: true,
     },
 ]);
@@ -97,10 +95,7 @@ vi.mock('@/stores', async importOriginal => {
         useEnvironmentVariablesStore: () => {
             const variablesEntries: [string, string][] = mockActiveVariables.value
                 .filter(v => v.enabled)
-                .map(v => [
-                    v.key,
-                    typeof v.value === 'object' ? v.value.resolved : v.value,
-                ]);
+                .map(v => [v.key, v.value]);
 
             return {
                 activeCollection: {
@@ -138,14 +133,14 @@ describe('KeyValueParameters', () => {
             {
                 id: '1',
                 key: 'test-key',
-                value: { raw: 'test-value', resolved: 'test-value' },
+                value: 'test-value',
                 enabled: true,
                 type: 'text',
             },
             {
                 id: '2',
                 key: 'another-key',
-                value: { raw: 'another-value', resolved: 'another-value' },
+                value: 'another-value',
                 enabled: false,
                 type: 'text',
             },
@@ -200,14 +195,14 @@ describe('KeyValueParameters', () => {
                 {
                     id: '1',
                     key: 'key1',
-                    value: { raw: '{{resolvedKey}}', resolved: '{{resolvedKey}}' },
+                    value: '{{resolvedKey}}',
                     enabled: true,
                     type: 'text',
                 },
                 {
                     id: '2',
                     key: 'key2',
-                    value: { raw: '{{missingKey}}', resolved: '{{missingKey}}' },
+                    value: '{{missingKey}}',
                     enabled: true,
                     type: 'text',
                 },

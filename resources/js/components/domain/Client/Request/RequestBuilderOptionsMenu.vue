@@ -19,7 +19,12 @@ import {
     AppPopoverTrigger,
 } from '@/components/base/popover';
 import { AppSwitch } from '@/components/base/switch';
-import { useConfigStore, useRequestsHistoryStore, useRequestStore } from '@/stores';
+import {
+    useConfigStore,
+    useEnvironmentVariablesStore,
+    useRequestsHistoryStore,
+    useRequestStore,
+} from '@/stores';
 import { generateCurlCommand } from '@/utils/request';
 import { buildShareableUrl, encodeShareablePayload } from '@/utils/shareableLinks';
 import { CircleHelp, CodeXml, Link2, SparklesIcon } from 'lucide-vue-next';
@@ -35,6 +40,7 @@ import ShareableLinkDialog from './ShareableLinkDialog.vue';
 const requestStore = useRequestStore();
 const configStore = useConfigStore();
 const historyStore = useRequestsHistoryStore();
+const environmentVariablesStore = useEnvironmentVariablesStore();
 
 /*
  * State.
@@ -68,6 +74,7 @@ const populateCurlCommandExporterDialog = () => {
     const result = generateCurlCommand(
         requestStore.pendingRequestData,
         configStore.apiUrl,
+        environmentVariablesStore.resolve,
     );
 
     curlCommand.value = result.command;
@@ -90,6 +97,7 @@ const openShareableLinkDialog = () => {
 
         const encodedPayload = encodeShareablePayload(
             requestStore.pendingRequestData,
+            environmentVariablesStore.resolve,
             response,
             lastLog ?? undefined,
             applicationKey,

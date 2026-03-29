@@ -1,24 +1,21 @@
-import {
-    type ResolvableString,
-    type StringSegment,
-} from '@/interfaces/common/resolvable-string';
+import { type StringSegment } from '@/interfaces/common/env-vars';
 import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
-import { computed, type Ref, ref, watch } from 'vue';
+import { computed, type ComputedRef, type Ref, ref, watch } from 'vue';
 
 export interface EnvVariablesAwareStringResult {
     raw: Ref<string>;
-    resolved: Ref<string>;
-    segments: Ref<StringSegment[]>;
+    resolved: ComputedRef<string>;
+    segments: ComputedRef<StringSegment[]>;
 }
 
 /**
  * Composable that manages the resolution of environment variables within a string.
  *
- * @param source - The reactive source (string or { raw: string, resolved: string }) to resolve.
+ * @param source - The reactive string source to resolve.
  * @returns Reactive resolution state and utilities.
  */
 export function useEnvVariablesAwareString(
-    source: Ref<ResolvableString>,
+    source: Ref<string>,
 ): EnvVariablesAwareStringResult {
     const environmentVariablesStore = useEnvironmentVariablesStore();
 
@@ -49,22 +46,20 @@ export function useEnvVariablesAwareString(
      */
     watch(
         source,
-        (newSource: ResolvableString) => {
-            if (newSource.raw !== rawValue.value) {
-                rawValue.value = newSource.raw;
+        (newSource: string) => {
+            if (newSource !== rawValue.value) {
+                rawValue.value = newSource;
             }
         },
         { immediate: true },
     );
 
     /**
-     * Update the source when the local raw state or resolved state changes.
+     * Update the source when the local raw state changes.
      */
-    watch([rawValue, fullyResolvedString], ([newRaw, newResolved]) => {
-        const currentSource = source.value;
-
-        if (newRaw !== currentSource.raw || newResolved !== currentSource.resolved) {
-            source.value = { raw: newRaw, resolved: newResolved } as ResolvableString;
+    watch(rawValue, newRaw => {
+        if (newRaw !== source.value) {
+            source.value = newRaw;
         }
     });
 

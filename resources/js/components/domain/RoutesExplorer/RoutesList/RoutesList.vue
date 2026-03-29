@@ -44,7 +44,7 @@ const isRouteActive = (route: RouteDefinition) => {
     }
 
     return (
-        route.endpoint === pendingRequestData.value.endpoint.raw &&
+        route.endpoint === pendingRequestData.value.endpoint &&
         route.method === pendingRequestData.value.method
     );
 };

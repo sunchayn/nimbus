@@ -1,6 +1,5 @@
 import { type ParameterContract, ParameterType } from '@/interfaces';
 import type { AuthorizationContract } from '@/interfaces/auth/authorization';
-import type { ResolvableString } from '@/interfaces/common/resolvable-string';
 import { AuthorizationType } from '@/interfaces/generated';
 import type { RequestLog } from '@/interfaces/history/logs';
 import type { RelayProxyResponse } from '@/interfaces/http';
@@ -63,7 +62,7 @@ export const createMockRoutesGroup = (
 
 export const createMockRequest = (overrides: Partial<Request> = {}): Request => ({
     method: 'GET',
-    endpoint: { raw: 'api/users', resolved: 'api/users' },
+    endpoint: 'api/users',
     headers: [],
     body: null,
     queryParameters: [],
@@ -77,7 +76,7 @@ export const createMockPendingRequest = (
     overrides: Partial<PendingRequest> = {},
 ): PendingRequest => ({
     method: 'GET',
-    endpoint: { raw: 'api/users', resolved: 'api/users' },
+    endpoint: 'api/users',
     headers: [],
     body: {},
     queryParameters: [],
@@ -99,7 +98,7 @@ export const createMockPendingRequest = (
 
 export interface MockHeaderOverrides {
     key?: string;
-    value?: ResolvableString;
+    value?: string;
     type?: ParameterType;
     enabled?: boolean;
 }
@@ -108,7 +107,7 @@ export const createMockHeader = (
     overrides: MockHeaderOverrides = {},
 ): ParameterContract => ({
     key: 'Content-Type',
-    value: { raw: 'application/json', resolved: 'application/json' },
+    value: 'application/json',
     type: ParameterType.Text,
     enabled: true,
     ...overrides,
@@ -118,7 +117,7 @@ export const createMockHeaders = (count: number): ParameterContract[] => {
     return Array.from({ length: count }, (_, index) =>
         createMockHeader({
             key: `X-Custom-Header-${index}`,
-            value: { raw: `value-${index}`, resolved: `value-${index}` },
+            value: `value-${index}`,
         }),
     );
 };
@@ -200,9 +199,9 @@ export const createMockRequestLog = (
 
 export const createMockBearerAuth = (
     token = 'test-token',
-): { type: AuthorizationType.Bearer; value: ResolvableString } => ({
+): { type: AuthorizationType.Bearer; value: string } => ({
     type: AuthorizationType.Bearer,
-    value: { raw: token, resolved: token },
+    value: token,
 });
 
 export const createMockBasicAuth = (
@@ -210,12 +209,12 @@ export const createMockBasicAuth = (
     password = 'pass',
 ): {
     type: AuthorizationType.Basic;
-    value: { username: ResolvableString; password: ResolvableString };
+    value: { username: string; password: string };
 } => ({
     type: AuthorizationType.Basic,
     value: {
-        username: { raw: username, resolved: username },
-        password: { raw: password, resolved: password },
+        username,
+        password,
     },
 });
 

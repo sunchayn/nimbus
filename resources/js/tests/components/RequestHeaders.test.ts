@@ -76,7 +76,7 @@ describe('RequestHeaders', () => {
 
         setPendingRequest({
             method: 'GET',
-            endpoint: { raw: 'api/users', resolved: 'api/users' },
+            endpoint: 'api/users',
             headers: [],
             body: {},
             payloadType: RequestBodyTypeEnum.EMPTY,
@@ -127,15 +127,12 @@ describe('RequestHeaders', () => {
                 expect.arrayContaining([
                     expect.objectContaining({
                         key: 'X-Global',
-                        value: { raw: 'foo', resolved: 'foo' },
+                        value: 'foo',
                         enabled: true,
                     }),
                     expect.objectContaining({
                         key: 'X-Generated',
-                        value: {
-                            raw: 'generated@example.com',
-                            resolved: 'generated@example.com',
-                        },
+                        value: 'generated@example.com',
                         enabled: true,
                     }),
                 ]),
@@ -173,10 +170,7 @@ describe('RequestHeaders', () => {
             // Act - Change the endpoint
             setPendingRequest({
                 ...mockRequestStore.pendingRequestData!,
-                endpoint: {
-                    raw: 'api/other-endpoint',
-                    resolved: 'api/other-endpoint',
-                },
+                endpoint: 'api/other-endpoint',
             });
 
             await nextTick();
@@ -193,7 +187,7 @@ describe('RequestHeaders', () => {
             const customHeaders: ParameterContract[] = [
                 {
                     key: 'X-Custom',
-                    value: { raw: 'custom-value', resolved: 'custom-value' },
+                    value: 'custom-value',
                     enabled: true,
                     id: 1,
                     type: ParameterType.Text,

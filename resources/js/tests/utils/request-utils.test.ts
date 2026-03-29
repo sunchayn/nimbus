@@ -66,7 +66,7 @@ describe('request-utils', () => {
 
         const request = {
             method: 'GET',
-            endpoint: { raw: 'users', resolved: 'users' },
+            endpoint: 'users',
             headers: [],
             queryParameters: [],
             payloadType: RequestBodyTypeEnum.EMPTY,

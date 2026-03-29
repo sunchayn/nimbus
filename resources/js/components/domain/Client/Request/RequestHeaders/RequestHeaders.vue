@@ -75,22 +75,18 @@ const handleHeadersUpdate = (parameters: ParameterContract[]) => {
 
 onBeforeMount(() => {
     globalHeaders.value = configStore.headers.map(
-        (globalHeader: SourceGlobalHeaders): ParameterContract => {
-            const value =
+        (globalHeader: SourceGlobalHeaders): ParameterContract => ({
+            type: ParameterType.Text,
+            key: globalHeader.header,
+            value:
                 globalHeader.type === 'generator'
                     ? generateValueFromType(
                           globalHeader.value as GeneratorType,
                           valueGeneratorStore,
                       )
-                    : String(globalHeader.value);
-
-            return {
-                type: ParameterType.Text,
-                key: globalHeader.header,
-                value: { raw: value, resolved: value },
-                enabled: true,
-            };
-        },
+                    : String(globalHeader.value),
+            enabled: true,
+        }),
     );
 });
 </script>

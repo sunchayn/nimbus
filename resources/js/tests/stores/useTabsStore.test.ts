@@ -184,7 +184,7 @@ describe('useTabsStoreUnitTest', () => {
             const mockLog = {
                 id: 'log-1',
                 method: 'GET',
-                endpoint: { raw: 'users', resolved: 'users' },
+                endpoint: 'users',
             } as unknown as RequestLog;
 
             // Act
@@ -208,11 +208,11 @@ describe('useTabsStoreUnitTest', () => {
 
             const log1 = {
                 id: 'log-1',
-                endpoint: { raw: 'users', resolved: 'users' },
+                endpoint: 'users',
             } as unknown as RequestLog;
             const log2 = {
                 id: 'log-2',
-                endpoint: { raw: 'posts', resolved: 'posts' },
+                endpoint: 'posts',
             } as unknown as RequestLog;
 
             // Act
@@ -243,17 +243,11 @@ describe('useTabsStoreUnitTest', () => {
 
             // Act
 
-            store.updateRequestEndpoint({
-                raw: 'new-endpoint',
-                resolved: 'new-endpoint',
-            });
+            store.updateRequestEndpoint('new-endpoint');
 
             // Assert
 
-            expect(store.activeRequest?.endpoint).toEqual({
-                raw: 'new-endpoint',
-                resolved: 'new-endpoint',
-            });
+            expect(store.activeRequest?.endpoint).toEqual('new-endpoint');
         });
 
         it('synchronizes global headers when switching apps across tabs', () => {
@@ -267,7 +261,7 @@ describe('useTabsStoreUnitTest', () => {
             store.lastSyncedGlobalHeaders = [
                 {
                     key: 'X-App-1',
-                    value: { raw: 'value-1', resolved: 'value-1' },
+                    value: 'value-1',
                     type: ParameterType.Text,
                     enabled: true,
                 },
@@ -315,10 +309,7 @@ describe('useTabsStoreUnitTest', () => {
 
             expect(store.tabs).toHaveLength(1);
             expect(store.activeTabId).toMatch(/^[0-9a-f-]{36}$/);
-            expect(store.activeRequest?.endpoint).toEqual({
-                raw: 'shared-route',
-                resolved: 'shared-route',
-            });
+            expect(store.activeRequest?.endpoint).toEqual('shared-route');
         });
     });
 });

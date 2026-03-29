@@ -1,5 +1,4 @@
 import { useRequestBody } from '@/composables/request/useRequestBody';
-import type { ResolvableString } from '@/interfaces/common/resolvable-string';
 import { AuthorizationType } from '@/interfaces/generated';
 import type { PendingRequest } from '@/interfaces/http';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
@@ -27,17 +26,14 @@ vi.mock('@/stores', async importOriginal => {
 const payloadMocks = vi.hoisted(() => ({
     generatePlaceholderPayload: vi.fn(() => ({ placeholder: true })),
     generateRandomPayload: vi.fn(() => ({ random: true })),
-    serializeSchemaPayload: vi.fn(() => ({
-        raw: '{"serialized":true}',
-        resolved: '{"serialized":true}',
-    })),
+    serializeSchemaPayload: vi.fn(() => '{"serialized":true}'),
 }));
 
 vi.mock('@/utils/payload', () => payloadMocks);
 
 const createPendingRequest = (): PendingRequest => ({
     method: 'POST',
-    endpoint: { raw: 'api/users', resolved: 'api/users' },
+    endpoint: 'api/users',
     headers: [],
     body: {},
     payloadType: RequestBodyTypeEnum.JSON,
@@ -91,12 +87,12 @@ describe('useRequestBody', () => {
 
             // Act
 
-            const payload = composable.generateCurrentPayload() as ResolvableString;
+            const payload = composable.generateCurrentPayload() as string;
 
             // Assert
 
             expect(payloadMocks.generatePlaceholderPayload).toHaveBeenCalled();
-            expect(payload.raw).toBe('{"serialized":true}');
+            expect(payload).toBe('{"serialized":true}');
         });
 
         it('hydrates payload from memoized body when available', () => {
@@ -105,10 +101,7 @@ describe('useRequestBody', () => {
             const pending = requestStore.pendingRequestData!;
             pending.body = {
                 POST: {
-                    [RequestBodyTypeEnum.JSON]: {
-                        raw: '{"cached":true}',
-                        resolved: '{"cached":true}',
-                    },
+                    [RequestBodyTypeEnum.JSON]: '{"cached":true}',
                 },
             };
             const composable = runComposable();
@@ -116,11 +109,11 @@ describe('useRequestBody', () => {
 
             // Act
 
-            const payload = composable.generateCurrentPayload() as ResolvableString;
+            const payload = composable.generateCurrentPayload() as string;
 
             // Assert
 
-            expect(payload.raw).toBe('{"cached":true}');
+            expect(payload).toBe('{"cached":true}');
         });
     });
 
@@ -142,9 +135,7 @@ describe('useRequestBody', () => {
             // Assert
 
             expect(payloadMocks.generateRandomPayload).toHaveBeenCalled();
-            expect((composable.payload.value as ResolvableString).raw).toBe(
-                '{"serialized":true}',
-            );
+            expect(composable.payload.value as string).toBe('{"serialized":true}');
         });
     });
 
@@ -153,18 +144,13 @@ describe('useRequestBody', () => {
         requestStore.pendingRequestData.payloadType = RequestBodyTypeEnum.JSON;
         requestStore.pendingRequestData.body = {
             POST: {
-                [RequestBodyTypeEnum.JSON]: {
-                    raw: '{"immediate":true}',
-                    resolved: '{"immediate":true}',
-                },
+                [RequestBodyTypeEnum.JSON]: '{"immediate":true}',
             },
         };
 
         const composable = runComposable();
 
         expect(composable.payloadType.value).toBe(RequestBodyTypeEnum.JSON);
-        expect((composable.payload.value as ResolvableString).raw).toBe(
-            '{"immediate":true}',
-        );
+        expect(composable.payload.value as string).toBe('{"immediate":true}');
     });
 });

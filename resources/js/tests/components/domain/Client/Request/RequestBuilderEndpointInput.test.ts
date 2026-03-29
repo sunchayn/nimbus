@@ -52,7 +52,7 @@ describe('RequestBuilderEndpointInput', () => {
         vi.clearAllMocks();
 
         mockRequestStore.pendingRequestData = {
-            endpoint: { raw: '/users/1', resolved: '/users/1' },
+            endpoint: '/users/1',
             isProcessing: false,
         } as unknown as PendingRequest;
     });
@@ -69,10 +69,7 @@ describe('RequestBuilderEndpointInput', () => {
 
         await input.setValue('/users/2');
 
-        expect(mockRequestStore.updateRequestEndpoint).toHaveBeenCalledWith({
-            raw: '/users/2',
-            resolved: '/users/2',
-        });
+        expect(mockRequestStore.updateRequestEndpoint).toHaveBeenCalledWith('/users/2');
     });
 
     it('executes the request when the send button is clicked', async () => {
@@ -97,7 +94,7 @@ describe('RequestBuilderEndpointInput', () => {
 
     it('does not execute the request if the endpoint has placeholders', async () => {
         mockRequestStore.pendingRequestData = {
-            endpoint: { raw: '/users/{id}', resolved: '/users/{id}' },
+            endpoint: '/users/{id}',
             isProcessing: false,
         } as unknown as PendingRequest;
 
@@ -111,7 +108,7 @@ describe('RequestBuilderEndpointInput', () => {
 
     it('executes the request even if the endpoint has environment variables', async () => {
         mockRequestStore.pendingRequestData = {
-            endpoint: { raw: '/{{collection}}/users', resolved: '/my-collection/users' },
+            endpoint: '/{{collection}}/users',
             isProcessing: false,
         } as unknown as PendingRequest;
 

@@ -1,5 +1,4 @@
 import type { AuthorizationContract } from '@/interfaces/auth/authorization';
-import type { ResolvableString } from '@/interfaces/common/resolvable-string';
 import { AuthorizationType } from '@/interfaces/generated';
 import type { RequestLog } from '@/interfaces/history/logs';
 import {
@@ -13,12 +12,13 @@ import type { ShareableLinkPayload } from '@/interfaces/share';
 import type { ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui';
 import type { Tab } from '@/interfaces/ui/tabs';
-import { useConfigStore, useSettingsStore, useValueGeneratorStore } from '@/stores';
-import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
 import {
-    reconstructInternalBodyFromSharableLinkBody,
-    reconstructionInternalAuthorizationFromSharableLinkAuthorization,
-} from '@/utils/shareableLinks';
+    useConfigStore,
+    useEnvironmentVariablesStore,
+    useSettingsStore,
+    useValueGeneratorStore,
+} from '@/stores';
+import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
 import { generateValueFromType } from '@/utils/value-generator/generateValueFromType';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
@@ -36,6 +36,7 @@ export const useTabsStore = defineStore(
         const settingsStore = useSettingsStore();
         const configStore = useConfigStore();
         const valueGeneratorStore = useValueGeneratorStore();
+        const environmentVariablesStore = useEnvironmentVariablesStore();
 
         /*
          * State.
@@ -83,7 +84,7 @@ export const useTabsStore = defineStore(
                     return {
                         type: ParameterType.Text,
                         key: globalHeader.header,
-                        value: { raw: value, resolved: value },
+                        value,
                         enabled: true,
                     };
                 },
@@ -134,7 +135,7 @@ export const useTabsStore = defineStore(
             ) {
                 return {
                     type: AuthorizationType.Bearer,
-                    value: { raw: '', resolved: '' },
+                    value: '',
                 };
             }
 
@@ -145,8 +146,8 @@ export const useTabsStore = defineStore(
                 return {
                     type: AuthorizationType.Basic,
                     value: {
-                        username: { raw: '', resolved: '' },
-                        password: { raw: '', resolved: '' },
+                        username: '',
+                        password: '',
                     },
                 };
             }
@@ -180,7 +181,7 @@ export const useTabsStore = defineStore(
         ): PendingRequest {
             const request: PendingRequest = {
                 method: route.method,
-                endpoint: { raw: route.endpoint, resolved: route.endpoint },
+                endpoint: route.endpoint,
                 headers: activeRequest.value?.headers
                     ? cloneParameters(activeRequest.value.headers)
                     : [],
@@ -218,7 +219,7 @@ export const useTabsStore = defineStore(
             const existingTab = tabs.value.find(
                 tab =>
                     tab.method.toUpperCase() === route.method.toUpperCase() &&
-                    tab.request.endpoint.raw === route.endpoint,
+                    tab.request.endpoint === route.endpoint,
             );
 
             if (existingTab) {
@@ -334,7 +335,7 @@ export const useTabsStore = defineStore(
             activeRequest.value.schema = targetRoute.schema;
         }
 
-        function updateRequestEndpoint(endpoint: ResolvableString) {
+        function updateRequestEndpoint(endpoint: string) {
             if (activeRequest.value) {
                 activeRequest.value.endpoint = endpoint;
             }
@@ -389,7 +390,7 @@ export const useTabsStore = defineStore(
             currentBody: PendingRequest['body'],
             method: string,
             payloadType: RequestBodyTypeEnum,
-            newBodyContent: FormData | ResolvableString | null,
+            newBodyContent: FormData | string | null,
         ): PendingRequest['body'] => {
             const body = { ...currentBody };
             const methodBody = body[method] ?? {};
@@ -411,25 +412,19 @@ export const useTabsStore = defineStore(
 
             return {
                 method: payload.method.toUpperCase(),
-                endpoint: {
-                    raw: payload.endpoint,
-                    resolved: payload.endpoint,
-                },
+                endpoint: payload.endpoint,
                 headers: payload.headers.map(
                     (header: {
                         key: string;
                         value: string | number | boolean | null;
                     }) => ({
                         key: header.key,
-                        value: {
-                            raw: String(header.value ?? ''),
-                            resolved: String(header.value ?? ''),
-                        },
+                        value: String(header.value ?? ''),
                         type: ParameterType.Text,
                         enabled: true,
                     }),
                 ),
-                body: reconstructInternalBodyFromSharableLinkBody(payload.body),
+                body: payload.body,
                 payloadType: payload.payloadType as RequestBodyTypeEnum,
                 schema: {
                     shape: {},
@@ -438,10 +433,7 @@ export const useTabsStore = defineStore(
                 queryParameters: payload.queryParameters.map(
                     (param: { key: string; value: string; type?: 'text' | 'file' }) => ({
                         key: param.key,
-                        value: {
-                            raw: param.value,
-                            resolved: param.value,
-                        },
+                        value: param.value,
                         type:
                             param.type === 'file'
                                 ? ParameterType.File
@@ -449,21 +441,20 @@ export const useTabsStore = defineStore(
                         enabled: true,
                     }),
                 ),
-                authorization:
-                    reconstructionInternalAuthorizationFromSharableLinkAuthorization(
-                        payload.authorization,
-                    ),
+                authorization: {
+                    type: payload.authorization.type as AuthorizationType,
+                    value: payload.authorization.value,
+                } as AuthorizationContract,
                 supportedRoutes: [],
                 routeDefinition: {
-                    endpoint: payload.endpoint as string,
+                    endpoint: payload.endpoint,
                     method: payload.method.toUpperCase(),
                     schema: {
                         shape: {},
                         extractionErrors: null,
                     },
-                    shortEndpoint: payload.endpoint as string,
+                    shortEndpoint: payload.endpoint,
                 },
-
                 isProcessing: false,
                 wasExecuted,
                 durationInMs: payload.response?.durationInMs ?? 0,
@@ -483,7 +474,7 @@ export const useTabsStore = defineStore(
             const matchingRoute = activeRequest.value.supportedRoutes.find(
                 (route: RouteDefinition) =>
                     route.method.toUpperCase() === method &&
-                    route.endpoint === historicalRequest.request.endpoint.raw,
+                    route.endpoint === historicalRequest.request.endpoint,
             );
 
             activeTab.value!.request = {
@@ -574,46 +565,12 @@ export const useTabsStore = defineStore(
         const getRequestUrl = (request: PendingRequest): string => {
             return buildRequestUrl(
                 configStore.apiUrl,
-                request.endpoint.resolved,
+                environmentVariablesStore.resolve(request.endpoint),
                 request.queryParameters.filter(
                     (parameter: ParameterContract) => parameter.enabled,
                 ),
+                environmentVariablesStore.resolve,
             );
-        };
-
-        /**
-         * Migrates primitive strings to rich ResolvableString objects (backward compatibility).
-         */
-        const migrateResolvableStrings = () => {
-            tabs.value.forEach(tab => {
-                // Migrate endpoint
-                if (typeof tab.request.endpoint === 'string') {
-                    tab.request.endpoint = {
-                        raw: tab.request.endpoint,
-                        resolved: tab.request.endpoint,
-                    };
-                }
-
-                // Migrate headers
-                tab.request.headers.forEach(header => {
-                    if (typeof header.value === 'string') {
-                        header.value = {
-                            raw: header.value,
-                            resolved: header.value,
-                        };
-                    }
-                });
-
-                // Migrate query parameters
-                tab.request.queryParameters.forEach(param => {
-                    if (typeof param.value === 'string') {
-                        param.value = {
-                            raw: param.value,
-                            resolved: param.value,
-                        };
-                    }
-                });
-            });
         };
 
         return {
@@ -649,14 +606,12 @@ export const useTabsStore = defineStore(
             restoreFromSharedPayload,
             syncGlobalHeadersWhenApplicable,
             getRequestUrl,
-            migrateResolvableStrings,
         };
     },
     {
         persist: {
             pick: ['tabs', 'activeTabId', 'activeApplication', 'lastSyncedGlobalHeaders'],
             afterHydrate: context => {
-                context.store.migrateResolvableStrings();
                 context.store.syncGlobalHeadersWhenApplicable();
             },
         },

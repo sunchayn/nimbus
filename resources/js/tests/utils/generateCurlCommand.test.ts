@@ -7,27 +7,24 @@ import { describe, expect, it } from 'vitest';
 
 const requestBase: PendingRequest = {
     method: 'POST',
-    endpoint: { raw: 'users', resolved: 'users' },
+    endpoint: 'users',
     headers: [
         {
             key: 'Authorization',
-            value: { raw: 'Bearer token', resolved: 'Bearer token' },
+            value: 'Bearer token',
             enabled: true,
             type: ParameterType.Text,
         },
         {
             key: 'Accept',
-            value: { raw: 'application/json', resolved: 'application/json' },
+            value: 'application/json',
             enabled: true,
             type: ParameterType.Text,
         },
     ],
     body: {
         POST: {
-            [RequestBodyTypeEnum.JSON]: {
-                raw: JSON.stringify({ name: 'Jane' }),
-                resolved: JSON.stringify({ name: 'Jane' }),
-            },
+            [RequestBodyTypeEnum.JSON]: JSON.stringify({ name: 'Jane' }),
         },
     },
     payloadType: RequestBodyTypeEnum.JSON,
@@ -38,14 +35,14 @@ const requestBase: PendingRequest = {
     queryParameters: [
         {
             key: 'page',
-            value: { raw: '1', resolved: '1' },
+            value: '1',
             enabled: true,
             type: ParameterType.Text,
         },
     ],
     authorization: {
         type: AuthorizationType.Bearer,
-        value: { raw: 'token', resolved: 'token' },
+        value: 'token',
     },
     supportedRoutes: [],
     routeDefinition: {
@@ -69,6 +66,7 @@ describe('generateCurlCommand', () => {
         const { command, hasSpecialAuth } = generateCurlCommand(
             requestBase,
             'https://api.example.com',
+            val => val as unknown as string,
         );
 
         // Assert
@@ -85,7 +83,7 @@ describe('generateCurlCommand', () => {
     it('builds curl command with method, headers, and body [GET]', () => {
         // Arrange
 
-        const getRequestBase = Object.assign({}, requestBase);
+        const getRequestBase = JSON.parse(JSON.stringify(requestBase));
 
         getRequestBase.method = 'GET';
 
@@ -96,6 +94,7 @@ describe('generateCurlCommand', () => {
         const { command, hasSpecialAuth } = generateCurlCommand(
             getRequestBase,
             'https://api.example.com',
+            val => val as unknown as string,
         );
 
         // Assert
@@ -110,19 +109,13 @@ describe('generateCurlCommand', () => {
     it('builds curl command with method, headers, and nested body [POST]', () => {
         // Arrange
 
-        const getRequestBase = Object.assign({}, requestBase);
+        const getRequestBase = JSON.parse(JSON.stringify(requestBase));
 
         getRequestBase.body.POST = {
-            [RequestBodyTypeEnum.JSON]: {
-                raw: JSON.stringify({
-                    user: { firstName: 'Jane', lastName: 'Doe' },
-                    username: 'foobar',
-                }),
-                resolved: JSON.stringify({
-                    user: { firstName: 'Jane', lastName: 'Doe' },
-                    username: 'foobar',
-                }),
-            },
+            [RequestBodyTypeEnum.JSON]: JSON.stringify({
+                user: { firstName: 'Jane', lastName: 'Doe' },
+                username: 'foobar',
+            }),
         };
 
         // Act
@@ -130,6 +123,7 @@ describe('generateCurlCommand', () => {
         const { command, hasSpecialAuth } = generateCurlCommand(
             getRequestBase,
             'https://api.example.com',
+            val => val as unknown as string,
         );
 
         // Assert
@@ -147,21 +141,15 @@ describe('generateCurlCommand', () => {
     it('builds curl command with method, headers, and nested body [GET]', () => {
         // Arrange
 
-        const getRequestBase = Object.assign({}, requestBase);
+        const getRequestBase = JSON.parse(JSON.stringify(requestBase));
 
         getRequestBase.method = 'GET';
 
         getRequestBase.body.GET = {
-            [RequestBodyTypeEnum.JSON]: {
-                raw: JSON.stringify({
-                    user: { firstName: 'Jane', lastName: 'Doe' },
-                    username: 'foobar',
-                }),
-                resolved: JSON.stringify({
-                    user: { firstName: 'Jane', lastName: 'Doe' },
-                    username: 'foobar',
-                }),
-            },
+            [RequestBodyTypeEnum.JSON]: JSON.stringify({
+                user: { firstName: 'Jane', lastName: 'Doe' },
+                username: 'foobar',
+            }),
         };
 
         // Act
@@ -169,6 +157,7 @@ describe('generateCurlCommand', () => {
         const { command, hasSpecialAuth } = generateCurlCommand(
             getRequestBase,
             'https://api.example.com',
+            val => val as unknown as string,
         );
 
         // Assert
@@ -188,19 +177,13 @@ describe('generateCurlCommand', () => {
         const getRequestBase = JSON.parse(JSON.stringify(requestBase));
 
         getRequestBase.method = 'GET';
-        getRequestBase.endpoint = { raw: 'search', resolved: 'search' };
+        getRequestBase.endpoint = 'search';
 
         getRequestBase.body.GET = {
-            [RequestBodyTypeEnum.JSON]: {
-                raw: JSON.stringify({
-                    tags: ['vitest', 'nimbus'],
-                    filters: { status: 'active', types: ['admin', 'user'] },
-                }),
-                resolved: JSON.stringify({
-                    tags: ['vitest', 'nimbus'],
-                    filters: { status: 'active', types: ['admin', 'user'] },
-                }),
-            },
+            [RequestBodyTypeEnum.JSON]: JSON.stringify({
+                tags: ['vitest', 'nimbus'],
+                filters: { status: 'active', types: ['admin', 'user'] },
+            }),
         };
 
         // Act
@@ -208,6 +191,7 @@ describe('generateCurlCommand', () => {
         const { command } = generateCurlCommand(
             getRequestBase,
             'https://api.example.com',
+            val => val as unknown as string,
         );
 
         // Assert
@@ -224,13 +208,14 @@ describe('generateCurlCommand', () => {
         const request: PendingRequest = {
             ...requestBase,
             authorization: { type: AuthorizationType.Impersonate, value: 1 },
-        } as PendingRequest;
+        } as unknown as PendingRequest;
 
         // Act
 
         const { hasSpecialAuth } = generateCurlCommand(
             request,
             'https://api.example.com',
+            val => val as unknown as string,
         );
 
         // Assert

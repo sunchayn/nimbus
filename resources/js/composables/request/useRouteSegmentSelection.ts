@@ -1,11 +1,10 @@
-import type { ResolvableString } from '@/interfaces/common/resolvable-string';
 import { type DeepReadonly, type Ref, nextTick, readonly, ref, watch } from 'vue';
 
 export interface UseRouteSegmentSelectionOptions {
     /**
      * The endpoint URL to watch for changes
      */
-    endpoint: Ref<ResolvableString>;
+    endpoint: Ref<string>;
 }
 
 export interface UseRouteSegmentSelectionResult {
@@ -308,11 +307,11 @@ export function useRouteSegmentSelection(
 
     watch(
         endpoint,
-        (newValue: ResolvableString) => {
-            const hasVariableSegments = newValue.raw.includes('{');
+        (newValue: string) => {
+            const hasVariableSegments = newValue.includes('{');
 
             if (hasVariableSegments) {
-                variableSegmentIndices.value = identifyVariableSegments(newValue.raw);
+                variableSegmentIndices.value = identifyVariableSegments(newValue);
             }
         },
         { immediate: true },

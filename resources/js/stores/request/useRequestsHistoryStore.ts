@@ -46,53 +46,6 @@ export const useRequestsHistoryStore = defineStore(
             logs.value = [];
         };
 
-        /**
-         * Migrates primitive strings to rich ResolvableString objects (backward compatibility).
-         */
-        const migrateResolvableStrings = () => {
-            logs.value.forEach(log => {
-                if (!log.request) {
-                    return;
-                }
-
-                // Migrate endpoint
-                if (typeof log.request.endpoint === 'string') {
-                    log.request.endpoint = {
-                        raw: log.request.endpoint,
-                        resolved: log.request.endpoint,
-                    };
-                }
-
-                // Migrate headers
-                log.request.headers?.forEach(header => {
-                    if (typeof header.value === 'string') {
-                        header.value = {
-                            raw: header.value,
-                            resolved: header.value,
-                        };
-                    }
-                });
-
-                // Migrate query parameters
-                log.request.queryParameters?.forEach(param => {
-                    if (typeof param.value === 'string') {
-                        param.value = {
-                            raw: param.value,
-                            resolved: param.value,
-                        };
-                    }
-                });
-
-                // Migrate body
-                if (typeof log.request.body === 'string') {
-                    log.request.body = {
-                        raw: log.request.body,
-                        resolved: log.request.body,
-                    };
-                }
-            });
-        };
-
         return {
             // State
             logs,
@@ -107,14 +60,9 @@ export const useRequestsHistoryStore = defineStore(
             addLog,
             clearLogs,
             setActiveLog,
-            migrateResolvableStrings,
         };
     },
     {
-        persist: {
-            afterHydrate: context => {
-                context.store.migrateResolvableStrings();
-            },
-        },
+        persist: true,
     },
 );

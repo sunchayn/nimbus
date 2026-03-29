@@ -2,8 +2,6 @@
  * TypeScript interfaces and types organized by domain
  */
 
-export type { ResolvableString } from './common/resolvable-string';
-
 export type {
     AuthorizationContract,
     BasicAuthorization,

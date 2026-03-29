@@ -40,10 +40,7 @@ export function useSharedStateRestoration(): UseSharedStateRestorationResult {
     ): ParameterContract[] {
         return headers.map(header => ({
             key: header.key,
-            value: {
-                raw: String(header.value ?? ''),
-                resolved: String(header.value ?? ''),
-            },
+            value: String(header.value ?? ''),
             type: ParameterType.Text,
             enabled: true,
         }));
@@ -57,7 +54,7 @@ export function useSharedStateRestoration(): UseSharedStateRestorationResult {
     ): ParameterContract[] {
         return queryParameters.map(param => ({
             key: param.key,
-            value: { raw: param.value, resolved: param.value },
+            value: param.value,
             type: param.type === 'file' ? ParameterType.File : ParameterType.Text,
             enabled: true,
         }));
@@ -81,7 +78,7 @@ export function useSharedStateRestoration(): UseSharedStateRestorationResult {
     function buildRequestFromPayload(payload: ShareableLinkPayload): Request {
         return {
             method: payload.method,
-            endpoint: { raw: payload.endpoint, resolved: payload.endpoint },
+            endpoint: payload.endpoint,
             headers: mapHeadersToParameterContract(payload.headers),
             body: null,
             queryParameters: mapQueryParametersToParameterContract(

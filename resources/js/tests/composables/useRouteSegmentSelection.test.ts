@@ -15,7 +15,7 @@ describe('useRouteSegmentSelection', () => {
         it('identifies single variable segment', () => {
             // Arrange
 
-            const endpoint = ref({ raw: 'api/users/{id}', resolved: 'api/users/1' });
+            const endpoint = ref('api/users/{id}');
             const { identifyVariableSegments } = useRouteSegmentSelection({ endpoint });
 
             // Act
@@ -30,10 +30,7 @@ describe('useRouteSegmentSelection', () => {
         it('identifies multiple variable segments', () => {
             // Arrange
 
-            const endpoint = ref({
-                raw: 'api/users/{userId}/posts/{postId}',
-                resolved: 'api/users/1/posts/2',
-            });
+            const endpoint = ref('api/users/{userId}/posts/{postId}');
             const { identifyVariableSegments } = useRouteSegmentSelection({ endpoint });
 
             // Act
@@ -48,10 +45,7 @@ describe('useRouteSegmentSelection', () => {
         it('does not identify environment variables as variable segments', () => {
             // Arrange
 
-            const endpoint = ref({
-                raw: 'api/users/{{userId}}/posts/{postId}',
-                resolved: 'api/users/1/posts/2',
-            });
+            const endpoint = ref('api/users/{{userId}}/posts/{postId}');
             const { identifyVariableSegments } = useRouteSegmentSelection({ endpoint });
 
             // Act
@@ -100,7 +94,7 @@ describe('useRouteSegmentSelection', () => {
         it('selects segment with braces when clicked', async () => {
             // Arrange
 
-            const endpoint = ref({ raw: 'api/users/{id}', resolved: 'api/users/1' });
+            const endpoint = ref('api/users/{id}');
             const { handleClick } = useRouteSegmentSelection({ endpoint });
             mockInput.value = 'api/users/{id}';
 
@@ -117,7 +111,7 @@ describe('useRouteSegmentSelection', () => {
         it('does not select segment when it is an environment variable (double braces)', async () => {
             // Arrange
 
-            const endpoint = ref({ raw: 'api/users/{{id}}', resolved: 'api/users/1' });
+            const endpoint = ref('api/users/{{id}}');
             const { handleClick } = useRouteSegmentSelection({ endpoint });
             mockInput.value = 'api/users/{{id}}';
 
@@ -134,7 +128,7 @@ describe('useRouteSegmentSelection', () => {
         it('selects a segment that was originally a variable even if braces are gone', async () => {
             // Arrange
 
-            const endpoint = ref({ raw: 'api/users/{id}', resolved: 'api/users/1' });
+            const endpoint = ref('api/users/{id}');
             const { handleClick, variableSegmentIndices } = useRouteSegmentSelection({
                 endpoint,
             });

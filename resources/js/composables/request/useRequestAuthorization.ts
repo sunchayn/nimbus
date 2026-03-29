@@ -39,13 +39,13 @@ export function useRequestAuthorization(): UseRequestAuthorizationResult {
         [AuthorizationType.None]: { type: AuthorizationType.None },
         [AuthorizationType.Bearer]: {
             type: AuthorizationType.Bearer,
-            value: { raw: '', resolved: '' },
+            value: '',
         },
         [AuthorizationType.Basic]: {
             type: AuthorizationType.Basic,
             value: {
-                username: { raw: '', resolved: '' },
-                password: { raw: '', resolved: '' },
+                username: '',
+                password: '',
             },
         },
         [AuthorizationType.CurrentUser]: {

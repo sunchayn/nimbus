@@ -5,7 +5,6 @@
  */
 import CodeEditor from '@/components/domain/CodeEditor/CodeEditor.vue';
 import { envVariablesCheck } from '@/components/domain/CodeEditor/extensions';
-import type { ResolvableString } from '@/interfaces/common/resolvable-string';
 import { useEnvironmentVariablesStore } from '@/stores';
 import type { JSONSchema7 } from 'json-schema';
 import { computed } from 'vue';
@@ -24,21 +23,11 @@ export interface AppRequestBodyJsonProps {
 
 defineProps<AppRequestBodyJsonProps>();
 
-const model = defineModel<ResolvableString>({
-    default: () => ({ raw: '', resolved: '' }),
+const model = defineModel<string>({
+    default: '',
 });
 
 const environmentVariablesStore = useEnvironmentVariablesStore();
-
-const modelProxy = computed({
-    get: () => model.value.raw,
-    set: raw => {
-        model.value = {
-            raw,
-            resolved: environmentVariablesStore.resolve(raw),
-        };
-    },
-});
 
 const customExtensions = computed(() => {
     return [envVariablesCheck(key => environmentVariablesStore.check(key))];
@@ -47,7 +36,7 @@ const customExtensions = computed(() => {
 
 <template>
     <CodeEditor
-        v-model="modelProxy"
+        v-model="model"
         language="json"
         :readonly="false"
         placeholder="Your JSON Payload"

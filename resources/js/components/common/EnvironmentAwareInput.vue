@@ -8,10 +8,7 @@ import { AppInput, inputVariants, type InputVariants } from '@/components/base/i
 import { EnvVariableSegment } from '@/components/common/EnvVariableSegment';
 import { useEnvVariablesAwareString } from '@/composables/request/useEnvVariablesAwareString';
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
-import {
-    EnvVariableCheckStatus,
-    type ResolvableString,
-} from '@/interfaces/common/resolvable-string';
+import { EnvVariableCheckStatus } from '@/interfaces/common/env-vars';
 import { cn } from '@/utils/ui';
 import { computed, onMounted, ref, watch, type ComponentPublicInstance } from 'vue';
 
@@ -24,7 +21,7 @@ defineOptions({
  */
 
 export interface Props {
-    modelValue: ResolvableString;
+    modelValue: string;
     placeholder?: string;
     disabled?: boolean;
     class?: string;
@@ -33,7 +30,7 @@ export interface Props {
 }
 
 export interface AppEnvironmentAwareInputEmits {
-    (event: 'update:modelValue', value: ResolvableString): void;
+    (event: 'update:modelValue', value: string): void;
 }
 
 /*
@@ -65,7 +62,7 @@ const mirrorRef = ref<HTMLDivElement | null>(null);
  */
 const parentSourceProxy = computed({
     get: () => props.modelValue,
-    set: (value: ResolvableString) => emit('update:modelValue', value),
+    set: (value: string) => emit('update:modelValue', value),
 });
 
 const delegatedProps = computed(() => {

@@ -1,14 +1,8 @@
 import { AuthorizationType } from '@/interfaces/generated';
 import type { PendingRequest, Response } from '@/interfaces/http';
 import { RequestBodyTypeEnum, STATUS } from '@/interfaces/http';
-import type { ShareableLinkPayload } from '@/interfaces/share';
 import { ParameterType } from '@/interfaces/ui';
-import {
-    buildShareableUrl,
-    encodeShareablePayload,
-    reconstructInternalBodyFromSharableLinkBody,
-    reconstructionInternalAuthorizationFromSharableLinkAuthorization,
-} from '@/utils/shareableLinks';
+import { buildShareableUrl, encodeShareablePayload } from '@/utils/shareableLinks';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('shareableLinks', () => {
@@ -18,11 +12,11 @@ describe('shareableLinks', () => {
 
             const pendingRequest: PendingRequest = {
                 method: 'POST',
-                endpoint: { raw: '/api/users', resolved: '/api/users' },
+                endpoint: '/api/users',
                 headers: [
                     {
                         key: 'Content-Type',
-                        value: { raw: 'application/json', resolved: 'application/json' },
+                        value: 'application/json',
                         type: ParameterType.Text,
                         enabled: true,
                     },
@@ -30,7 +24,7 @@ describe('shareableLinks', () => {
                 queryParameters: [
                     {
                         key: 'page',
-                        value: { raw: '1', resolved: '1' },
+                        value: '1',
                         type: ParameterType.Text,
                         enabled: true,
                     },
@@ -50,7 +44,7 @@ describe('shareableLinks', () => {
 
             // Act
 
-            const encoded = encodeShareablePayload(pendingRequest);
+            const encoded = encodeShareablePayload(pendingRequest, val => String(val));
 
             // Assert
 
@@ -66,7 +60,7 @@ describe('shareableLinks', () => {
 
             const pendingRequest: PendingRequest = {
                 method: 'GET',
-                endpoint: { raw: '/api/health', resolved: '/api/health' },
+                endpoint: '/api/health',
                 headers: [],
                 queryParameters: [],
                 body: {},
@@ -99,7 +93,11 @@ describe('shareableLinks', () => {
 
             // Act
 
-            const encoded = encodeShareablePayload(pendingRequest, response);
+            const encoded = encodeShareablePayload(
+                pendingRequest,
+                val => String(val),
+                response,
+            );
 
             // Assert
 
@@ -150,138 +148,6 @@ describe('shareableLinks', () => {
             // Assert
 
             expect(url).toBe('http://localhost:3000/nimbus?share=test123');
-        });
-    });
-
-    describe('reconstructInternalBodyFromSharableLinkBody', () => {
-        it('reconstructs a body with string primitives into ResolvableString objects', () => {
-            // Arrange
-
-            const inboundPayload: ShareableLinkPayload['body'] = {
-                POST: {
-                    [RequestBodyTypeEnum.JSON]: '{"test": true}',
-                },
-                PUT: undefined,
-            };
-
-            // Act
-
-            const result = reconstructInternalBodyFromSharableLinkBody(inboundPayload);
-
-            // Assert
-
-            expect(result.POST).toBeDefined();
-            expect(result.POST![RequestBodyTypeEnum.JSON]).toEqual({
-                raw: '{"test": true}',
-                resolved: '{"test": true}',
-            });
-            expect(result.PUT).toBeUndefined();
-        });
-
-        it('maintains null assignments when reconstructing body state', () => {
-            // Arrange
-
-            const inboundPayload: ShareableLinkPayload['body'] = {
-                POST: {
-                    [RequestBodyTypeEnum.JSON]: null,
-                },
-            };
-
-            // Act
-
-            const result = reconstructInternalBodyFromSharableLinkBody(inboundPayload);
-
-            // Assert
-
-            expect(result.POST).toBeDefined();
-            expect(result.POST![RequestBodyTypeEnum.JSON]).toBeNull();
-        });
-
-        it('handles completely empty payload without throwing errors', () => {
-            // Arrange
-
-            const inboundPayload: ShareableLinkPayload['body'] = {};
-
-            // Act
-
-            const result = reconstructInternalBodyFromSharableLinkBody(inboundPayload);
-
-            // Assert
-
-            expect(result).toEqual({});
-        });
-    });
-
-    describe('reconstructionInternalAuthorizationFromSharableLinkAuthorization', () => {
-        it('reconstructs Basic authorization to use ResolvableStrings', () => {
-            // Arrange
-
-            const inboundAuth: ShareableLinkPayload['authorization'] = {
-                type: AuthorizationType.Basic,
-                value: {
-                    username: 'admin',
-                    password: 'password123',
-                },
-            };
-
-            // Act
-
-            const result =
-                reconstructionInternalAuthorizationFromSharableLinkAuthorization(
-                    inboundAuth,
-                );
-
-            // Assert
-
-            expect(result.type).toBe(AuthorizationType.Basic);
-            expect(result.value).toEqual({
-                username: { raw: 'admin', resolved: 'admin' },
-                password: { raw: 'password123', resolved: 'password123' },
-            });
-        });
-
-        it('reconstructs Bearer authorization to use a ResolvableString', () => {
-            // Arrange
-
-            const inboundAuth: ShareableLinkPayload['authorization'] = {
-                type: AuthorizationType.Bearer,
-                value: 'token123',
-            };
-
-            // Act
-
-            const result =
-                reconstructionInternalAuthorizationFromSharableLinkAuthorization(
-                    inboundAuth,
-                );
-
-            // Assert
-
-            expect(result.type).toBe(AuthorizationType.Bearer);
-            expect(result.value).toEqual({
-                raw: 'token123',
-                resolved: 'token123',
-            });
-        });
-
-        it('faithfully returns standard types without modification', () => {
-            // Arrange
-
-            const inboundAuth: ShareableLinkPayload['authorization'] = {
-                type: AuthorizationType.None,
-            };
-
-            // Act
-
-            const result =
-                reconstructionInternalAuthorizationFromSharableLinkAuthorization(
-                    inboundAuth,
-                );
-
-            // Assert
-
-            expect(result.type).toBe(AuthorizationType.None);
-            expect(result.value).toBeUndefined();
         });
     });
 });

@@ -4,15 +4,13 @@
  * @description Input fields for Basic Authentication (username/password).
  */
 import EnvironmentAwareInput from '@/components/common/EnvironmentAwareInput.vue';
-import type { ResolvableString } from '@/interfaces/common/resolvable-string';
-
 /*
  * Types & Interfaces.
  */
 
 export type AppRequestAuthorizationBasicAuthModel = {
-    username: ResolvableString;
-    password: ResolvableString;
+    username: string;
+    password: string;
 };
 
 /*

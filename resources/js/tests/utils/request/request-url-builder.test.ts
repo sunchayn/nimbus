@@ -13,7 +13,7 @@ describe('request-url-builder', () => {
 
             const param: ParameterContract = {
                 key: 'page',
-                value: { raw: '1', resolved: '1' },
+                value: '1',
                 enabled: true,
                 type: ParameterType.Text,
             };
@@ -32,7 +32,7 @@ describe('request-url-builder', () => {
 
             const param: ParameterContract = {
                 key: '  ',
-                value: { raw: '1', resolved: '1' },
+                value: '1',
                 enabled: true,
                 type: ParameterType.Text,
             };
@@ -67,13 +67,13 @@ describe('request-url-builder', () => {
             const params: ParameterContract[] = [
                 {
                     key: 'page',
-                    value: { raw: '1', resolved: '1' },
+                    value: '1',
                     enabled: true,
                     type: ParameterType.Text,
                 },
                 {
                     key: 'limit',
-                    value: { raw: '10', resolved: '10' },
+                    value: '10',
                     enabled: true,
                     type: ParameterType.Text,
                 },
@@ -94,13 +94,13 @@ describe('request-url-builder', () => {
             const params: ParameterContract[] = [
                 {
                     key: '',
-                    value: { raw: 'val', resolved: 'val' },
+                    value: 'val',
                     enabled: true,
                     type: ParameterType.Text,
                 },
                 {
                     key: 'valid',
-                    value: { raw: 'ok', resolved: 'ok' },
+                    value: 'ok',
                     enabled: true,
                     type: ParameterType.Text,
                 },
@@ -115,17 +115,37 @@ describe('request-url-builder', () => {
             expect(result).toBe('https://api.example.com/users?valid=ok');
         });
 
+        it('resolves parameters via resolver when provided', () => {
+            // Arrange
+
+            const params: ParameterContract[] = [
+                {
+                    key: 'token',
+                    value: '{{api_token}}',
+                    enabled: true,
+                    type: ParameterType.Text,
+                },
+            ];
+            const resolver = (val: string | number | boolean | null | undefined) =>
+                String(val).replace('{{api_token}}', 'secret');
+
+            // Act
+
+            const result = buildRequestUrl(baseUrl, endpoint, params, resolver);
+
+            // Assert
+
+            expect(result).toBe('https://api.example.com/users?token=secret');
+        });
+
         it('handles array values in parameters', () => {
             // Arrange
 
-            // Note: In real app, resolved values are currently strings, but buildRequestUrl
-            // supports unknown types for robustness.
             const params: ParameterContract[] = [
                 {
                     type: ParameterType.Text,
                     key: 'tags',
-                    // @ts-expect-error testing edge case.
-                    value: { raw: '', resolved: ['nimbus', 'vitest'] },
+                    value: ['nimbus', 'vitest'] as unknown as string,
                     enabled: true,
                 },
             ];
@@ -148,8 +168,7 @@ describe('request-url-builder', () => {
                 {
                     type: ParameterType.Text,
                     key: 'filter',
-                    // @ts-expect-error testing edge case.
-                    value: { raw: '', resolved: { status: 'active', sort: 'desc' } },
+                    value: { status: 'active', sort: 'desc' } as unknown as string,
                     enabled: true,
                 },
             ];
@@ -172,8 +191,7 @@ describe('request-url-builder', () => {
                 {
                     type: ParameterType.Text,
                     key: 'a',
-                    // @ts-expect-error testing edge case.
-                    value: { raw: '', resolved: { b: { c: [1, 2] } } },
+                    value: { b: { c: [1, 2] } } as unknown as string,
                     enabled: true,
                 },
             ];
@@ -205,7 +223,7 @@ describe('request-url-builder', () => {
                 {
                     type: ParameterType.Text,
                     key: 'valid',
-                    value: { raw: 'ok', resolved: 'ok' },
+                    value: 'ok',
                     enabled: true,
                 },
             ];

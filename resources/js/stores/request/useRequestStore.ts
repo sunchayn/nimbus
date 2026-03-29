@@ -39,7 +39,7 @@ export const useRequestStore = defineStore('request', () => {
         supportedRoutes: Parameters<typeof tabsStore.openTab>[1],
     ) => {
         if (
-            route.endpoint === pendingRequestData.value?.endpoint.raw &&
+            route.endpoint === pendingRequestData.value?.endpoint &&
             route.method === pendingRequestData.value?.method
         ) {
             return;

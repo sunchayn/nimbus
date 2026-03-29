@@ -7,7 +7,7 @@ import type {
     RelayProxyResponse,
     Response,
 } from '@/interfaces/http';
-import { useConfigStore } from '@/stores';
+import { useConfigStore, useEnvironmentVariablesStore } from '@/stores';
 import { buildRequestUrl } from '@/utils';
 import { convertPayloadToFormData, getStatusGroup } from '@/utils/http';
 import { generateContentTypeHeader } from '@/utils/request/content-type-header-generator';
@@ -36,6 +36,7 @@ export function useHttpClient(): UseHttpClientResult {
      */
 
     const configStore = useConfigStore();
+    const environmentVariablesStore = useEnvironmentVariablesStore();
 
     /*
      * State.
@@ -49,15 +50,19 @@ export function useHttpClient(): UseHttpClientResult {
      */
 
     const buildUrlFromRequest = (request: PendingRequest): string => {
-        // Remove leading slashes to prevent double slashes in final URL
-        const endpoint = request.endpoint.resolved.replace(/^\/+/, '');
+        // Remove leading slashes to prevent double slashes in final URL.
+        const endpoint = environmentVariablesStore
+            .resolve(request.endpoint)
+            .replace(/^\/+/, '');
 
         return buildRequestUrl(
             configStore.apiUrl,
             endpoint,
+            // Only append enabled parameters with non-empty keys to avoid malformed URLs.
             request.queryParameters.filter(
                 (parameter: ParameterContract) => parameter.enabled,
             ),
+            environmentVariablesStore.resolve,
         );
     };
 
@@ -80,7 +85,7 @@ export function useHttpClient(): UseHttpClientResult {
             return null;
         }
 
-        return body.resolved;
+        return environmentVariablesStore.resolve(body as string);
     };
 
     function buildRelayAuthorization(authorization: AuthorizationContract) {
@@ -89,15 +94,19 @@ export function useHttpClient(): UseHttpClientResult {
                 return {
                     type: authorization.type,
                     value: {
-                        username: authorization.value.username.resolved,
-                        password: authorization.value.password.resolved,
+                        username: environmentVariablesStore.resolve(
+                            authorization.value.username,
+                        ),
+                        password: environmentVariablesStore.resolve(
+                            authorization.value.password,
+                        ),
                     },
                 };
 
             case AuthorizationType.Bearer:
                 return {
                     type: authorization.type,
-                    value: authorization.value.resolved,
+                    value: environmentVariablesStore.resolve(authorization.value),
                 };
 
             default:
@@ -118,7 +127,7 @@ export function useHttpClient(): UseHttpClientResult {
                 .map(
                     (parameter): HttpHeaders => ({
                         key: parameter.key,
-                        value: parameter.value.resolved,
+                        value: environmentVariablesStore.resolve(parameter.value),
                     }),
                 ),
         );

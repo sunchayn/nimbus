@@ -4,14 +4,13 @@
  * @description Input field for Bearer Token authentication.
  */
 import EnvironmentAwareInput from '@/components/common/EnvironmentAwareInput.vue';
-import type { ResolvableString } from '@/interfaces/common/resolvable-string';
 
 /*
  * Component Setup.
  */
 
-const model = defineModel<ResolvableString>({
-    default: () => '',
+const model = defineModel<string>({
+    default: '',
 });
 </script>
 

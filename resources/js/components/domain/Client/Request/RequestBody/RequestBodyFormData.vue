@@ -46,7 +46,7 @@ function convertParametersArrayToFormData(parameters: ParameterContract[]): Form
     const formData = new FormData();
 
     for (const parameter of parameters) {
-        formData.set(parameter.key, parameter.value.raw);
+        formData.set(parameter.key, parameter.value);
     }
 
     return formData;
@@ -55,15 +55,15 @@ function convertParametersArrayToFormData(parameters: ParameterContract[]): Form
 function convertFormDataToParametersArray(form: FormData): ParameterContract[] {
     const parameters: ParameterContract[] = [];
 
-    form.forEach((value: FormDataEntryValue, key: string) => {
-        if (value instanceof File) {
+    form.forEach((entryValue: FormDataEntryValue, key: string) => {
+        if (entryValue instanceof File) {
             // For files, we'll store the filename as a placeholder
             // Note: File uploads are not properly tested or verified.
             // TODO [Feature] Properly support file uploads.
             parameters.push({
                 type: ParameterType.File,
                 key: key,
-                value: { raw: value.name, resolved: value.name },
+                value: entryValue.name,
                 enabled: true,
             });
 
@@ -73,7 +73,7 @@ function convertFormDataToParametersArray(form: FormData): ParameterContract[] {
         parameters.push({
             type: ParameterType.Text,
             key: key,
-            value: { raw: value, resolved: value },
+            value: String(entryValue),
             enabled: true,
         });
     });

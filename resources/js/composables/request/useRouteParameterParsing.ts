@@ -1,17 +1,14 @@
-import type { ResolvableString } from '@/interfaces/common/resolvable-string';
 import { computed, type ComputedRef, type Ref } from 'vue';
 
 /**
  * Composable for parsing dynamic parameters in a route endpoint URL.
  */
-export function useRouteParameterParsing(
-    endpoint: Ref<ResolvableString> | ComputedRef<ResolvableString>,
-): {
+export function useRouteParameterParsing(endpoint: Ref<string> | ComputedRef<string>): {
     parameters: ComputedRef<string[]>;
     hasParameters: ComputedRef<boolean>;
 } {
     const parameters = computed(() => {
-        const url = endpoint.value.raw;
+        const url = endpoint.value;
 
         if (!url) {
             return [];

@@ -1,4 +1,5 @@
 import type { ParameterContract } from '@/interfaces';
+import type { ResolverFn } from '@/interfaces/common/env-vars';
 
 /**
  * Checks if a query parameter is valid for inclusion in URLs.
@@ -17,6 +18,7 @@ export function buildRequestUrl(
     baseUrl: string,
     endpoint: string,
     queryParameters: ParameterContract[],
+    resolver?: ResolverFn,
 ): string {
     const url = new URL(`${baseUrl}/${endpoint}`);
 
@@ -25,11 +27,9 @@ export function buildRequestUrl(
             return;
         }
 
-        appendQueryParam(
-            url.searchParams,
-            parameter.key,
-            parameter.value?.resolved ?? '',
-        );
+        const value = resolver ? resolver(parameter.value) : parameter.value;
+
+        appendQueryParam(url.searchParams, parameter.key, value ?? '');
     });
 
     return url.toString();

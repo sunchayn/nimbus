@@ -2,7 +2,7 @@ import {
     EnvVariableCheckStatus,
     PLACEHOLDER_PATTERN,
     type StringSegment,
-} from '@/interfaces/common/resolvable-string';
+} from '@/interfaces/common/env-vars';
 import { type ParameterContract, ParameterType } from '@/interfaces/ui';
 import { defineStore } from 'pinia';
 import type { ComputedRef, Ref } from 'vue';
@@ -33,7 +33,7 @@ export const useEnvironmentVariablesStore = defineStore(
         const collections: Ref<EnvironmentCollection[]> = ref<EnvironmentCollection[]>(
             [],
         );
-        const activeCollectionId = ref<string | null>(null);
+        const activeCollectionId = ref<string | null | undefined>(null);
         const nextVariableId = ref(0);
         const isRenamingActiveCollection = ref<boolean>(false);
 
@@ -51,7 +51,7 @@ export const useEnvironmentVariablesStore = defineStore(
             id: generateVariableId(),
             type: ParameterType.Text,
             key: '',
-            value: { raw: '', resolved: '' },
+            value: '',
             enabled: true,
         });
 
@@ -74,7 +74,7 @@ export const useEnvironmentVariablesStore = defineStore(
                 .filter(variable => variable.enabled && variable.key.trim() !== '')
                 .map((parameter: ParameterContract) => [
                     parameter.key.trim(),
-                    parameter.value.resolved,
+                    resolve(parameter.value),
                 ]);
 
             return new Map(variables);
@@ -86,7 +86,7 @@ export const useEnvironmentVariablesStore = defineStore(
          * Actions.
          */
 
-        const select = (collectionId: string | null) => {
+        const select = (collectionId: string | null | undefined) => {
             activeCollectionId.value = collectionId;
         };
 
@@ -163,9 +163,13 @@ export const useEnvironmentVariablesStore = defineStore(
         /**
          * Resolves all environment variable placeholders in a string.
          */
-        const resolve = (value: string): string => {
-            if (!value) {
-                return value || '';
+        const resolve = (value: string | number | boolean | null | undefined): string => {
+            if (value === null || value === undefined) {
+                return '';
+            }
+
+            if (typeof value !== 'string') {
+                return String(value);
             }
 
             if (!value.includes('{{')) {
@@ -186,7 +190,7 @@ export const useEnvironmentVariablesStore = defineStore(
         /**
          * Checks the status of a specific environment variable key.
          */
-        const check = (key: string): EnvVariableCheckStatus => {
+        const check = (key: string | null | undefined): EnvVariableCheckStatus => {
             if (!key) {
                 return EnvVariableCheckStatus.None;
             }
@@ -207,7 +211,7 @@ export const useEnvironmentVariablesStore = defineStore(
         /**
          * Parses a string into segments with their resolution status and values.
          */
-        const getSegments = (value: string): StringSegment[] => {
+        const getSegments = (value: string | null | undefined): StringSegment[] => {
             if (!value) {
                 return [];
             }

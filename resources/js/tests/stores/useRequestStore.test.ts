@@ -97,14 +97,13 @@ describe('useRequestStore', () => {
 
             // Act
 
-            store.updateRequestEndpoint({ raw: '/api/posts', resolved: '/api/posts' });
+            store.updateRequestEndpoint('/api/posts');
 
             // Assert
 
-            expect(mockTabsStore.updateRequestEndpoint).toHaveBeenCalledWith({
-                raw: '/api/posts',
-                resolved: '/api/posts',
-            });
+            expect(mockTabsStore.updateRequestEndpoint).toHaveBeenCalledWith(
+                '/api/posts',
+            );
         });
 
         it('should delegate updateAuthorization to builder store', () => {
@@ -113,7 +112,7 @@ describe('useRequestStore', () => {
             const store = useRequestStore();
             const auth: AuthorizationContract = {
                 type: AuthorizationType.Bearer,
-                value: { raw: 'abc123', resolved: 'abc123' },
+                value: 'abc123',
             };
 
             // Act
@@ -132,7 +131,7 @@ describe('useRequestStore', () => {
 
             const mockRequestData = {
                 method: 'GET',
-                endpoint: { raw: 'api/users', resolved: 'api/users' },
+                endpoint: 'api/users',
             } as unknown as PendingRequest;
             mockTabsStore.pendingRequestData = mockRequestData;
             const store = useRequestStore();

@@ -13,7 +13,6 @@ import EnvironmentAwareInput from '@/components/common/EnvironmentAwareInput.vue
 
 import { useRouteParameterParsing } from '@/composables/request/useRouteParameterParsing';
 import { useRouteSegmentSelection } from '@/composables/request/useRouteSegmentSelection';
-import type { ResolvableString } from '@/interfaces/common/resolvable-string';
 import { useRequestStore } from '@/stores';
 import { CornerDownLeftIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
@@ -38,8 +37,8 @@ const showParameterWarning = ref(false);
 const pendingRequestData = computed(() => requestStore.pendingRequestData);
 
 const endpoint = computed({
-    get: () => pendingRequestData.value?.endpoint ?? { raw: '', resolved: '' },
-    set: (value: ResolvableString) => requestStore.updateRequestEndpoint(value),
+    get: () => pendingRequestData.value?.endpoint ?? '',
+    set: (value: string) => requestStore.updateRequestEndpoint(value),
 });
 
 /*

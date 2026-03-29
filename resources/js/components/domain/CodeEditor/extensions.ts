@@ -2,7 +2,7 @@ import { jsonLinter } from '@/components/domain/CodeEditor/jsonLinter';
 import {
     EnvVariableCheckStatus,
     PLACEHOLDER_PATTERN,
-} from '@/interfaces/common/resolvable-string';
+} from '@/interfaces/common/env-vars';
 import { json } from '@codemirror/lang-json';
 import { type Diagnostic, linter, lintGutter } from '@codemirror/lint';
 import { EditorState, type Extension } from '@codemirror/state';

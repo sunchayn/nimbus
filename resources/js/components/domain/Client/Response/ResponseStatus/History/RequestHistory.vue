@@ -116,7 +116,7 @@ const filteredLogs = computed(() => {
     const query = searchQuery.value.toLowerCase();
 
     return reversedLogs.value.filter(log =>
-        log.request.endpoint.raw.toLowerCase().includes(query),
+        log.request.endpoint.toLowerCase().includes(query),
     );
 });
 
@@ -225,13 +225,13 @@ watch(isOpen, async newValue => {
                 <template v-if="filteredLogs.length">
                     <template
                         v-for="(log, index) in filteredLogs"
-                        :key="log.request.endpoint.raw + log.response.timestamp"
+                        :key="log.request.endpoint + log.response.timestamp"
                     >
                         <HistoryItem
                             :log="log"
                             :index="getOriginalIndex(reversedLogs.indexOf(log))"
                             data-testid="history-item"
-                            :data-endpoint="log.request.endpoint.raw"
+                            :data-endpoint="log.request.endpoint"
                             :data-method="log.request.method"
                             @select="selectHistoryItem"
                         />

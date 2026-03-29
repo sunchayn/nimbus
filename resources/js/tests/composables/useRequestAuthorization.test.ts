@@ -83,14 +83,14 @@ describe('useRequestAuthorization', () => {
             // Switch to Bearer
             updateAuthorizationType(AuthorizationType.Bearer);
             await nextTick();
-            updateCurrentAuthorizationValue({ raw: 'token', resolved: 'token' });
+            updateCurrentAuthorizationValue('token');
             await nextTick();
 
             // Assert
 
             expect(authorization.value).toEqual({
                 type: AuthorizationType.Bearer,
-                value: { raw: 'token', resolved: 'token' },
+                value: 'token',
             });
 
             // Act
@@ -113,7 +113,7 @@ describe('useRequestAuthorization', () => {
 
             expect(authorization.value).toEqual({
                 type: AuthorizationType.Bearer,
-                value: { raw: 'token', resolved: 'token' },
+                value: 'token',
             });
         });
 
@@ -132,7 +132,7 @@ describe('useRequestAuthorization', () => {
             await nextTick();
 
             // Set value
-            updateCurrentAuthorizationValue({ raw: 'token', resolved: 'token' });
+            updateCurrentAuthorizationValue('token');
             await nextTick();
 
             // Assert
@@ -140,7 +140,7 @@ describe('useRequestAuthorization', () => {
             expect(spy).toHaveBeenCalledWith(
                 expect.objectContaining({
                     type: AuthorizationType.Bearer,
-                    value: { raw: 'token', resolved: 'token' },
+                    value: 'token',
                 }),
             );
         });

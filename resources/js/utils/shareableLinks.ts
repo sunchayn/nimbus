@@ -5,10 +5,9 @@
  */
 
 import type { AuthorizationContract } from '@/interfaces';
-import type { ResolvableString } from '@/interfaces/common/resolvable-string';
-import { AuthorizationType } from '@/interfaces/generated';
+import type { ResolverFn } from '@/interfaces/common/env-vars';
 import type { RequestLog } from '@/interfaces/history/logs';
-import type { PendingRequest, RequestBodyTypeEnum, Response } from '@/interfaces/http';
+import type { PendingRequest, Response } from '@/interfaces/http';
 import type { ShareableLinkPayload } from '@/interfaces/share';
 import pako from 'pako';
 
@@ -23,27 +22,28 @@ import pako from 'pako';
  */
 export function encodeShareablePayload(
     pendingRequest: PendingRequest,
+    resolver: ResolverFn,
     response?: Response,
     requestLog?: RequestLog,
     applicationKey?: string,
 ): string {
     const payload: ShareableLinkPayload = {
         method: pendingRequest.method,
-        endpoint: pendingRequest.endpoint.resolved,
+        endpoint: resolver(pendingRequest.endpoint),
         headers: pendingRequest.headers.map(header => ({
             key: header.key,
-            value: header.value.resolved,
+            value: resolver(header.value),
         })),
         queryParameters: pendingRequest.queryParameters.map(param => ({
             key: param.key,
-            value: param.value.resolved,
+            value: resolver(param.value),
             type: param.type,
         })),
-        body: resolveBody(pendingRequest.body),
+        body: resolveBody(pendingRequest.body, resolver),
         payloadType: pendingRequest.payloadType,
         authorization: {
             type: pendingRequest.authorization.type,
-            value: buildAuthorizationValue(pendingRequest.authorization.value),
+            value: buildAuthorizationValue(pendingRequest.authorization.value, resolver),
         },
         applicationKey,
     };
@@ -94,82 +94,14 @@ export function buildShareableUrl(basePath: string, encodedPayload: string): str
     return `${baseUrl}${cleanBasePath}?share=${encodedPayload}`;
 }
 
-export function reconstructInternalBodyFromSharableLinkBody(
-    inbound: ShareableLinkPayload['body'],
-): PendingRequest['body'] {
-    const reconstructedBody: PendingRequest['body'] = {};
-
-    for (const [method, contents] of Object.entries(inbound)) {
-        if (!contents) {
-            reconstructedBody[method] = undefined;
-            continue;
-        }
-
-        const methodBody: Record<string, FormData | ResolvableString | null> = {};
-        for (const [type, value] of Object.entries(contents)) {
-            if (typeof value === 'string') {
-                methodBody[type] = { raw: value, resolved: value };
-            } else {
-                methodBody[type] = value as FormData | null;
-            }
-        }
-        reconstructedBody[method] = methodBody;
-    }
-
-    return reconstructedBody;
-}
-
-export function reconstructionInternalAuthorizationFromSharableLinkAuthorization(
-    inbound: ShareableLinkPayload['authorization'],
-): PendingRequest['authorization'] {
-    const inboundType = inbound.type as AuthorizationContract['type'];
-
-    const inboundValue = inbound.value as unknown;
-
-    switch (inboundType) {
-        case AuthorizationType.Basic:
-            return {
-                type: AuthorizationType.Basic,
-                value: {
-                    username: {
-                        // @ts-expect-error safe restoration logic.
-                        raw: inboundValue?.username ?? '',
-                        // @ts-expect-error safe restoration logic.
-                        resolved: inboundValue?.username ?? '',
-                    },
-                    password: {
-                        // @ts-expect-error safe restoration logic.
-                        raw: inboundValue?.password ?? '',
-                        // @ts-expect-error safe restoration logic.
-                        resolved: inboundValue?.password ?? '',
-                    },
-                },
-            };
-
-        case AuthorizationType.Bearer:
-            return {
-                type: AuthorizationType.Bearer,
-                value: {
-                    // @ts-expect-error safe restoration logic.
-                    raw: inboundValue,
-                    // @ts-expect-error safe restoration logic.
-                    resolved: inboundValue,
-                },
-            };
-
-        default:
-            return {
-                type: inboundType,
-                value: inboundValue as AuthorizationContract['value'],
-            } as PendingRequest['authorization'];
-    }
-}
-
-function buildAuthorizationValue(value: AuthorizationContract['value']) {
+function buildAuthorizationValue(
+    value: AuthorizationContract['value'],
+    resolverFn: ResolverFn,
+): AuthorizationContract['value'] {
     if (typeof value === 'object' && 'username' in value) {
         return {
-            username: value.username.resolved,
-            password: value.password.resolved,
+            username: resolverFn(value.username),
+            password: resolverFn(value.password),
         };
     }
 
@@ -177,14 +109,10 @@ function buildAuthorizationValue(value: AuthorizationContract['value']) {
         return value;
     }
 
-    return value.resolved;
+    return resolverFn(value);
 }
 
-function resolveBody(body: {
-    [method: string]:
-        | { [_key in RequestBodyTypeEnum]?: FormData | ResolvableString | null }
-        | undefined;
-}) {
+function resolveBody(body: PendingRequest['body'], resolver: ResolverFn) {
     const resolvedBody: Record<
         string,
         Record<string, FormData | string | null | undefined> | undefined
@@ -207,7 +135,7 @@ function resolveBody(body: {
             }
 
             methodBody[type] =
-                value !== null && value !== undefined ? value.resolved : value;
+                value !== null && value !== undefined ? resolver(value) : value;
         }
 
         resolvedBody[method] = methodBody;

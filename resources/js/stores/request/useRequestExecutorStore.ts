@@ -40,7 +40,7 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
         return (
             requestData !== null &&
             !requestData.isProcessing &&
-            requestData.endpoint.raw.trim() !== ''
+            requestData.endpoint.trim() !== ''
         );
     });
 

@@ -1,10 +1,8 @@
-import type { ResolvableString } from '@/interfaces/common/resolvable-string';
-
 export interface ParameterContract {
     id?: number;
     type: ParameterType;
     key: string;
-    value: ResolvableString;
+    value: string;
     enabled: boolean;
 }
 

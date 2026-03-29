@@ -19,8 +19,20 @@ const mockConfigStore = {
     appBasePath: '/nimbus',
 };
 
+// Mock environment variables store
+const mockEnvStore = {
+    resolve: vi.fn(val => {
+        if (typeof val !== 'string') {
+            return '';
+        }
+
+        return val.replace('{{resource}}', 'users').replace('{{name}}', 'John');
+    }),
+};
+
 vi.mock('@/stores', () => ({
     useConfigStore: () => mockConfigStore,
+    useEnvironmentVariablesStore: () => mockEnvStore,
 }));
 
 import { ParameterType } from '@/interfaces';
@@ -28,29 +40,30 @@ import { RequestBodyTypeEnum, type PendingRequest } from '@/interfaces/http';
 
 const createMockPendingRequest = (
     overrides: Partial<PendingRequest> = {},
-): PendingRequest => ({
-    method: 'GET',
-    endpoint: { raw: '/api/users', resolved: '/api/users' },
-    headers: [],
-    body: {
-        GET: {
-            [RequestBodyTypeEnum.JSON]: null,
-        },
-    },
-    queryParameters: [],
-    payloadType: RequestBodyTypeEnum.JSON,
-    authorization: { type: AuthorizationType.None },
-    schema: { shape: {}, extractionErrors: null },
-    supportedRoutes: [],
-    routeDefinition: {
+): PendingRequest =>
+    ({
         method: 'GET',
         endpoint: '/api/users',
-        shortEndpoint: '/api/users',
+        headers: [],
+        body: {
+            GET: {
+                [RequestBodyTypeEnum.JSON]: null,
+            },
+        },
+        queryParameters: [],
+        payloadType: RequestBodyTypeEnum.JSON,
+        authorization: { type: AuthorizationType.None },
         schema: { shape: {}, extractionErrors: null },
-    },
-    transactionMode: false,
-    ...overrides,
-});
+        supportedRoutes: [],
+        routeDefinition: {
+            method: 'GET',
+            endpoint: '/api/users',
+            shortEndpoint: '/api/users',
+            schema: { shape: {}, extractionErrors: null },
+        },
+        transactionMode: false,
+        ...overrides,
+    }) as PendingRequest;
 
 describe('useHttpClient', () => {
     /*
@@ -84,20 +97,20 @@ describe('useHttpClient', () => {
             const { buildUrlFromRequest } = useHttpClient();
 
             const request = createMockPendingRequest({
-                endpoint: { raw: 'api/users', resolved: 'api/users' },
+                endpoint: 'api/users',
                 authorization: {
                     type: AuthorizationType.None,
                 },
                 queryParameters: [
                     {
                         key: 'page',
-                        value: { raw: '1', resolved: '1' },
+                        value: '1',
                         enabled: true,
                         type: ParameterType.Text,
                     },
                     {
                         key: 'limit',
-                        value: { raw: '10', resolved: '10' },
+                        value: '10',
                         enabled: true,
                         type: ParameterType.Text,
                     },
@@ -119,7 +132,7 @@ describe('useHttpClient', () => {
             const { buildUrlFromRequest } = useHttpClient();
 
             const request = createMockPendingRequest({
-                endpoint: { raw: '//api/users', resolved: '//api/users' },
+                endpoint: '//api/users',
                 authorization: {
                     type: AuthorizationType.None,
                 },
@@ -143,10 +156,7 @@ describe('useHttpClient', () => {
                 method: 'POST',
                 body: {
                     POST: {
-                        [RequestBodyTypeEnum.JSON]: {
-                            raw: JSON.stringify({ name: 'John' }),
-                            resolved: JSON.stringify({ name: 'John' }),
-                        },
+                        [RequestBodyTypeEnum.JSON]: JSON.stringify({ name: 'John' }),
                     },
                 },
                 headers: [],
@@ -195,18 +205,15 @@ describe('useHttpClient', () => {
             expect(result).toBeNull();
         });
 
-        it('should resolve ResolvableString and environment variables before sending', async () => {
+        it('should resolve environment variables before sending', async () => {
             // Arrange
 
             const request = createMockPendingRequest({
-                endpoint: { raw: '/api/{{resource}}', resolved: '/api/users' },
+                endpoint: '/api/{{resource}}',
                 method: 'POST',
                 body: {
                     POST: {
-                        [RequestBodyTypeEnum.JSON]: {
-                            raw: '{"name": "{{name}}"}',
-                            resolved: '{"name": "John"}',
-                        },
+                        [RequestBodyTypeEnum.JSON]: '{"name": "{{name}}"}',
                     },
                 },
             });
@@ -225,6 +232,8 @@ describe('useHttpClient', () => {
 
             const formData = mockedAxios.post.mock.calls[0][1] as FormData;
 
+            // Notice: buildUrlFromRequest calls resolve() internally via buildRequestUrl
+            // and executeRequest calls resolve() for the body.
             expect(formData.get('endpoint')).toBe('https://api.example.com/api/users');
             expect(formData.get('body')).toBe('{"name": "John"}');
         });

@@ -1,6 +1,6 @@
-import type { ParameterContract, PendingRequest, ResolvableString } from '@/interfaces';
+import type { ParameterContract, PendingRequest } from '@/interfaces';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
-import { useRequestStore } from '@/stores';
+import { useEnvironmentVariablesStore, useRequestStore } from '@/stores';
 import {
     generatePlaceholderPayload,
     generateRandomPayload,
@@ -12,13 +12,13 @@ import { type ComputedRef, type Ref, computed, onMounted, ref, watch } from 'vue
 
 export interface UseRequestBodyResult {
     payloadType: Ref<RequestBodyTypeEnum>;
-    payload: Ref<FormData | ResolvableString | null>;
+    payload: Ref<FormData | string | null>;
     pendingRequestData: ComputedRef<
         ReturnType<typeof useRequestStore>['pendingRequestData']
     >;
     supportsAutoFill: ComputedRef<boolean>;
     autofill: () => void;
-    generateCurrentPayload: () => FormData | ResolvableString | null;
+    generateCurrentPayload: () => FormData | string | null;
     initializePayloadTypeFromHeaders: () => void;
     types: TypeShape[];
 }
@@ -32,6 +32,7 @@ export function useRequestBody(): UseRequestBodyResult {
      */
 
     const requestStore = useRequestStore();
+    const environmentVariablesStore = useEnvironmentVariablesStore();
     const generateRandomPayloadFn = generateRandomPayload;
     const generatePlaceholderPayloadFn = generatePlaceholderPayload;
 
@@ -40,7 +41,7 @@ export function useRequestBody(): UseRequestBodyResult {
      */
 
     const payloadType = ref<RequestBodyTypeEnum>(RequestBodyTypeEnum.EMPTY);
-    const payload = ref<FormData | ResolvableString | null>(null);
+    const payload = ref<FormData | string | null>(null);
 
     /*
      * Computed.
@@ -65,7 +66,7 @@ export function useRequestBody(): UseRequestBodyResult {
      * Returns the memoized payload for the current method and type, or generates
      * a placeholder payload from the schema if none exists.
      */
-    const generateCurrentPayload = (): FormData | ResolvableString | null => {
+    const generateCurrentPayload = (): FormData | string | null => {
         if (!pendingRequestData.value) {
             return null;
         }
@@ -82,7 +83,7 @@ export function useRequestBody(): UseRequestBodyResult {
             (body as PendingRequest['body'])?.[method]?.[payloadType.value] ?? null;
 
         if (memoizedBody) {
-            return memoizedBody as FormData | ResolvableString | null;
+            return memoizedBody as FormData | string | null;
         }
 
         // If we don't have the value memoized, we make up a new placeholder initial state.
@@ -116,7 +117,9 @@ export function useRequestBody(): UseRequestBodyResult {
 
         const matchingTypeFromContentType: TypeShape | undefined = types.find(
             function (type) {
-                const currentType = currentContentType.value.resolved;
+                const currentType = environmentVariablesStore.resolve(
+                    currentContentType.value,
+                );
 
                 return type.mimeType === currentType;
             },

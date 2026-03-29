@@ -19,7 +19,7 @@ describe('useEnvironmentVariablesStore', () => {
         expect(store.collections[0].variables[0]).toMatchObject({
             type: ParameterType.Text,
             key: '',
-            value: { raw: '', resolved: '' },
+            value: '',
             enabled: true,
         });
     });
@@ -64,14 +64,14 @@ describe('useEnvironmentVariablesStore', () => {
                     id: 1,
                     type: ParameterType.Text,
                     key: 'proto',
-                    value: { raw: 'https', resolved: 'https' },
+                    value: 'https',
                     enabled: true,
                 },
                 {
                     id: 2,
                     type: ParameterType.Text,
                     key: 'host',
-                    value: { raw: 'nimbus.test', resolved: 'nimbus.test' },
+                    value: 'nimbus.test',
                     enabled: true,
                 },
             ]);
@@ -87,7 +87,7 @@ describe('useEnvironmentVariablesStore', () => {
                     id: 1,
                     type: ParameterType.Text,
                     key: 'api_key',
-                    value: { raw: 'secret', resolved: 'secret' },
+                    value: 'secret',
                     enabled: false,
                 },
             ]);
@@ -104,7 +104,7 @@ describe('useEnvironmentVariablesStore', () => {
                     id: 1,
                     type: ParameterType.Text,
                     key: 'env',
-                    value: { raw: 'staging', resolved: 'staging' },
+                    value: 'staging',
                     enabled: true,
                 },
             ];
@@ -116,7 +116,7 @@ describe('useEnvironmentVariablesStore', () => {
             store.updateVariables([
                 {
                     ...variables[0],
-                    value: { raw: 'production', resolved: 'production' },
+                    value: 'production',
                 },
             ]);
 
@@ -131,7 +131,7 @@ describe('useEnvironmentVariablesStore', () => {
                     id: 1,
                     type: ParameterType.Text,
                     key: 'token',
-                    value: { raw: 'abc', resolved: 'abc' },
+                    value: 'abc',
                     enabled: true,
                 },
             ]);
@@ -148,7 +148,7 @@ describe('useEnvironmentVariablesStore', () => {
                     id: 1,
                     type: ParameterType.Text,
                     key: 'token',
-                    value: { raw: 'secret', resolved: 'secret' },
+                    value: 'secret',
                     enabled: true,
                 },
             ];
@@ -159,7 +159,7 @@ describe('useEnvironmentVariablesStore', () => {
             store.updateVariables([
                 {
                     ...variables[0],
-                    value: { raw: '', resolved: '' },
+                    value: '',
                 },
             ]);
 
@@ -177,7 +177,7 @@ describe('useEnvironmentVariablesStore', () => {
                     id: 1,
                     type: ParameterType.Text,
                     key: 'v',
-                    value: { raw: 'one', resolved: 'one' },
+                    value: 'one',
                     enabled: true,
                 },
             ]);
@@ -190,7 +190,7 @@ describe('useEnvironmentVariablesStore', () => {
                     id: 2,
                     type: ParameterType.Text,
                     key: 'v',
-                    value: { raw: 'two', resolved: 'two' },
+                    value: 'two',
                     enabled: true,
                 },
             ]);
@@ -213,14 +213,14 @@ describe('useEnvironmentVariablesStore', () => {
                     id: 1,
                     type: ParameterType.Text,
                     key: 'ok',
-                    value: { raw: 'yes', resolved: 'yes' },
+                    value: 'yes',
                     enabled: true,
                 },
                 {
                     id: 2,
                     type: ParameterType.Text,
                     key: 'empty',
-                    value: { raw: '', resolved: '' },
+                    value: '',
                     enabled: true,
                 },
             ]);
@@ -261,13 +261,9 @@ describe('useEnvironmentVariablesStore', () => {
             it('handles null or undefined resolution inputs gracefully', () => {
                 const store = useEnvironmentVariablesStore();
 
-                // @ts-expect-error - testing invalid input
                 expect(store.resolve(null)).toBe('');
-                // @ts-expect-error - testing invalid input
                 expect(store.resolve(undefined)).toBe('');
-                // @ts-expect-error - testing invalid input
                 expect(store.check(null)).toBe('none');
-                // @ts-expect-error - testing invalid input
                 expect(store.getSegments(null)).toEqual([]);
             });
 
@@ -284,7 +280,7 @@ describe('useEnvironmentVariablesStore', () => {
                         id: 1,
                         type: ParameterType.Text,
                         key: 'empty',
-                        value: { raw: '', resolved: '' },
+                        value: '',
                         enabled: true,
                     },
                 ]);
