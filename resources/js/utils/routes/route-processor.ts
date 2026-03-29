@@ -66,10 +66,8 @@ export async function processRoutesData(sourceRoutes: SourceRouteConfigArray): P
             });
         });
 
-        // Sort routes by `resource`.
-        processedRoutes[version] = routesInVersion.sort((a, b) =>
-            a.resource.localeCompare(b.resource),
-        );
+        // Routes within a version will pertain the original order from the controller (resource-based).
+        processedRoutes[version] = routesInVersion;
     });
 
     return processedRoutes;

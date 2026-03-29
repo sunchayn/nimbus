@@ -5,6 +5,7 @@ namespace Sunchayn\Nimbus\Modules\Routes\Collections;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
+use Sunchayn\Nimbus\Modules\Routes\ValueObjects\Endpoint;
 
 /**
  * @phpstan-type RouteDefinitionShape array{
@@ -32,7 +33,21 @@ class ExtractedRoutesCollection extends Collection
                 static function (self $group): Collection {
                     /** @var Collection<string, self> $groupedByResource */
                     $groupedByResource = $group
-                        ->groupBy(static fn (ExtractedRoute $extractedRoute): string => $extractedRoute->uri->resource);
+                        ->groupBy(static fn (ExtractedRoute $extractedRoute): string => $extractedRoute->uri->resource)
+                        ->sortKeysUsing(function (string $keyA, string $keyB): int {
+                            // If keyA is the root, it should come first (move it "up")
+                            if ($keyA === Endpoint::ROOT_RESOURCE) {
+                                return -1;
+                            }
+
+                            // If keyB is the root, it should come first (move keyA "down")
+                            if ($keyB === Endpoint::ROOT_RESOURCE) {
+                                return 1;
+                            }
+
+                            // Otherwise, sort alphabetically
+                            return strcmp($keyA, $keyB);
+                        });
 
                     return $groupedByResource
                         ->map(

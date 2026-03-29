@@ -78,11 +78,25 @@ class EndpointUnitTest extends TestCase
             'expectedResource' => 'users',
         ];
 
+        yield 'root level uri' => [
+            'uri' => '/',
+            'routesPrefix' => '/',
+            'expectedVersion' => 'v1',
+            'expectedResource' => '<root>',
+        ];
+
+        yield 'versioned root uri' => [
+            'uri' => '/v1',
+            'routesPrefix' => '',
+            'expectedVersion' => 'v1',
+            'expectedResource' => '<root>',
+        ];
+
         yield 'empty uri' => [
             'uri' => '',
             'routesPrefix' => '',
             'expectedVersion' => 'v1', // <- Default version.
-            'expectedResource' => '',
+            'expectedResource' => '<root>',
         ];
     }
 
@@ -138,11 +152,18 @@ class EndpointUnitTest extends TestCase
             'expectedResource' => 'posts',
         ];
 
+        yield 'root level uri' => [
+            'uri' => '/',
+            'routesPrefix' => '/',
+            'expectedVersion' => 'n/a',
+            'expectedResource' => '<root>',
+        ];
+
         yield 'empty uri' => [
             'uri' => '',
             'routesPrefix' => '',
             'expectedVersion' => 'n/a',
-            'expectedResource' => '',
+            'expectedResource' => '<root>',
         ];
     }
 
@@ -196,6 +217,27 @@ class EndpointUnitTest extends TestCase
             'resource' => 'users',
             'value' => '/users/{user}',
             'expectedShortUri' => '/users/{user}',
+        ];
+
+        yield 'uri without leading slash in value is handled correctly' => [
+            'version' => 'n/a',
+            'resource' => 'users',
+            'value' => 'users/{user}',
+            'expectedShortUri' => '/users/{user}',
+        ];
+
+        yield 'root level endpoint' => [
+            'version' => 'n/a',
+            'resource' => '',
+            'value' => '/',
+            'expectedShortUri' => '/',
+        ];
+
+        yield 'versioned root endpoint' => [
+            'version' => 'v1',
+            'resource' => '',
+            'value' => '/v1',
+            'expectedShortUri' => '/',
         ];
 
         yield 'simple resource without parameters' => [
@@ -255,13 +297,6 @@ class EndpointUnitTest extends TestCase
 
     public static function invalidShortUriProvider(): Generator
     {
-        yield 'empty resource' => [
-            'version' => 'v1',
-            'resource' => '',
-            'value' => '/v1/users',
-            'expectedMessage' => 'Invalid ValueObject. The resource cannot be empty.',
-        ];
-
         yield 'resource not in uri' => [
             'version' => 'v1',
             'resource' => 'posts',
@@ -273,13 +308,6 @@ class EndpointUnitTest extends TestCase
             'version' => 'v1',
             'resource' => 'Users',
             'value' => '/v1/users',
-            'expectedMessage' => 'Invalid ValueObject. The `resource` MUST exist in the URI.',
-        ];
-
-        yield 'resource without leading slash in uri' => [
-            'version' => 'n/a',
-            'resource' => 'users',
-            'value' => 'users/{user}',
             'expectedMessage' => 'Invalid ValueObject. The `resource` MUST exist in the URI.',
         ];
 

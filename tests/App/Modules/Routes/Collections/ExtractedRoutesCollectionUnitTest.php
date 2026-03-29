@@ -35,7 +35,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
 
         $output = $this->replaceTraceWithPlaceholder($output);
 
-        $this->assertEquals(
+        $this->assertSame(
             $expected,
             $output,
         );
@@ -89,6 +89,27 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
             ],
             'expected' => [
                 'v1' => [
+                    'posts' => [
+                        [
+                            'uri' => '/api/posts',
+                            'shortUri' => 'posts',
+                            'methods' => ['POST'],
+                            'schema' => [
+                                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                'type' => 'object',
+                                'properties' => [
+                                    'type' => [
+                                        'type' => 'string',
+                                    ],
+                                ],
+                                'required' => [],
+                                'additionalProperties' => false,
+                            ],
+                            'extractionError' => null,
+                            'metadata' => [],
+                            'keywords' => ['/api/posts', '/posts'],
+                        ],
+                    ],
                     'users' => [
                         [
                             'uri' => '/api/users',
@@ -119,27 +140,6 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                             'extractionError' => null,
                             'metadata' => [],
                             'keywords' => ['/api/users', '/users'],
-                        ],
-                    ],
-                    'posts' => [
-                        [
-                            'uri' => '/api/posts',
-                            'shortUri' => 'posts',
-                            'methods' => ['POST'],
-                            'schema' => [
-                                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
-                                'type' => 'object',
-                                'properties' => [
-                                    'type' => [
-                                        'type' => 'string',
-                                    ],
-                                ],
-                                'required' => [],
-                                'additionalProperties' => false,
-                            ],
-                            'extractionError' => null,
-                            'metadata' => [],
-                            'keywords' => ['/api/posts', '/posts'],
                         ],
                     ],
                 ],
@@ -208,6 +208,96 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
 <p class="text-xs">[trace]</p>',
                             'metadata' => [],
                             'keywords' => ['/api/users', '/users'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'Root level endpoints' => [
+            'items' => [
+                new ExtractedRoute(
+                    uri: new Endpoint(
+                        version: 'v1',
+                        resource: '',
+                        value: '/',
+                    ),
+                    methods: ['GET'],
+                    schema: Schema::empty(),
+                    keywords: ['/'],
+                ),
+                new ExtractedRoute(
+                    uri: new Endpoint(
+                        version: 'v1',
+                        resource: '/',
+                        value: '/_shouldnt_be_first',
+                    ),
+                    methods: ['GET'],
+                    schema: Schema::empty(),
+                    keywords: ['::fake::'],
+                ),
+                new ExtractedRoute(
+                    uri: new Endpoint(
+                        version: 'v1',
+                        resource: 'users',
+                        value: '/users',
+                    ),
+                    methods: ['GET'],
+                    schema: Schema::empty(),
+                    keywords: ['/users'],
+                ),
+            ],
+            'expected' => [
+                'v1' => [
+                    '<root>' => [
+                        [
+                            'uri' => '/',
+                            'shortUri' => '',
+                            'methods' => ['GET'],
+                            'schema' => [
+                                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                'type' => 'object',
+                                'properties' => [],
+                                'required' => [],
+                                'additionalProperties' => false,
+                            ],
+                            'extractionError' => null,
+                            'metadata' => [],
+                            'keywords' => ['/'],
+                        ],
+                    ],
+                    '/' => [ // <- This is just to test the order is preferring <root> over anything else.
+                        [
+                            'uri' => '/_shouldnt_be_first',
+                            'shortUri' => '_shouldnt_be_first',
+                            'methods' => ['GET'],
+                            'schema' => [
+                                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                'type' => 'object',
+                                'properties' => [],
+                                'required' => [],
+                                'additionalProperties' => false,
+                            ],
+                            'extractionError' => null,
+                            'metadata' => [],
+                            'keywords' => ['::fake::'],
+                        ],
+                    ],
+                    'users' => [
+                        [
+                            'uri' => '/users',
+                            'shortUri' => 'users',
+                            'methods' => ['GET'],
+                            'schema' => [
+                                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                'type' => 'object',
+                                'properties' => [],
+                                'required' => [],
+                                'additionalProperties' => false,
+                            ],
+                            'extractionError' => null,
+                            'metadata' => [],
+                            'keywords' => ['/users'],
                         ],
                     ],
                 ],
