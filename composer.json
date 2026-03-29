@@ -20,7 +20,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "illuminate/contracts": "^10.0||^11.0||^12.0",
+        "illuminate/contracts": "^10.0||^11.0||^12.0||^13.0",
         "guzzlehttp/guzzle": "^7.8",
         "nesbot/carbon": "^3.8.4||^2.62.1",
         "spatie/invade": "^2.1",
@@ -32,7 +32,7 @@
         "larastan/larastan": "^2.9||^3.0",
         "laravel/pint": "^1.14",
         "nunomaduro/collision": "^8.1||^7.10",
-        "orchestra/testbench": "^10.6 || ^9.8 || ^8.0",
+        "orchestra/testbench": "^11.0 || ^10.6 || ^9.8 || ^8.0",
         "phpstan/extension-installer": "^1.3||^2.0",
         "phpstan/phpstan-deprecation-rules": "^1.1||^2.0",
         "phpunit/phpunit": "^10.1||^11.5.3",
@@ -64,10 +64,11 @@
         "test:coverage-ci": "@test:parallel --coverage-clover ./build/coverage.xml",
         "style:fix": "vendor/bin/pint",
         "rector": "vendor/bin/rector -c ./tools/rector/config.php",
-        "switch": "composer update orchestra/testbench:$TESTBENCH_VERSION phpunit/phpunit brianium/paratest larastan/larastan phpstan/extension-installer phpstan/phpstan-deprecation-rules -W",
+        "switch": "composer update orchestra/testbench:$TESTBENCH_VERSION phpunit/phpunit brianium/paratest larastan/larastan phpstan/extension-installer phpstan/phpstan-deprecation-rules spatie/laravel-data -W",
         "switch:l10": "TESTBENCH_VERSION=^8.0 composer run-script switch",
         "switch:l11": "TESTBENCH_VERSION=^9.8 composer run-script switch",
-        "switch:l12": "TESTBENCH_VERSION=^10.6 composer run-script switch"
+        "switch:l12": "TESTBENCH_VERSION=^10.6 composer run-script switch",
+        "switch:l13": "TESTBENCH_VERSION=^11.0 composer run-script switch"
     },
     "config": {
         "sort-packages": true,
