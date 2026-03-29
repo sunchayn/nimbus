@@ -6,7 +6,8 @@ import {
 import { type ParameterContract, ParameterType } from '@/interfaces/ui';
 import { defineStore } from 'pinia';
 import type { ComputedRef, Ref } from 'vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, useId } from 'vue';
+import {v4 as uuidv4} from "uuid";
 
 /*
  * Types & Interfaces.
@@ -260,7 +261,7 @@ export const useEnvironmentVariablesStore = defineStore(
 
 function createDefaultCollection(index: number): EnvironmentCollection {
     return {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         name: `Collection ${index}`,
         variables: [],
     };
