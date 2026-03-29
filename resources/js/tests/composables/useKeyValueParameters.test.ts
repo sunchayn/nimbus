@@ -1,7 +1,7 @@
 import { useKeyValueParameters } from '@/composables/ui/useKeyValueParameters';
 import type { ParameterContract } from '@/interfaces';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import type { Ref } from 'vue';
 import { ref } from 'vue';
 
@@ -19,7 +19,7 @@ vi.mock('@/config', () => ({
 
 describe('useKeyValueParameters', () => {
     let modelValue: Ref<ParameterContract[]>;
-    let onUpdateCallback: ReturnType<typeof vi.fn>;
+    let onUpdateCallback: Mock<(parameters: ParameterContract[]) => void>;
     let composable: ReturnType<typeof useKeyValueParameters>;
 
     beforeEach(() => {
