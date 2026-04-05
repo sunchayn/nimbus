@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.6.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.5.1-alpha...v0.6.0-alpha) (2026-04-05)
+
+
+### Features
+
+* **environment:** add support for env variables ([#73](https://github.com/sunchayn/nimbus/issues/73)) ([1cc64da](https://github.com/sunchayn/nimbus/commit/1cc64dacb8e36a441fb70622738b9c64409326a3))
+* **routes:** support root level endpoints ([#80](https://github.com/sunchayn/nimbus/issues/80)) ([749bb95](https://github.com/sunchayn/nimbus/commit/749bb958ceed320fc7360f41bd56661204c35a2f))
+
+
+### Maintenance Tasks
+
+* **environment:** simplify how variables are resolved ([#75](https://github.com/sunchayn/nimbus/issues/75)) ([ecf4137](https://github.com/sunchayn/nimbus/commit/ecf4137aa8cde0e16533cbb0d66d6b7a901993b5))
+* Laravel 13 support ([#76](https://github.com/sunchayn/nimbus/issues/76)) ([91f9c05](https://github.com/sunchayn/nimbus/commit/91f9c0500de9e75dd708399a8d9779f031e30043))
+* **ui:** drop `crypto.randomUUID` in favor of normal `uuid` ([#78](https://github.com/sunchayn/nimbus/issues/78)) ([43cb77b](https://github.com/sunchayn/nimbus/commit/43cb77ba676529e5654827a29cbed8df78097847))
+
+
+### CI/CD
+
+* bump vulnerable js packages ([#83](https://github.com/sunchayn/nimbus/issues/83)) ([2f48ef0](https://github.com/sunchayn/nimbus/commit/2f48ef0fa5262540441d469409bd792eb6b75121))
+* fix e2e job regression and checkout to the proper branch ([#84](https://github.com/sunchayn/nimbus/issues/84)) ([70cda6e](https://github.com/sunchayn/nimbus/commit/70cda6efcde1c8cb2fb125fd1d49234fc265ef48))
+* ignore npm scripts in CI ([#82](https://github.com/sunchayn/nimbus/issues/82)) ([502b859](https://github.com/sunchayn/nimbus/commit/502b859f392b2be37f16a1c728d58871c0ccba51))
+
+
+### Dependency Updates
+
+* bump vitest to v4 ([#79](https://github.com/sunchayn/nimbus/issues/79)) ([fa59d79](https://github.com/sunchayn/nimbus/commit/fa59d79c0d7cf67d2cfca4b28ce45654c650532c))
+* bump vue to 3.5 ([#77](https://github.com/sunchayn/nimbus/issues/77)) ([1735779](https://github.com/sunchayn/nimbus/commit/173577962549860585a154170a9454c054d18f4c))
+
 ## [0.5.1-alpha](https://github.com/sunchayn/nimbus/compare/v0.5.0-alpha...v0.5.1-alpha) (2026-02-18)
 
 
