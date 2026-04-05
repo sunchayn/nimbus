@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 $branchName = $argv[1] ?? null;
+$repoUrl = $argv[2] ?? null;
 
 if ($branchName === null || $branchName === '') {
     fwrite(STDERR, "Error: Branch name argument is required.\n");
+
     exit(1);
 }
 
@@ -14,7 +16,8 @@ $packageName = 'sunchayn/nimbus';
 $localPackagePath = '../../';
 
 if (! file_exists($composerFilePath)) {
-    fwrite(STDERR, "Error: composer.json not found.\n");
+    fwrite(STDERR, "Error: composer.json not found in .workdir.\n");
+
     exit(1);
 }
 
@@ -31,36 +34,23 @@ $composerJson['repositories'] ??= [];
 
 if (! is_array($composerJson['repositories'])) {
     fwrite(STDERR, "Error: repositories must be an array.\n");
+
     exit(1);
 }
 
 /**
- * Check whether the path repository already exists.
+ * Prepend the repository to ensure it takes precedence over Packagist.
+ * If a repo URL is provided (fork/internal branch), use VCS.
+ * Otherwise, use the local path.
  */
-$pathRepositoryAlreadyDefined = false;
-
-foreach ($composerJson['repositories'] as $repository) {
-    if (
-        isset($repository['type'], $repository['url']) &&
-        $repository['type'] === 'path' &&
-        $repository['url'] === $localPackagePath
-    ) {
-        $pathRepositoryAlreadyDefined = true;
-        break;
-    }
-}
-
-/**
- * Append the repository only if it does not already exist.
- */
-if (! $pathRepositoryAlreadyDefined) {
-    $composerJson['repositories'][] = [
-        'type' => 'path',
-        'url' => $localPackagePath,
-        'options' => [
-            'symlink' => true,
+if (!empty($repoUrl)) {
+    array_unshift(
+        $composerJson['repositories'],
+        [
+            'type' => 'vcs',
+            'url' => $repoUrl,
         ],
-    ];
+    );
 }
 
 /**
@@ -73,14 +63,14 @@ if (! array_key_exists($packageName, $composerJson['require'])) {
         STDERR,
         "Error: Package '{$packageName}' is not present in require.\n"
     );
+
     exit(1);
 }
 
 /**
- * Use a generic dev constraint so the local path repository can be installed
- * regardless of the current branch name.
+ * Force the package version to the requested dev branch.
  */
-$composerJson['require'][$packageName] = '*@dev';
+$composerJson['require'][$packageName] = "dev-{$branchName}";
 
 /**
  * Write back composer.json with stable formatting.

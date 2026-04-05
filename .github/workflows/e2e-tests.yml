@@ -14,16 +14,20 @@ jobs:
         if: ${{ !env.ACT }}
         uses: actions/checkout@v4
 
-      - name: Determine branch for E2E setup
-        id: branch
+      - name: Determine branch and repo for E2E setup
+        id: context
         env:
           EVENT_NAME: ${{ github.event_name }}
-          PR_HEAD: ${{ github.event.pull_request.head.ref }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_HEAD_URL: ${{ github.event.pull_request.head.repo.clone_url }}
+          REPO_URL: ${{ github.event.repository.clone_url }}
         run: |
           if [ "$EVENT_NAME" = "pull_request" ]; then
-            echo "branch_name=$PR_HEAD" >> $GITHUB_OUTPUT
+            echo "branch_name=$PR_HEAD_REF" >> $GITHUB_OUTPUT
+            echo "repo_url=$PR_HEAD_URL" >> $GITHUB_OUTPUT
           else
             echo "branch_name=base" >> $GITHUB_OUTPUT
+            echo "repo_url=$REPO_URL" >> $GITHUB_OUTPUT
           fi
 
       - name: Setup Node.js
@@ -45,7 +49,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: vendor
-          key: composer-cache-${{ steps.branch.outputs.branch_name }}
+          key: composer-cache-${{ steps.context.outputs.branch_name }}
           restore-keys: |
             composer-8.2-L12
             composer-8.2
@@ -62,7 +66,7 @@ jobs:
         run: npx playwright install
 
       - name: Setup E2E test repo
-        run: bash tests/E2E/setup.sh "${{ steps.branch.outputs.branch_name }}"
+        run: bash tests/E2E/setup.sh "${{ steps.context.outputs.branch_name }}" "${{ steps.context.outputs.repo_url }}"
 
       - name: Run Playwright tests
         run: bash tests/E2E/launch.sh & (sleep 5 && npm run test:e2e)

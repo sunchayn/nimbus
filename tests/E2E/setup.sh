@@ -11,7 +11,7 @@ set -euo pipefail
 # CONFIGURATION
 # --------------------------------------
 
-REPO_URL="https://github.com/sunchayn/nimbus-dev.git"
+DEV_REPO_URL="https://github.com/sunchayn/nimbus-dev.git"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_DIR="$SCRIPT_DIR/.workdir"
@@ -27,6 +27,7 @@ Usage: $(basename "$0") BRANCH_NAME
 
 Arguments:
   BRANCH_NAME        Name of the Nimbus branch to set up and install. Required.
+  REPO_URL           Url of the Nimbus repo to fetch the branch from (Needed for Forks).
 
 Notes:
   - Intended for CI usage. For local Playwright runs, you can skip setup.sh and run launch.sh
@@ -46,14 +47,18 @@ fi
 # --------------------------------------
 
 BRANCH_NAME="${1:-}"
+REPO_URL="${2:-}"
 
 if [[ -z "$BRANCH_NAME" ]]; then
     echo "Error: BRANCH_NAME argument is required."
-    echo "Usage: $0 BRANCH_NAME"
+    echo "Usage: $0 BRANCH_NAME [REPO_URL]"
     exit 1
 fi
 
 echo "Using branch name: $BRANCH_NAME"
+if [[ -n "$REPO_URL" ]]; then
+    echo "Using repository URL: $REPO_URL"
+fi
 
 # --------------------------------------
 # REPOSITORY SETUP
@@ -63,9 +68,9 @@ echo "Resetting working directory at $TARGET_DIR..."
 rm -rf "$TARGET_DIR"
 mkdir -p "$TARGET_DIR"
 
-echo "Cloning Nimbus repository into temporary directory..."
+echo "Cloning Nimbus Dev repository into temporary directory..."
 TEMP_DIR="$(mktemp -d)"
-git clone "$REPO_URL" "$TEMP_DIR"
+git clone "$DEV_REPO_URL" "$TEMP_DIR"
 
 echo "Syncing repository to target directory..."
 rsync -a --delete "$TEMP_DIR"/ "$TARGET_DIR"/
@@ -80,7 +85,7 @@ cd "$TARGET_DIR"
 # Install PHP dependencies
 if command -v composer >/dev/null 2>&1; then
     echo "Setting current Nimbus branch in composer..."
-    php "$SCRIPT_DIR/install-current-nimbus-branch.php" "$BRANCH_NAME"
+    php "$SCRIPT_DIR/install-current-nimbus-branch.php" "$BRANCH_NAME" "$REPO_URL"
 
     echo "Installing/updating nimbus PHP package..."
     composer update sunchayn/nimbus --no-progress --ansi
@@ -124,7 +129,6 @@ php artisan migrate --force
 cd "$ROOT_DIR"
 
 echo "Building dev assets for Nimbus..."
-npm install
 npm run build:dev
 
 # Publish Nimbus-related frontend assets
