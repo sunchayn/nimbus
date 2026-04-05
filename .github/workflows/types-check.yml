@@ -1,9 +1,8 @@
 name: run-types-check
 
 on:
-  push:
-    branches: [ base ]
-  pull_request:
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
   test:
@@ -42,4 +41,3 @@ jobs:
       - name: Run Type Checks
         if: steps.filter.outputs.types == 'true'
         run: npm run type:check
-

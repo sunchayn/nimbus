@@ -1,9 +1,8 @@
 name: run-php-tests
 
 on:
-  pull_request:
-  push:
-    branches: [ base ]
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
   changes:
@@ -100,4 +99,3 @@ jobs:
           file: ./build/coverage.xml
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-

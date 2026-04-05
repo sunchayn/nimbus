@@ -1,9 +1,8 @@
 name: phpstan
 
 on:
-  push:
-    branches: [ base ]
-  pull_request:
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
   phpstan:

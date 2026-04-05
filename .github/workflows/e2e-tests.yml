@@ -1,9 +1,9 @@
 name: run-e2e-tests
+
 on:
-  push:
-    branches: [ base ]
-  pull_request:
-    branches: [ base ]
+  workflow_call:
+  workflow_dispatch:
+
 jobs:
   test:
     timeout-minutes: 8
