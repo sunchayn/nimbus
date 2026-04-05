@@ -9,6 +9,7 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\TestWith;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\Exceptions\InvalidAuthorizationValueException;
 use Sunchayn\Nimbus\Modules\Relay\Authorization\Handlers\ImpersonateUserAuthorizationHandler;
 use Sunchayn\Nimbus\Tests\App\Modules\Relay\Authorization\Handlers\Shared\HandlesRecallerCookies;
@@ -26,16 +27,19 @@ class ImpersonateUserAuthorizationHandlerFunctionalTest extends TestCase
     {
         // Arrange
 
-        $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class, function (MockInterface $mock) use (&$guardName) {
-            $mock->shouldReceive('getAuthGuard')->andReturn($guardName = fake()->word());
+        $guardName = fake()->word();
+
+        $this->mock(ActiveApplicationResolver::class, function (MockInterface $mock) use ($guardName) {
+            $mock->shouldReceive('getAuthGuard')->andReturn($guardName);
             $mock->shouldReceive('getSpecialAuthInjector')->andReturn(DummySpecialAuthenticationInjector::class);
         });
-        $dummyAuthenticatable = new DummyAuthenticatable(id: $userId = fake()->randomNumber());
+
+        $dummyAuthenticatable = new DummyAuthenticatable(id: $userId = fake()->randomNumber() + 1);
 
         $this->mockAuthManagerToUseDummyModel($userId, $dummyAuthenticatable, $guardName);
 
         $relayRequest = Request::create('ping');
-        $relayRequest->headers->set('HOST', $relayRequestHost = fake()->domainName());
+        $relayRequest->headers->set('HOST', fake()->domainName());
 
         $dummySpecialAuthenticationInjectorMock = $this->mock(DummySpecialAuthenticationInjector::class);
 
