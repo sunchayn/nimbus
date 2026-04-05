@@ -93,7 +93,7 @@ class ImpersonateUserAuthorizationHandlerFunctionalTest extends TestCase
 
         // Anticipate
 
-        $this->expectException( InvalidAuthorizationValueException::class);
+        $this->expectException(InvalidAuthorizationValueException::class);
 
         $this->expectExceptionMessage('User ID didn\'t resolve to a user to impersonate.');
 
