@@ -37,7 +37,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.filter.outputs.types == 'true'
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Run Type Checks
         if: steps.filter.outputs.types == 'true'

@@ -63,7 +63,7 @@ jobs:
           cache: 'npm'
 
       - name: Install npm dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Fix js styles if Eslint passes
         run: npm run style:fix
@@ -127,7 +127,7 @@ jobs:
           cache: 'npm'
 
       - name: Install npm dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Check js styles
         run: npm run style:check

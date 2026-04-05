@@ -37,7 +37,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.filter.outputs.js == 'true'
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Run tests
         if: steps.filter.outputs.js == 'true'

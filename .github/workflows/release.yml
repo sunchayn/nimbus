@@ -50,7 +50,7 @@ jobs:
 
       - name: Install dependencies
         if: ${{ steps.release.outputs.pr }}
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Get version from package.json
         if: ${{ steps.release.outputs.pr }}
