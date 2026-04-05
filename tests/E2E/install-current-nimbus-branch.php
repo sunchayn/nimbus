@@ -43,7 +43,7 @@ if (! is_array($composerJson['repositories'])) {
  * If a repo URL is provided (fork/internal branch), use VCS.
  * Otherwise, use the local path.
  */
-if (!empty($repoUrl)) {
+if (! empty($repoUrl)) {
     array_unshift(
         $composerJson['repositories'],
         [
