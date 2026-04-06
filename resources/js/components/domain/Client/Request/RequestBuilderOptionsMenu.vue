@@ -174,8 +174,6 @@ const openShareableLinkDialog = () => {
                         </div>
                         <AppSwitch
                             v-model="transactionMode"
-                            :variant="{ type: 'compact', default: 'default' }"
-                            class="ml-2"
                             @click.stop
                         />
                     </div>

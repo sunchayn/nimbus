@@ -27,7 +27,7 @@ const handleVariablesUpdate = (variables: ParameterContract[]) => {
     <div class="relative flex-1 overflow-hidden rounded border border-b-0">
         <div
             v-if="!environmentVariablesStore.activeCollection"
-            class="absolute top-0 left-0 z-10 h-full w-full bg-white/40"
+            class="absolute top-0 left-0 z-10 h-full w-full bg-popover/50 select-none cursor-not-allowed"
         />
 
         <slot name="header" />

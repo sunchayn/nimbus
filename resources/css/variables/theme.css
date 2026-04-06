@@ -69,46 +69,46 @@
 
     /* Base Colors */
     --color-background: var(--color-zinc-950);
-    --color-foreground: oklch(1 0 0);
+    --color-foreground: var(--color-zinc-50);
     --color-subtle: var(--color-zinc-900);
     --color-subtle-foreground: var(--color-zinc-300);
 
     /* Surface Colors */
-    --color-card: oklch(12.94% 0.0273 261.67);
-    --color-card-foreground: oklch(98.43% 0.0017 247.84);
-    --color-popover: oklch(12.94% 0.0273 261.67);
-    --color-popover-foreground: oklch(98.43% 0.0017 247.84);
+    --color-card: var(--color-zinc-900);
+    --color-card-foreground: var(--color-zinc-50);
+    --color-popover: var(--color-zinc-800);
+    --color-popover-foreground: var(--color-zinc-50);
 
     /* Border & Input Colors */
     --color-border: var(--color-zinc-800);
-    --color-input: oklch(27.84% 0.0296 256.85);
-    --color-ring: oklch(87.15% 0.0094 258.34);
+    --color-input: var(--color-border);
+    --color-ring: var(--color-blue-500);
 
     /* Semantic Colors */
     --color-primary: oklch(98.43% 0.0017 247.84);
     --color-primary-foreground: oklch(21.03% 0.0318 264.65);
-    --color-secondary: oklch(27.84% 0.0296 256.85);
-    --color-secondary-foreground: oklch(98.43% 0.0017 247.84);
-    --color-accent: oklch(27.84% 0.0296 256.85);
-    --color-accent-foreground: oklch(98.43% 0.0017 247.84);
+    --color-secondary: var(--color-zinc-800);
+    --color-secondary-foreground: var(--color-zinc-300);
+    --color-accent: var(--color-zinc-900);
+    --color-accent-foreground: var(--color-zinc-300);
     --color-destructive: var(--color-rose-700);
-    --color-destructive-foreground: oklch(98.43% 0.0017 247.84);
+    --color-destructive-foreground: var(--color-zinc-50);
 
     /* Status Colors */
-    --color-success: oklch(70% 0.15 140);
-    --color-success-foreground: oklch(15% 0.01 140);
-    --color-warning: oklch(80% 0.15 60);
-    --color-warning-foreground: oklch(15% 0.01 60);
-    --color-info: oklch(70% 0.15 240);
-    --color-info-foreground: oklch(15% 0.01 240);
+    --color-success: var(--color-emerald-500);
+    --color-success-foreground: var(--color-emerald-950);
+    --color-warning: var(--color-amber-500);
+    --color-warning-foreground: var(--color-amber-950);
+    --color-info: var(--color-blue-500);
+    --color-info-foreground: var(--color-blue-950);
 
     /* Sidebar Colors */
-    --sidebar-background: var(--color-subtle);
-    --sidebar-foreground: hsl(240 4.8% 95.9%);
-    --sidebar-primary: hsl(224.3 76.3% 48%);
-    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-background: var(--color-zinc-950);
+    --sidebar-foreground: var(--color-zinc-300);
+    --sidebar-primary: var(--color-primary);
+    --sidebar-primary-foreground: var(--color-zinc-100);
     --sidebar-accent: var(--color-accent);
-    --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-    --sidebar-border: hsl(240 3.7% 15.9%);
-    --sidebar-ring: hsl(217.2 91.2% 59.8%);
+    --sidebar-accent-foreground: var(--color-zinc-50);
+    --sidebar-border: var(--color-border);
+    --sidebar-ring: var(--color-blue-500);
 }
