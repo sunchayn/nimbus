@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/SetupCommand.php';
+require_once __DIR__ . '/LaunchCommand.php';
+
+use Illuminate\Events\Dispatcher;
+use Symfony\Component\Console\Application;
+
+$app = new Application('E2E CLI App');
+
+$app->add(new SetupCommand());
+$app->add(new LaunchCommand());
+
+$app->run();

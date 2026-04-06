@@ -66,10 +66,10 @@ jobs:
         run: npx playwright install
 
       - name: Setup E2E test repo
-        run: bash tests/E2E/setup.sh "${{ steps.context.outputs.branch_name }}" "${{ steps.context.outputs.repo_url }}"
+        run: php ./tests/E2E/.scripts/bin setup "${{ steps.context.outputs.branch_name }}" "${{ steps.context.outputs.repo_url }}"
 
       - name: Run Playwright tests
-        run: bash tests/E2E/launch.sh & (sleep 5 && npm run test:e2e)
+        run: php ./tests/E2E/.scripts/bin launch & (sleep 5 && npm run test:e2e)
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
