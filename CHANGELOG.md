@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.6.1-alpha](https://github.com/sunchayn/nimbus/compare/v0.6.0-alpha...v0.6.1-alpha) (2026-04-06)
+
+
+### Bug Fixes
+
+* **ui:** properly update scroll masks on content change ([#90](https://github.com/sunchayn/nimbus/issues/90)) ([496bdce](https://github.com/sunchayn/nimbus/commit/496bdce8b62a16f4b60bde9f9499c966b5bc54b1))
+
+
+### Maintenance Tasks
+
+* **ui:** improve dark theme ([#89](https://github.com/sunchayn/nimbus/issues/89)) ([47a5eb3](https://github.com/sunchayn/nimbus/commit/47a5eb37e9160c04b9991ba18d88038357a4c0f9))
+
+
+### CI/CD
+
+* convert e2e bash scripts into console commands ([#87](https://github.com/sunchayn/nimbus/issues/87)) ([56bb780](https://github.com/sunchayn/nimbus/commit/56bb7805e0a3f2ecdf655617a440d09f3d3b1678))
+
 ## [0.6.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.5.1-alpha...v0.6.0-alpha) (2026-04-05)
 
 
