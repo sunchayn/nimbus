@@ -10,7 +10,14 @@ import { useEnvVariablesAwareString } from '@/composables/request/useEnvVariable
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
 import { EnvVariableCheckStatus } from '@/interfaces/common/env-vars';
 import { cn } from '@/utils/ui';
-import { computed, onMounted, ref, watch, type ComponentPublicInstance } from 'vue';
+import {
+    computed,
+    nextTick,
+    onMounted,
+    ref,
+    watch,
+    type ComponentPublicInstance,
+} from 'vue';
 
 defineOptions({
     inheritAttrs: false,
@@ -163,7 +170,9 @@ watch(internalRawValue, (newValue: string) => {
 });
 
 watch(internalRawValue, () => {
-    updateScrollMasks();
+    nextTick(() => {
+        updateScrollMasks();
+    });
 });
 
 /*
