@@ -26,12 +26,9 @@ export interface AppSwitchProps extends SwitchRootProps {
  * Component Setup.
  */
 
-const props = withDefaults(
-    defineProps<AppSwitchProps>(),
-    {
-        variant: 'compact',
-    }
-);
+const props = withDefaults(defineProps<AppSwitchProps>(), {
+    variant: 'compact',
+});
 const emits = defineEmits<SwitchRootEmits>();
 
 /*
@@ -39,7 +36,7 @@ const emits = defineEmits<SwitchRootEmits>();
  */
 
 const delegatedProps = computed(() => {
-    const { class: _, variant: __,  ...delegated } = props;
+    const { class: _, variant: __, ...delegated } = props;
 
     return delegated;
 });
