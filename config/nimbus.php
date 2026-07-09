@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Name
+    |--------------------------------------------------------------------------
+    |
+    | The name shown as the Nimbus brand heading in the UI. Defaults to your
+    | application's APP_NAME so the playground is badged with the host app;
+    | override with NIMBUS_APP_NAME or by editing this value directly.
+    |
+    */
+
+    'app_name' => env('NIMBUS_APP_NAME', env('APP_NAME', 'Nimbus')),
+
+    /*
+    |--------------------------------------------------------------------------
     | Default Application
     |--------------------------------------------------------------------------
     |
