@@ -43,6 +43,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Shared Collections
+    |--------------------------------------------------------------------------
+    |
+    | Controls how environment collections are persisted so a team can share
+    | them. The default "json" driver writes one readable JSON file per
+    | collection under the configured path, meant to be committed to git so
+    | collections travel with the repo (pull to receive, PR to review).
+    |
+    | The "driver" is resolved through the CollectionStoreContract binding, so
+    | you may register your own driver (e.g. database, remote service) without
+    | touching the frontend.
+    |
+    */
+
+    'collections' => [
+        'driver' => env('NIMBUS_COLLECTIONS_DRIVER', 'json'),
+        'path' => env('NIMBUS_COLLECTIONS_PATH', base_path('nimbus/collections')),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Configurations
     |--------------------------------------------------------------------------
     |

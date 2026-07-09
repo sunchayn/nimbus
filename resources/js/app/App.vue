@@ -3,10 +3,12 @@ import { AppSidebarProvider } from '@/components/base/sidebar';
 import { AppSonner } from '@/components/base/sonner';
 import ValueGenerator from '@/components/common/ValueGenerator/ValueGenerator.vue';
 import ScreenNavigationSidebar from '@/components/layout/ScreenNavigationSidebar.vue';
+import { useCollectionSync } from '@/composables/data/useCollectionSync';
 import { useSettingsStore } from '@/stores';
 import { onMounted, provide, ref, watch } from 'vue';
 
 const settingsStore = useSettingsStore();
+const collectionSync = useCollectionSync();
 
 const currentTheme = ref('');
 
@@ -41,6 +43,8 @@ function handleSystemChange(e: MediaQueryListEvent) {
 }
 
 onMounted(() => {
+    void collectionSync.init();
+
     applyTheme(settingsStore.preferences.theme);
 
     // Listen to system changes only when preference is system.

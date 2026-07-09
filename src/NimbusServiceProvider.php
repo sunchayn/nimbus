@@ -3,9 +3,12 @@
 namespace Sunchayn\Nimbus;
 
 use Illuminate\Container\Container;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Routing\Events\RouteMatched;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Sunchayn\Nimbus\Modules\Collections\Contracts\CollectionStoreContract;
+use Sunchayn\Nimbus\Modules\Collections\Stores\JsonFileCollectionStore;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Routes\RoutesProcessors\Strategies\AutoDetectRoutesProcessor;
@@ -58,6 +61,17 @@ class NimbusServiceProvider extends PackageServiceProvider
             return match ($routesProcessingStrategyEnum) {
                 RoutesProcessingStrategyEnum::OpenAPI => $container->make(OpenAPISchemaRoutesProcessor::class),
                 default => $container->make(AutoDetectRoutesProcessor::class),
+            };
+        });
+
+        $this->app->bind(CollectionStoreContract::class, function (Container $container): CollectionStoreContract {
+            $driver = config('nimbus.collections.driver', 'json');
+
+            return match ($driver) {
+                default => new JsonFileCollectionStore(
+                    $container->make(Filesystem::class),
+                    config('nimbus.collections.path'),
+                ),
             };
         });
     }

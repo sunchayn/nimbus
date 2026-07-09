@@ -8,6 +8,7 @@ export {
     useErrorStore,
     useSettingsStore,
     useSharedStateStore,
+    type EnvironmentCollection,
 } from './core';
 export { useValueGeneratorStore } from './generators';
 export { useRequestStore, useRequestsHistoryStore, useTabsStore } from './request';
