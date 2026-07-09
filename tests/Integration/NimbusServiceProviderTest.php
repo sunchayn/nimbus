@@ -10,6 +10,8 @@ use Illuminate\Routing\Route;
 use Mockery;
 use Orchestra\Testbench\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use Sunchayn\Nimbus\Modules\Collections\Contracts\CollectionStoreContract;
+use Sunchayn\Nimbus\Modules\Collections\Stores\JsonFileCollectionStore;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Routes\RoutesProcessors\Strategies\AutoDetectRoutesProcessor;
@@ -40,6 +42,33 @@ class NimbusServiceProviderTest extends TestCase
 
         $this->assertTrue($this->app->bound(IgnoredRoutesService::class));
         $this->assertTrue($this->app->bound(RoutesProcessorContract::class));
+        $this->assertTrue($this->app->bound(CollectionStoreContract::class));
+    }
+
+    public function test_it_binds_the_json_file_collection_store_by_default(): void
+    {
+        // Act
+
+        $store = $this->app->make(CollectionStoreContract::class);
+
+        // Assert
+
+        $this->assertInstanceOf(JsonFileCollectionStore::class, $store);
+    }
+
+    public function test_it_throws_for_an_unknown_collections_driver(): void
+    {
+        // Arrange
+
+        $this->app['config']->set('nimbus.collections.driver', 'database');
+
+        // Assert
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        // Act
+
+        $this->app->make(CollectionStoreContract::class);
     }
 
     public function test_it_does_not_register_services_when_disabled(): void

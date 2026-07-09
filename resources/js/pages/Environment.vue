@@ -3,6 +3,7 @@ import { AppButton } from '@/components/base/button';
 import {
     EnvironmentCollectionHeader,
     EnvironmentCollectionList,
+    EnvironmentCollectionRequests,
     EnvironmentVariablesEditor,
 } from '@/components/domain/Environment';
 import PageLayout from '@/components/layout/PageLayout.vue';
@@ -47,8 +48,8 @@ const environmentVariablesStore = useEnvironmentVariablesStore();
                             re-used across the application.
                         </p>
                         <p class="text-subtle-foreground text-xs leading-tight italic">
-                            Note: environment configuration is not shared between nimbus
-                            installations.
+                            When collection sync is available, collections are shared with
+                            your team as JSON files committed to the repository.
                         </p>
                     </div>
 
@@ -56,12 +57,16 @@ const environmentVariablesStore = useEnvironmentVariablesStore();
                         <!-- Sidebar: Collection List -->
                         <EnvironmentCollectionList />
 
-                        <!-- Detail: Variable Editor -->
-                        <EnvironmentVariablesEditor>
-                            <template #header>
-                                <EnvironmentCollectionHeader />
-                            </template>
-                        </EnvironmentVariablesEditor>
+                        <!-- Detail: Variable Editor + saved requests -->
+                        <div class="w-full">
+                            <EnvironmentVariablesEditor>
+                                <template #header>
+                                    <EnvironmentCollectionHeader />
+                                </template>
+                            </EnvironmentVariablesEditor>
+
+                            <EnvironmentCollectionRequests />
+                        </div>
                     </div>
                 </div>
             </div>

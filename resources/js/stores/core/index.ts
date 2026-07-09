@@ -3,7 +3,11 @@
  */
 
 export { useConfigStore } from './useConfigStore';
-export { useEnvironmentVariablesStore } from './useEnvironmentVariablesStore';
+export {
+    useEnvironmentVariablesStore,
+    type EnvironmentCollection,
+    type SavedRequest,
+} from './useEnvironmentVariablesStore';
 export { useErrorStore } from './useErrorStore';
 export { useSettingsStore } from './useSettingsStore';
 export { useSharedStateStore } from './useSharedStateStore';
