@@ -65,6 +65,7 @@ class JsonFileCollectionStore implements CollectionStoreContract
                 id: $collection->id,
                 name: $collection->name,
                 variables: $collection->variables,
+                requests: $collection->requests,
                 order: $order,
             );
 

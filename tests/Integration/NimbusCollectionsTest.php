@@ -71,6 +71,44 @@ class NimbusCollectionsTest extends TestCase
             ->assertJsonPath('collections.0.id', 'id-a');
     }
 
+    public function test_sync_persists_saved_requests_with_nested_body(): void
+    {
+        $payload = [
+            'collections' => [
+                [
+                    'id' => 'flow-1',
+                    'name' => 'Registration',
+                    'variables' => [],
+                    'requests' => [
+                        [
+                            'id' => 'req-1',
+                            'name' => 'Create member',
+                            'method' => 'POST',
+                            'endpoint' => '/v2/api/members',
+                            'payloadType' => 'json',
+                            'headers' => [['key' => 'Accept', 'value' => 'application/json']],
+                            'body' => ['POST' => ['json' => '{"email":"jane@example.test"}']],
+                            'authorization' => ['type' => 'bearer', 'value' => '{{gym_token}}'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $this->putJson(route('nimbus.api.collections.sync'), $payload);
+
+        $response->assertOk();
+        $response->assertJsonPath('collections.0.requests.0.name', 'Create member');
+        $response->assertJsonPath(
+            'collections.0.requests.0.body.POST.json',
+            '{"email":"jane@example.test"}',
+        );
+
+        $this->getJson(route('nimbus.api.collections.index'))
+            ->assertOk()
+            ->assertJsonPath('collections.0.requests.0.endpoint', '/v2/api/members');
+    }
+
     public function test_sync_requires_id_and_name_for_each_collection(): void
     {
         $response = $this->putJson(route('nimbus.api.collections.sync'), [

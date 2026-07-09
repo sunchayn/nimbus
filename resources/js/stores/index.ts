@@ -9,6 +9,7 @@ export {
     useSettingsStore,
     useSharedStateStore,
     type EnvironmentCollection,
+    type SavedRequest,
 } from './core';
 export { useValueGeneratorStore } from './generators';
 export { useRequestStore, useRequestsHistoryStore, useTabsStore } from './request';

@@ -55,6 +55,36 @@ class JsonFileCollectionStoreTest extends TestCase
         $this->assertSame('token', $all[0]->variables[0]['key']);
     }
 
+    public function test_it_round_trips_saved_requests_with_nested_body(): void
+    {
+        $store = $this->store();
+
+        $request = [
+            'id' => 'req-1',
+            'name' => 'Create member',
+            'method' => 'POST',
+            'endpoint' => '/v2/api/members',
+            'payloadType' => 'json',
+            'headers' => [['key' => 'Accept', 'value' => 'application/json']],
+            'body' => ['POST' => ['json' => '{"email":"jane@example.test"}']],
+            'authorization' => ['type' => 'bearer', 'value' => '{{gym_token}}'],
+        ];
+
+        $store->sync([
+            new CollectionData('flow-1', 'Registration', [], [$request]),
+        ]);
+
+        $all = $store->all();
+
+        $this->assertCount(1, $all);
+        $this->assertCount(1, $all[0]->requests);
+        $this->assertSame('Create member', $all[0]->requests[0]['name']);
+        $this->assertSame(
+            '{"email":"jane@example.test"}',
+            $all[0]->requests[0]['body']['POST']['json'],
+        );
+    }
+
     public function test_sync_removes_collections_no_longer_present(): void
     {
         $store = $this->store();
