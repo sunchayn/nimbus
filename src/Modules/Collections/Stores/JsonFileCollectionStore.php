@@ -16,20 +16,20 @@ use Sunchayn\Nimbus\Modules\Collections\DataTransferObjects\CollectionData;
 class JsonFileCollectionStore implements CollectionStoreContract
 {
     public function __construct(
-        private readonly Filesystem $files,
+        private readonly Filesystem $filesystem,
         private readonly string $directory,
     ) {}
 
     public function all(): array
     {
-        if (! $this->files->isDirectory($this->directory)) {
+        if (! $this->filesystem->isDirectory($this->directory)) {
             return [];
         }
 
         $collections = [];
 
-        foreach ($this->files->glob($this->directory.'/*.json') as $index => $path) {
-            $decoded = json_decode((string) $this->files->get($path), true);
+        foreach ($this->filesystem->glob($this->directory.'/*.json') as $index => $path) {
+            $decoded = json_decode((string) $this->filesystem->get($path), true);
 
             if (! is_array($decoded) || ! isset($decoded['id'])) {
                 continue;
@@ -48,7 +48,7 @@ class JsonFileCollectionStore implements CollectionStoreContract
 
     public function sync(array $collections): void
     {
-        $this->files->ensureDirectoryExists($this->directory);
+        $this->filesystem->ensureDirectoryExists($this->directory);
 
         $keep = [];
 
@@ -69,7 +69,7 @@ class JsonFileCollectionStore implements CollectionStoreContract
                 order: $order,
             );
 
-            $this->files->put(
+            $this->filesystem->put(
                 $this->directory.'/'.$filename,
                 json_encode(
                     $ordered->toStorageArray(),
@@ -102,9 +102,9 @@ class JsonFileCollectionStore implements CollectionStoreContract
      */
     private function pruneExcept(array $keep): void
     {
-        foreach ($this->files->glob($this->directory.'/*.json') as $path) {
+        foreach ($this->filesystem->glob($this->directory.'/*.json') as $path) {
             if (! isset($keep[basename($path)])) {
-                $this->files->delete($path);
+                $this->filesystem->delete($path);
             }
         }
     }

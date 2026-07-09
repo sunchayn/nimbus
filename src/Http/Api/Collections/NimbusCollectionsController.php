@@ -15,18 +15,18 @@ use Sunchayn\Nimbus\Modules\Collections\DataTransferObjects\CollectionData;
  */
 class NimbusCollectionsController
 {
-    public function index(CollectionStoreContract $store): JsonResponse
+    public function index(CollectionStoreContract $collectionStoreContract): JsonResponse
     {
-        return $this->respondWith($store->all());
+        return $this->respondWith($collectionStoreContract->all());
     }
 
     public function sync(
-        SyncCollectionsRequest $request,
-        CollectionStoreContract $store,
+        SyncCollectionsRequest $syncCollectionsRequest,
+        CollectionStoreContract $collectionStoreContract,
     ): JsonResponse {
-        $store->sync($request->collections());
+        $collectionStoreContract->sync($syncCollectionsRequest->collections());
 
-        return $this->respondWith($store->all());
+        return $this->respondWith($collectionStoreContract->all());
     }
 
     /**
@@ -36,7 +36,7 @@ class NimbusCollectionsController
     {
         return new JsonResponse([
             'collections' => array_map(
-                fn (CollectionData $collection): array => $collection->toFrontendArray(),
+                fn (CollectionData $collectionData): array => $collectionData->toFrontendArray(),
                 $collections,
             ),
         ]);

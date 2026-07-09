@@ -20,13 +20,13 @@ return [
     | Application Name
     |--------------------------------------------------------------------------
     |
-    | The name shown as the Nimbus brand heading in the UI. Defaults to your
-    | application's APP_NAME so the playground is badged with the host app;
-    | override with NIMBUS_APP_NAME or by editing this value directly.
+    | The name shown as the Nimbus brand heading in the UI. When null it falls
+    | back to your application's name (config('app.name')) so the playground is
+    | badged with the host app. Set a string here to override.
     |
     */
 
-    'app_name' => env('NIMBUS_APP_NAME', env('APP_NAME', 'Nimbus')),
+    'app_name' => null,
 
     /*
     |--------------------------------------------------------------------------
@@ -66,13 +66,14 @@ return [
     |
     | The "driver" is resolved through the CollectionStoreContract binding, so
     | you may register your own driver (e.g. database, remote service) without
-    | touching the frontend.
+    | touching the frontend. When "path" is null it defaults to
+    | base_path('nimbus/collections'), resolved at runtime.
     |
     */
 
     'collections' => [
-        'driver' => env('NIMBUS_COLLECTIONS_DRIVER', 'json'),
-        'path' => env('NIMBUS_COLLECTIONS_PATH', base_path('nimbus/collections')),
+        'driver' => 'json',
+        'path' => null,
     ],
 
     /*

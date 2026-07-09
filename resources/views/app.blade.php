@@ -40,7 +40,7 @@
         );
 
         $config = \Illuminate\Support\Js::from([
-            'appName' => config('nimbus.app_name', 'Nimbus'),
+            'appName' => config('nimbus.app_name') ?: config('app.name', 'Nimbus'),
             'basePath' => $appBasePath . '/' . ltrim(config('nimbus.prefix'), '/'),
             'routes' => isset($routes) ? json_encode($routes) : null,
             'headers' => isset($headers) ? json_encode($headers) : null,

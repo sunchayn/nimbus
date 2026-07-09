@@ -70,7 +70,7 @@ class NimbusServiceProvider extends PackageServiceProvider
             return match ($driver) {
                 default => new JsonFileCollectionStore(
                     $container->make(Filesystem::class),
-                    config('nimbus.collections.path'),
+                    config('nimbus.collections.path') ?? base_path('nimbus/collections'),
                 ),
             };
         });
