@@ -69,7 +69,7 @@ class OpenAPISchemaRoutesProcessorUnitTest extends TestCase
     {
         // Arrange
 
-        $openApiFile = getcwd().'/tests/Stubs/OpenApi/'.$filename;
+        $openApiFile = __DIR__ . '/Stubs/OpenApi/'.$filename;
 
         $extractedOpenApiRoute = new ExtractedRoute(
             uri: Endpoint::fromRaw('api/v1/users', 'api', true),
@@ -139,7 +139,7 @@ class OpenAPISchemaRoutesProcessorUnitTest extends TestCase
     {
         // Arrange
 
-        $missingFile = getcwd().'/tests/Stubs/OpenApi/missing.yaml';
+        $missingFile = __DIR__ . '/Stubs/OpenApi/missing.yaml';
 
         // Anticipate
 
@@ -168,7 +168,7 @@ class OpenAPISchemaRoutesProcessorUnitTest extends TestCase
     {
         // Arrange
 
-        $invalidFile = getcwd().'/tests/Stubs/OpenApi/invalid_extension.txt';
+        $invalidFile = __DIR__ . '/Stubs/OpenApi/invalid_extension.txt';
 
         $this->activeApplicationResolverMock
             ->shouldReceive('getOpenApiFiles')
@@ -195,7 +195,7 @@ class OpenAPISchemaRoutesProcessorUnitTest extends TestCase
     {
         // Arrange
 
-        $openApiFile = getcwd().'/tests/Stubs/OpenApi/valid_openapi.yaml';
+        $openApiFile = __DIR__ . '/Stubs/OpenApi/valid_openapi.yaml';
 
         $extractedOpenApiRoute = new ExtractedRoute(
             uri: Endpoint::fromRaw('api/v1/users', 'api', true),
@@ -261,7 +261,7 @@ class OpenAPISchemaRoutesProcessorUnitTest extends TestCase
     {
         // Arrange
 
-        $brokenFile = getcwd().'/tests/Stubs/OpenApi/broken.json';
+        $brokenFile = __DIR__ . '/Stubs/OpenApi/broken.json';
 
         $this->activeApplicationResolverMock
             ->shouldReceive('getOpenApiFiles')
@@ -286,7 +286,7 @@ class OpenAPISchemaRoutesProcessorUnitTest extends TestCase
     {
         // Arrange
 
-        $openApiFile = getcwd().'/tests/Stubs/OpenApi/valid_openapi.yaml';
+        $openApiFile = __DIR__ . '/Stubs/OpenApi/valid_openapi.yaml';
 
         $autoDetectedRoutes = ExtractedRoutesCollection::make([]);
 
