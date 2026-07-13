@@ -7,4 +7,4 @@ export {
     parseRouteExtractionException,
     processRoutesData,
     searchRoutes,
-} from './route-processor';
+} from './routeProcessor';

@@ -1,6 +1,6 @@
 import HistoryItem from '@/components/domain/Client/Response/ResponseStatus/History/HistoryItem.vue';
 import type { Request, Response } from '@/interfaces/http';
-import { createMockRequestLog } from '@/tests/_utils/test-factories';
+import { createMockRequestLog } from '@/tests/_utils/testFactories';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

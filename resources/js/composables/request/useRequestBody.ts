@@ -6,8 +6,8 @@ import {
     generateRandomPayload,
     serializeSchemaPayload,
 } from '@/utils/payload';
-import type { TypeShape } from '@/utils/request/content-type-header-generator';
-import { types } from '@/utils/request/content-type-header-generator';
+import type { TypeShape } from '@/utils/request/contentTypeHeaderGenerator';
+import { types } from '@/utils/request/contentTypeHeaderGenerator';
 import { type ComputedRef, type Ref, computed, onMounted, ref, watch } from 'vue';
 
 export interface UseRequestBodyResult {

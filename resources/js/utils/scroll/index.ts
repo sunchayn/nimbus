@@ -7,4 +7,4 @@ export {
     getElementVisibility,
     getMaskVisibility,
     getScrollBounds,
-} from './tab-scroll-utils';
+} from './tabScrollUtils';

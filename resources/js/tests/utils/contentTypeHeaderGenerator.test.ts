@@ -3,10 +3,10 @@ import {
     generateContentTypeHeader,
     getMimeTypeForPayloadType,
     types,
-} from '@/utils/request/content-type-header-generator';
+} from '@/utils/request/contentTypeHeaderGenerator';
 import { describe, expect, it } from 'vitest';
 
-describe('content-type-header-generator', () => {
+describe('contentTypeHeaderGenerator', () => {
     describe('types constant', () => {
         it('exports all payload types with correct structure', () => {
             expect(types).toHaveLength(4);

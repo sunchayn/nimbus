@@ -10,7 +10,7 @@ import type {
 import { useConfigStore, useEnvironmentVariablesStore } from '@/stores';
 import { buildRequestUrl } from '@/utils';
 import { convertPayloadToFormData, getStatusGroup } from '@/utils/http';
-import { generateContentTypeHeader } from '@/utils/request/content-type-header-generator';
+import { generateContentTypeHeader } from '@/utils/request/contentTypeHeaderGenerator';
 import type { AxiosError, AxiosResponse } from 'axios';
 import axios from 'axios';
 import { type DeepReadonly, type Ref, readonly, ref } from 'vue';
