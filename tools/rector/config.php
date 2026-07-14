@@ -29,4 +29,11 @@ return static function (RectorConfig $rectorConfig): void {
         SetList::PRIVATIZATION,
         SetList::TYPE_DECLARATION,
     ]);
+
+    $rectorConfig->skip([
+        \Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector::class => [
+            __DIR__.'/../../src/Modules/Relay/Responses/DumpAndDieResponse.php', // <- has a breaking change BC fix.
+        ],
+    ]);
+
 };
