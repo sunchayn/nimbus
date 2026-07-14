@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.6.2-alpha](https://github.com/sunchayn/nimbus/compare/v0.6.1-alpha...v0.6.2-alpha) (2026-07-14)
+
+
+### Bug Fixes
+
+* breaking change with l13.14.0 ([#98](https://github.com/sunchayn/nimbus/issues/98)) ([e766991](https://github.com/sunchayn/nimbus/commit/e76699132966428895adbc05653122bb62f2d6b6))
+
+
+### Maintenance Tasks
+
+* remove storybook and cleanup ([#96](https://github.com/sunchayn/nimbus/issues/96)) ([fe3d8bd](https://github.com/sunchayn/nimbus/commit/fe3d8bd6dc71df149ec7376e1658b04eeb075c16))
+* use consistent naming for FE files ([#97](https://github.com/sunchayn/nimbus/issues/97)) ([1204679](https://github.com/sunchayn/nimbus/commit/12046797b64280c3adb0d968ce31fa12f494889d))
+
+
+### CI/CD
+
+* periodically run php and e2e tests ([#101](https://github.com/sunchayn/nimbus/issues/101)) ([d12d3d4](https://github.com/sunchayn/nimbus/commit/d12d3d4a9bade61590a74b59659b589d3a366eec))
+* update deps ([#100](https://github.com/sunchayn/nimbus/issues/100)) ([b4218b0](https://github.com/sunchayn/nimbus/commit/b4218b06d931fa0af5ade6b6dcc0ae7154f889b8))
+
 ## [0.6.1-alpha](https://github.com/sunchayn/nimbus/compare/v0.6.0-alpha...v0.6.1-alpha) (2026-04-06)
 
 
