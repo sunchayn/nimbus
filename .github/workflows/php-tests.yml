@@ -4,12 +4,14 @@ on:
   pull_request:
   push:
     branches: [ base ]
+  schedule:
+    - cron: '0 0 * * 0'
 
 jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      php: ${{ steps.filter.outputs.php }}
+      php: ${{ steps.filter.outputs.php == 'true' || github.event_name == 'schedule' }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
