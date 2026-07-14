@@ -2,6 +2,6 @@
  * HTTP utilities for request/response handling
  */
 
-export { convertPayloadToFormData } from './form-data';
-export { normalizeHeaders } from './http-headers';
-export { getStatusGroup } from './http-status';
+export { convertPayloadToFormData } from './formData';
+export { normalizeHeaders } from './httpHeaders';
+export { getStatusGroup } from './httpStatus';

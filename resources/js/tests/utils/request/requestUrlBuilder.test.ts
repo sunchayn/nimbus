@@ -3,10 +3,10 @@ import { ParameterType } from '@/interfaces/ui';
 import {
     buildRequestUrl,
     isValidQueryParameter,
-} from '@/utils/request/request-url-builder';
+} from '@/utils/request/requestUrlBuilder';
 import { describe, expect, it } from 'vitest';
 
-describe('request-url-builder', () => {
+describe('requestUrlBuilder', () => {
     describe('isValidQueryParameter', () => {
         it('returns true for valid parameters with keys', () => {
             // Arrange

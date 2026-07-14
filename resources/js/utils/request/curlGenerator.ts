@@ -6,7 +6,7 @@ import type { PendingRequest } from '@/interfaces/http';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
 import { buildRequestUrl } from '@/utils';
-import { getMimeTypeForPayloadType } from '@/utils/request/content-type-header-generator';
+import { getMimeTypeForPayloadType } from '@/utils/request/contentTypeHeaderGenerator';
 
 /**
  * Result of cURL command generation.

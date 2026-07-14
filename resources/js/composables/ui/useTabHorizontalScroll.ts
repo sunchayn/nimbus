@@ -6,7 +6,7 @@ import {
     getMaskVisibility,
     getScrollBounds,
 } from '@/utils/scroll';
-import type { ScrollBounds } from '@/utils/scroll/tab-scroll-utils';
+import type { ScrollBounds } from '@/utils/scroll/tabScrollUtils';
 import { useDebounceFn } from '@vueuse/core';
 import {
     computed,

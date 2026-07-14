@@ -10,7 +10,7 @@ import {
 } from '@/utils/request';
 import { describe, expect, it, vi } from 'vitest';
 
-describe('request-utils', () => {
+describe('requestUtils', () => {
     it('selects JSON payload when schema has properties', () => {
         // Arrange
 

@@ -1,6 +1,6 @@
 import { useHttpClient } from '@/composables/request/useHttpClient';
 import { AuthorizationType } from '@/interfaces/generated';
-import { createMockRelayProxyResponse } from '@/tests/_utils/test-factories';
+import { createMockRelayProxyResponse } from '@/tests/_utils/testFactories';
 import axios from 'axios';
 import type { Mocked } from 'vitest';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
