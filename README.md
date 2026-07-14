@@ -51,7 +51,7 @@ For projects with formal documentation, Nimbus can consume OpenAPI (YAML/JSON) s
 
 ### 1. Requirements
 *   PHP 8.2+
-*   Laravel 10.x, 11.x, or 12.x
+*   Laravel 10.x, 11.x, 12.x, or 13.x
 
 ### 2. Composer Install
 ```bash
