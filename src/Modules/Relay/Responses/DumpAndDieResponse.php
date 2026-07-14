@@ -22,6 +22,11 @@ class DumpAndDieResponse extends Response
         return self::DUMP_AND_DIE_STATUS_CODE;
     }
 
+    public function status(): int
+    {
+        return self::DUMP_AND_DIE_STATUS_CODE;
+    }
+
     private function preDecodeBody(string $body): void
     {
         // Normally, we would overwrite the `->json` method. But there was a breaking change to the method in L12.48.
@@ -41,9 +46,10 @@ class DumpAndDieResponse extends Response
         ];
 
         // New property as part of v13.14.0. reminder, we are pretending to cache a decoded version here.
+        // @phpstan-ignore-next-line
         if (property_exists($this, 'decodedJson')) {
             $this->decodedJson = true;
-            $this->decodingFlags = self::$defaultJsonDecodingFlags; // @phpstan-ignore-line
+            $this->decodingFlags = self::$defaultJsonDecodingFlags;
         }
     }
 }

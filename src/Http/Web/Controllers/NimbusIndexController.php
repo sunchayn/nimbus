@@ -67,7 +67,7 @@ class NimbusIndexController
         ShareableLinkProcessorService $shareableLinkProcessorService,
         ActiveApplicationResolver $activeApplicationResolver
     ): ?array {
-        $shareParam = request()->get('share');
+        $shareParam = request()->input('share');
 
         if (! is_string($shareParam)) {
             return null;
@@ -115,7 +115,7 @@ class NimbusIndexController
 
     private function handleIgnoreRouteError(Actions\IgnoreRouteErrorAction $ignoreRouteErrorAction): void
     {
-        $ignoreData = request()->get('ignore');
+        $ignoreData = request()->input('ignore');
 
         if ($ignoreData === null) {
             return;
