@@ -43,7 +43,7 @@ class DumpAndDieResponse extends Response
         // New property as part of v13.14.0. reminder, we are pretending to cache a decoded version here.
         if (property_exists($this, 'decodedJson')) {
             $this->decodedJson = true;
-            $this->decodingFlags = self::$defaultJsonDecodingFlags;
+            $this->decodingFlags = self::$defaultJsonDecodingFlags; // @phpstan-ignore-line
         }
     }
 }
