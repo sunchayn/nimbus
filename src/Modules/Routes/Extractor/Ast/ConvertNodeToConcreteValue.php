@@ -162,7 +162,7 @@ class ConvertNodeToConcreteValue
     {
         return array_reduce(
             $interpolatedString->parts,
-            fn ($carry, $current): string => $carry.self::process($current, $variablesContext),
+            fn ($carry, \PhpParser\Node $current): string => $carry.self::process($current, $variablesContext),
             initial: '',
         );
     }

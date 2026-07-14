@@ -69,7 +69,7 @@ class RequestRelayAction
         $queryParameters = $requestRelayData->queryParameters;
         $requestBody = $requestRelayData->body;
 
-        if (is_array($requestBody) && in_array($requestRelayData->method, ['get', 'head'])) {
+        if (is_array($requestBody) && in_array($requestRelayData->method, ['get', 'head'], true)) {
             $queryParameters = array_merge(
                 $queryParameters,
                 $requestBody,

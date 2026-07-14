@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Modules\Relay\Parsers\VarDumpParser\Enums;
 
 enum DumpValueTypeEnum: string

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Modules\Routes\ValueObjects;
 
 use Illuminate\Support\Str;

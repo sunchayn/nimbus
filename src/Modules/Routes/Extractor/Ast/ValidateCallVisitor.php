@@ -121,7 +121,7 @@ class ValidateCallVisitor extends NodeVisitorAbstract
             return false;
         }
 
-        if (! in_array($expr->name->toString(), self::SUPPORTED_VALIDATION_METHODS)) {
+        if (! in_array($expr->name->toString(), self::SUPPORTED_VALIDATION_METHODS, true)) {
             return false;
         }
 

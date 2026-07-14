@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Modules\Schemas\Contracts;
 
 use Sunchayn\Nimbus\Modules\Schemas\Enums\SchemaPropertyType;

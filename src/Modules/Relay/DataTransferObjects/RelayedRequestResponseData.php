@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Modules\Relay\DataTransferObjects;
 
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;

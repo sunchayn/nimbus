@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Modules\Relay\Authorization\Contracts;
 
 use Illuminate\Contracts\Auth\Authenticatable;
