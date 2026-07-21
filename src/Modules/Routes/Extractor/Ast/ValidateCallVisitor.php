@@ -7,8 +7,11 @@ use Illuminate\Support\Arr;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\NodeVisitor;
 use PhpParser\NodeVisitorAbstract;
@@ -35,6 +38,8 @@ class ValidateCallVisitor extends NodeVisitorAbstract
     /** @var array<string, Node\Stmt\ClassMethod> */
     private array $classMethodNodes = [];
 
+    private ?string $currentClassName = null;
+
     private ?Ruleset $rules = null;
 
     /** @var array<string, mixed> Variables defined within the method */
@@ -47,9 +52,12 @@ class ValidateCallVisitor extends NodeVisitorAbstract
 
     public function beforeTraverse(array $nodes): array
     {
+        // Resolve names first so self/static become the enclosing FQCN.
+        $nodes = $this->qualifyClassTypeHinting($nodes);
+
         $this->gatherClassMethods($nodes);
 
-        return $this->qualifyClassTypeHinting($nodes);
+        return $nodes;
     }
 
     public function getRules(): Ruleset
@@ -173,9 +181,13 @@ class ValidateCallVisitor extends NodeVisitorAbstract
             return;
         }
 
-        $this->rules = Ruleset::fromLaravelRules(
-            ConvertNodeToConcreteValue::process($argNode, $this->context)
-        );
+        $rules = ConvertNodeToConcreteValue::process($argNode, $this->context);
+
+        if (! is_array($rules)) {
+            return;
+        }
+
+        $this->rules = Ruleset::fromLaravelRules($rules);
     }
 
     private function extractValidationRulesArgument(MethodCall $methodCall, ?string $methodName): ?Node
@@ -188,19 +200,53 @@ class ValidateCallVisitor extends NodeVisitorAbstract
     }
 
     /**
-     * @phpstan-assert-if-true MethodCall $argNode
+     * @phpstan-assert-if-true MethodCall|StaticCall $argNode
      */
     private function isNestedMethodCall(Node $argNode): bool
     {
-        if (! ($argNode instanceof MethodCall)) {
+        if ($argNode instanceof MethodCall) {
+            if (! ($argNode->name instanceof Identifier)) {
+                return false;
+            }
+
+            return array_key_exists($argNode->name->name, $this->classMethodNodes);
+        }
+
+        // e.g. $request->validate(self::getValidationRules())
+        if ($argNode instanceof StaticCall) {
+            if (! ($argNode->name instanceof Identifier) || ! ($argNode->class instanceof Name)) {
+                return false;
+            }
+
+            if (! array_key_exists($argNode->name->name, $this->classMethodNodes)) {
+                return false;
+            }
+
+            return $this->isCurrentClassReference($argNode->class);
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether a static call targets the controller under analysis.
+     *
+     * NameResolver rewrites self/static to the FQCN; accept both so helpers like
+     * self::getValidationRules() can be extracted via AST without invoking them.
+     */
+    private function isCurrentClassReference(Name $name): bool
+    {
+        $resolved = ltrim($name->toString(), '\\');
+
+        if (in_array(strtolower($resolved), ['self', 'static'], true)) {
+            return true;
+        }
+
+        if ($this->currentClassName === null) {
             return false;
         }
 
-        if (! ($argNode->name instanceof Identifier)) {
-            return false;
-        }
-
-        return array_key_exists($argNode->name->name, $this->classMethodNodes);
+        return strcasecmp($resolved, ltrim($this->currentClassName, '\\')) === 0;
     }
 
     private function processNestedMethodCall(string $methodName): void
@@ -230,6 +276,7 @@ class ValidateCallVisitor extends NodeVisitorAbstract
             return;
         }
 
+        // isArrayReturn() already guarantees an array literal; process() keeps it as array.
         $this->rules = Ruleset::fromLaravelRules(
             ConvertNodeToConcreteValue::process($returnStatement->expr, $this->context)
         );
@@ -261,7 +308,13 @@ class ValidateCallVisitor extends NodeVisitorAbstract
 
     private function storeVariableAssignment(Assign $assign): void
     {
-        if ($assign->expr instanceof MethodCall) {
+        // Skip calls/instantiation used only for variable context — evaluating them
+        // would run application code (e.g. User::create) during schema extraction.
+        if (
+            $assign->expr instanceof MethodCall
+            || $assign->expr instanceof StaticCall
+            || $assign->expr instanceof New_
+        ) {
             return;
         }
 
@@ -290,6 +343,13 @@ class ValidateCallVisitor extends NodeVisitorAbstract
 
         if ($classNode === null) {
             return;
+        }
+
+        // Prefer the NameResolver-provided FQCN when present.
+        if (isset($classNode->namespacedName)) {
+            $this->currentClassName = $classNode->namespacedName->toString();
+        } elseif ($classNode->name !== null) {
+            $this->currentClassName = $classNode->name->toString();
         }
 
         foreach ($classNode->stmts as $stmt) {

@@ -109,7 +109,20 @@ class ConvertNodeToConcreteValue
             return null;
         }
 
-        return $staticCall->class->name::{$staticCall->name->name}(...$arguments);
+        $className = $staticCall->class->name;
+        $methodName = $staticCall->name->name;
+
+        // Relative keywords only resolve inside a class scope; invoking them here fatals.
+        if (self::isUnresolvableClassName($className)) {
+            return null;
+        }
+
+        // Skip missing / non-callable targets so extraction never fatals on app code.
+        if (! is_callable([$className, $methodName])) {
+            return null;
+        }
+
+        return $className::{$methodName}(...$arguments);
     }
 
     /**
@@ -139,7 +152,22 @@ class ConvertNodeToConcreteValue
             return null;
         }
 
-        return new $new->class->name(...$arguments);
+        $className = $new->class->name;
+
+        // Relative keywords and missing classes would fatal outside a class scope.
+        if (self::isUnresolvableClassName($className) || ! class_exists($className)) {
+            return null;
+        }
+
+        return new $className(...$arguments);
+    }
+
+    /**
+     * Detects relative class keywords that cannot be resolved during AST evaluation.
+     */
+    private static function isUnresolvableClassName(string $className): bool
+    {
+        return in_array(strtolower($className), ['static', 'self', 'parent'], true);
     }
 
     private static function resolveConstant(Node\Expr\ConstFetch $constFetch): mixed
