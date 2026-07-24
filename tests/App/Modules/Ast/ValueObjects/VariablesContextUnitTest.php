@@ -85,5 +85,4 @@ class VariablesContextUnitTest extends TestCase
 
         $this->assertEquals(['a', 'b'], $context->get('items')?->getValue());
     }
-
 }
