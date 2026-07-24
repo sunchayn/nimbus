@@ -184,6 +184,8 @@ The Response Viewer displays detailed information about API responses.
 **Features:**
 - Collapsible sections for better organization.
 - Copy response body to clipboard.
+- Download raw response bodies as files with appropriate extensions based on Content-Type.
+- Download the response type shape resolved via static analysis of controllers and resources.
 - Pretty-printed JSON for readability.
 
 #### Cookie Inspection
@@ -239,6 +241,15 @@ Nimbus keeps a log of every request you send, allowing you to quickly "rewind" t
 3. Click a log entry to restore its state into the Request Builder.
 4. Use the "Clear History" button to purge your session logs.
 
+#### Downloading Responses
+
+On the response tab, you can download the response body (as is) as a file. The extension will be inherited from the `Content-Type` header.
+
+You can also download the response type shape* resolved via static analysis of controllers and resources.
+
+_*This feature is only available for `application/json` responses._
+
+![Download Responses](./assets/response-download.png)
 ---
 
 ## Authentication

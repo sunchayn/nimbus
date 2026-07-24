@@ -114,6 +114,9 @@ class ExtractApplicationRoutesAction
             uri: $endpoint,
             methods: $methods,
             schema: $schema,
+            metadata: array_filter([
+                'name' => $route->getName(),
+            ]),
             keywords: $keywords,
         );
     }

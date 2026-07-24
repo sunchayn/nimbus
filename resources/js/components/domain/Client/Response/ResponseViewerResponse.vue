@@ -13,9 +13,11 @@ import {
 } from '@/components/base/tabs';
 import { AppTooltipWrapper } from '@/components/base/tooltip';
 import ResponseBody from '@/components/domain/Client/Response/ResponseBody/ResponseBody.vue';
+import ResponseDownloadDropdown from '@/components/domain/Client/Response/ResponseBody/ResponseDownloadDropdown.vue';
 import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDumpAndDie.vue';
 import ResponseCookies from '@/components/domain/Client/Response/ResponseCookies/ResponseCookies.vue';
 import ResponseHeaders from '@/components/domain/Client/Response/ResponseHeaders/ResponseHeaders.vue';
+import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
 import type { RequestLog } from '@/interfaces/history/logs';
 import { STATUS } from '@/interfaces/http';
@@ -124,7 +126,7 @@ const handleTabClick = (event: Event) => {
                     />
                 </div>
 
-                <div class="pr-panel">
+                <div class="pr-panel flex items-center gap-2">
                     <AppTooltipWrapper
                         v-if="showTransactionAlert"
                         value="Changes were automatically rolled back for this request"
@@ -142,6 +144,12 @@ const handleTabClick = (event: Event) => {
                 value="response"
                 class="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden"
             >
+                <PanelSubHeader class="border-b">
+                    <template #toolbox>
+                        <ResponseDownloadDropdown :response="lastLog" />
+                    </template>
+                </PanelSubHeader>
+
                 <AppScrollArea
                     v-if="lastLog?.response?.status !== STATUS.DUMP_AND_DIE"
                     class="min-h-0 flex-1"

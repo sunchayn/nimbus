@@ -189,6 +189,19 @@ flowchart TD
 - **Property building** - Convert validation rules to JSON Schema properties.
 - **Recursive processing** - Handle deeply nested structures.
 
+### Response Shape Extraction Process
+
+The response shape extraction process resolves the JSON type structure of a route's response. It is triggered asynchronously when the user trigger the response shape download (from the response viewer tab).
+
+#### Shape Extraction Strategies
+The system uses the Strategy pattern to inspect the controller and extract the shape using static analysis:
+
+1. **JsonResource Strategy** - Parses the controller return statement to identify Laravel extractable classes (like Spatie Data or JSON Resource).
+2. **Raw JSON Response Strategy** - Parses the controller method body to find returned array literals or `response()->json(...)` calls. It infers types from literal values.
+3. **Fallback Strategy** - Used if static analysis does not resolve the shape. It parses the actual response JSON body directly and maps types (string, number, boolean, object, array, null) to JSON Schema.
+
+All schema properties built during the response shape extraction process are marked as required by default.
+
 ### Request Flow
 
 How user interactions translate to API calls through the relay system.

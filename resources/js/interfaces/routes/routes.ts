@@ -1,5 +1,13 @@
 import type { JSONSchema7 } from 'json-schema';
 
+export interface RouteMetadata {
+    name?: string;
+    operationId?: string;
+    isMissingImplementation?: boolean;
+    isUndocumented?: boolean;
+    [key: string]: unknown;
+}
+
 export type RouteDefinition = {
     endpoint: string;
     method: string;
@@ -8,7 +16,7 @@ export type RouteDefinition = {
         extractionErrors: string | null;
     };
     shortEndpoint: string;
-    metadata?: Record<string, unknown>;
+    metadata?: RouteMetadata;
     keywords?: string[];
 };
 

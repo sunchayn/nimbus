@@ -186,5 +186,39 @@ class InferSchemaFromArrayAstActionUnitTest extends TestCase
                 'additionalProperties' => false,
             ],
         ];
+
+        yield 'array with list array elements' => [
+            'phpCode' => <<<'PHP'
+                <?php
+                $x = [
+                    'tags' => ['api', 'nimbus', 'testing'],
+                    'scores' => [10, 20, 30],
+                ];
+                PHP,
+            'context' => null,
+            'expectedSchemaArray' => [
+                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                'type' => 'object',
+                'properties' => [
+                    'tags' => [
+                        'type' => 'array',
+                        'items' => [
+                            'type' => 'string',
+                        ],
+                    ],
+                    'scores' => [
+                        'type' => 'array',
+                        'items' => [
+                            'type' => 'integer',
+                        ],
+                    ],
+                ],
+                'required' => [
+                    'tags',
+                    'scores',
+                ],
+                'additionalProperties' => false,
+            ],
+        ];
     }
 }
