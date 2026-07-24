@@ -31,6 +31,11 @@ interface SchemaPropertyInterface
     public function getType(): SchemaPropertyType;
 
     /**
+     * Check if the property is nullable.
+     */
+    public function isNullable(): bool;
+
+    /**
      * Convert to standard JSON Schema format.
      *
      * This produces a pure JSON Schema Draft 2020-12 compliant structure

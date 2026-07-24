@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Tests\App\Modules\Schemas\ValueObjects;
 
 use Generator;
@@ -15,14 +17,15 @@ class StringSchemaPropertyUnitTest extends TestCase
 {
     public function test_it_gets_basic_properties(): void
     {
-        // Arrange & Act
+        // Arrange
 
-        $property = new StringSchemaProperty(name: 'first_name', required: true);
+        $property = new StringSchemaProperty(name: 'first_name', required: true, nullable: true);
 
         // Assert
 
         $this->assertEquals('first_name', $property->getName());
         $this->assertTrue($property->isRequired());
+        $this->assertTrue($property->isNullable());
         $this->assertEquals(SchemaPropertyType::STRING, $property->getType());
     }
 
@@ -44,6 +47,13 @@ class StringSchemaPropertyUnitTest extends TestCase
             'property' => new StringSchemaProperty(name: 'username'),
             'expected' => [
                 'type' => 'string',
+            ],
+        ];
+
+        yield 'nullable string' => [
+            'property' => new StringSchemaProperty(name: 'description', nullable: true),
+            'expected' => [
+                'type' => ['string', 'null'],
             ],
         ];
 

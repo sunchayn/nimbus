@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Modules\Schemas\ValueObjects;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
-use Sunchayn\Nimbus\Modules\Routes\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
 
 /**
@@ -38,6 +39,28 @@ class Schema implements Arrayable
         return new self(
             properties: [],
         );
+    }
+
+    /**
+     * @param  array<string, SchemaPropertyInterface|Schema>  $map
+     */
+    public static function fromArrayMap(array $map): self
+    {
+        $properties = [];
+
+        foreach ($map as $key => $item) {
+            if ($item instanceof SchemaPropertyInterface) {
+                $properties[] = $item;
+            } elseif ($item instanceof Schema) {
+                $properties[] = new ObjectSchemaProperty(
+                    name: (string) $key,
+                    required: true,
+                    schema: $item,
+                );
+            }
+        }
+
+        return new self($properties);
     }
 
     public function isEmpty(): bool

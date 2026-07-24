@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Tests\App\Modules\Schemas\ValueObjects;
 
 use Generator;
@@ -14,14 +16,15 @@ class NumberSchemaPropertyUnitTest extends TestCase
 {
     public function test_it_gets_basic_properties(): void
     {
-        // Arrange & Act
+        // Arrange
 
-        $property = new NumberSchemaProperty(name: 'price', required: true);
+        $property = new NumberSchemaProperty(name: 'price', required: true, nullable: true);
 
         // Assert
 
         $this->assertEquals('price', $property->getName());
         $this->assertTrue($property->isRequired());
+        $this->assertTrue($property->isNullable());
         $this->assertEquals(SchemaPropertyType::NUMBER, $property->getType());
     }
 
@@ -43,6 +46,13 @@ class NumberSchemaPropertyUnitTest extends TestCase
             'property' => new NumberSchemaProperty(name: 'weight'),
             'expected' => [
                 'type' => 'number',
+            ],
+        ];
+
+        yield 'nullable number' => [
+            'property' => new NumberSchemaProperty(name: 'weight', nullable: true),
+            'expected' => [
+                'type' => ['number', 'null'],
             ],
         ];
 

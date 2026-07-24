@@ -24,6 +24,7 @@ class StringSchemaProperty implements SchemaPropertyInterface
     public function __construct(
         private readonly string $name,
         private readonly bool $required = false,
+        private readonly bool $nullable = false,
         private readonly ?StringFormat $stringFormat = null,
         private readonly ?array $enum = null,
         private readonly ?int $minLength = null,
@@ -42,6 +43,11 @@ class StringSchemaProperty implements SchemaPropertyInterface
         return $this->required;
     }
 
+    public function isNullable(): bool
+    {
+        return $this->nullable;
+    }
+
     public function getType(): SchemaPropertyType
     {
         return SchemaPropertyType::STRING;
@@ -50,7 +56,7 @@ class StringSchemaProperty implements SchemaPropertyInterface
     public function toJsonSchema(): array
     {
         $properties = [
-            'type' => $this->getType()->value,
+            'type' => $this->nullable ? [$this->getType()->value, 'null'] : $this->getType()->value,
         ];
 
         if ($this->stringFormat instanceof \Sunchayn\Nimbus\Modules\Schemas\Enums\StringFormat) {

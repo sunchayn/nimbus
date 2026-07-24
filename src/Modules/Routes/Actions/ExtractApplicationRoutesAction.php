@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Modules\Routes\Actions;
 
 use Illuminate\Routing\Route;
@@ -7,11 +9,11 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Psr\Log\LoggerInterface;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
+use Sunchayn\Nimbus\Modules\Extractor\Services\Request\RequestSchemaExtractor;
 use Sunchayn\Nimbus\Modules\Routes\Collections\ExtractedRoutesCollection;
 use Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionException;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionInternalException;
-use Sunchayn\Nimbus\Modules\Routes\Extractor\SchemaExtractor;
 use Sunchayn\Nimbus\Modules\Routes\Factories\ExtractableRouteFactory;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
 use Sunchayn\Nimbus\Modules\Routes\ValueObjects\Endpoint;
@@ -22,11 +24,13 @@ use Throwable;
  *
  * Filters routes by prefix, excludes ignored routes, and transforms each
  * route into a structured configuration with extracted validation schemas.
+ *
+ * @final
  */
 class ExtractApplicationRoutesAction
 {
     public function __construct(
-        protected SchemaExtractor $schemaExtractor,
+        protected RequestSchemaExtractor $schemaExtractor,
         protected ExtractableRouteFactory $routeFactory,
         protected IgnoredRoutesService $ignoredRoutesService,
         protected ActiveApplicationResolver $activeApplicationResolver,
@@ -66,6 +70,8 @@ class ExtractApplicationRoutesAction
     protected function transformRoute(Route $route): ExtractedRoute
     {
         try {
+            // The factory returns null for closure-based or non-analysable routes.
+            // The schema extractor handles null gracefully by returning Schema::empty().
             $extractableRoute = $this->routeFactory->fromLaravelRoute($route);
 
             $schema = $this->schemaExtractor->extract($extractableRoute);
@@ -81,8 +87,8 @@ class ExtractApplicationRoutesAction
                 throwable: $throwable,
                 routeUri: $route->uri(),
                 routeMethods: $route->methods(),
-                controllerClass: $extractableRoute->controllerClass ?? null,
-                controllerMethod: $extractableRoute->controllerMethod ?? null,
+                controllerClass: $route->getControllerClass(),
+                controllerMethod: $route->getActionMethod(),
             );
         }
 

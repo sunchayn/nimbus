@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Tests\App\Modules\Schemas\ValueObjects;
 
 use Generator;
@@ -8,8 +10,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use Sunchayn\Nimbus\Modules\Routes\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 
@@ -301,6 +303,95 @@ class SchemaUnitTest extends TestCase
                     'email' => ['type' => 'string', 'format' => 'email'],
                 ],
                 'required' => ['id', 'name', 'email'],
+                'additionalProperties' => false,
+            ],
+        ];
+    }
+
+    #[DataProvider('fromArrayMapDataProvider')]
+    public function test_creates_schema_from_array_map(array $map, array $expectedArray): void
+    {
+        // Act
+
+        $schema = Schema::fromArrayMap($map);
+
+        // Assert
+
+        $this->assertEquals($expectedArray, $schema->toArray());
+    }
+
+    public static function fromArrayMapDataProvider(): Generator
+    {
+        yield 'map with SchemaPropertyInterface' => [
+            'map' => [
+                'name' => new StringSchemaProperty('name'),
+            ],
+            'expectedArray' => [
+                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                'type' => 'object',
+                'properties' => [
+                    'name' => [
+                        'type' => 'string',
+                    ],
+                ],
+                'required' => [],
+                'additionalProperties' => false,
+            ],
+        ];
+
+        yield 'map with nested Schema' => [
+            'map' => [
+                'user' => new Schema([new StringSchemaProperty('email')]),
+            ],
+            'expectedArray' => [
+                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                'type' => 'object',
+                'properties' => [
+                    'user' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'email' => [
+                                'type' => 'string',
+                            ],
+                        ],
+                        'required' => [],
+                        'additionalProperties' => false,
+                    ],
+                ],
+                'required' => [
+                    'user',
+                ],
+                'additionalProperties' => false,
+            ],
+        ];
+
+        yield 'map with mixed entries filtering non-schema items' => [
+            'map' => [
+                'name' => new StringSchemaProperty('name'),
+                'sub' => new Schema([new StringSchemaProperty('title')]),
+                'ignored' => 'not_a_schema',
+            ],
+            'expectedArray' => [
+                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                'type' => 'object',
+                'properties' => [
+                    'name' => [
+                        'type' => 'string',
+                    ],
+                    'sub' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'title' => [
+                                'type' => 'string',
+                            ],
+                        ],
+                        'required' => [],
+                        'additionalProperties' => false,
+                    ],
+                ],
+                'required' => [
+                    'sub',
+                ],
                 'additionalProperties' => false,
             ],
         ];

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Modules\Schemas\Collections;
 
 use Illuminate\Support\Collection;
@@ -28,7 +30,7 @@ class Ruleset extends Collection
     {
         parent::__construct($items);
 
-        if (! $this->every(fn (mixed $item): true => is_array($item))) { // @phpstan-ignore-line this is a runtime check.
+        if (! $this->every(fn (mixed $item): bool => is_array($item))) { // @phpstan-ignore-line this is a runtime check.
             throw new InvalidArgumentException('Ruleset items must be an array');
         }
     }
