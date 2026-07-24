@@ -17,6 +17,7 @@ class BooleanSchemaProperty implements SchemaPropertyInterface
     public function __construct(
         private readonly string $name,
         private readonly bool $required = false,
+        private readonly bool $nullable = false,
     ) {}
 
     public function getName(): string
@@ -29,6 +30,11 @@ class BooleanSchemaProperty implements SchemaPropertyInterface
         return $this->required;
     }
 
+    public function isNullable(): bool
+    {
+        return $this->nullable;
+    }
+
     public function getType(): SchemaPropertyType
     {
         return SchemaPropertyType::BOOLEAN;
@@ -37,7 +43,7 @@ class BooleanSchemaProperty implements SchemaPropertyInterface
     public function toJsonSchema(): array
     {
         return [
-            'type' => $this->getType()->value,
+            'type' => $this->nullable ? [$this->getType()->value, 'null'] : $this->getType()->value,
         ];
     }
 }

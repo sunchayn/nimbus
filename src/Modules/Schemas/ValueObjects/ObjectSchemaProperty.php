@@ -23,6 +23,7 @@ class ObjectSchemaProperty implements SchemaPropertyInterface
     public function __construct(
         private readonly string $name,
         private readonly bool $required = false,
+        private readonly bool $nullable = false,
         private readonly ?Schema $schema = null,
         private readonly bool $additionalProperties = false,
     ) {}
@@ -35,6 +36,11 @@ class ObjectSchemaProperty implements SchemaPropertyInterface
     public function isRequired(): bool
     {
         return $this->required;
+    }
+
+    public function isNullable(): bool
+    {
+        return $this->nullable;
     }
 
     /**
@@ -53,7 +59,7 @@ class ObjectSchemaProperty implements SchemaPropertyInterface
     public function toJsonSchema(): array
     {
         $result = [
-            'type' => $this->getType()->value,
+            'type' => $this->nullable ? [$this->getType()->value, 'null'] : $this->getType()->value,
         ];
 
         if ($this->schema instanceof \Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema && ! $this->schema->isEmpty()) {

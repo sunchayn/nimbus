@@ -1,25 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Tests\App\Modules\Routes\Factories;
 
-use Closure;
 use Generator;
 use Illuminate\Routing\Route;
 use Mockery;
-use PhpParser\Parser\Php8;
-use PhpParser\ParserFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
-use ReflectionParameter;
-use RuntimeException;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\InvalidRouteDefinitionException;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionException;
 use Sunchayn\Nimbus\Modules\Routes\Factories\ExtractableRouteFactory;
 use Sunchayn\Nimbus\Tests\App\Modules\Routes\Factories\Stubs\ExtractableControllerStub;
-use Sunchayn\Nimbus\Tests\App\Modules\Routes\Factories\Stubs\RequestStub;
 
 #[CoversClass(ExtractableRouteFactory::class)]
 #[CoversClass(InvalidRouteDefinitionException::class)]
@@ -42,65 +36,30 @@ class ExtractableRouteFactoryUnitTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_it_creates_extractable_route_from_valid_controller_route(): void
+    public function test_it_returns_route_from_valid_controller_route(): void
     {
         // Arrange
 
         $route = new Route(
             ['GET'],
             '/users',
-            ['uses' => ExtractableControllerStub::class.'@index'],
+            [
+                'uses' => ExtractableControllerStub::class.'@index',
+                'controller' => ExtractableControllerStub::class.'@index',
+            ],
         );
 
         // Act
 
-        $extractableRoute = $this->factory->fromLaravelRoute($route);
+        $result = $this->factory->fromLaravelRoute($route);
 
         // Assert
 
-        $this->assertEquals('index', $extractableRoute->methodName);
-
-        $this->assertEquals(
-            ExtractableControllerStub::class,
-            $extractableRoute->controllerClass,
-        );
-
-        $this->assertEquals('index', $extractableRoute->controllerMethod);
-
-        $this->assertEquals([], $extractableRoute->parameters);
-
-        $this->assertParsedCodeEquals(
-            __DIR__.'/Stubs/ExtractableControllerStub.php',
-            $extractableRoute->codeParser,
-        );
+        // The factory should pass the original Route back unchanged.
+        $this->assertSame($route, $result);
     }
 
-    public function test_it_extracts_method_parameters_correctly(): void
-    {
-        // Arrange
-
-        $route = new Route(
-            ['POST'],
-            '/users',
-            action: ['uses' => ExtractableControllerStub::class.'@store'] // <- this method has parameters
-        );
-
-        // Act
-
-        $extractableRoute = $this->factory->fromLaravelRoute($route);
-
-        // Assert
-
-        $this->assertCount(1, $extractableRoute->parameters);
-
-        $this->assertInstanceOf(ReflectionParameter::class, $extractableRoute->parameters[0]);
-
-        $this->assertSame('request', $extractableRoute->parameters[0]->getName());
-
-        $this->assertSame(RequestStub::class, $extractableRoute->parameters[0]->getType()->getName());
-    }
-
-    public function test_it_returns_empty_route_for_closure_based_routes(): void
+    public function test_it_returns_null_for_closure_based_routes(): void
     {
         // Arrange
 
@@ -112,19 +71,11 @@ class ExtractableRouteFactoryUnitTest extends TestCase
 
         // Act
 
-        $extractableRoute = $this->factory->fromLaravelRoute($route);
+        $result = $this->factory->fromLaravelRoute($route);
 
         // Assert
 
-        $this->assertEmpty($extractableRoute->parameters);
-
-        $this->assertEmpty(($extractableRoute->codeParser)());
-
-        $this->assertNull($extractableRoute->methodName);
-
-        $this->assertNull($extractableRoute->controllerClass);
-
-        $this->assertNull($extractableRoute->controllerMethod);
+        $this->assertNull($result);
     }
 
     #[DataProvider('invalidRoutesDataProvider')]
@@ -139,9 +90,12 @@ class ExtractableRouteFactoryUnitTest extends TestCase
     ): void {
         // Act
 
+        $actualException = null;
+
         try {
             $this->factory->fromLaravelRoute($route);
-        } catch (RouteExtractionException $actualException) {
+        } catch (RouteExtractionException $exception) {
+            $actualException = $exception;
         }
 
         // Assert
@@ -172,7 +126,6 @@ class ExtractableRouteFactoryUnitTest extends TestCase
             ],
             $actualException->getRouteContext(),
         );
-
     }
 
     public static function invalidRoutesDataProvider(): Generator
@@ -198,12 +151,12 @@ class ExtractableRouteFactoryUnitTest extends TestCase
         ];
 
         yield 'controller class doesnt exist' => [
-            'route' => new Route(methods: ['GET'], uri: '/invalid-3', action: ['uses' => 'App\Http\Controllers\NonExistentController@index']),
+            'route' => new Route(methods: ['GET'], uri: '/invalid-3', action: ['uses' => 'App\\Http\\Controllers\\NonExistentController@index']),
             'expectedException' => InvalidRouteDefinitionException::class,
-            'expectedExceptionMessage' => "Controller method 'index' not found in class 'App\Http\Controllers\NonExistentController' for route 'invalid-3'.",
-            'expectedControllerClass' => 'App\Http\Controllers\NonExistentController',
+            'expectedExceptionMessage' => "Controller method 'index' not found in class 'App\\Http\\Controllers\\NonExistentController' for route 'invalid-3'.",
+            'expectedControllerClass' => 'App\\Http\\Controllers\\NonExistentController',
             'expectedControllerMethod' => 'index',
-            'expectedSuggestedSolution' => "Check that the method 'index' exists in the 'App\Http\Controllers\NonExistentController' class. This usually indicates an incorrect route definition in your routes file.",
+            'expectedSuggestedSolution' => "Check that the method 'index' exists in the 'App\\Http\\Controllers\\NonExistentController' class. This usually indicates an incorrect route definition in your routes file.",
             'expectedIgnoreData' => 'invalid-3|["GET","HEAD"]',
         ];
 
@@ -216,51 +169,5 @@ class ExtractableRouteFactoryUnitTest extends TestCase
             'expectedSuggestedSolution' => sprintf("Check that the method 'nonExistentMethod' exists in the '%s' class. This usually indicates an incorrect route definition in your routes file.", ExtractableControllerStub::class),
             'expectedIgnoreData' => 'invalid-4|["GET","HEAD"]',
         ];
-    }
-
-    #[RunInSeparateProcess] // <- Having overload Mock here, let's not leak it.
-    #[PreserveGlobalState(false)]
-    public function test_it_handles_file_read_errors_gracefully(): void
-    {
-        // Arrange
-
-        $route = new Route(
-            ['GET'],
-            '/users',
-            action: ['uses' => ExtractableControllerStub::class.'@store']
-        );
-
-        $extractableRoute = $this->factory->fromLaravelRoute($route);
-
-        $parserFactoryMock = Mockery::mock('overload:'.ParserFactory::class);
-        $parserMock = Mockery::mock('overload:'.Php8::class);
-
-        // Anticipate
-
-        $parserMock->shouldReceive('parse')->andThrow(new RuntimeException('Cannot parse.'));
-        $parserFactoryMock->shouldReceive('createForNewestSupportedVersion')->andReturn($parserMock);
-
-        // Act
-
-        $result = ($extractableRoute->codeParser)();
-
-        // Assert
-
-        $this->assertNull($result);
-    }
-
-    /*
-     * Asserts.
-     */
-
-    private function assertParsedCodeEquals(string $expected, Closure $parser): void
-    {
-        $actualParsedCode = $parser();
-
-        $expectedParsedCode = file_get_contents($expected);
-        $this->assertEquals(
-            (new ParserFactory)->createForNewestSupportedVersion()->parse($expectedParsedCode),
-            $actualParsedCode,
-        );
     }
 }

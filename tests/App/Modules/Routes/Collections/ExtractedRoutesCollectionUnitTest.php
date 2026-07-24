@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Tests\App\Modules\Routes\Collections;
 
 use Error;
@@ -11,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Sunchayn\Nimbus\Modules\Routes\Collections\ExtractedRoutesCollection;
 use Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
 use Sunchayn\Nimbus\Modules\Routes\ValueObjects\Endpoint;
-use Sunchayn\Nimbus\Modules\Routes\ValueObjects\RulesExtractionError;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 
@@ -204,7 +206,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                                 'additionalProperties' => false,
                             ],
                             'extractionError' => '<b>[no error message]</b><br />
-<small>'.__FILE__.'::171</small>
+<small>'.__FILE__.'::173</small>
 <p class="text-xs">[trace]</p>',
                             'metadata' => [],
                             'keywords' => ['/api/users', '/users'],

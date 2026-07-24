@@ -18,6 +18,7 @@ class NumberSchemaProperty implements SchemaPropertyInterface
     public function __construct(
         private readonly string $name,
         private readonly bool $required = false,
+        private readonly bool $nullable = false,
         private readonly ?float $minimum = null,
         private readonly ?float $maximum = null,
     ) {}
@@ -32,6 +33,11 @@ class NumberSchemaProperty implements SchemaPropertyInterface
         return $this->required;
     }
 
+    public function isNullable(): bool
+    {
+        return $this->nullable;
+    }
+
     public function getType(): SchemaPropertyType
     {
         return SchemaPropertyType::NUMBER;
@@ -40,7 +46,7 @@ class NumberSchemaProperty implements SchemaPropertyInterface
     public function toJsonSchema(): array
     {
         $properties = [
-            'type' => $this->getType()->value,
+            'type' => $this->nullable ? [$this->getType()->value, 'null'] : $this->getType()->value,
         ];
 
         if ($this->minimum !== null) {

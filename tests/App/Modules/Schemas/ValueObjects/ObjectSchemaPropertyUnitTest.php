@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Tests\App\Modules\Schemas\ValueObjects;
 
 use Generator;
@@ -25,6 +27,7 @@ class ObjectSchemaPropertyUnitTest extends TestCase
         $property = new ObjectSchemaProperty(
             name: 'user',
             required: true,
+            nullable: true,
             schema: $properties,
             additionalProperties: true
         );
@@ -33,6 +36,7 @@ class ObjectSchemaPropertyUnitTest extends TestCase
 
         $this->assertEquals('user', $property->getName());
         $this->assertTrue($property->isRequired());
+        $this->assertTrue($property->isNullable());
         $this->assertEquals(SchemaPropertyType::OBJECT, $property->getType());
         $this->assertSame($properties, $property->getPropertiesSchema());
     }
@@ -55,6 +59,14 @@ class ObjectSchemaPropertyUnitTest extends TestCase
             'property' => new ObjectSchemaProperty(name: 'data'),
             'expected' => [
                 'type' => 'object',
+                'additionalProperties' => false,
+            ],
+        ];
+
+        yield 'nullable empty object' => [
+            'property' => new ObjectSchemaProperty(name: 'data', nullable: true),
+            'expected' => [
+                'type' => ['object', 'null'],
                 'additionalProperties' => false,
             ],
         ];

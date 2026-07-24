@@ -24,6 +24,7 @@ class ArraySchemaProperty implements SchemaPropertyInterface
     public function __construct(
         private readonly string $name,
         private readonly bool $required = false,
+        private readonly bool $nullable = false,
         private readonly ?SchemaPropertyInterface $schemaProperty = null,
         private readonly ?int $minItems = null,
         private readonly ?int $maxItems = null,
@@ -37,6 +38,11 @@ class ArraySchemaProperty implements SchemaPropertyInterface
     public function isRequired(): bool
     {
         return $this->required;
+    }
+
+    public function isNullable(): bool
+    {
+        return $this->nullable;
     }
 
     /**
@@ -55,7 +61,7 @@ class ArraySchemaProperty implements SchemaPropertyInterface
     public function toJsonSchema(): array
     {
         $properties = [
-            'type' => $this->getType()->value,
+            'type' => $this->nullable ? [$this->getType()->value, 'null'] : $this->getType()->value,
         ];
 
         if ($this->schemaProperty instanceof \Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface) {

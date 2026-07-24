@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Modules\Schemas\Builders;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Sunchayn\Nimbus\Modules\Routes\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
 use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
 use Sunchayn\Nimbus\Modules\Schemas\Enums\RulesFieldType;
@@ -13,6 +14,7 @@ use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ArraySchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\FieldPath;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ObjectSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\PathSegment;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
 
 /**
@@ -52,7 +54,7 @@ class SchemaBuilder
     private function buildProperties(Ruleset $ruleset): array
     {
         return $this
-            // Process in order: root fields → nested objects → arrays
+            // Process in order: root fields -> nested objects -> arrays
             // This ensures parent structures exist before we add children
             ->sortRulesByProcessingOrder($ruleset)
             ->reduce(
@@ -77,7 +79,7 @@ class SchemaBuilder
     }
 
     /**
-     * Sorts rules by processing order: root → nested → wildcards.
+     * Sorts rules by processing order: root -> nested -> wildcards.
      */
     private function sortRulesByProcessingOrder(Ruleset $ruleset): Ruleset
     {
@@ -106,7 +108,7 @@ class SchemaBuilder
     {
         $arrayName = Str::replaceLast('.*', '', $fieldPath->value);
 
-        // Get existing property to preserve 'required' status
+        // We check existing properties first to inherit any requirement flags set by parent rules.
         $existingProperty = $properties[$arrayName] ?? null;
 
         // Build the item schema (primitive type like string, integer, etc.)
@@ -131,9 +133,9 @@ class SchemaBuilder
      * Adds a dot notation structure (objects, arrays, or both).
      *
      * Handles both simple dot notation and complex array patterns:
-     * - "user.profile.name" → nested objects
-     * - "users.*.email" → array of objects with email property
-     * - "company.teams.*.members.*.name" → deeply nested arrays
+     * - "user.profile.name" -> nested objects
+     * - "users.*.email" -> array of objects with email property
+     * - "company.teams.*.members.*.name" -> deeply nested arrays
      *
      * @param  array<string, SchemaPropertyInterface>  $properties
      * @param  NormalizedRulesShape  $rules

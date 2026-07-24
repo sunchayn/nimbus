@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Tests\App\Modules\Schemas\ValueObjects;
 
 use Generator;
@@ -24,6 +26,7 @@ class ArraySchemaPropertyUnitTest extends TestCase
         $property = new ArraySchemaProperty(
             name: 'tags',
             required: true,
+            nullable: true,
             schemaProperty: $items,
             minItems: 1,
             maxItems: 10
@@ -33,6 +36,7 @@ class ArraySchemaPropertyUnitTest extends TestCase
 
         $this->assertEquals('tags', $property->getName());
         $this->assertTrue($property->isRequired());
+        $this->assertTrue($property->isNullable());
         $this->assertEquals(SchemaPropertyType::ARRAY, $property->getType());
         $this->assertSame($items, $property->getItemsSchema());
     }
@@ -55,6 +59,13 @@ class ArraySchemaPropertyUnitTest extends TestCase
             'property' => new ArraySchemaProperty(name: 'list'),
             'expected' => [
                 'type' => 'array',
+            ],
+        ];
+
+        yield 'nullable array' => [
+            'property' => new ArraySchemaProperty(name: 'list', nullable: true),
+            'expected' => [
+                'type' => ['array', 'null'],
             ],
         ];
 

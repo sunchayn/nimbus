@@ -24,4 +24,15 @@ enum SchemaPropertyType: string
     case ARRAY = 'array';
 
     case OBJECT = 'object';
+
+    public function fromPhpScalar(string $phpScalarType): ?self
+    {
+        return match (true) {
+            $phpScalarType === 'string' => self::STRING,
+            $phpScalarType === 'int' => self::INTEGER,
+            $phpScalarType === 'float' => self::NUMBER,
+            $phpScalarType === 'bool' => self::BOOLEAN,
+            default => null,
+        };
+    }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sunchayn\Nimbus\Tests\App\Modules\Schemas\ValueObjects;
 
 use Generator;
@@ -14,14 +16,15 @@ class BooleanSchemaPropertyUnitTest extends TestCase
 {
     public function test_it_gets_basic_properties(): void
     {
-        // Arrange & Act
+        // Arrange
 
-        $property = new BooleanSchemaProperty(name: 'is_active', required: true);
+        $property = new BooleanSchemaProperty(name: 'is_active', required: true, nullable: true);
 
         // Assert
 
         $this->assertEquals('is_active', $property->getName());
         $this->assertTrue($property->isRequired());
+        $this->assertTrue($property->isNullable());
         $this->assertEquals(SchemaPropertyType::BOOLEAN, $property->getType());
     }
 
@@ -43,6 +46,13 @@ class BooleanSchemaPropertyUnitTest extends TestCase
             'property' => new BooleanSchemaProperty(name: 'enabled'),
             'expected' => [
                 'type' => 'boolean',
+            ],
+        ];
+
+        yield 'nullable boolean property' => [
+            'property' => new BooleanSchemaProperty(name: 'enabled', nullable: true),
+            'expected' => [
+                'type' => ['boolean', 'null'],
             ],
         ];
     }
