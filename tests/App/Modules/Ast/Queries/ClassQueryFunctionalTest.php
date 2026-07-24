@@ -118,10 +118,11 @@ class ClassQueryFunctionalTest extends TestCase
 
         // Act
 
-        $query = ClassQuery::from('SomeClass');
+        $query = ClassQuery::from('Namespaced\\Sub\\SomeClass');
 
         // Assert
 
-        $this->assertEquals('SomeClass', $query->className());
+        $this->assertEquals('Namespaced\\Sub\\SomeClass', $query->className());
+        $this->assertEquals('SomeClass', $query->classShortName());
     }
 }

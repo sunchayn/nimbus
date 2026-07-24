@@ -256,4 +256,41 @@ class MethodQueryUnitTest extends TestCase
             'expectedCallNames' => ['validate', 'validateWithBag'],
         ];
     }
+
+    public function test_get_local_context_skips_method_static_and_new_assignments(): void
+    {
+        // Arrange
+
+        $parser = (new ParserFactory)->createForNewestSupportedVersion();
+
+        $ast = $parser->parse(<<<'PHP'
+            <?php
+            class Dummy {
+                public function run() {
+                    $a = "hello";
+                    $b = $this->someMethod();
+                    $c = StaticClass::someCall();
+                    $d = new NewClass();
+                }
+            }
+            PHP);
+
+        $classNode = $ast[0];
+
+        $methodNode = $classNode->stmts[0];
+
+        $query = new MethodQuery($methodNode);
+
+        // Act
+
+        $context = $query->getLocalContext();
+
+        // Assert
+
+        $this->assertTrue($context->has('a'));
+        $this->assertSame('hello', $context->get('a')?->getValue());
+        $this->assertFalse($context->has('b'));
+        $this->assertFalse($context->has('c'));
+        $this->assertFalse($context->has('d'));
+    }
 }

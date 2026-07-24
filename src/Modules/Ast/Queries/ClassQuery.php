@@ -55,6 +55,13 @@ class ClassQuery
         return $this->className;
     }
 
+    public function classShortName(): string
+    {
+        $parts = explode('\\', $this->className);
+
+        return end($parts);
+    }
+
     public function method(string $name): ?MethodQuery
     {
         if (! array_key_exists($name, $this->methods)) {

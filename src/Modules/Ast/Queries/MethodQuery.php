@@ -103,10 +103,12 @@ class MethodQuery
         $context = VariablesContext::empty();
 
         foreach ($assignments as $assignment) {
-            // Skip method call assignments (e.g. $x = $this->rules()).
-            // Their return values cannot be resolved in a straightforward way.
-            // @todo [ENHANCEMENT] Find potential ways to address this limitation.
-            if ($assignment->expr instanceof MethodCall) {
+            // Skip method calls, static calls, and new instance assignments to avoid side effects or unresolvable AST expressions.
+            if (
+                $assignment->expr instanceof MethodCall ||
+                $assignment->expr instanceof Node\Expr\StaticCall ||
+                $assignment->expr instanceof Node\Expr\New_
+            ) {
                 continue;
             }
 

@@ -12,6 +12,7 @@ use PhpParser\Node\Identifier;
 use Sunchayn\Nimbus\Modules\Ast\Actions\GetConcreteValueFromAstExprAction;
 use Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery;
 use Sunchayn\Nimbus\Modules\Ast\Queries\MethodQuery;
+use Sunchayn\Nimbus\Modules\Ast\ValueObjects\VariablesContext;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Request\Contracts\RequestSchemaStrategyContract;
 use Sunchayn\Nimbus\Modules\Schemas\Builders\SchemaBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
@@ -108,14 +109,50 @@ class InlineRequestValidatorStrategy implements RequestSchemaStrategyContract
 
         $variablesContext = $methodQuery->getLocalContext();
 
-        // If rules are defined in a separate method (e.g. $this->rules()), resolve
-        // that method's return value using its own local context.
-        // Otherwise, evaluate the inline node using this method's local assignments.
-        $resolved = $node instanceof MethodCall && $node->name instanceof Identifier
-            ? $classQuery->method($node->name->toString())?->getConcreteReturnValue($variablesContext)
-            : $this->getConcreteValueFromAstExprAction->execute($node, $variablesContext)->getValue();
+        $resolved = match (true) {
+            // If rules are defined in a separate method (e.g. $this->rules()),
+            // resolve that method's return value using its own local context.
+            $node instanceof MethodCall && $node->name instanceof Identifier => $classQuery->method($node->name->toString())?->getConcreteReturnValue($variablesContext),
+
+            // Also, consider static calls (e.g. self::rules())
+            $node instanceof Node\Expr\StaticCall && $node->name instanceof Identifier => $this->resolveStaticRulesCall($node, $classQuery, $variablesContext),
+
+            // Otherwise, evaluate the inline node using this method's local assignments.
+            default => $this->getConcreteValueFromAstExprAction->execute($node, $variablesContext)->getValue(),
+        };
 
         return is_array($resolved) ? $resolved : [];
+    }
+
+    private function resolveStaticRulesCall(
+        Node\Expr\StaticCall $staticCall,
+        ClassQuery $classQuery,
+        VariablesContext $context,
+    ): mixed {
+        if (! ($staticCall->class instanceof Node\Name) || ! ($staticCall->name instanceof Identifier)) {
+            return null;
+        }
+
+        $calleeClass = $staticCall->class->toString();
+
+        $targetMethod = $staticCall->name->toString();
+
+        $isCurrentClass = in_array(
+            needle: $calleeClass,
+            haystack: [
+                'self',
+                'static',
+                $classQuery->className(),
+                $classQuery->classShortName(),
+            ],
+            strict: true,
+        );
+
+        if (! $isCurrentClass) {
+            return null;
+        }
+
+        return $classQuery->method($targetMethod)?->getConcreteReturnValue($context);
     }
 
     /**

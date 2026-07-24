@@ -165,6 +165,92 @@ class InlineRequestValidatorStrategyFunctionalTest extends TestCase
         $schemaEmptyVal = $this->strategy->attempt($routeEmptyValidate);
         $this->assertNull($schemaEmptyVal);
     }
+
+    #[DataProvider('staticAndSideEffectScenariosProvider')]
+    public function test_it_extracts_static_validation_rules_and_avoids_side_effects(
+        string $methodName,
+        bool $expectRules,
+    ): void {
+        // Arrange
+
+        InlineValidationSideEffectStub::$called = false;
+
+        // Anticipate
+
+        $routeMock = Mockery::mock(Route::class);
+        $routeMock->shouldReceive('getControllerClass')->andReturn(InlineValidationControllerStub::class);
+        $routeMock->shouldReceive('getActionMethod')->andReturn($methodName);
+
+        if ($expectRules) {
+            $this->schemaBuilderMock
+                ->shouldReceive('buildSchemaFromRuleset')
+                ->once()
+                ->with(Mockery::type(Ruleset::class))
+                ->andReturn(new Schema([new StringSchemaProperty('email')]));
+        }
+
+        // Act
+
+        $schema = $this->strategy->attempt($routeMock);
+
+        // Assert
+
+        $this->assertFalse(
+            InlineValidationSideEffectStub::$called,
+            'Route extraction must not execute static or instantiation side-effects in variable assignments.'
+        );
+
+        if ($expectRules) {
+            $this->assertNotNull($schema);
+        } else {
+            $this->assertNull($schema);
+        }
+    }
+
+    public static function staticAndSideEffectScenariosProvider(): Generator
+    {
+        yield 'self static validation rules' => [
+            'methodName' => 'withSelfStaticRules',
+            'expectRules' => true,
+        ];
+
+        yield 'static keyword validation rules' => [
+            'methodName' => 'withStaticKeywordRules',
+            'expectRules' => true,
+        ];
+
+        yield 'class name static validation rules' => [
+            'methodName' => 'withClassNameStaticRules',
+            'expectRules' => true,
+        ];
+
+        yield 'static call side effect assignment' => [
+            'methodName' => 'withStaticSideEffectAssignment',
+            'expectRules' => true,
+        ];
+
+        yield 'new instance side effect assignment' => [
+            'methodName' => 'withNewSideEffectAssignment',
+            'expectRules' => true,
+        ];
+
+        yield 'foreign class static call yields no rules' => [
+            'methodName' => 'withForeignClassStaticRules',
+            'expectRules' => false,
+        ];
+    }
+}
+
+class InlineValidationSideEffectStub
+{
+    public static bool $called = false;
+
+    public static function trigger(): string
+    {
+        self::$called = true;
+
+        return 'side_effect_triggered';
+    }
 }
 
 class InlineValidationControllerStub
@@ -187,6 +273,43 @@ class InlineValidationControllerStub
     public function rules(): array
     {
         return ['name' => 'required|string'];
+    }
+
+    public function withSelfStaticRules(Request $request): void
+    {
+        $request->validate(self::staticRules());
+    }
+
+    public function withStaticKeywordRules(Request $request): void
+    {
+        $request->validate(static::staticRules());
+    }
+
+    public function withClassNameStaticRules(Request $request): void
+    {
+        $request->validate(InlineValidationControllerStub::staticRules());
+    }
+
+    public function withStaticSideEffectAssignment(Request $request): void
+    {
+        $effect = InlineValidationSideEffectStub::trigger();
+        $request->validate(self::staticRules());
+    }
+
+    public function withNewSideEffectAssignment(Request $request): void
+    {
+        $instance = new InlineValidationSideEffectStub;
+        $request->validate(self::staticRules());
+    }
+
+    public function withForeignClassStaticRules(Request $request): void
+    {
+        $request->validate(\stdClass::getValidationRules());
+    }
+
+    public static function staticRules(): array
+    {
+        return ['email' => 'required|email'];
     }
 
     public function withNoValidation(Request $request): void {}
