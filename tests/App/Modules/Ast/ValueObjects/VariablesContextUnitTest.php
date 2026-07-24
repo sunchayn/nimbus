@@ -55,4 +55,35 @@ class VariablesContextUnitTest extends TestCase
 
         $this->assertEquals([], $context->toArray());
     }
+
+    public function test_it_adds_to_context(): void
+    {
+        // Arrange
+
+        $scalar = new ScalarAstContextValue(value: 5, variableName: 'count');
+        $obj = new ObjectAstContextValue(className: 'App\Models\User', variableName: 'user');
+        $arr = new ArrayAstContextValue(value: ['a', 'b'], variableName: 'items');
+
+        $context = new VariablesContext([]);
+
+        // Act
+
+        $context = $context->add($scalar);
+        $context = $context->add($obj);
+        $context = $context->add($arr);
+
+        // Assert
+
+        $this->assertTrue($context->has('count'));
+        $this->assertTrue($context->has('user'));
+        $this->assertTrue($context->has('items'));
+        $this->assertFalse($context->has('unknown'));
+
+        $this->assertSame($scalar, $context->get('count'));
+
+        $this->assertSame('App\Models\User', $context->get('user')?->getValue());
+
+        $this->assertEquals(['a', 'b'], $context->get('items')?->getValue());
+    }
+
 }

@@ -54,7 +54,8 @@ readonly class VariablesContext
     public function add(AstContextValueContract $variable): self
     {
         $items = $this->items;
-        $items[$variable->getVariableName()] = $variable;
+
+        $items[] = $variable;
 
         return new self(array_values($items));
     }
