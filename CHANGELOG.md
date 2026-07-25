@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.7.0-alpha...v0.8.0-alpha) (2026-07-25)
+
+
+### Features
+
+* **routes:** expand inline validation detection scope ([#112](https://github.com/sunchayn/nimbus/issues/112)) ([99c7822](https://github.com/sunchayn/nimbus/commit/99c7822f88207b9dfa5e76fb4438e253ef8a9530))
+
 ## [0.7.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.6.2-alpha...v0.7.0-alpha) (2026-07-25)
 
 
