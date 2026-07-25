@@ -18,6 +18,7 @@ use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\AuthorizationH
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Throwable;
 
 class RequestRelayAction
 {
@@ -26,7 +27,7 @@ class RequestRelayAction
     public const MICROSECONDS_TO_MILLISECONDS = 1_000_000;
 
     public const NON_STANDARD_STATUS_CODES = [
-        419 => 'Method Not Allowed',
+        419 => 'Page Expired',
         DumpAndDieResponse::DUMP_AND_DIE_STATUS_CODE => 'dd()',
     ];
 
@@ -79,6 +80,17 @@ class RequestRelayAction
         }
 
         $headers = $requestRelayData->headers;
+
+        // Auto-inject CSRF token header if not explicitly provided
+        $hasCsrfHeader = array_key_exists('X-CSRF-TOKEN', $headers) || array_key_exists('X-XSRF-TOKEN', $headers);
+
+        if (! $hasCsrfHeader) {
+            $csrfToken = $this->resolveCsrfToken();
+
+            if ($csrfToken !== null) {
+                $headers['X-CSRF-TOKEN'] = $csrfToken;
+            }
+        }
 
         // Add transaction mode header if enabled
         if ($requestRelayData->transactionMode) {
@@ -177,5 +189,16 @@ class RequestRelayAction
         }
 
         return new DumpAndDieResponse($response->toPsrResponse());
+    }
+
+    private function resolveCsrfToken(): ?string
+    {
+        try {
+            $token = csrf_token();
+
+            return filled($token) ? $token : null;
+        } catch (Throwable) {
+            return null;
+        }
     }
 }
