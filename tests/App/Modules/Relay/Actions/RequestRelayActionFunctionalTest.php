@@ -610,11 +610,9 @@ class RequestRelayActionFunctionalTest extends TestCase
         );
     }
 
-
     public function test_it_doesnt_crash_when_session_is_not_bound(): void
     {
         // Arrange
-
 
         $this->app->singleton('session', null);
 
