@@ -1,6 +1,6 @@
 {
     "private": true,
-    "version": "0.7.0-alpha",
+    "version": "0.8.0-alpha",
     "type": "module",
     "scripts": {
         "style:check": "eslint --config tools/eslint/.eslintrc.cjs --ignore-path tools/eslint/.eslintignore resources/js --ext .js,.ts,.vue",
