@@ -40,12 +40,14 @@ class RequestRelayActionFunctionalTest extends TestCase
     #[TestWith([404, 'Not Found'])]
     #[TestWith([301, 'Moved Permanently'])]
     #[TestWith([500, 'Internal Server Error'])]
-    #[TestWith([419, 'Method Not Allowed'])]
+    #[TestWith([419, 'Page Expired'])]
     public function test_it_relays_requests(
         int $stubStatusCode,
         string $expectedStatusText,
     ): void {
         // Arrange
+
+        $this->app['session']->start();
 
         $requestData = new RequestRelayData(
             method: Arr::random([
@@ -129,6 +131,11 @@ class RequestRelayActionFunctionalTest extends TestCase
         $this->assertEquals(
             $customHeaderValue,
             $response->body->body['requestHeaders']['X-Custom-Header'][0] ?? -1,
+        );
+
+        $this->assertEquals(
+            csrf_token(),
+            $response->body->body['requestHeaders']['X-CSRF-TOKEN'][0] ?? null,
         );
 
         $this->assertEquals(
@@ -518,6 +525,125 @@ class RequestRelayActionFunctionalTest extends TestCase
             $response->body->body['receivedHeaders']['x-nimbus-transaction-mode'][0],
             'The transaction mode header should have the value "1".',
         );
+    }
+
+    public function test_it_auto_injects_csrf_token_header_when_missing(): void
+    {
+        // Arrange
+
+        $this->app['session']->start();
+
+        $requestData = new RequestRelayData(
+            method: 'POST',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: [],
+            cookies: new ParameterBag,
+        );
+
+        Http::fake(function (Request $request) {
+            return Http::response([
+                'receivedHeaders' => $request->headers(),
+            ], 200);
+        });
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertEquals(200, $response->statusCode);
+
+        $this->assertArrayHasKey(
+            'X-CSRF-TOKEN',
+            $response->body->body['receivedHeaders'],
+        );
+
+        $this->assertEquals(
+            csrf_token(),
+            $response->body->body['receivedHeaders']['X-CSRF-TOKEN'][0],
+        );
+    }
+
+    public function test_it_preserves_explicit_csrf_token_header(): void
+    {
+        // Arrange
+
+        $customCsrfToken = 'custom-csrf-token-12345';
+
+        $requestData = new RequestRelayData(
+            method: 'POST',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: ['X-CSRF-TOKEN' => $customCsrfToken],
+            body: [],
+            cookies: new ParameterBag,
+        );
+
+        Http::fake(function (Request $request) {
+            return Http::response([
+                'receivedHeaders' => $request->headers(),
+            ], 200);
+        });
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertEquals(200, $response->statusCode);
+
+        $this->assertEquals(
+            $customCsrfToken,
+            $response->body->body['receivedHeaders']['X-CSRF-TOKEN'][0],
+        );
+    }
+
+
+    public function test_it_doesnt_crash_when_session_is_not_bound(): void
+    {
+        // Arrange
+
+
+        $this->app->singleton('session', null);
+
+        $requestData = new RequestRelayData(
+            method: 'POST',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: [],
+            cookies: new ParameterBag,
+        );
+
+        Http::fake(function (Request $request) {
+            return Http::response([
+                'receivedHeaders' => $request->headers(),
+            ], 200);
+        });
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertEquals(200, $response->statusCode);
     }
 
     /*
