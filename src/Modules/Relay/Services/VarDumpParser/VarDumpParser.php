@@ -116,8 +116,8 @@ class VarDumpParser
                 : DumpValueTypeEnum::Object;
         }
 
-        // Runtime object: {<a...>
-        if (preg_match('/^\{<a class=sf-dump-ref/s', $html)) {
+        // Runtime object or object reference anchor: {<a... or <a class=sf-dump-ref...
+        if (preg_match('/^\{?<a class=sf-dump-ref/s', $html) || preg_match('/^&amp;\d+$/s', $html)) {
             return DumpValueTypeEnum::Object;
         }
 
@@ -344,23 +344,65 @@ class VarDumpParser
     }
 
     /**
-     * Extract class name from object dump
+     * Extract class name from the object dump
      */
-    private function extractObjectClassName(string $html): ?string
+    private function extractObjectClassName(string $html): string
     {
-        // Check for title attribute (ellipsized class names)
-        if (preg_match('/^<span[^>]*title="([^"\n\s]+)/', $html, $match)) {
-            return trim($match[1]);
+        // Extract header portion before opening brace {
+        $header = str_contains($html, '{') ? explode('{', $html, 2)[0] : $html;
+
+        // Check the title attribute in the span or link before {
+        $title = $this->extractClassNameFromTitle($header);
+
+        if ($title !== null) {
+            return $title;
         }
 
         // Check for class name in sf-dump-note span
-        if (preg_match('/^<span class="?sf-dump-note[^>]*>([^<]+)<\/span>/s', $html, $match)) {
-            return html_entity_decode(strip_tags(trim($match[1])), ENT_QUOTES | ENT_HTML5);
+        if (preg_match('/<span class="?[^">]*sf-dump-note[^>]*>(.*?)<\/span>/s', $header, $match)) {
+            $noteText = html_entity_decode(strip_tags(trim($match[1])), ENT_QUOTES | ENT_HTML5);
+
+            if ($noteText !== '') {
+                return $noteText;
+            }
         }
 
-        // Runtime object (no explicit class name)
-        if (preg_match('/<a class=sf-dump-ref[^>]*>/', $html)) {
-            return '<runtime object>';
+        // Check for reference tag like &amp;1 or <a class=sf-dump-ref ...>&amp;1</a>
+        if (preg_match('/&amp;(\d+)/', $header, $match)) {
+            return '&'.$match[1].' (reference)';
+        }
+
+        // Default fallback for objects without explicit class name
+        return '<runtime object>';
+    }
+
+    /**
+     * Extract and sanitize class name from title attributes in the HTML header
+     */
+    private function extractClassNameFromTitle(string $header): ?string
+    {
+        if (! preg_match_all('/<(?:span|a)\b[^>]*title="([^"]+)"[^>]*>/is', $header, $matches, PREG_SET_ORDER)) {
+            return null;
+        }
+
+        foreach ($matches as $match) {
+            $fullTag = $match[0];
+            $titleVal = $match[1];
+
+            // Ignore property visibility spans
+            if (preg_match('/class="?[^">]*sf-dump-(?:public|protected|private)\b/i', $fullTag)) {
+                continue;
+            }
+
+            $cleanTitle = (string) preg_replace(
+                ['/\s+/', '/\s+@\d+$/'],
+                [' ', ''],
+                html_entity_decode(trim($titleVal), ENT_QUOTES | ENT_HTML5),
+            );
+
+            if ($cleanTitle !== '' && ! preg_match('/\b\d+\s+occurrences?\b/i', $cleanTitle)) {
+                return $cleanTitle;
+            }
         }
 
         return null;

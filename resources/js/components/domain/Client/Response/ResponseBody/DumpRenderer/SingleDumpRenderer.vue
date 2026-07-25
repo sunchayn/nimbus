@@ -72,7 +72,7 @@ const nestableNodeSummary: ComputedRef<string> = computed(() => {
         const propCount = (props.dump as ObjectDump).value.propertiesCount;
 
         if (propCount === 0) {
-            return '{}';
+            return className ? `${className}` : '{}';
         }
 
         return `${className}: ${propCount} ${propCount === 1 ? 'property' : 'properties'}`;
