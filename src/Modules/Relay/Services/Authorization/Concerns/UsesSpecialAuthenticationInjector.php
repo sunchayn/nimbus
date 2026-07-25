@@ -7,6 +7,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Contracts\SpecialAuthenticationInjectorContract;
+use Throwable;
 
 trait UsesSpecialAuthenticationInjector
 {
@@ -23,7 +24,11 @@ trait UsesSpecialAuthenticationInjector
             throw MisconfiguredValueException::becauseSpecialAuthenticationInjectorIsInvalid();
         }
 
-        $injector = $container->make($injectorClass);
+        try {
+            $injector = $container->make($injectorClass);
+        } catch (Throwable) {
+            throw MisconfiguredValueException::becauseSpecialAuthenticationInjectorIsInvalid();
+        }
 
         if (! $injector instanceof SpecialAuthenticationInjectorContract) {
             throw MisconfiguredValueException::becauseSpecialAuthenticationInjectorIsInvalid();

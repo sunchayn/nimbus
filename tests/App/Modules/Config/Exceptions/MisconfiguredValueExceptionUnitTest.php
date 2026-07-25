@@ -101,4 +101,36 @@ class MisconfiguredValueExceptionUnitTest extends TestCase
 
         $this->assertEquals(MisconfiguredValueException::INVALID_APPLICATIONS, $exception->getCode());
     }
+
+    public function test_because_route_processing_strategy_is_invalid_with_scalar(): void
+    {
+        // Act
+
+        $exception = MisconfiguredValueException::becauseRouteProcessingStrategyIsInvalid('invalid_strategy');
+
+        // Assert
+
+        $this->assertEquals(
+            'The configured route processing strategy `invalid_strategy` is invalid.',
+            $exception->getMessage(),
+        );
+
+        $this->assertEquals(MisconfiguredValueException::INVALID_ROUTE_PROCESSING_STRATEGY, $exception->getCode());
+    }
+
+    public function test_because_route_processing_strategy_is_invalid_with_non_scalar(): void
+    {
+        // Act
+
+        $exception = MisconfiguredValueException::becauseRouteProcessingStrategyIsInvalid(['invalid']);
+
+        // Assert
+
+        $this->assertEquals(
+            'The configured route processing strategy `array` is invalid.',
+            $exception->getMessage(),
+        );
+
+        $this->assertEquals(MisconfiguredValueException::INVALID_ROUTE_PROCESSING_STRATEGY, $exception->getCode());
+    }
 }

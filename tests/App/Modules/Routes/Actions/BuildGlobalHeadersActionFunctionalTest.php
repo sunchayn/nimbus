@@ -78,4 +78,54 @@ class BuildGlobalHeadersActionFunctionalTest extends TestCase
 
         $this->assertEmpty($headers);
     }
+
+    public function test_it_builds_global_headers_with_string_aliases(): void
+    {
+        // Arrange
+
+        $globalHeadersConfig = [
+            'x-request-id' => '$uuid',
+            'x-author-email' => '$email',
+            'x-author-id' => '$string',
+            'X-Custom-Header' => '::value::',
+        ];
+
+        $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class, function (\Mockery\MockInterface $mock) use ($globalHeadersConfig) {
+            $mock->shouldReceive('getHeaders')->andReturn($globalHeadersConfig);
+        });
+
+        $action = resolve(BuildGlobalHeadersAction::class);
+
+        // Act
+
+        $headers = $action->execute();
+
+        // Assert
+
+        $this->assertEquals(
+            [
+                [
+                    'header' => 'x-request-id',
+                    'type' => 'generator',
+                    'value' => 'UUID',
+                ],
+                [
+                    'header' => 'x-author-email',
+                    'type' => 'generator',
+                    'value' => 'Email',
+                ],
+                [
+                    'header' => 'x-author-id',
+                    'type' => 'generator',
+                    'value' => 'String',
+                ],
+                [
+                    'header' => 'X-Custom-Header',
+                    'type' => 'raw',
+                    'value' => '::value::',
+                ],
+            ],
+            $headers
+        );
+    }
 }

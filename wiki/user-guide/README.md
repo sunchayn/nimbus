@@ -510,42 +510,60 @@ return [
 
     'allowed_envs' => ['local', 'staging'],
 
-    'routes' => [
-        'prefix' => 'api',
-        'versioned' => false,
-    ],
+    'default_application' => 'main',
 
-    'auth' => [
-        'guard' => 'web',
-        'special' => [
-            'injector' => \Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\RememberMeCookieInjector::class,
+    'applications' => [
+        'main' => [
+            'name' => 'Main',
+
+            'routes' => [
+                'strategy' => 'auto_detect',
+
+                'openapi' => [
+                    'files' => [],
+                    'show_operation_id' => false,
+                ],
+
+                'prefix' => 'api',
+                'versioned' => false,
+                'api_base_url' => null,
+            ],
+
+            'auth' => [
+                'guard' => 'web',
+                'special' => [
+                    'injector' => 'remember_me_cookie',
+                ],
+            ],
+
+            'headers' => [
+                'X-Request-ID' => '$uuid',
+            ],
         ],
     ],
-
-    'headers' => [],
 ];
 ```
 
 ### Configuration Options
 
-| Option                                     | Description                                                                                                                                                                                                     | Default                           | Example                                                   |
-|--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|-----------------------------------------------------------|
-| **`prefix`**                               | The URI segment under which Nimbus is accessible.                                                                                                                                                               | `'nimbus'`                        | `'api-client'`                                            |
-| **`allowed_envs`**                         | Environments where Nimbus is enabled. Avoid production for security reasons.                                                                                                                                    | `['local', 'staging']`            | `['testing', 'local']`                                    |
-| **`default_application`**                   | The base default application to load when no other application is found in the storage.                                                                                                                         | n/a                               | `rest-api`                                                |
-| **`applications.*.routes.prefix`**         | The base path used to detect application routes. Only routes starting with this prefix are analyzed.                                                                                                            | `'api'`                           | `'api/v1'`                                                |
-| **`applications.*.routes.versioned`**      | Enables version parsing for routes like `/api/v1/...`.                                                                                                                                                          | `false`                           | `true`                                                    |
-| **`applications.*.routes.api_base_url`**   | The base URL used when Nimbus relays API requests from the UI. Useful when the API runs on a different domain or port. If set to null, Nimbus will default to the same host and scheme as the incoming request. | null                              | `http://127.0.0.1:8001`                                   |
-| **`applications.*.routes.strategy`**       | The strategy used to discover routes. Options: `AutoDetect` or `OpenAPI`.                                                                                                                                       | `AutoDetect`                      | `RoutesProcessingStrategyEnum::OpenAPI`                   |
-| **`applications.*.routes.openapi.files`**  | Map of versions to OpenAPI file paths. Required when strategy is `OpenAPI`.                                                                                                                                     | `[]`                              | `['v1' => base_path('docs/v1.yaml')]`                     |
-| **`applications.*.routes.openapi.show_operation_id`** | Defines whether to show the Operation ID in the sidebar.                                                                                                                                                        | `false`                           | `true`                                                    |
-| **`applications.*.auth.guard`**            | The Laravel guard used for the API requests authentication.                                                                                                                                                     | `'api'`                           | `'web'`                                                   |
-| **`applications.*.auth.special.injector`** | Injector class used to attach authentication credentials to outgoing requests. Must implement `SpecialAuthenticationInjectorContract`.                                                                          | `RememberMeCookieInjector::class` | `TymonJwtTokenInjector::class`                            |
-| **`headers`**                              | Global headers applied to all outgoing requests. Supports static values or enum generators.                                                                                                                     | `[]`                              | `['x-request-id' => GlobalHeaderGeneratorTypeEnum::UUID]` |
+| Option | Description                                                                                                                                                                                           | Default | Example |
+|---|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|---|
+| **`prefix`** | The URI segment under which Nimbus is accessible.                                                                                                                                                     | `'nimbus'` | `'api-client'` |
+| **`allowed_envs`** | Environments where Nimbus is enabled. Avoid production for security reasons.                                                                                                                          | `['local', 'staging']` | `['testing', 'local']` |
+| **`default_application`** | The base default application to load when no other application is specified.                                                                                                                          | `'main'` | `'rest-api'` |
+| **`applications.*.routes.prefix`** | The base path used to detect application routes. Only routes starting with this prefix are analyzed.                                                                                                  | `'api'` | `'api/v1'` |
+| **`applications.*.routes.versioned`** | Enables version parsing for routes like `/api/v1/...`.                                                                                                                                                | `false` | `true` |
+| **`applications.*.routes.api_base_url`** | The base URL used when Nimbus relays API requests from the UI. Useful when the API runs on a different domain or port. If set to null, Nimbus defaults to the host and scheme of the incoming request. | `null` | `'http://127.0.0.1:8001'` |
+| **`applications.*.routes.strategy`** | The strategy used to discover routes.<br /><br />Supported values: `'auto_detect'` or `'openapi'`.                                                                                                    | `'auto_detect'` | `'openapi'` |
+| **`applications.*.routes.openapi.files`** | Map of versions to OpenAPI file paths.<br /><br />Required when strategy is `'openapi'`.                                                                                                                         | `[]` | `['v1' => base_path('docs/v1.yaml')]` |
+| **`applications.*.routes.openapi.show_operation_id`** | Defines whether to show the Operation ID in the sidebar.                                                                                                                                              | `false` | `true` |
+| **`applications.*.auth.guard`** | The Laravel guard used for API request authentication.                                                                                                                                                | `'web'` | `'api'` |
+| **`applications.*.auth.special.injector`** | Injector alias or FQCN string used to attach authentication credentials. <br /><br />Supported values: `'remember_me_cookie'`, `'tymon_jwt'`, or a custom FQCN string.                            | `'remember_me_cookie'` | `'tymon_jwt'` |
+| **`headers`** | Global headers applied to all outgoing requests.<br /><br />Supports static values or generator aliases (`'$uuid'`, `'$email'`, `'$string'`).                                                                    | `[]` | `['x-request-id' => '$uuid']` |
 
 ### Multi-Application Support
 
-Nimbus allows you to define multiple distinct application in your configuration. This is ideal for projects with multiple APIs like a REST api + CMS APIs, or different microservices within the same monolith.
+Nimbus allows you to define multiple distinct applications in your configuration. This is ideal for projects with multiple APIs like a REST API and CMS API, or different microservices within the same monolith.
 
 ```php
 'applications' => [
@@ -572,17 +590,17 @@ When multiple applications are defined, a Project Switcher appears in the sideba
 
 #### Special Authentication Modes
 
-Nimbus comes with two authentication injection strategies:
+Nimbus comes with built-in authentication injection strategies:
 
-| Mode | Injector Class | Description |
-|------|----------------|-------------|
-| **RememberMe Cookie** | `RememberMeCookieInjector::class` | Authenticates using Laravel's remember-me cookie for the current session. |
-| **JWT Token** | `TymonJwtTokenInjector::class` | Injects a bearer token for JWT-authenticated APIs. |
+| Mode | Injector Alias | Description |
+|---|---|---|
+| **RememberMe Cookie** | `'remember_me_cookie'` | Authenticates using Laravel's remember-me cookie for the current session. |
+| **JWT Token** | `'tymon_jwt'` | Injects a bearer token for JWT-authenticated APIs. |
 
-Custom injectors can be implemented by extending:
+Custom injectors can be implemented by providing a FQCN string implementing:
 
 ```php
-Sunchayn\Nimbus\Modules\Relay\Authorization\Contracts\SpecialAuthenticationInjectorContract
+Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Contracts\SpecialAuthenticationInjectorContract
 ```
 
 #### Versioned Routes
