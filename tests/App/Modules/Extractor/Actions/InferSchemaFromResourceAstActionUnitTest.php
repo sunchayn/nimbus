@@ -11,10 +11,12 @@ use Sunchayn\Nimbus\Modules\Ast\Actions\GetPhpTypeFromAstScalarAction;
 use Sunchayn\Nimbus\Modules\Extractor\Actions\InferEloquentModelFromJsonResourceAction;
 use Sunchayn\Nimbus\Modules\Extractor\Actions\InferSchemaFromResourceAstAction;
 use Sunchayn\Nimbus\Modules\Extractor\Actions\InferSchemaPropertyFromDatabaseColumnAction;
+use Sunchayn\Nimbus\Modules\Extractor\DataTransferObjects\NestedResourceTarget;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\IntegerSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 
 #[CoversClass(InferSchemaFromResourceAstAction::class)]
+#[CoversClass(NestedResourceTarget::class)]
 class InferSchemaFromResourceAstActionUnitTest extends TestCase
 {
     public function test_it_transforms_resource_to_schema(): void
@@ -221,7 +223,7 @@ class InferSchemaFromResourceAstActionUnitTest extends TestCase
 
         // Anticipate
 
-        $modelResolver->method('execute')->willReturn('App\Models\DummyUser');
+        $modelResolver->method('execute')->willReturn(null);
 
         // Act
 

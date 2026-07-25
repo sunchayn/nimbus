@@ -69,6 +69,18 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Extractor\Actions {
                 'expectedModel' => \App\Models\User::class,
             ];
 
+            yield 'returns null when property class does not exist' => [
+                'docBlock' => '/** @property \\NonExistentClassForProperty $resource */',
+                'className' => 'SomeNonExistentResource',
+                'expectedModel' => null,
+            ];
+
+            yield 'returns null when mixin class does not exist' => [
+                'docBlock' => '/** @mixin \\NonExistentClassForMixin */',
+                'className' => 'SomeNonExistentResource',
+                'expectedModel' => null,
+            ];
+
             yield 'returns null when no strategy matches' => [
                 'docBlock' => '/** Nothing */',
                 'className' => 'SomeNonExistentResource',

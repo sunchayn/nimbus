@@ -220,5 +220,29 @@ class InferSchemaFromArrayAstActionUnitTest extends TestCase
                 'additionalProperties' => false,
             ],
         ];
+
+        yield 'array with empty list array element' => [
+            'phpCode' => <<<'PHP'
+                <?php
+                $x = [
+                    'empty' => [],
+                ];
+                PHP,
+            'context' => null,
+            'expectedSchemaArray' => [
+                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                'type' => 'object',
+                'properties' => [
+                    'empty' => [
+                        'type' => 'object',
+                        'additionalProperties' => false,
+                    ],
+                ],
+                'required' => [
+                    'empty',
+                ],
+                'additionalProperties' => false,
+            ],
+        ];
     }
 }
