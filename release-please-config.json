@@ -1,4 +1,5 @@
 {
+    "pull-request-header": false,
     "packages": {
         ".": {
             "release-type": "node",
