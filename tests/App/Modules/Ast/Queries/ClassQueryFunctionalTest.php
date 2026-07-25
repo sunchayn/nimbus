@@ -125,4 +125,60 @@ class ClassQueryFunctionalTest extends TestCase
         $this->assertEquals('Namespaced\\Sub\\SomeClass', $query->className());
         $this->assertEquals('SomeClass', $query->classShortName());
     }
+
+    public function test_it_indexes_methods_on_trait_nodes(): void
+    {
+        // Arrange
+
+        $methodNode = new Node\Stmt\ClassMethod('traitMethod');
+
+        $traitNode = new Node\Stmt\Trait_(
+            name: new Node\Identifier('MyTrait'),
+            subNodes: [
+                'stmts' => [$methodNode],
+            ]
+        );
+
+        $traitNode->namespacedName = new Node\Name('App\\Traits\\MyTrait');
+
+        $query = new ClassQuery('App\\Traits\\MyTrait', [$traitNode]);
+
+        // Act
+
+        $methodQuery = $query->method('traitMethod');
+
+        // Assert
+
+        $this->assertInstanceOf(MethodQuery::class, $methodQuery);
+
+        $this->assertEquals('traitMethod', $methodQuery->getName());
+    }
+
+    public function test_it_indexes_methods_on_enum_nodes(): void
+    {
+        // Arrange
+
+        $methodNode = new Node\Stmt\ClassMethod('enumMethod');
+
+        $enumNode = new Node\Stmt\Enum_(
+            name: new Node\Identifier('MyEnum'),
+            subNodes: [
+                'stmts' => [$methodNode],
+            ]
+        );
+
+        $enumNode->namespacedName = new Node\Name('App\\Enums\\MyEnum');
+
+        $query = new ClassQuery('App\\Enums\\MyEnum', [$enumNode]);
+
+        // Act
+
+        $methodQuery = $query->method('enumMethod');
+
+        // Assert
+
+        $this->assertInstanceOf(MethodQuery::class, $methodQuery);
+
+        $this->assertEquals('enumMethod', $methodQuery->getName());
+    }
 }

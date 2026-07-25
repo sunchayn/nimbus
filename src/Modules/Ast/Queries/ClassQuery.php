@@ -8,7 +8,6 @@ use Illuminate\Support\Arr;
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\Node\Name;
-use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeFinder;
 use Sunchayn\Nimbus\Modules\Ast\Actions\LoadClassAstAction;
@@ -24,7 +23,7 @@ class ClassQuery
     /** @var array<string, ClassMethod> */
     private array $methods = [];
 
-    private ?Class_ $class = null;
+    private ?Node\Stmt\ClassLike $classLike = null;
 
     /**
      * @param  class-string  $className
@@ -73,7 +72,7 @@ class ClassQuery
 
     public function getClassDocBlock(): string
     {
-        $docComment = $this->class?->getDocComment();
+        $docComment = $this->classLike?->getDocComment();
 
         return $docComment instanceof Doc ? $docComment->getText() : '';
     }
@@ -83,18 +82,22 @@ class ClassQuery
      */
     private function preprocessClassNodes(): void
     {
-        $classes = (new NodeFinder)->findInstanceOf($this->stmts, Class_::class);
+        $classes = (new NodeFinder)->findInstanceOf($this->stmts, Node\Stmt\ClassLike::class);
 
-        $this->class = Arr::first(
+        $this->classLike = Arr::first(
             $classes,
-            fn (Class_ $class): bool => $this->getQualifiedNameOf($class) === $this->className,
+            fn (Node\Stmt\ClassLike $class): bool => in_array(
+                $this->getQualifiedNameOf($class),
+                [$this->className, class_basename($this->className)],
+                true
+            ),
         );
 
-        if ($this->class === null) {
+        if ($this->classLike === null) {
             return;
         }
 
-        foreach ($this->class->stmts as $stmt) {
+        foreach ($this->classLike->stmts as $stmt) {
             // Methods are indexed by name at construction time,
             // so we can avoid re-traversing the AST on every method() call.
             if ($stmt instanceof ClassMethod) {
@@ -104,9 +107,9 @@ class ClassQuery
     }
 
     /**
-     * Extracts the fully qualified class name of a Class node.
+     * Extracts the fully qualified class name of a ClassLike node.
      */
-    private function getQualifiedNameOf(Class_ $class): ?string
+    private function getQualifiedNameOf(Node\Stmt\ClassLike $class): ?string
     {
         $name = $class->namespacedName ?? null;
 

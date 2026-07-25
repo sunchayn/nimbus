@@ -51,13 +51,10 @@ class InlineRequestValidatorStrategy implements RequestSchemaStrategyContract
 
     private function extractSchemaFromMethod(ClassQuery $controllerClassQuery, MethodQuery $routeActionMethod): ?Schema
     {
-        $expressions = $routeActionMethod->findMethodCallsOnParameterOfType(
-            targetType: Request::class,
-            methodNames: ['validate', 'validateWithBag']
-        );
+        $nodes = $this->collectValidationNodes($routeActionMethod);
 
-        $rulesArray = $this->extractRules(
-            expressions: $expressions,
+        $rulesArray = $this->extractRulesFromNodes(
+            nodes: $nodes,
             classQuery: $controllerClassQuery,
             methodQuery: $routeActionMethod,
         );
@@ -72,19 +69,84 @@ class InlineRequestValidatorStrategy implements RequestSchemaStrategyContract
     }
 
     /**
-     * Extracts rules from all validation calls in the controller method.
+     * Collects AST nodes containing validation rules from method calls, static calls, and helpers.
      *
-     * @param  MethodCall[]  $expressions
+     * @return Node[]
+     */
+    private function collectValidationNodes(MethodQuery $routeActionMethod): array
+    {
+        return array_merge(
+            $this->collectRequestCallNodes($routeActionMethod),
+            $this->collectValidatorStaticNodes($routeActionMethod),
+            $this->collectValidatorHelperNodes($routeActionMethod),
+        );
+    }
+
+    /**
+     * @return Node[]
+     */
+    private function collectRequestCallNodes(MethodQuery $routeActionMethod): array
+    {
+        $calls = $routeActionMethod->findMethodCallsOnParameterOfType(
+            targetType: Request::class,
+            methodNames: ['validate', 'validateWithBag'],
+        );
+
+        return array_values(
+            array_filter(
+                array_map(fn (MethodCall $call): ?Node => $this->getRulesNodeFromMethodCall($call), $calls)
+            )
+        );
+    }
+
+    /**
+     * @return Node[]
+     */
+    private function collectValidatorStaticNodes(MethodQuery $routeActionMethod): array
+    {
+        $calls = $routeActionMethod->findStaticCalls(
+            targetClasses: ['Validator', \Illuminate\Support\Facades\Validator::class],
+            methodNames: ['make'],
+        );
+
+        return array_values(
+            array_filter(
+                array_map(fn (Node\Expr\StaticCall $call): ?Node => $call->args[1]->value ?? null, $calls)
+            )
+        );
+    }
+
+    /**
+     * @return Node[]
+     */
+    private function collectValidatorHelperNodes(MethodQuery $routeActionMethod): array
+    {
+        $calls = $routeActionMethod->findFunctionCalls(['validator']);
+
+        return array_values(
+            array_filter(
+                array_map(
+                    fn (Node\Expr\FuncCall $call): ?Node => count($call->args) >= 2 ? ($call->args[1]->value ?? null) : null,
+                    $calls
+                )
+            )
+        );
+    }
+
+    /**
+     * Extracts rules from all validation nodes in the controller method.
+     *
+     * @param  Node[]  $nodes
      * @return array<string, mixed>
      */
-    private function extractRules(array $expressions, ClassQuery $classQuery, MethodQuery $methodQuery): array
+    private function extractRulesFromNodes(array $nodes, ClassQuery $classQuery, MethodQuery $methodQuery): array
     {
         $rules = [];
 
-        foreach ($expressions as $expression) {
+        foreach ($nodes as $node) {
             $rules = array_merge(
                 $rules,
-                $this->resolveRulesFromCall($classQuery, $methodQuery, $expression)
+                $this->resolveRulesFromNode($node, $classQuery, $methodQuery)
             );
         }
 
@@ -92,21 +154,15 @@ class InlineRequestValidatorStrategy implements RequestSchemaStrategyContract
     }
 
     /**
-     * Resolves the rules' array from a specific `validate` or `validateWithBag` call.
+     * Resolves the rules' array from a validation rules AST node.
      *
      * @return array<string, mixed>
      */
-    private function resolveRulesFromCall(
+    private function resolveRulesFromNode(
+        Node $node,
         ClassQuery $classQuery,
         MethodQuery $methodQuery,
-        MethodCall $methodCall,
     ): array {
-        $node = $this->getRulesNodeFromMethodCall($methodCall);
-
-        if (! $node instanceof Node) {
-            return [];
-        }
-
         $variablesContext = $methodQuery->getLocalContext();
 
         $resolved = match (true) {
@@ -118,7 +174,7 @@ class InlineRequestValidatorStrategy implements RequestSchemaStrategyContract
             $node instanceof Node\Expr\StaticCall && $node->name instanceof Identifier => $this->resolveStaticRulesCall($node, $classQuery, $variablesContext),
 
             // Otherwise, evaluate the inline node using this method's local assignments.
-            default => $this->getConcreteValueFromAstExprAction->execute($node, $variablesContext)->getValue(),
+            default => $this->getConcreteValueFromAstExprAction->execute($node, $variablesContext, classQuery: $classQuery)->getValue(),
         };
 
         return is_array($resolved) ? $resolved : [];

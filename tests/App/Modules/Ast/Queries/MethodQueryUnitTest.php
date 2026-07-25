@@ -293,4 +293,149 @@ class MethodQueryUnitTest extends TestCase
         $this->assertFalse($context->has('c'));
         $this->assertFalse($context->has('d'));
     }
+
+    #[DataProvider('staticCallsProvider')]
+    public function test_it_finds_static_calls(
+        string $code,
+        array $targetClasses,
+        array $methodNames,
+        int $expectedCount,
+        array $expectedClasses
+    ): void {
+        // Arrange
+
+        $parser = (new ParserFactory)->createForNewestSupportedVersion();
+
+        $ast = $parser->parse($code);
+
+        $methodNode = (new NodeFinder)->findFirstInstanceOf($ast, Node\Stmt\ClassMethod::class);
+
+        $query = new MethodQuery($methodNode);
+
+        // Act
+
+        $staticCalls = $query->findStaticCalls($targetClasses, $methodNames);
+
+        // Assert
+
+        $this->assertCount($expectedCount, $staticCalls);
+
+        foreach ($expectedClasses as $index => $expectedClass) {
+            $this->assertSame($expectedClass, $staticCalls[$index]->class->toString());
+        }
+    }
+
+    public static function staticCallsProvider(): Generator
+    {
+        yield 'matching short and FQCN facade calls' => [
+            'code' => <<<'PHP'
+                <?php
+                class Dummy {
+                    public function run() {
+                        Validator::make([], []);
+                        \Illuminate\Support\Facades\Validator::make([], []);
+                    }
+                }
+                PHP,
+            'targetClasses' => ['Validator', 'Illuminate\Support\Facades\Validator'],
+            'methodNames' => ['make'],
+            'expectedCount' => 2,
+            'expectedClasses' => ['Validator', 'Illuminate\Support\Facades\Validator'],
+        ];
+
+        yield 'dynamic class or method name expressions return empty' => [
+            'code' => <<<'PHP'
+                <?php
+                class Dummy {
+                    public function run() {
+                        $class = 'Validator';
+                        $method = 'make';
+                        $class::make([], []);
+                        Validator::{$method}([], []);
+                    }
+                }
+                PHP,
+            'targetClasses' => ['Validator'],
+            'methodNames' => ['make'],
+            'expectedCount' => 0,
+            'expectedClasses' => [],
+        ];
+
+        yield 'non-matching static method name returns empty' => [
+            'code' => <<<'PHP'
+                <?php
+                class Dummy {
+                    public function run() {
+                        Validator::otherMethod([], []);
+                    }
+                }
+                PHP,
+            'targetClasses' => ['Validator'],
+            'methodNames' => ['make'],
+            'expectedCount' => 0,
+            'expectedClasses' => [],
+        ];
+    }
+
+    #[DataProvider('functionCallsProvider')]
+    public function test_it_finds_function_calls(
+        string $code,
+        array $functionNames,
+        int $expectedCount,
+        array $expectedNames
+    ): void {
+        // Arrange
+
+        $parser = (new ParserFactory)->createForNewestSupportedVersion();
+
+        $ast = $parser->parse($code);
+
+        $methodNode = (new NodeFinder)->findFirstInstanceOf($ast, Node\Stmt\ClassMethod::class);
+
+        $query = new MethodQuery($methodNode);
+
+        // Act
+
+        $funcCalls = $query->findFunctionCalls($functionNames);
+
+        // Assert
+
+        $this->assertCount($expectedCount, $funcCalls);
+
+        foreach ($expectedNames as $index => $expectedName) {
+            $this->assertSame($expectedName, $funcCalls[$index]->name->toString());
+        }
+    }
+
+    public static function functionCallsProvider(): Generator
+    {
+        yield 'matching helper function call' => [
+            'code' => <<<'PHP'
+                <?php
+                class Dummy {
+                    public function run() {
+                        $res = validator([], []);
+                    }
+                }
+                PHP,
+            'functionNames' => ['validator'],
+            'expectedCount' => 1,
+            'expectedNames' => ['validator'],
+        ];
+
+        yield 'dynamic function name returns empty' => [
+            'code' => <<<'PHP'
+                <?php
+                class Dummy {
+                    public function run() {
+                        $func = 'validator';
+                        $func([], []);
+                    }
+                }
+                PHP,
+            'functionNames' => ['validator'],
+            'expectedCount' => 0,
+            'expectedNames' => [],
+        ];
+    }
 }
