@@ -72,25 +72,25 @@ return [
                 |--------------------------------------------------------------------------
                 |
                 | Defines how Nimbus discovers and extracts routes for the application.
-                | Available strategies:
-                |   - 'AutoDetect': Automatically extract routes from Laravel's route
+                | Available strategy options:
+                |   - 'auto_detect': Automatically extract routes from Laravel's route
                 |                    registry (default). This is the recommended option
                 |                    for most applications.
-                |   - 'OpenAPI':     Load routes from OpenAPI specification files. This
+                |   - 'openapi':     Load routes from OpenAPI specification files. This
                 |                    requires the 'devizzent/cebe-php-openapi' package to be installed.
                 |
                 */
 
-                'strategy' => \Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum::AutoDetect,
+                'strategy' => 'auto_detect',
 
                 /*
                 |--------------------------------------------------------------------------
                 | OpenAPI Configuration
                 |--------------------------------------------------------------------------
                 |
-                | This section contains settings specific to the 'OpenAPI' route
+                | This section contains settings specific to the 'openapi' route
                 | extraction strategy. It is only required if the 'strategy' above
-                | is set to RoutesProcessingStrategyEnum::OpenAPI.
+                | is set to 'openapi'.
                 |
                 */
 
@@ -161,20 +161,20 @@ return [
                 'versioned' => false,
 
                 /*
-                  |--------------------------------------------------------------------------
-                  | API Base URL
-                  |--------------------------------------------------------------------------
-                  |
-                  | This value defines the base URL that Nimbus will use when relaying
-                  | API requests from the UI. It is useful in cases where your API is
-                  | hosted on a different domain, port, or subpath than the UI itself.
-                  |
-                  | If left null, Nimbus will automatically use the same host and scheme
-                  | as the incoming request that triggered the relay. This is the
-                  | recommended default for most deployments where the API and UI share
-                  | the same origin.
-                  |
-                  */
+                |--------------------------------------------------------------------------
+                | API Base URL
+                |--------------------------------------------------------------------------
+                |
+                | This value defines the base URL that Nimbus will use when relaying
+                | API requests from the UI. It is useful in cases where your API is
+                | hosted on a different domain, port, or subpath than the UI itself.
+                |
+                | If left null, Nimbus will automatically use the same host and scheme
+                | as the incoming request that triggered the relay. This is the
+                | recommended default for most deployments where the API and UI share
+                | the same origin.
+                |
+                */
 
                 'api_base_url' => null,
             ],
@@ -186,8 +186,8 @@ return [
             |
             | Defines how Nimbus authenticates API requests when interacting with your
             | application routes. The authentication configuration determines which
-            | Laravel guard is used and how special authentication modes—such as
-            | “login as current user” or “impersonate user” are handled.
+            | Laravel guard is used and how special authentication modes such as
+            | "login as current user" or "impersonate user" are handled.
             |
             */
 
@@ -224,20 +224,19 @@ return [
                     | Authentication Injector
                     |--------------------------------------------------------------------------
                     |
-                    | Defines the injector class used to modify outgoing requests with
-                    | authentication credentials. The class must implement the
-                    | `SpecialAuthenticationInjectorContract` interface.
+                    | Defines the injector string alias or class used to modify outgoing requests
+                    | with authentication credentials.
                     |
-                    | Included implementations:
-                    |   - RememberMeCookieInjector::class:
-                    |       Forwards or generates a Laravel "remember me" cookie.
-                    |   - TymonJwtTokenInjector::class:
-                    |       Injects a Bearer token using the `tymon/jwt-aut` package.
+                    | Available string aliases:
+                    |   - 'remember_me_cookie': Forwards or generates a Laravel "remember me" cookie (default).
+                    |   - 'tymon_jwt': Injects a Bearer token using the `tymon/jwt-auth` package.
                     |
-                    | P.S. You may provide a custom implementation to support alternative authentication mechanisms.
+                    | You may also provide a custom FQCN string implementing the
+                    | SpecialAuthenticationInjectorContract interface.
+                    |
                     */
 
-                    'injector' => \Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\RememberMeCookieInjector::class,
+                    'injector' => 'remember_me_cookie',
                 ],
             ],
 
@@ -247,21 +246,19 @@ return [
             |--------------------------------------------------------------------------
             |
             | Define any global headers that should be applied to every Nimbus request.
-            | Each header may be defined as either:
-            |   - A value from GlobalHeaderGeneratorTypeEnum::class, or
+            | Each header value may be defined as either:
+            |   - A dynamic generator string alias: '$uuid', '$email', or '$string'.
             |   - A raw primitive value (string, integer, or boolean).
             |
             | Example:
             | 'headers' => [
-            |     'X-Request-ID' => GlobalHeaderGeneratorTypeEnum::UUID,
+            |     'X-Request-ID' => '$uuid',
             |     'X-App-Version' => '1.0.0',
             | ],
             |
             */
 
-            'headers' => [
-            /** @see \Sunchayn\Nimbus\Modules\Config\GlobalHeaderGeneratorTypeEnum */
-            ],
+            'headers' => [],
         ],
     ],
 ];

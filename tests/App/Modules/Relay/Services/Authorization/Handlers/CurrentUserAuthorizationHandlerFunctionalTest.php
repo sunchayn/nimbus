@@ -277,4 +277,33 @@ class CurrentUserAuthorizationHandlerFunctionalTest extends TestCase
 
         $this->assertSame($pendingRequest, $pendingRequestResponse);
     }
+
+    public function test_it_throws_misconfigured_value_exception_when_invalid_injector_configured(): void
+    {
+        // Arrange
+
+        $this->mock(ActiveApplicationResolver::class, function (MockInterface $mock) {
+            $mock->shouldReceive('getAuthGuard')->andReturn('web');
+            $mock->shouldReceive('getSpecialAuthInjector')->andReturn('NonExistentClassString');
+        });
+
+        $dummyAuthenticatable = new DummyAuthenticatable(id: 123);
+        $relayRequest = Request::create('ping');
+        $relayRequest->setUserResolver(fn () => $dummyAuthenticatable);
+
+        $handler = resolve(CurrentUserAuthorizationHandler::class, [
+            'relayRequest' => $relayRequest,
+        ]);
+
+        $pendingRequest = resolve(PendingRequest::class);
+
+        // Anticipate
+
+        $this->expectException(\Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException::class);
+        $this->expectExceptionCode(\Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException::SPECIAL_AUTHENTICATION_INJECTOR);
+
+        // Act
+
+        $handler->authorize($pendingRequest);
+    }
 }

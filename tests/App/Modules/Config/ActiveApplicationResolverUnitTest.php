@@ -186,4 +186,167 @@ class ActiveApplicationResolverUnitTest extends TestCase
         $this->assertJson($available);
         $this->assertEquals(['p1' => 'Project 1', 'p2' => 'p2'], json_decode($available, true));
     }
+
+    public function test_it_reconciles_special_auth_injector_aliases(): void
+    {
+        // Arrange
+
+        $config = [
+            'auth' => [
+                'special' => ['injector' => 'remember_me_cookie'],
+            ],
+        ];
+
+        $this->configMock->shouldReceive('get')->with('nimbus.applications', [])->andReturn(['main' => $config]);
+        $this->requestMock->shouldReceive('cookie')->with(ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME)->andReturn(null);
+        $this->configMock->shouldReceive('get')->with('nimbus.default_application')->andReturn('main');
+        $this->configMock->shouldReceive('get')->with('nimbus.applications.main', [])->andReturn($config);
+
+        $resolver = new ActiveApplicationResolver($this->configMock, $this->requestMock);
+
+        // Act & Assert
+
+        $this->assertEquals(\Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\RememberMeCookieInjector::class, $resolver->getSpecialAuthInjector());
+    }
+
+    public function test_it_reconciles_tymon_jwt_injector_alias(): void
+    {
+        // Arrange
+
+        $config = [
+            'auth' => [
+                'special' => ['injector' => 'tymon_jwt'],
+            ],
+        ];
+
+        $this->configMock->shouldReceive('get')->with('nimbus.applications', [])->andReturn(['main' => $config]);
+        $this->requestMock->shouldReceive('cookie')->with(ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME)->andReturn(null);
+        $this->configMock->shouldReceive('get')->with('nimbus.default_application')->andReturn('main');
+        $this->configMock->shouldReceive('get')->with('nimbus.applications.main', [])->andReturn($config);
+
+        $resolver = new ActiveApplicationResolver($this->configMock, $this->requestMock);
+
+        // Act & Assert
+
+        $this->assertEquals(\Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\TymonJwtTokenInjector::class, $resolver->getSpecialAuthInjector());
+    }
+
+    public function test_it_reconciles_route_processing_strategy(): void
+    {
+        // Arrange
+
+        $config = [
+            'routes' => [
+                'strategy' => 'auto_detect',
+            ],
+        ];
+
+        $this->configMock->shouldReceive('get')->with('nimbus.applications', [])->andReturn(['main' => $config]);
+        $this->requestMock->shouldReceive('cookie')->with(ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME)->andReturn(null);
+        $this->configMock->shouldReceive('get')->with('nimbus.default_application')->andReturn('main');
+        $this->configMock->shouldReceive('get')->with('nimbus.applications.main', [])->andReturn($config);
+
+        $resolver = new ActiveApplicationResolver($this->configMock, $this->requestMock);
+
+        // Act & Assert
+
+        $this->assertEquals(\Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum::AutoDetect, $resolver->getRouteExtractionStrategy());
+    }
+
+    public function test_it_throws_exception_on_invalid_route_processing_strategy(): void
+    {
+        // Arrange
+
+        $config = [
+            'routes' => [
+                'strategy' => 'invalid_strategy_name',
+            ],
+        ];
+
+        $this->configMock->shouldReceive('get')->with('nimbus.applications', [])->andReturn(['main' => $config]);
+        $this->requestMock->shouldReceive('cookie')->with(ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME)->andReturn(null);
+        $this->configMock->shouldReceive('get')->with('nimbus.default_application')->andReturn('main');
+        $this->configMock->shouldReceive('get')->with('nimbus.applications.main', [])->andReturn($config);
+
+        $resolver = new ActiveApplicationResolver($this->configMock, $this->requestMock);
+
+        // Anticipate
+
+        $this->expectException(MisconfiguredValueException::class);
+        $this->expectExceptionMessage('The configured route processing strategy `invalid_strategy_name` is invalid.');
+
+        // Act
+
+        $resolver->getRouteExtractionStrategy();
+    }
+
+    public function test_it_returns_show_operation_id_and_openapi_files(): void
+    {
+        // Arrange
+
+        $config = [
+            'routes' => [
+                'openapi' => [
+                    'show_operation_id' => true,
+                    'files' => ['v1' => '/path/to/v1.yaml'],
+                ],
+            ],
+        ];
+
+        $this->configMock->shouldReceive('get')->with('nimbus.applications', [])->andReturn(['main' => $config]);
+        $this->requestMock->shouldReceive('cookie')->with(ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME)->andReturn(null);
+        $this->configMock->shouldReceive('get')->with('nimbus.default_application')->andReturn('main');
+        $this->configMock->shouldReceive('get')->with('nimbus.applications.main', [])->andReturn($config);
+
+        $resolver = new ActiveApplicationResolver($this->configMock, $this->requestMock);
+
+        // Act & Assert
+
+        $this->assertTrue($resolver->showOperationId());
+        $this->assertEquals(['v1' => '/path/to/v1.yaml'], $resolver->getOpenApiFiles());
+    }
+
+    public function test_it_returns_null_when_special_auth_injector_is_empty_or_non_string(): void
+    {
+        // Arrange
+
+        $config = [
+            'auth' => [
+                'special' => ['injector' => ''],
+            ],
+        ];
+
+        $this->configMock->shouldReceive('get')->with('nimbus.applications', [])->andReturn(['main' => $config]);
+        $this->requestMock->shouldReceive('cookie')->with(ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME)->andReturn(null);
+        $this->configMock->shouldReceive('get')->with('nimbus.default_application')->andReturn('main');
+        $this->configMock->shouldReceive('get')->with('nimbus.applications.main', [])->andReturn($config);
+
+        $resolver = new ActiveApplicationResolver($this->configMock, $this->requestMock);
+
+        // Act & Assert
+
+        $this->assertNull($resolver->getSpecialAuthInjector());
+    }
+
+    public function test_it_returns_null_when_special_auth_injector_is_non_string(): void
+    {
+        // Arrange
+
+        $config = [
+            'auth' => [
+                'special' => ['injector' => 123],
+            ],
+        ];
+
+        $this->configMock->shouldReceive('get')->with('nimbus.applications', [])->andReturn(['main' => $config]);
+        $this->requestMock->shouldReceive('cookie')->with(ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME)->andReturn(null);
+        $this->configMock->shouldReceive('get')->with('nimbus.default_application')->andReturn('main');
+        $this->configMock->shouldReceive('get')->with('nimbus.applications.main', [])->andReturn($config);
+
+        $resolver = new ActiveApplicationResolver($this->configMock, $this->requestMock);
+
+        // Act & Assert
+
+        $this->assertNull($resolver->getSpecialAuthInjector());
+    }
 }

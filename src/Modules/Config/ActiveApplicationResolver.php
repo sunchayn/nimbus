@@ -8,6 +8,8 @@ use Illuminate\Support\Arr;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Contracts\SpecialAuthenticationInjectorContract;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\RememberMeCookieInjector;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\TymonJwtTokenInjector;
 
 class ActiveApplicationResolver
 {
@@ -65,7 +67,26 @@ class ActiveApplicationResolver
     /** @return ?class-string<SpecialAuthenticationInjectorContract> */
     public function getSpecialAuthInjector(): ?string
     {
-        return $this->activeApplicationConfig['auth']['special']['injector'] ?? null;
+        $rawInjector = $this->activeApplicationConfig['auth']['special']['injector'] ?? null;
+
+        if ($rawInjector === null || $rawInjector === '') {
+            return null;
+        }
+
+        if (is_string($rawInjector)) {
+            $normalized = strtolower(trim($rawInjector));
+
+            /** @var class-string<SpecialAuthenticationInjectorContract> $mappedClass */
+            $mappedClass = match ($normalized) {
+                'remember_me_cookie' => RememberMeCookieInjector::class,
+                'tymon_jwt' => TymonJwtTokenInjector::class,
+                default => $rawInjector,
+            };
+
+            return $mappedClass;
+        }
+
+        return null;
     }
 
     /**
@@ -78,10 +99,20 @@ class ActiveApplicationResolver
 
     /**
      * Get the route extraction strategy for the active application.
+     *
+     * @throws MisconfiguredValueException
      */
     public function getRouteExtractionStrategy(): RoutesProcessingStrategyEnum
     {
-        return $this->activeApplicationConfig['routes']['strategy'] ?? RoutesProcessingStrategyEnum::AutoDetect;
+        $rawStrategy = $this->activeApplicationConfig['routes']['strategy'] ?? RoutesProcessingStrategyEnum::AutoDetect;
+
+        $strategy = RoutesProcessingStrategyEnum::tryFromAlias($rawStrategy);
+
+        if (! $strategy instanceof \Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum) {
+            throw MisconfiguredValueException::becauseRouteProcessingStrategyIsInvalid($rawStrategy);
+        }
+
+        return $strategy;
     }
 
     /**

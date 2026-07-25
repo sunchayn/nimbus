@@ -17,6 +17,18 @@ class MisconfiguredValueException extends Exception
 
     public const INVALID_APPLICATIONS = 5;
 
+    public const INVALID_ROUTE_PROCESSING_STRATEGY = 6;
+
+    public static function becauseRouteProcessingStrategyIsInvalid(mixed $strategy): self
+    {
+        $value = is_scalar($strategy) ? (string) $strategy : gettype($strategy);
+
+        return new self(
+            message: sprintf('The configured route processing strategy `%s` is invalid.', $value),
+            code: self::INVALID_ROUTE_PROCESSING_STRATEGY,
+        );
+    }
+
     public static function becauseSpecialAuthenticationInjectorIsInvalid(): self
     {
         return new self(

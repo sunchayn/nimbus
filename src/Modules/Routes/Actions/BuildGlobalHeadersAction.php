@@ -23,15 +23,23 @@ class BuildGlobalHeadersAction
         return array_values(
             Arr::map(
                 $headers,
-                fn (mixed $value, string $header): array => [
-                    'header' => $header,
-                    'type' => $value instanceof GlobalHeaderGeneratorTypeEnum ? 'generator' : 'raw',
-                    'value' => match (true) {
-                        $value instanceof GlobalHeaderGeneratorTypeEnum => $value->value,
-                        is_scalar($value) => $value,
-                        default => null,
-                    },
-                ],
+                function (mixed $value, string $header): array {
+                    $generator = GlobalHeaderGeneratorTypeEnum::tryFromAlias($value);
+
+                    if ($generator instanceof \Sunchayn\Nimbus\Modules\Config\GlobalHeaderGeneratorTypeEnum) {
+                        return [
+                            'header' => $header,
+                            'type' => 'generator',
+                            'value' => $generator->value,
+                        ];
+                    }
+
+                    return [
+                        'header' => $header,
+                        'type' => 'raw',
+                        'value' => is_scalar($value) ? $value : null,
+                    ];
+                },
             ),
         );
     }
