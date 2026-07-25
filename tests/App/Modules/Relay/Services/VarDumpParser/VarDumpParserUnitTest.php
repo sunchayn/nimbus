@@ -1995,6 +1995,98 @@ HTML;
         $this->assertArrayHasKey(2, $dump['value']['items']);
     }
 
+    public function test_it_parses_object_reference_anchors(): void
+    {
+        // Arrange
+
+        $html = '<pre class=sf-dump><a class=sf-dump-ref href="#ref1" title="App\Models\User #1">&amp;1</a></pre>';
+
+        // Act
+
+        $result = $this->parser->parse($html);
+
+        // Assert
+
+        $dump = $result->toArray()['dumps'][0];
+        $this->assertEquals(DumpValueTypeEnum::Object->value, $dump['type']);
+        $this->assertEquals('App\Models\User #1', $dump['value']['class']);
+        $this->assertEquals([], $dump['value']['properties']);
+    }
+
+    public function test_it_parses_raw_ampersand_reference_anchor(): void
+    {
+        // Arrange
+
+        $html = '<pre class=sf-dump>&amp;42</pre>';
+
+        // Act
+
+        $result = $this->parser->parse($html);
+
+        // Assert
+
+        $dump = $result->toArray()['dumps'][0];
+
+        $this->assertEquals(DumpValueTypeEnum::Object->value, $dump['type']);
+
+        $this->assertEquals('&42 (reference)', $dump['value']['class']);
+    }
+
+    public function test_it_handles_header_without_class_name_or_reference(): void
+    {
+        // Arrange
+
+        $html = '<pre class=sf-dump><span>UnknownTag</span></pre>';
+
+        // Act
+
+        $result = $this->parser->parse($html);
+
+        // Assert
+
+        $dump = $result->toArray()['dumps'][0];
+
+        $this->assertEquals(DumpValueTypeEnum::Unknown->value, $dump['type']);
+    }
+
+    public function test_it_ignores_visibility_titles_and_occurrence_titles_in_class_name_extraction(): void
+    {
+        // Arrange
+
+        $html = '<pre class=sf-dump><a class=sf-dump-ref title="2 occurrences">#1</a> {</pre>';
+
+        // Act
+
+        $result = $this->parser->parse($html);
+
+        // Assert
+
+        $dump = $result->toArray()['dumps'][0];
+
+        $this->assertEquals(DumpValueTypeEnum::Object->value, $dump['type']);
+
+        $this->assertEquals('<runtime object>', $dump['value']['class']);
+    }
+
+    public function test_it_skips_property_visibility_titles_when_extracting_class_name(): void
+    {
+        // Arrange
+
+        $html = '<pre class=sf-dump><span class="sf-dump-note sf-dump-protected" title="Protected property">App\Models\User</span> {</pre>';
+
+        // Act
+
+        $result = $this->parser->parse($html);
+
+        // Assert
+
+        $dump = $result->toArray()['dumps'][0];
+
+        $this->assertEquals(DumpValueTypeEnum::Object->value, $dump['type']);
+
+        $this->assertEquals('App\Models\User', $dump['value']['class']);
+    }
+
     /*
      * Asserts.
      */
