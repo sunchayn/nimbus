@@ -12,10 +12,10 @@ use Orchestra\Testbench\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
-use Sunchayn\Nimbus\Modules\Routes\RoutesProcessors\Strategies\AutoDetectRoutesProcessor;
-use Sunchayn\Nimbus\Modules\Routes\RoutesProcessors\Strategies\OpenAPISchemaRoutesProcessor;
-use Sunchayn\Nimbus\Modules\Routes\RoutesProcessors\Strategies\RoutesProcessorContract;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
+use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\AutoDetectRoutesProcessor;
+use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\OpenAPISchemaRoutesProcessor;
+use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\RoutesProcessorContract;
 use Sunchayn\Nimbus\NimbusServiceProvider;
 
 #[CoversClass(NimbusServiceProvider::class)]

@@ -8,8 +8,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayRequest;
-use Sunchayn\Nimbus\Modules\Relay\Authorization\AuthorizationTypeEnum;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
 use Symfony\Component\HttpFoundation\InputBag;
 
 #[CoversClass(RequestRelayData::class)]

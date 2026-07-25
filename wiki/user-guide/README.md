@@ -518,7 +518,7 @@ return [
     'auth' => [
         'guard' => 'web',
         'special' => [
-            'injector' => \Sunchayn\Nimbus\Modules\Relay\Authorization\Injectors\RememberMeCookieInjector::class,
+            'injector' => \Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\RememberMeCookieInjector::class,
         ],
     ],
 

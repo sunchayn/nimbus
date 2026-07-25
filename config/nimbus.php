@@ -237,7 +237,7 @@ return [
                     | P.S. You may provide a custom implementation to support alternative authentication mechanisms.
                     */
 
-                    'injector' => \Sunchayn\Nimbus\Modules\Relay\Authorization\Injectors\RememberMeCookieInjector::class,
+                    'injector' => \Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\RememberMeCookieInjector::class,
                 ],
             ],
 

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
-use Sunchayn\Nimbus\Modules\Relay\Authorization\Contracts\SpecialAuthenticationInjectorContract;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Contracts\SpecialAuthenticationInjectorContract;
 
 class ActiveApplicationResolver
 {

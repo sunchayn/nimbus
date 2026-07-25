@@ -14,8 +14,8 @@ use Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery;
 use Sunchayn\Nimbus\Modules\Ast\Queries\MethodQuery;
 use Sunchayn\Nimbus\Modules\Ast\ValueObjects\VariablesContext;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Request\Contracts\RequestSchemaStrategyContract;
-use Sunchayn\Nimbus\Modules\Schemas\Builders\SchemaBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
+use Sunchayn\Nimbus\Modules\Schemas\Services\Builders\SchemaBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
 
 /**

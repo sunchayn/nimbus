@@ -4,7 +4,7 @@ namespace Sunchayn\Nimbus\Modules\Relay\Responses;
 
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Str;
-use Sunchayn\Nimbus\Modules\Relay\Parsers\VarDumpParser\VarDumpParser;
+use Sunchayn\Nimbus\Modules\Relay\Services\VarDumpParser\VarDumpParser;
 
 class DumpAndDieResponse extends Response
 {
