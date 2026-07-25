@@ -408,7 +408,7 @@ class RememberMeCookieInjectorUnitTest extends TestCase
             ->andReturn($rememberToken);
 
         $authenticatable
-            ->shouldReceive('getAuthPasswordName')
+            ->shouldReceive('getAuthPassword')
             ->andReturn($passwordField);
 
         return $authenticatable;
