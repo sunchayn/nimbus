@@ -249,6 +249,78 @@ class InlineRequestValidatorStrategyFunctionalTest extends TestCase
             'expectRules' => false,
         ];
     }
+
+    public function test_it_extracts_validation_rules_from_validator_make_facade_call(): void
+    {
+        // Arrange
+
+        $routeMock = Mockery::mock(Route::class);
+        $routeMock->shouldReceive('getControllerClass')->andReturn(InlineValidationControllerStub::class);
+        $routeMock->shouldReceive('getActionMethod')->andReturn('withValidatorMakeFacade');
+
+        $expectedSchema = new Schema([
+            new StringSchemaProperty('current_password'),
+            new StringSchemaProperty('password'),
+        ]);
+
+        // Anticipate
+
+        $this->schemaBuilderMock
+            ->shouldReceive('buildSchemaFromRuleset')
+            ->once()
+            ->withArgs(function (Ruleset $ruleset): bool {
+                $this->assertEquals([
+                    'current_password' => ['required', 'string', 'current_password:web'],
+                    'password' => ['required', 'string', 'min:8'],
+                ], $ruleset->toArray());
+
+                return true;
+            })
+            ->andReturn($expectedSchema);
+
+        // Act
+
+        $schema = $this->strategy->attempt($routeMock);
+
+        // Assert
+
+        $this->assertSame($expectedSchema, $schema);
+    }
+
+    public function test_it_extracts_validation_rules_from_validator_helper_function_call(): void
+    {
+        // Arrange
+
+        $routeMock = Mockery::mock(Route::class);
+        $routeMock->shouldReceive('getControllerClass')->andReturn(InlineValidationControllerStub::class);
+        $routeMock->shouldReceive('getActionMethod')->andReturn('withValidatorHelper');
+
+        $expectedSchema = new Schema([
+            new StringSchemaProperty('email'),
+        ]);
+
+        // Anticipate
+
+        $this->schemaBuilderMock
+            ->shouldReceive('buildSchemaFromRuleset')
+            ->once()
+            ->withArgs(function (Ruleset $ruleset): bool {
+                $this->assertEquals([
+                    'email' => ['required', 'email'],
+                ], $ruleset->toArray());
+
+                return true;
+            })
+            ->andReturn($expectedSchema);
+
+        // Act
+
+        $schema = $this->strategy->attempt($routeMock);
+
+        // Assert
+
+        $this->assertSame($expectedSchema, $schema);
+    }
 }
 
 class InlineValidationSideEffectStub
@@ -265,6 +337,28 @@ class InlineValidationSideEffectStub
 
 class InlineValidationControllerStub
 {
+    public function withValidatorMakeFacade(Request $request): void
+    {
+        \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'current_password' => ['required', 'string', 'current_password:web'],
+            'password' => $this->passwordRules(),
+        ], [
+            'current_password.current_password' => 'Custom message',
+        ])->validateWithBag('updatePassword');
+    }
+
+    public function withValidatorHelper(Request $request): void
+    {
+        validator($request->all(), [
+            'email' => 'required|email',
+        ]);
+    }
+
+    public function passwordRules(): array
+    {
+        return ['required', 'string', 'min:8'];
+    }
+
     public function withInlineValidation(Request $request): void
     {
         $request->validate(['title' => 'required|string']);

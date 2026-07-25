@@ -25,7 +25,7 @@ class LoadClassAstAction
      */
     public function execute(string $className): ?array
     {
-        if (! class_exists($className)) {
+        if (! class_exists($className) && ! trait_exists($className)) {
             return null;
         }
 

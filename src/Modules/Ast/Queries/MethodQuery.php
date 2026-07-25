@@ -94,6 +94,64 @@ class MethodQuery
     }
 
     /**
+     * Finds static method calls matching specific target class names and method names.
+     *
+     * @param  string[]  $targetClasses
+     * @param  string[]  $methodNames
+     * @return Expr\StaticCall[]
+     */
+    public function findStaticCalls(array $targetClasses, array $methodNames): array
+    {
+        $allCalls = (new NodeFinder)->findInstanceOf($this->methodNode->stmts ?? [], Expr\StaticCall::class);
+
+        return array_values(
+            array_filter(
+                $allCalls,
+                function (Expr\StaticCall $staticCall) use ($targetClasses, $methodNames): bool {
+                    if (! $staticCall->name instanceof Node\Identifier || ! $staticCall->class instanceof Node\Name) {
+                        return false;
+                    }
+
+                    if (! in_array($staticCall->name->toString(), $methodNames, true)) {
+                        return false;
+                    }
+
+                    $className = ltrim($staticCall->class->toString(), '\\');
+
+                    return in_array($className, $targetClasses, true)
+                        || in_array(class_basename($className), $targetClasses, true);
+                }
+            )
+        );
+    }
+
+    /**
+     * Finds global function calls matching specific function names.
+     *
+     * @param  string[]  $functionNames
+     * @return Expr\FuncCall[]
+     */
+    public function findFunctionCalls(array $functionNames): array
+    {
+        $allCalls = (new NodeFinder)->findInstanceOf($this->methodNode->stmts ?? [], Expr\FuncCall::class);
+
+        return array_values(
+            array_filter(
+                $allCalls,
+                function (Expr\FuncCall $funcCall) use ($functionNames): bool {
+                    if (! $funcCall->name instanceof Node\Name) {
+                        return false;
+                    }
+
+                    $name = ltrim($funcCall->name->toString(), '\\');
+
+                    return in_array($name, $functionNames, true);
+                }
+            )
+        );
+    }
+
+    /**
      * Gathers all local variable assignments defined in the method body into a VariablesContext.
      */
     public function getLocalContext(): VariablesContext

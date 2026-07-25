@@ -10,7 +10,11 @@ use PhpParser\Node\Expr;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\VariadicPlaceholder;
+use ReflectionException;
+use ReflectionMethod;
 use Sunchayn\Nimbus\Modules\Ast\Contracts\AstContextValueContract;
+use Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery;
+use Sunchayn\Nimbus\Modules\Ast\Queries\MethodQuery;
 use Sunchayn\Nimbus\Modules\Ast\ValueObjects\ArrayAstContextValue;
 use Sunchayn\Nimbus\Modules\Ast\ValueObjects\ObjectAstContextValue;
 use Sunchayn\Nimbus\Modules\Ast\ValueObjects\ScalarAstContextValue;
@@ -29,14 +33,19 @@ class GetConcreteValueFromAstExprAction
 
     private ?string $variableName;
 
+    private ?ClassQuery $classQuery;
+
     public function execute(
         Node $node,
         ?VariablesContext $context = null,
-        ?string $variableName = null
+        ?string $variableName = null,
+        ?ClassQuery $classQuery = null,
     ): AstContextValueContract {
         $this->variablesContext = $context ?? VariablesContext::empty();
 
         $this->variableName = $variableName;
+
+        $this->classQuery = $classQuery;
 
         return $this->process($node);
     }
@@ -49,6 +58,7 @@ class GetConcreteValueFromAstExprAction
             $node instanceof Node\Scalar\Float_ => new ScalarAstContextValue(value: $node->value, variableName: $this->variableName),
             $node instanceof Node\Expr\Array_ => new ArrayAstContextValue(value: $this->resolveArray($node), variableName: $this->variableName),
             $node instanceof Node\Expr\Variable => $this->resolveVariable($node),
+            $node instanceof Expr\MethodCall => $this->resolveMethodCall($node),
             $node instanceof Node\Expr\StaticCall => $this->resolveStaticCall($node),
             $node instanceof Expr\New_ => $this->resolveNewInstance($node),
             $node instanceof Node\Expr\ConstFetch => new ScalarAstContextValue(value: $this->resolveConstant($node), variableName: $this->variableName),
@@ -168,5 +178,68 @@ class GetConcreteValueFromAstExprAction
             fn ($carry, Node $current): string => $carry.$this->process($current)->getValue(),
             initial: '',
         );
+    }
+
+    private function resolveMethodCall(Expr\MethodCall $methodCall): AstContextValueContract
+    {
+        if (! $this->classQuery instanceof ClassQuery) {
+            return new ScalarAstContextValue(value: null, variableName: $this->variableName);
+        }
+
+        $isThis = $methodCall->var instanceof Expr\Variable && $methodCall->var->name === 'this';
+
+        if (! $isThis || ! ($methodCall->name instanceof Identifier)) {
+            return new ScalarAstContextValue(value: null, variableName: $this->variableName);
+        }
+
+        $methodName = $methodCall->name->toString();
+
+        $targetClassQuery = $this->resolveDeclaringClassQuery($this->classQuery, $methodName);
+
+        $methodQuery = $targetClassQuery->method($methodName);
+
+        if (! $methodQuery instanceof MethodQuery) {
+            return new ScalarAstContextValue(value: null, variableName: $this->variableName);
+        }
+
+        $val = $methodQuery->getConcreteReturnValue($this->variablesContext);
+
+        return match (true) {
+            is_array($val) => new ArrayAstContextValue(value: $val, variableName: $this->variableName),
+            is_scalar($val) || $val === null => new ScalarAstContextValue(value: $val, variableName: $this->variableName),
+            default => new ScalarAstContextValue(value: null, variableName: $this->variableName),
+        };
+    }
+
+    /**
+     * Resolves the ClassQuery of the class or trait where a method is declared.
+     */
+    private function resolveDeclaringClassQuery(ClassQuery $classQuery, string $methodName): ClassQuery
+    {
+        $className = $classQuery->className();
+
+        if (! class_exists($className) && ! trait_exists($className)) {
+            return $classQuery;
+        }
+
+        try {
+            $reflectionClass = new \ReflectionClass($className);
+
+            foreach ($reflectionClass->getTraits() as $trait) {
+                if ($trait->hasMethod($methodName)) {
+                    return ClassQuery::from($trait->getName());
+                }
+            }
+
+            $declaringClass = (new ReflectionMethod($className, $methodName))->getDeclaringClass()->getName();
+
+            if ($declaringClass !== $className) {
+                return ClassQuery::from($declaringClass);
+            }
+
+            return $classQuery;
+        } catch (ReflectionException) {
+            return $classQuery;
+        }
     }
 }
