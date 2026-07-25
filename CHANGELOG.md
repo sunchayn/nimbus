@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.7.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.6.2-alpha...v0.7.0-alpha) (2026-07-25)
+
+
+### Features
+
+* **core:** make nimbus installable as dev dependency ([#110](https://github.com/sunchayn/nimbus/issues/110)) ([e789cbb](https://github.com/sunchayn/nimbus/commit/e789cbb63965ff3753fcb95670bfd4335ab0548b))
+* **relay:** auto-inject CSRF token if missing ([#109](https://github.com/sunchayn/nimbus/issues/109)) ([c0c6a3b](https://github.com/sunchayn/nimbus/commit/c0c6a3bbf3db639cde988be1172d1fde94c0e65f))
+* **responses:** allow downloading responses  ([#105](https://github.com/sunchayn/nimbus/issues/105)) ([3e6fb35](https://github.com/sunchayn/nimbus/commit/3e6fb3579f8e0ac83eb9a8e8546195064df645c0)), closes [#91](https://github.com/sunchayn/nimbus/issues/91)
+
+
+### Bug Fixes
+
+* **relay:** remember me sometimes doesn't work ([#107](https://github.com/sunchayn/nimbus/issues/107)) ([cdd1e4e](https://github.com/sunchayn/nimbus/commit/cdd1e4e6e6953c56005ca97d5fd3744de879e0f4))
+* **response:** properly render object references in `dd` response ([#108](https://github.com/sunchayn/nimbus/issues/108)) ([86e6447](https://github.com/sunchayn/nimbus/commit/86e64479ed32fcd593292384c9d7025ca3e2ba2f))
+* **routes:** do not execute application code during route extraction ([#102](https://github.com/sunchayn/nimbus/issues/102)) ([260c58b](https://github.com/sunchayn/nimbus/commit/260c58b399f1be53cfe231c0f226c8c5b515264c))
+
+
+### Maintenance Tasks
+
+* **core:** tidy-up folder structure ([#106](https://github.com/sunchayn/nimbus/issues/106)) ([842fe91](https://github.com/sunchayn/nimbus/commit/842fe9140454f61566f438dcb213a6c2185ee43f))
+
+
+### CI/CD
+
+* remove release-please header ([#111](https://github.com/sunchayn/nimbus/issues/111)) ([5fc4387](https://github.com/sunchayn/nimbus/commit/5fc4387822ef40da0f44a1907510073a67f81c06))
+
+
+### Code Refactoring
+
+* **extractor:** revamp the AST manipulation core ([#104](https://github.com/sunchayn/nimbus/issues/104)) ([0af9998](https://github.com/sunchayn/nimbus/commit/0af9998c7088eb214216d042b52a57aafb34e2d8))
+
 ## [0.6.2-alpha](https://github.com/sunchayn/nimbus/compare/v0.6.1-alpha...v0.6.2-alpha) (2026-07-14)
 
 
