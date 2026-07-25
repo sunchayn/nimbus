@@ -9,7 +9,7 @@ use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Export\Services\ShareableLinkProcessorService;
 use Sunchayn\Nimbus\Modules\Routes\Actions;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\RoutesProcessingException;
-use Sunchayn\Nimbus\Modules\Routes\RoutesProcessors\Strategies\RoutesProcessorContract;
+use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\RoutesProcessorContract;
 
 class NimbusIndexController
 {

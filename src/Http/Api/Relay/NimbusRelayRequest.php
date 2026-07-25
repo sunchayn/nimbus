@@ -4,7 +4,7 @@ namespace Sunchayn\Nimbus\Http\Api\Relay;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Sunchayn\Nimbus\Modules\Relay\Authorization\AuthorizationTypeEnum;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
 
 class NimbusRelayRequest extends FormRequest
 {

@@ -8,8 +8,8 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Spatie\LaravelData\Resolvers\DataValidationRulesResolver;
 use Sunchayn\Nimbus\Modules\Extractor\Actions\InferSchemaFromSpatieDataObjectAction;
-use Sunchayn\Nimbus\Modules\Schemas\Builders\SchemaBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
+use Sunchayn\Nimbus\Modules\Schemas\Services\Builders\SchemaBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
 use Sunchayn\Nimbus\Tests\TestCase;
 

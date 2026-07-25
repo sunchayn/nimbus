@@ -4,7 +4,7 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Config\Exceptions;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
-use Sunchayn\Nimbus\Modules\Relay\Authorization\Contracts\SpecialAuthenticationInjectorContract;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Contracts\SpecialAuthenticationInjectorContract;
 use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(MisconfiguredValueException::class)]

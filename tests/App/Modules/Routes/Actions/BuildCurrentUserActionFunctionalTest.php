@@ -4,7 +4,7 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Routes\Actions;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Routes\Actions\BuildCurrentUserAction;
-use Sunchayn\Nimbus\Tests\App\Modules\Relay\Authorization\Handlers\Stubs\DummyAuthenticatable;
+use Sunchayn\Nimbus\Tests\App\Modules\Relay\Services\Authorization\Handlers\Stubs\DummyAuthenticatable;
 use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(BuildCurrentUserAction::class)]

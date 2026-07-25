@@ -5,8 +5,8 @@ namespace Sunchayn\Nimbus\Modules\Relay\DataTransferObjects;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayRequest;
-use Sunchayn\Nimbus\Modules\Relay\Authorization\AuthorizationCredentials;
-use Sunchayn\Nimbus\Modules\Relay\Authorization\AuthorizationTypeEnum;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\DataTransferObjects\AuthorizationCredentials;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 readonly class RequestRelayData

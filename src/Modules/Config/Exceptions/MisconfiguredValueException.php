@@ -3,7 +3,7 @@
 namespace Sunchayn\Nimbus\Modules\Config\Exceptions;
 
 use Exception;
-use Sunchayn\Nimbus\Modules\Relay\Authorization\Contracts\SpecialAuthenticationInjectorContract;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Contracts\SpecialAuthenticationInjectorContract;
 
 class MisconfiguredValueException extends Exception
 {

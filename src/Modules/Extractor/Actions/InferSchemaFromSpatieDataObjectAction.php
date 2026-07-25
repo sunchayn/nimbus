@@ -6,8 +6,8 @@ namespace Sunchayn\Nimbus\Modules\Extractor\Actions;
 
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Sunchayn\Nimbus\Modules\Schemas\Builders\SchemaBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
+use Sunchayn\Nimbus\Modules\Schemas\Services\Builders\SchemaBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
 use Throwable;

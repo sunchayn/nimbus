@@ -16,8 +16,8 @@ use Sunchayn\Nimbus\Modules\Routes\Actions\DisableThirdPartyUiAction;
 use Sunchayn\Nimbus\Modules\Routes\Actions\ExtractApplicationRoutesAction;
 use Sunchayn\Nimbus\Modules\Routes\Collections\ExtractedRoutesCollection;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionException;
-use Sunchayn\Nimbus\Modules\Routes\RoutesProcessors\Strategies\RoutesProcessorContract;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
+use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\RoutesProcessorContract;
 use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(NimbusIndexController::class)]
