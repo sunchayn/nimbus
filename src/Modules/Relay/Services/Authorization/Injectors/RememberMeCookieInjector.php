@@ -107,7 +107,7 @@ class RememberMeCookieInjector implements SpecialAuthenticationInjectorContract
     private function generateRecallerTokenFor(Authenticatable $authenticatable): string
     {
         // Generate recaller token for "remember me" functionality
-        $recallerToken = $authenticatable->getAuthIdentifier().'|'.$this->getRememberMeTokenFor($authenticatable).'|'.$authenticatable->getAuthPasswordName();
+        $recallerToken = $authenticatable->getAuthIdentifier().'|'.$this->getRememberMeTokenFor($authenticatable).'|'.$authenticatable->getAuthPassword();
 
         return $this->encrypter->encrypt(
             CookieValuePrefix::create($this->authGuard->getRecallerName(), $this->encrypter->getKey()).$recallerToken,
