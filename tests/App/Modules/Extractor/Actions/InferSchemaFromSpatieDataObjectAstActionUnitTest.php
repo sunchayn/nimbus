@@ -73,9 +73,14 @@ class InferSchemaFromSpatieDataObjectAstActionUnitTest extends TestCase
             'context' => VariablesContext::empty(),
         ];
 
+        yield 'class in context is not spatie data subclass' => [
+            'expr' => new MethodCall(new Variable('dto'), new Identifier('toArray')),
+            'context' => new VariablesContext([new ObjectAstContextValue(className: \stdClass::class, variableName: 'dto')]),
+        ];
+
         yield 'class in context does not exist' => [
             'expr' => new MethodCall(new Variable('dto'), new Identifier('toArray')),
-            'context' => new VariablesContext(['dto' => new ObjectAstContextValue('dto', 'NonExistentClass')]),
+            'context' => new VariablesContext([new ObjectAstContextValue(className: 'NonExistentClass', variableName: 'dto')]),
         ];
     }
 

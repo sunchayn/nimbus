@@ -14,6 +14,7 @@ use Sunchayn\Nimbus\Modules\Ast\ValueObjects\ScalarAstContextValue;
 use Sunchayn\Nimbus\Modules\Ast\ValueObjects\VariablesContext;
 use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
 use Sunchayn\Nimbus\Modules\Schemas\Enums\SchemaPropertyType;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ArraySchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\BooleanSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\IntegerSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\NumberSchemaProperty;
@@ -70,6 +71,10 @@ class InferSchemaFromArrayAstAction
     private function resolveTypeFromExpression(Node\Expr $expr, string $key, VariablesContext $context): SchemaPropertyInterface|Schema
     {
         if ($expr instanceof Array_) {
+            if ($this->isListArray($expr)) {
+                return $this->resolveFromListArray($expr, $context, $key);
+            }
+
             $map = $this->process($expr, $context);
 
             return Schema::fromArrayMap($map);
@@ -137,5 +142,41 @@ class InferSchemaFromArrayAstAction
         }
 
         return new StringSchemaProperty($key, required: true, nullable: $value === null);
+    }
+
+    private function isListArray(Array_ $array): bool
+    {
+        if ($array->items === []) {
+            return false;
+        }
+
+        foreach ($array->items as $item) {
+            if ($item->key instanceof Node\Scalar\String_) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function resolveFromListArray(Array_ $expr, VariablesContext $context, string $key): ArraySchemaProperty
+    {
+        $firstItem = $expr->items[0] ?? null;
+
+        $itemSchema = null;
+
+        if ($firstItem !== null) {
+            $resolvedItem = $this->resolveTypeFromExpression($firstItem->value, 'items', $context);
+
+            if ($resolvedItem instanceof SchemaPropertyInterface) {
+                $itemSchema = $resolvedItem;
+            }
+        }
+
+        return new ArraySchemaProperty(
+            name: $key,
+            required: true,
+            schemaProperty: $itemSchema,
+        );
     }
 }

@@ -85,4 +85,34 @@ class VariablesContextUnitTest extends TestCase
 
         $this->assertEquals(['a', 'b'], $context->get('items')?->getValue());
     }
+
+    public function test_scalar_ast_context_value_get_value(): void
+    {
+        // Arrange
+
+        $scalar = new ScalarAstContextValue(value: 'test', variableName: 'var');
+
+        // Act & Assert
+
+        $this->assertSame('test', $scalar->getValue());
+        $this->assertSame('var', $scalar->getVariableName());
+    }
+
+    public function test_variables_context_skips_unnamed_items(): void
+    {
+        // Arrange
+
+        $unnamedScalar = new ScalarAstContextValue(value: 'test', variableName: null);
+
+        $namedScalar = new ScalarAstContextValue(value: 'test2', variableName: 'var2');
+
+        // Act
+
+        $context = new VariablesContext([$unnamedScalar, $namedScalar]);
+
+        // Assert
+
+        $this->assertFalse($context->has(''));
+        $this->assertTrue($context->has('var2'));
+    }
 }

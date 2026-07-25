@@ -1,4 +1,5 @@
 export { default as ResponseBody } from './ResponseBody/ResponseBody.vue';
+export { default as ResponseDownloadDropdown } from './ResponseBody/ResponseDownloadDropdown.vue';
 export { default as ResponseCookies } from './ResponseCookies/ResponseCookies.vue';
 export { default as ResponseHeaders } from './ResponseHeaders/ResponseHeaders.vue';
 export { default as ResponseStatus } from './ResponseStatus/ResponseStatus.vue';

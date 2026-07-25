@@ -118,6 +118,11 @@ class ExtractApplicationRoutesActionFunctionalTest extends TestCase
                 $extractedRoute->keywords,
             );
 
+            $this->assertEquals(
+                $originalRoute->getName(),
+                $extractedRoute->metadata['name'] ?? null,
+            );
+
             $routeFactoryMock
                 ->shouldHaveReceived(
                     'fromLaravelRoute',

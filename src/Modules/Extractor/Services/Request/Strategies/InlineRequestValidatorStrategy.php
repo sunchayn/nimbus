@@ -129,7 +129,7 @@ class InlineRequestValidatorStrategy implements RequestSchemaStrategyContract
         ClassQuery $classQuery,
         VariablesContext $context,
     ): mixed {
-        if (! ($staticCall->class instanceof Node\Name) || ! ($staticCall->name instanceof Identifier)) {
+        if (! $staticCall->class instanceof Node\Name || ! $staticCall->name instanceof Identifier) {
             return null;
         }
 

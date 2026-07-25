@@ -28,6 +28,7 @@ export interface AppSwitchProps extends SwitchRootProps {
 
 const props = withDefaults(defineProps<AppSwitchProps>(), {
     variant: 'compact',
+    class: undefined,
 });
 const emits = defineEmits<SwitchRootEmits>();
 

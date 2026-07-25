@@ -238,6 +238,16 @@ class InlineRequestValidatorStrategyFunctionalTest extends TestCase
             'methodName' => 'withForeignClassStaticRules',
             'expectRules' => false,
         ];
+
+        yield 'dynamic static call yields no rules' => [
+            'methodName' => 'withDynamicStaticCall',
+            'expectRules' => false,
+        ];
+
+        yield 'dynamic class static call yields no rules' => [
+            'methodName' => 'withDynamicClassStaticCall',
+            'expectRules' => false,
+        ];
     }
 }
 
@@ -305,6 +315,18 @@ class InlineValidationControllerStub
     public function withForeignClassStaticRules(Request $request): void
     {
         $request->validate(\stdClass::getValidationRules());
+    }
+
+    public function withDynamicStaticCall(Request $request): void
+    {
+        $method = 'staticRules';
+        $request->validate(self::{$method}());
+    }
+
+    public function withDynamicClassStaticCall(Request $request): void
+    {
+        $class = 'self';
+        $request->validate($class::staticRules());
     }
 
     public static function staticRules(): array
