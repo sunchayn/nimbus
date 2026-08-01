@@ -219,6 +219,40 @@ class NimbusIndexTest extends TestCase
         $response->assertViewHas(['routes', 'headers', 'currentUser']);
     }
 
+    public function test_it_injects_the_configured_app_name(): void
+    {
+        // Arrange
+
+        config(['nimbus.app_name' => 'Acme API']);
+
+        // Act
+
+        $response = $this->get(route('nimbus.index'));
+
+        // Assert
+
+        $response->assertStatus(200);
+
+        // The name is embedded in the window.Nimbus config (Js::from output).
+        $response->assertSee('Acme API', false);
+    }
+
+    public function test_it_falls_back_to_the_application_name_when_app_name_is_null(): void
+    {
+        // Arrange
+
+        config(['nimbus.app_name' => null, 'app.name' => 'Host Application']);
+
+        // Act
+
+        $response = $this->get(route('nimbus.index'));
+
+        // Assert
+
+        $response->assertStatus(200);
+        $response->assertSee('Host Application', false);
+    }
+
     public function test_it_redirects_to_new_application(): void
     {
         // Arrange

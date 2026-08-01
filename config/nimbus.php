@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Name
+    |--------------------------------------------------------------------------
+    |
+    | The name shown as the Nimbus brand heading in the UI. When null it falls
+    | back to your application's name (config('app.name')) so the playground is
+    | badged with the host app. Set a string here to override.
+    |
+    */
+
+    'app_name' => null,
+
+    /*
+    |--------------------------------------------------------------------------
     | Default Application
     |--------------------------------------------------------------------------
     |
