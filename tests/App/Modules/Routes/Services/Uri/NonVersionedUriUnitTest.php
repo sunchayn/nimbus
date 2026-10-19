@@ -43,7 +43,7 @@ class NonVersionedUriUnitTest extends TestCase
         yield 'uri with multiple segments' => [
             'value' => '/users/123/profile',
             'routesPrefix' => '',
-            'expectedResource' => 'users',
+            'expectedResource' => 'users/123', // <- everything before the action verb.
         ];
 
         yield 'uri with routesPrefix' => [
@@ -67,7 +67,7 @@ class NonVersionedUriUnitTest extends TestCase
         yield 'routesPrefix not at start' => [
             'value' => '/users/api/123',
             'routesPrefix' => 'api',
-            'expectedResource' => 'users', // <- /api/.. is considered part of the URI and disregarded the prefix.
+            'expectedResource' => 'users/api', // <- /api/.. is considered part of the URI and disregarded the prefix.
         ];
 
         yield 'empty uri' => [
@@ -157,7 +157,19 @@ class NonVersionedUriUnitTest extends TestCase
         yield 'deeply nested uri' => [
             'value' => '/api/v1/users/123/posts/456/comments',
             'routesPrefix' => 'api',
-            'expectedResource' => 'v1', // <- remember: we are testing the `NonVersionedUri`
+            'expectedResource' => 'v1/users/123/posts/456', // <- remember: we are testing the `NonVersionedUri`
+        ];
+
+        yield 'nested route groups form a nested resource path' => [
+            'value' => '/auth/password/reset',
+            'routesPrefix' => '',
+            'expectedResource' => 'auth/password',
+        ];
+
+        yield 'route parameter stops the resource path' => [
+            'value' => '/users/{user}/posts',
+            'routesPrefix' => '',
+            'expectedResource' => 'users', // <- {user} never becomes a folder.
         ];
 
         yield 'whitespace in uri' => [
