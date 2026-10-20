@@ -8,3 +8,5 @@ export {
     processRoutesData,
     searchRoutes,
 } from './routeProcessor';
+
+export { buildResourceTree, type ResourceTreeNode } from './resourceTree';

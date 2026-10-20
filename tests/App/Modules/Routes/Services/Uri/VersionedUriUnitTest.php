@@ -207,10 +207,10 @@ class VersionedUriUnitTest extends TestCase
             'expectedResource' => 'users',
         ];
 
-        yield 'versioned uri with multiple segments extracts first resource' => [
+        yield 'versioned uri with multiple segments extracts parent resource' => [
             'value' => '/v1/users/123/profile',
             'routesPrefix' => '',
-            'expectedResource' => 'users',
+            'expectedResource' => 'users/123', // <- everything before the action verb.
         ];
 
         yield 'non-versioned uri extracts resource' => [
@@ -306,7 +306,7 @@ class VersionedUriUnitTest extends TestCase
         yield 'case sensitive prefix mismatch' => [
             'value' => '/API/v1/users',
             'routesPrefix' => 'api',
-            'expectedResource' => 'API', // <- API is treated as resource
+            'expectedResource' => 'API/v1', // <- API is treated as resource, v1 is not detected as version.
         ];
 
         yield 'prefix as part of resource name' => [
@@ -318,7 +318,25 @@ class VersionedUriUnitTest extends TestCase
         yield 'deeply nested versioned uri' => [
             'value' => '/api/v1/users/123/posts/456',
             'routesPrefix' => 'api',
-            'expectedResource' => 'users',
+            'expectedResource' => 'users/123/posts', // <- everything before the action verb.
+        ];
+
+        yield 'nested route groups form a nested resource path' => [
+            'value' => '/api/v1/creator/auth/password/reset',
+            'routesPrefix' => 'api',
+            'expectedResource' => 'creator/auth/password',
+        ];
+
+        yield 'route parameter stops the resource path' => [
+            'value' => '/v1/users/{user}/profile',
+            'routesPrefix' => '',
+            'expectedResource' => 'users', // <- {user} never becomes a folder.
+        ];
+
+        yield 'route parameter as first segment falls back to the parameter' => [
+            'value' => '/{type}/show',
+            'routesPrefix' => '',
+            'expectedResource' => '{type}', // <- resource must exist in the URI.
         ];
 
         yield 'whitespace in resource with version' => [
