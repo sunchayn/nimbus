@@ -43,6 +43,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Schema Additional Properties
+    |--------------------------------------------------------------------------
+    |
+    | Controls how generated JSON schemas treat request fields that are not
+    | declared in a route's validation rules. When false (the default), every
+    | schema is emitted with "additionalProperties": false, so consumers such
+    | as the Nimbus console reject bodies containing undeclared fields before
+    | validation runs. Set this to true to emit "additionalProperties": true
+    | everywhere and allow extra fields in the console and any other consumer
+    | of the generated schemas.
+    |
+    */
+
+    'schemas' => [
+        'additional_properties' => false,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Configurations
     |--------------------------------------------------------------------------
     |
