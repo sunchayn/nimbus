@@ -1,5 +1,6 @@
 {
-    "pull-request-header": false,
+    "pull-request-header": "This pull request prepares the next release.",
+    "pull-request-footer": "Merge this pull request to publish the release.",
     "packages": {
         ".": {
             "release-type": "node",
@@ -8,34 +9,13 @@
             ],
             "changelog-path": "CHANGELOG.md",
             "changelog-sections": [
-                {
-                    "type": "feat",
-                    "section": "Features"
-                },
-                {
-                    "type": "fix",
-                    "section": "Bug Fixes"
-                },
-                {
-                    "type": "chore",
-                    "section": "Maintenance Tasks"
-                },
-                {
-                    "type": "build",
-                    "section": "CI/CD"
-                },
-                {
-                    "type": "deps",
-                    "section": "Dependency Updates"
-                },
-                {
-                    "type": "refactor",
-                    "section": "Code Refactoring"
-                },
-                {
-                    "type": "perf",
-                    "section": "Performance Improvements"
-                }
+                { "type": "feat", "section": "Features" },
+                { "type": "fix", "section": "Bug Fixes" },
+                { "type": "perf", "section": "Performance Improvements" },
+                { "type": "refactor", "section": "Code Refactoring" },
+                { "type": "deps", "section": "Dependencies" },
+                { "type": "build", "section": "Build System" },
+                { "type": "chore", "section": "Maintenance" }
             ]
         }
     }
