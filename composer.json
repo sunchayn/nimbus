@@ -67,7 +67,7 @@
         "test:coverage-ci": "@test:parallel --coverage-clover ./build/coverage.xml",
         "style:fix": "vendor/bin/pint",
         "rector": "vendor/bin/rector -c ./tools/rector/config.php",
-        "switch": "composer update orchestra/testbench:$TESTBENCH_VERSION phpunit/phpunit brianium/paratest larastan/larastan phpstan/extension-installer phpstan/phpstan-deprecation-rules spatie/laravel-data -W",
+        "switch": "composer update --with=illuminate/support:^$LARAVEL_VERSION",
         "switch:l10": "TESTBENCH_VERSION=^8.0 composer run-script switch",
         "switch:l11": "TESTBENCH_VERSION=^9.8 composer run-script switch",
         "switch:l12": "TESTBENCH_VERSION=^10.6 composer run-script switch",
