@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.8.1-alpha](https://github.com/sunchayn/nimbus/compare/v0.8.0-alpha...v0.8.1-alpha) (2026-10-21)
+
+
+### Maintenance
+
+* add AI instructions ([#115](https://github.com/sunchayn/nimbus/issues/115)) ([6e6fd14](https://github.com/sunchayn/nimbus/commit/6e6fd1489417616bdfe86a81235ad77cadc77e24))
+* improve release-please config ([#117](https://github.com/sunchayn/nimbus/issues/117)) ([6f632f5](https://github.com/sunchayn/nimbus/commit/6f632f516a7af7038b792347e375eaf4d53be4c4))
+* repo housekeeping ([#118](https://github.com/sunchayn/nimbus/issues/118)) ([5f30cd9](https://github.com/sunchayn/nimbus/commit/5f30cd9b593bbf2dc7ee5b156f8f3d8be0cf8f7e))
+
 ## [0.8.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.7.0-alpha...v0.8.0-alpha) (2026-07-25)
 
 
