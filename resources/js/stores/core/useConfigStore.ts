@@ -13,6 +13,7 @@ export type GlobalHeadersArray = Array<{
 
 // TODO [Refactor] convert this to a plain module.
 export const useConfigStore = defineStore('config', () => {
+    const appName = (window.Nimbus?.appName as string) || 'Nimbus';
     const urlBase = (window.Nimbus?.apiBaseUrl as string) || 'http://localhost';
     const isVersioned = (window.Nimbus?.isVersioned as boolean) || false;
     const basePath = (window.Nimbus?.basePath as string) || '';
@@ -36,6 +37,7 @@ export const useConfigStore = defineStore('config', () => {
     const userId = currentUser?.id ?? null;
 
     return {
+        appName,
         apiUrl: urlBase,
         appBasePath: basePath,
         headers: globalHeaders,

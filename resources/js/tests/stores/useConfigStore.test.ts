@@ -65,5 +65,23 @@ describe('useConfigStore', () => {
             expect(store.isLoggedIn).toBe(true);
             expect(store.userId).toBe(99);
         });
+
+        it('reads the configured application name', () => {
+            window.Nimbus = {
+                ...window.Nimbus,
+                appName: 'Fliip',
+            };
+
+            expect(useConfigStore().appName).toBe('Fliip');
+        });
+
+        it('falls back to "Nimbus" when no application name is configured', () => {
+            window.Nimbus = {
+                ...window.Nimbus,
+                appName: undefined,
+            };
+
+            expect(useConfigStore().appName).toBe('Nimbus');
+        });
     });
 });
