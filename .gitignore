@@ -26,3 +26,12 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# AI
+.mcp.json
+.agents
+.claude
+.ai/agenteq
+CLAUDE.md
+AGENTS.md
+skills-lock.json

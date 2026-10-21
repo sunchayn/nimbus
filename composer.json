@@ -57,6 +57,9 @@
         }
     },
     "scripts": {
+        "post-install-cmd": "@agenteq:sync",
+        "post-update-cmd": "@agenteq:sync",
+        "agenteq:sync": "npx agenteq sync --skip-in-ci",
         "phpstan": "vendor/bin/phpstan analyse -c ./tools/phpstan/phpstan.neon.dist --memory-limit 2G",
         "test": "vendor/bin/phpunit -c tests/phpunit.xml.dist --testdox --colors=always",
         "test:parallel": "vendor/bin/paratest -c tests/phpunit.xml.dist",
