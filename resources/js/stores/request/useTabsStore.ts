@@ -1,5 +1,4 @@
 import type { AuthorizationContract } from '@/interfaces/auth/authorization';
-import { AuthorizationType } from '@/interfaces/generated';
 import type { RequestLog } from '@/interfaces/history/logs';
 import {
     RequestBodyTypeEnum,
@@ -19,10 +18,16 @@ import {
     useValueGeneratorStore,
 } from '@/stores';
 import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
+import {
+    cloneParameters,
+    createDefaultAuthorization,
+    createRequestFromShareableLinkPayload,
+    restoreResponseBody,
+} from '@/utils/request/pendingRequestBuilders';
 import { generateValueFromType } from '@/utils/value-generator/generateValueFromType';
 import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
-import { computed, ref } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 
 /**
  * Store for managing application tabs and their associated request states.
@@ -44,9 +49,9 @@ export const useTabsStore = defineStore(
          */
 
         const tabs = ref<Tab[]>([]);
-        const activeTabId = ref<string | null>(null);
+        const activeTabId = shallowRef<string | null>(null);
 
-        const activeApplication = ref<string | null>(null);
+        const activeApplication = shallowRef<string | null>(null);
         const lastSyncedGlobalHeaders = ref<ParameterContract[]>([]);
 
         /*
@@ -78,7 +83,7 @@ export const useTabsStore = defineStore(
                         globalHeader.type === 'generator'
                             ? generateValueFromType(
                                   globalHeader.value as GeneratorType,
-                                  valueGeneratorStore,
+                                  valueGeneratorStore.generateValue,
                               )
                             : String(globalHeader.value);
 
@@ -111,50 +116,11 @@ export const useTabsStore = defineStore(
             lastSyncedGlobalHeaders.value = newGlobalHeaders;
         }
 
-        const getAuthorizationForNewRequest = (): AuthorizationContract => {
-            if (activeRequest.value !== null) {
-                return activeRequest.value.authorization;
-            }
-
-            if (
-                settingsStore.preferences.defaultAuthorizationType ===
-                AuthorizationType.CurrentUser
-            ) {
-                return { type: AuthorizationType.CurrentUser };
-            }
-
-            if (
-                settingsStore.preferences.defaultAuthorizationType ===
-                AuthorizationType.Impersonate
-            ) {
-                return { type: AuthorizationType.Impersonate, value: 1 };
-            }
-
-            if (
-                settingsStore.preferences.defaultAuthorizationType ===
-                AuthorizationType.Bearer
-            ) {
-                return {
-                    type: AuthorizationType.Bearer,
-                    value: '',
-                };
-            }
-
-            if (
-                settingsStore.preferences.defaultAuthorizationType ===
-                AuthorizationType.Basic
-            ) {
-                return {
-                    type: AuthorizationType.Basic,
-                    value: {
-                        username: '',
-                        password: '',
-                    },
-                };
-            }
-
-            return { type: AuthorizationType.None };
-        };
+        const getAuthorizationForNewRequest = (): AuthorizationContract =>
+            activeRequest.value?.authorization ??
+            createDefaultAuthorization(
+                settingsStore.preferences.defaultAuthorizationType,
+            );
 
         const getDefaultPayload = (route: RouteDefinition): RequestBodyTypeEnum => {
             if (settingsStore.preferences.defaultRequestBodyType === -1) {
@@ -316,7 +282,6 @@ export const useTabsStore = defineStore(
 
             activeRequest.value.method = normalizedMethod;
 
-            // Switch to the route definition for this method if applicable.
             const targetRoute = activeRequest.value.supportedRoutes.find(
                 (route: RouteDefinition) =>
                     route.method.toUpperCase() === normalizedMethod,
@@ -378,107 +343,23 @@ export const useTabsStore = defineStore(
             }
         };
 
-        /**
-         * Restores the request builder state from a historical request.
-         */
-        const cloneParameters = (
-            parameters: ParameterContract[],
-        ): ParameterContract[] => {
-            return parameters.map(p => ({ ...p }));
-        };
-
-        const restoreResponseBody = (
-            currentBody: PendingRequest['body'],
-            method: string,
-            payloadType: RequestBodyTypeEnum,
-            newBodyContent: FormData | string | null,
-        ): PendingRequest['body'] => {
-            const body = { ...currentBody };
-            const methodBody = body[method] ?? {};
-
-            body[method] = {
-                ...methodBody,
-                [payloadType]: newBodyContent,
-            };
-
-            return body;
-        };
-
-        const createRequestFromShearableLinkPayload = (
-            payload: ShareableLinkPayload,
-        ): PendingRequest => {
-            const wasExecuted =
-                payload.response !== undefined &&
-                payload.response.durationInMs !== undefined;
-
-            return {
-                method: payload.method.toUpperCase(),
-                endpoint: payload.endpoint,
-                headers: payload.headers.map(
-                    (header: {
-                        key: string;
-                        value: string | number | boolean | null;
-                    }) => ({
-                        key: header.key,
-                        value: String(header.value ?? ''),
-                        type: ParameterType.Text,
-                        enabled: true,
-                    }),
-                ),
-                body: payload.body,
-                payloadType: payload.payloadType as RequestBodyTypeEnum,
-                schema: {
-                    shape: {},
-                    extractionErrors: null,
-                },
-                queryParameters: payload.queryParameters.map(
-                    (param: { key: string; value: string; type?: 'text' | 'file' }) => ({
-                        key: param.key,
-                        value: param.value,
-                        type:
-                            param.type === 'file'
-                                ? ParameterType.File
-                                : ParameterType.Text,
-                        enabled: true,
-                    }),
-                ),
-                authorization: {
-                    type: payload.authorization.type as AuthorizationType,
-                    value: payload.authorization.value,
-                } as AuthorizationContract,
-                supportedRoutes: [],
-                routeDefinition: {
-                    endpoint: payload.endpoint,
-                    method: payload.method.toUpperCase(),
-                    schema: {
-                        shape: {},
-                        extractionErrors: null,
-                    },
-                    shortEndpoint: payload.endpoint,
-                },
-                isProcessing: false,
-                wasExecuted,
-                durationInMs: payload.response?.durationInMs ?? 0,
-                transactionMode: false,
-            };
-        };
-
         const restoreFromHistory = (historicalRequest: RequestLog) => {
-            if (!activeRequest.value) {
+            const tab = activeTab.value;
+
+            if (!tab || !activeRequest.value) {
                 return;
             }
 
             const method = historicalRequest.request.method.toUpperCase();
             const payloadType = historicalRequest.request.payloadType;
 
-            // Try to find and sync the route definition
             const matchingRoute = activeRequest.value.supportedRoutes.find(
                 (route: RouteDefinition) =>
                     route.method.toUpperCase() === method &&
                     route.endpoint === historicalRequest.request.endpoint,
             );
 
-            activeTab.value!.request = {
+            tab.request = {
                 ...activeRequest.value,
                 method,
                 endpoint: historicalRequest.request.endpoint,
@@ -494,11 +375,9 @@ export const useTabsStore = defineStore(
                     payloadType,
                     historicalRequest.request.body,
                 ),
-                // Restore authorization
                 authorization: {
                     ...historicalRequest.request.authorization,
                 },
-                // Sync route definition and schema if matching route found
                 ...(matchingRoute
                     ? {
                           routeDefinition: matchingRoute,
@@ -509,11 +388,11 @@ export const useTabsStore = defineStore(
                 transactionMode: activeRequest.value.transactionMode ?? false,
             };
 
-            activeTab.value!.response = historicalRequest;
+            tab.response = historicalRequest;
         };
 
         const restoreFromSharedPayload = (payload: ShareableLinkPayload) => {
-            const newRequest = createRequestFromShearableLinkPayload(payload);
+            const newRequest = createRequestFromShareableLinkPayload(payload);
 
             const id = uuidv4();
             const newTab: Tab = {

@@ -33,7 +33,6 @@ export function getMimeTypeInfo(contentTypeHeaderValue: string): MimeTypeInfo {
     // Strip parameters like charset=utf-8
     const cleanType = contentTypeHeaderValue.split(';')[0].trim().toLowerCase();
 
-    // Direct match
     if (MIME_MAP[cleanType]) {
         return MIME_MAP[cleanType];
     }

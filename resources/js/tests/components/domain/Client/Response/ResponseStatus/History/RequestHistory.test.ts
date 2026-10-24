@@ -3,10 +3,12 @@ import type { RequestLog } from '@/interfaces/history/logs';
 import type { Request, Response } from '@/interfaces/http';
 import { createMockRequestLog } from '@/tests/_utils/testFactories';
 import type { VueWrapper } from '@vue/test-utils';
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, reactive } from 'vue';
+
+const bodyItems = () => document.body.querySelectorAll('[data-testid="history-item"]');
 
 /*
  * Fixtures.
@@ -33,35 +35,13 @@ vi.mock('@/stores', async importOriginal => {
     };
 });
 
-vi.mock('@/components/base/dropdown-menu', () => ({
-    AppDropdownMenu: {
-        name: 'AppDropdownMenu',
-        template: '<div><slot /></div>',
-        props: ['open'],
-    },
-    AppDropdownMenuTrigger: {
-        name: 'AppDropdownMenuTrigger',
-        template: '<div><slot /></div>',
-    },
-    AppDropdownMenuContent: {
-        name: 'AppDropdownMenuContent',
-        template: '<div data-testid="dropdown-content"><slot /></div>',
-    },
-    AppDropdownMenuSeparator: {
-        name: 'AppDropdownMenuSeparator',
-        template: '<hr />',
-    },
-}));
-
 vi.mock(
     '@/components/domain/Client/Response/ResponseStatus/History/HistoryItem.vue',
     () => ({
         default: {
             name: 'HistoryItem',
-            template:
-                '<div data-testid="history-item" @click="$emit(\'select\', index)">History Item {{ index }}</div>',
-            props: ['log', 'index'],
-            emits: ['select'],
+            template: '<div>History Item {{ log.request.endpoint }}</div>',
+            props: ['log'],
         },
     }),
 );
@@ -77,8 +57,11 @@ const createLog = (endpoint: string, timestamp: number): RequestLog =>
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
+let mounted: VueWrapper | null = null;
+
 const createWrapper = (options = {}): VueWrapper => {
-    return mount(RequestHistory, {
+    mounted = mount(RequestHistory, {
+        attachTo: document.body,
         ...options,
         global: {
             plugins: [createPinia()],
@@ -86,14 +69,20 @@ const createWrapper = (options = {}): VueWrapper => {
             ...(options.global || {}),
         },
     });
+
+    return mounted;
 };
 
 describe('RequestHistory', () => {
+    afterEach(() => {
+        mounted?.unmount();
+        mounted = null;
+    });
+
     beforeEach(() => {
         setActivePinia(createPinia());
         mockRequestsHistoryStore.lastLog = null;
         mockRequestsHistoryStore.allLogs = [];
-        vi.useFakeTimers();
         vi.clearAllMocks();
     });
 
@@ -139,6 +128,11 @@ describe('RequestHistory', () => {
      * State Transition tests.
      */
 
+    const openMenu = async (wrapper: VueWrapper) => {
+        await wrapper.get('[data-testid="response-history-trigger"]').trigger('click');
+        await flushPromises();
+    };
+
     describe('Behavior', () => {
         it('filters logs based on search query', async () => {
             // Arrange
@@ -153,14 +147,19 @@ describe('RequestHistory', () => {
 
             // Act
 
-            const searchInput = wrapper.get('[data-testid="history-search-input"]');
-            await searchInput.setValue('users');
+            await openMenu(wrapper);
+
+            const searchInput = document.body.querySelector<HTMLInputElement>(
+                '[data-testid="history-search-input"]',
+            );
+            searchInput!.value = 'users';
+            searchInput!.dispatchEvent(new Event('input'));
+            await flushPromises();
 
             // Assert
 
-            const items = wrapper.findAll('[data-testid="history-item"]');
-            expect(items).toHaveLength(1);
-            expect(items[0].text()).toContain('History Item 0');
+            expect(bodyItems()).toHaveLength(1);
+            expect(bodyItems()[0].textContent).toContain('/users');
         });
 
         it('restores request when a history item is selected', async () => {
@@ -175,8 +174,9 @@ describe('RequestHistory', () => {
 
             // Act
 
-            const item = wrapper.get('[data-testid="history-item"]');
-            await item.trigger('click');
+            await openMenu(wrapper);
+            (bodyItems()[0] as HTMLElement).click();
+            await flushPromises();
 
             // Assert
 
@@ -194,20 +194,25 @@ describe('RequestHistory', () => {
             const wrapper = createWrapper();
             await nextTick();
 
-            const clearButton = wrapper.get('[data-testid="clear-history-button"]');
+            await openMenu(wrapper);
+
+            const clearButton = document.body.querySelector<HTMLElement>(
+                '[data-testid="clear-history-button"]',
+            );
 
             // Act - First click
 
-            await clearButton.trigger('click');
+            clearButton?.click();
+            await flushPromises();
 
             // Assert
 
             expect(mockRequestsHistoryStore.clearLogs).not.toHaveBeenCalled();
-            expect(clearButton.classes()).toContain('text-rose-500');
 
             // Act - Second click
 
-            await clearButton.trigger('click');
+            clearButton?.click();
+            await flushPromises();
 
             // Assert
 

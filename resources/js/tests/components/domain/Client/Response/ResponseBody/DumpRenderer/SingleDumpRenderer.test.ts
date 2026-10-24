@@ -25,21 +25,12 @@ vi.mock('@/components/base/collapsible', () => ({
         template: `
             <div data-testid="app-collapsible" :data-default-open="defaultOpen">
                 <slot />
+                <div data-testid="collapsible-content"><slot name="content" /></div>
             </div>
         `,
         props: {
             defaultOpen: Boolean,
-            class: String,
-        },
-    },
-    AppCollapsibleContent: {
-        name: 'AppCollapsibleContent',
-        template: '<div data-testid="collapsible-content"><slot /></div>',
-    },
-    AppCollapsibleTrigger: {
-        name: 'AppCollapsibleTrigger',
-        template: '<button data-testid="collapsible-trigger"><slot /></button>',
-        props: {
+            disabled: Boolean,
             class: String,
         },
     },
@@ -101,18 +92,6 @@ vi.mock(
         },
     }),
 );
-
-vi.mock('lucide-vue-next', async importOriginal => {
-    const actual = await importOriginal<object>();
-
-    return {
-        ...actual,
-        ChevronRight: {
-            name: 'ChevronRight',
-            template: '<svg data-testid="chevron-right" />',
-        },
-    };
-});
 
 const createStringDump = (value: string): StringDump => ({
     type: DumpValueType.String,
@@ -342,7 +321,6 @@ describe('SingleDumpRenderer', () => {
             expect(wrapper.find('[data-testid="collapsible-trigger"]').exists()).toBe(
                 true,
             );
-            expect(wrapper.find('[data-testid="chevron-right"]').exists()).toBe(true);
         });
 
         it('renders collapsible for array type', async () => {
@@ -363,7 +341,6 @@ describe('SingleDumpRenderer', () => {
             expect(wrapper.find('[data-testid="collapsible-trigger"]').exists()).toBe(
                 true,
             );
-            expect(wrapper.find('[data-testid="chevron-right"]').exists()).toBe(true);
         });
 
         it('shows correct summary text for object with properties', async () => {

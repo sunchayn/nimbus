@@ -20,13 +20,13 @@ import RequestBodyContent from './RequestBodyContent.vue';
  * Types & Interfaces.
  */
 
-export interface AppRequestBodyProps {}
+export interface RequestBodyProps {}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppRequestBodyProps>();
+defineProps<RequestBodyProps>();
 
 /*
  * Stores & dependencies.

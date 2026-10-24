@@ -1,15 +1,7 @@
+import { useScrollMasks } from '@/composables/ui/useScrollMasks';
 import type { TabNavigationScrollConfig } from '@/config/tab-navigation-scroll';
-import { tabNavigationScrollConfig } from '@/config/tab-navigation-scroll';
-import { useDebounceFn, useMutationObserver, useResizeObserver } from '@vueuse/core';
-import {
-    nextTick,
-    onUnmounted,
-    readonly,
-    ref,
-    watch,
-    type DeepReadonly,
-    type Ref,
-} from 'vue';
+import { useMutationObserver, useResizeObserver } from '@vueuse/core';
+import { nextTick, onUnmounted, readonly, watch, type DeepReadonly, type Ref } from 'vue';
 
 export interface UseTabVerticalScrollResult {
     scrollContainer: Ref<HTMLElement | null>;
@@ -25,7 +17,7 @@ export interface UseTabVerticalScrollResult {
  * Manages top/bottom masks based on scroll position and provides
  * functionality to scroll specific elements into the visible area.
  */
-export function useTabVerticalScroll(
+export const useTabVerticalScroll = (
     config: Partial<TabNavigationScrollConfig> & {
         /**
          * Mask height in pixels (Vertical).
@@ -35,119 +27,73 @@ export function useTabVerticalScroll(
          */
         MASK_HEIGHT: number;
     },
-): UseTabVerticalScrollResult {
-    /*
-     * Configuration.
-     */
+): UseTabVerticalScrollResult => {
+    const {
+        scrollContainer,
+        showStartMask,
+        showEndMask,
+        updateScrollMasks,
+        debouncedUpdateMasks,
+        scrollElementIntoView,
+    } = useScrollMasks({
+        config,
+        scrollProperty: 'top',
+        computeMasks: (container, scrollThreshold) => {
+            const { scrollTop, scrollHeight, clientHeight } = container;
 
-    const scrollThreshold =
-        config?.SCROLL_THRESHOLD ?? tabNavigationScrollConfig.SCROLL_THRESHOLD;
+            // Round values to avoid sub-pixel jitter during layout shifts/resizing
+            const roundedScrollTop = Math.round(scrollTop);
+            const roundedScrollHeight = Math.round(scrollHeight);
+            const roundedClientHeight = Math.round(clientHeight);
+            const maxScroll = Math.max(0, roundedScrollHeight - roundedClientHeight);
 
-    const scrollPadding =
-        config?.SCROLL_PADDING ?? tabNavigationScrollConfig.SCROLL_PADDING;
+            // Content only slightly larger than the viewport does not show masks.
+            const contentFits = maxScroll <= scrollThreshold;
 
-    const animationDuration =
-        config?.ANIMATION_DURATION ?? tabNavigationScrollConfig.ANIMATION_DURATION;
+            const isAtStart = roundedScrollTop <= scrollThreshold;
+            const isAtEnd =
+                contentFits || roundedScrollTop >= maxScroll - scrollThreshold;
 
-    const debounceDelay =
-        config?.DEBOUNCE_DELAY ?? tabNavigationScrollConfig.DEBOUNCE_DELAY;
+            return {
+                showStartMask: !isAtStart && !contentFits,
+                showEndMask: !isAtEnd && !contentFits,
+            };
+        },
+        computeScrollTarget: (element, container, settings) => {
+            const containerRect = container.getBoundingClientRect();
+            const elementRect = element.getBoundingClientRect();
 
-    /*
-     * State.
-     */
+            const relativeTop = elementRect.top - containerRect.top + container.scrollTop;
+            const relativeBottom = relativeTop + elementRect.height;
 
-    const scrollContainer = ref<HTMLElement | null>(null);
-    const showTopMask = ref(false);
-    const showBottomMask = ref(false);
+            // The mask height must not exceed the container height.
+            const activeMaskHeight =
+                container.clientHeight < config.MASK_HEIGHT * 2.5
+                    ? container.clientHeight / 4
+                    : config.MASK_HEIGHT;
 
-    /*
-     * Actions.
-     */
+            const visibleTop = container.scrollTop + activeMaskHeight;
+            const visibleBottom =
+                container.scrollTop + container.clientHeight - activeMaskHeight;
 
-    /**
-     * Updates gradient mask visibility based on scroll position.
-     */
-    const updateScrollMasks = () => {
-        if (!scrollContainer.value) {
-            return;
-        }
+            let targetScrollTop = container.scrollTop;
 
-        const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value;
+            if (relativeTop < visibleTop) {
+                targetScrollTop = Math.max(
+                    0,
+                    relativeTop - activeMaskHeight - settings.SCROLL_PADDING,
+                );
+            } else if (relativeBottom > visibleBottom) {
+                targetScrollTop =
+                    relativeBottom -
+                    container.clientHeight +
+                    activeMaskHeight +
+                    settings.SCROLL_PADDING;
+            }
 
-        // Round values to avoid sub-pixel jitter during layout shifts/resizing
-        const roundedScrollTop = Math.round(scrollTop);
-        const roundedScrollHeight = Math.round(scrollHeight);
-        const roundedClientHeight = Math.round(clientHeight);
-        const maxScroll = Math.max(0, roundedScrollHeight - roundedClientHeight);
-
-        // Threshold-aware fits: if content is only slightly larger than viewport, don't show masks
-        const contentFits = maxScroll <= scrollThreshold;
-
-        const isAtStart = roundedScrollTop <= scrollThreshold;
-        const isAtEnd = contentFits || roundedScrollTop >= maxScroll - scrollThreshold;
-
-        showTopMask.value = !isAtStart && !contentFits;
-        showBottomMask.value = !isAtEnd && !contentFits;
-    };
-
-    const debouncedUpdateMasks = useDebounceFn(updateScrollMasks, debounceDelay);
-
-    /**
-     * Scrolls an element into view vertically, accounting for gradient masks.
-     */
-    const scrollTabIntoView = (element: HTMLElement) => {
-        if (!scrollContainer.value) {
-            return;
-        }
-
-        const container = scrollContainer.value;
-        const containerRect = container.getBoundingClientRect();
-        const elementRect = element.getBoundingClientRect();
-
-        const relativeTop = elementRect.top - containerRect.top + container.scrollTop;
-        const relativeBottom = relativeTop + elementRect.height;
-
-        // Safety check: ensure mask height doesn't exceed container height
-        const activeMaskHeightTop =
-            container.clientHeight < config.MASK_HEIGHT * 2.5
-                ? container.clientHeight / 4
-                : config.MASK_HEIGHT;
-        const activeMaskHeightBottom =
-            container.clientHeight < config.MASK_HEIGHT * 2.5
-                ? container.clientHeight / 4
-                : config.MASK_HEIGHT;
-
-        const visibleTop = container.scrollTop + activeMaskHeightTop;
-        const visibleBottom =
-            container.scrollTop + container.clientHeight - activeMaskHeightBottom;
-
-        let targetScrollTop = container.scrollTop;
-
-        if (relativeTop < visibleTop) {
-            targetScrollTop = Math.max(
-                0,
-                relativeTop - activeMaskHeightTop - scrollPadding,
-            );
-        } else if (relativeBottom > visibleBottom) {
-            targetScrollTop =
-                relativeBottom -
-                container.clientHeight +
-                activeMaskHeightBottom +
-                scrollPadding;
-        }
-
-        if (targetScrollTop !== container.scrollTop) {
-            container.scrollTo({
-                top: targetScrollTop,
-                behavior: 'smooth',
-            });
-
-            // Update masks after scrolling animation completes
-            setTimeout(() => {
-                updateScrollMasks();
-            }, animationDuration);
-        }
-    };
+            return targetScrollTop === container.scrollTop ? null : targetScrollTop;
+        },
+    });
 
     /**
      * Sets up scroll event listeners.
@@ -166,23 +112,6 @@ export function useTabVerticalScroll(
         };
     };
 
-    /**
-     * Sets up resize observer for the container.
-     */
-    const setupResizeObserver = () => {
-        return useResizeObserver(scrollContainer, debouncedUpdateMasks);
-    };
-
-    /**
-     * Sets up mutation observer for the content.
-     */
-    const setupMutationObserver = () => {
-        return useMutationObserver(scrollContainer, debouncedUpdateMasks, {
-            childList: true,
-            subtree: true,
-        });
-    };
-
     /*
      * Lifecycle.
      */
@@ -193,8 +122,18 @@ export function useTabVerticalScroll(
 
     watch(scrollContainer, () => {
         cleanupScrollListeners = setupScrollListeners() ?? null;
-        cleanupResizeObserver = setupResizeObserver().stop;
-        cleanupMutationObserver = setupMutationObserver().stop;
+        cleanupResizeObserver = useResizeObserver(
+            scrollContainer,
+            debouncedUpdateMasks,
+        ).stop;
+        cleanupMutationObserver = useMutationObserver(
+            scrollContainer,
+            debouncedUpdateMasks,
+            {
+                childList: true,
+                subtree: true,
+            },
+        ).stop;
 
         nextTick(() => {
             updateScrollMasks();
@@ -210,11 +149,11 @@ export function useTabVerticalScroll(
     return {
         // State
         scrollContainer,
-        showTopMask: readonly(showTopMask),
-        showBottomMask: readonly(showBottomMask),
+        showTopMask: readonly(showStartMask),
+        showBottomMask: readonly(showEndMask),
 
         // Actions
         updateScrollMasks,
-        scrollTabIntoView,
+        scrollTabIntoView: scrollElementIntoView,
     };
-}
+};

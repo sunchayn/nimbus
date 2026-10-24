@@ -1,5 +1,3 @@
-import type { Component } from 'vue';
-
 export enum ValueGeneratorCommandOpenMethod {
     CLICK = 'click',
     SHIFT_SHIFT = 'shift-shift',
@@ -12,13 +10,13 @@ export interface ValueGenerator {
     category: GeneratorCategory;
     generate: (config?: object) => string | number | bigint;
     shortcut?: string;
-    icon?: Component; // <- Lucide icon component
+    icon?: string;
 }
 
 export interface GeneratorCategory {
     id: string;
     name: string;
-    icon?: Component; // <- Lucide icon component
+    icon?: string;
 }
 
 export interface GeneratorCommandState {

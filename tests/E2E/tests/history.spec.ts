@@ -287,7 +287,7 @@ test.describe('Rewind Functionality', () => {
             '_demo/authentication/show-logged-in-user',
         );
         await expect(page.getByTestId('request-builder-root')).toContainText('GET');
-        await expect(page.getByTestId('response-status-badge')).toContainText('200 - OK');
+        await expect(page.getByTestId('response-status').getByTestId('response-status-badge')).toContainText('200 - OK');
     });
 
     test('preserves request body when rewinding', async ({ page, basePage }) => {

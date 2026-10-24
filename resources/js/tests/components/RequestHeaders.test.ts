@@ -7,7 +7,7 @@ import { ParameterType } from '@/interfaces/ui';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, reactive, ref } from 'vue';
 
 /*
@@ -45,11 +45,13 @@ const setPendingRequest = (request: PendingRequest | null) => {
     mockRequestStore.pendingRequestData = request;
 };
 
+const mountedWrappers: VueWrapper[] = [];
+
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
 const createWrapper = (options = {}): VueWrapper => {
-    return mount(RequestHeaders, {
+    const wrapper = mount(RequestHeaders, {
         ...options,
         global: {
             plugins: [createPinia()],
@@ -61,9 +63,18 @@ const createWrapper = (options = {}): VueWrapper => {
             ...(options.global || {}),
         },
     });
+
+    mountedWrappers.push(wrapper);
+
+    return wrapper;
 };
 
 describe('RequestHeaders', () => {
+    afterEach(() => {
+        // Live wrappers would keep reacting to the shared mock store in later tests.
+        mountedWrappers.splice(0).forEach(wrapper => wrapper.unmount());
+    });
+
     beforeEach(() => {
         setActivePinia(createPinia());
         vi.useFakeTimers();

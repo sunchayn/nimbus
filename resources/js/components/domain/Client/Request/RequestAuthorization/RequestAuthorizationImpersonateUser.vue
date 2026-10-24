@@ -3,20 +3,20 @@
  * @component RequestAuthorizationImpersonateUser
  * @description Input field for user ID to impersonate as authentication.
  */
-import { AppInput } from '@/components/base/input';
+import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import { type ModelRef } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppRequestAuthorizationImpersonateUserProps {}
+export interface RequestAuthorizationImpersonateUserProps {}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppRequestAuthorizationImpersonateUserProps>();
+defineProps<RequestAuthorizationImpersonateUserProps>();
 
 const model: ModelRef<number> = defineModel<number>({
     default: () => 0,
@@ -24,15 +24,20 @@ const model: ModelRef<number> = defineModel<number>({
 </script>
 
 <template>
-    <div class="grid h-8 grid-cols-3 border-b">
-        <label class="px-panel flex h-8 items-center border-r py-1 text-xs" for="user-id">
+    <div class="h-control-lg grid grid-cols-3 border-b">
+        <label
+            class="px-panel h-control-lg flex items-center border-r py-1 text-xs"
+            for="user-id"
+        >
             User ID
         </label>
-        <AppInput
+        <GeneratorInput
             id="user-id"
             v-model="model"
             placeholder="Pick a user ID to impersonate it."
-            class="col-span-2 h-full rounded-none border-0 text-xs shadow-none focus:ring-0 focus-visible:ring-0"
+            variant="none"
+            class="col-span-2 h-full"
+            :ui="{ base: 'text-xs' }"
             type="numeric"
         />
     </div>

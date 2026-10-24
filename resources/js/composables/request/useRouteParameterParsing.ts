@@ -3,10 +3,12 @@ import { computed, type ComputedRef, type Ref } from 'vue';
 /**
  * Composable for parsing dynamic parameters in a route endpoint URL.
  */
-export function useRouteParameterParsing(endpoint: Ref<string> | ComputedRef<string>): {
+export const useRouteParameterParsing = (
+    endpoint: Ref<string> | ComputedRef<string>,
+): {
     parameters: ComputedRef<string[]>;
     hasParameters: ComputedRef<boolean>;
-} {
+} => {
     const parameters = computed(() => {
         const url = endpoint.value;
 
@@ -25,4 +27,4 @@ export function useRouteParameterParsing(endpoint: Ref<string> | ComputedRef<str
         parameters,
         hasParameters,
     };
-}
+};

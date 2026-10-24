@@ -3,25 +3,24 @@
  * @component ResponseStatus
  * @description Renders the status bar for a response, showing the status code, duration, size, and history controls.
  */
+import { AppBadge } from '@/components/base/badge';
 import { AppButton } from '@/components/base/button';
+import { AppTooltip } from '@/components/base/tooltip';
 import RequestHistory from '@/components/domain/Client/Response/ResponseStatus/History/RequestHistory.vue';
 import ResponseStatusCode from '@/components/domain/Client/Response/ResponseStatus/ResponseStatusCode.vue';
 import type { RequestLog } from '@/interfaces/history/logs';
 import { type PendingRequest, STATUS } from '@/interfaces/http';
 import { useRequestStore } from '@/stores';
 import { cn } from '@/utils/ui';
-import { Import, RefreshCwOffIcon } from 'lucide-vue-next';
 import prettyBytes from 'pretty-bytes';
 import prettyMs from 'pretty-ms';
-import { type PrimitiveProps } from 'reka-ui';
 import { computed, type ComputedRef, type HTMLAttributes } from 'vue';
-import AppTooltipWrapper from '../../../../base/tooltip/AppTooltipWrapper.vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppResponseStatusProps extends PrimitiveProps {
+export interface ResponseStatusProps {
     class?: HTMLAttributes['class'];
     response?: RequestLog | null;
 }
@@ -30,7 +29,7 @@ export interface AppResponseStatusProps extends PrimitiveProps {
  * Component Setup.
  */
 
-const props = defineProps<AppResponseStatusProps>();
+const props = defineProps<ResponseStatusProps>();
 
 /*
  * Stores.
@@ -60,12 +59,10 @@ const status = computed(() => {
     return lastLog.value.response.status ?? STATUS.EMPTY;
 });
 
-const size = computed(() =>
-    prettyBytes(lastLog.value?.response?.sizeInBytes ?? 0, { space: false }),
-);
+const size = computed(() => prettyBytes(lastLog.value?.response?.sizeInBytes ?? 0));
 
 const duration = computed(() => {
-    return prettyMs(
+    const text = prettyMs(
         // If there's a pending request that's processing, use its duration
         // Otherwise, use the provided response's duration
         pendingRequestData.value?.isProcessing
@@ -77,60 +74,86 @@ const duration = computed(() => {
             keepDecimalsOnWholeSeconds: true,
         },
     );
+
+    // Put a space between the number and its unit.
+    return text.replace(/(\d)([a-zµ]+)/gi, '$1 $2');
 });
 
 const cancelRequest = () => {
     requestStore.cancelCurrentRequest();
 };
 
+const statusAnnouncement = computed(() => {
+    if (pendingRequestData.value?.isProcessing) {
+        return 'Sending request';
+    }
+
+    return lastLog.value ? 'Response received' : '';
+});
+
 const isImportedFromShare = computed(() => lastLog.value?.importedFromShare === true);
 </script>
 
 <template>
-    <div :class="cn('h-toolbar flex', props.class)">
-        <div class="relative flex h-full flex-1 items-center justify-between p-2">
-            <div class="flex w-full items-center justify-between gap-1">
-                <div class="flex items-center space-x-2">
-                    <ResponseStatusCode
-                        :status="status"
-                        :response="
-                            !pendingRequestData?.isProcessing
-                                ? lastLog?.response
-                                : undefined
-                        "
-                    />
-                    <div class="w-8 border-b border-zinc-200"></div>
-                    <span class="text-xs">
-                        <span data-testid="response-status-duration">{{ duration }}</span>
-                        <template v-if="!pendingRequestData?.isProcessing">
-                            <span class="text-color-muted mx-1 text-xs">/</span>
-                            <span data-testid="response-status-size">{{ size }}</span>
-                        </template>
-                    </span>
-                </div>
-
-                <div v-if="!pendingRequestData?.isProcessing" class="flex items-center">
-                    <RequestHistory />
-                </div>
-            </div>
-
-            <div v-if="pendingRequestData?.isProcessing">
-                <AppButton variant="outline" size="xs" @click="cancelRequest">
-                    <RefreshCwOffIcon />
-                    Cancel
-                </AppButton>
-            </div>
-        </div>
-        <AppTooltipWrapper
-            v-if="isImportedFromShare"
-            value="This response was imported from a shareable link"
-        >
-            <div
-                class="flex h-full items-center gap-1 rounded-none border-indigo-500/50 bg-indigo-500/5 p-3.5 text-xs text-indigo-600 dark:text-indigo-400"
-                data-testid="imported-badge"
+    <div
+        :class="
+            cn(
+                'pane-surface pr-panel @container flex h-[calc(var(--toolbar-height)+2*var(--border-w))] shrink-0 items-center justify-between gap-3',
+                props.class,
+            )
+        "
+        data-testid="response-status"
+    >
+        <span class="sr-only" role="status">{{ statusAnnouncement }}</span>
+        <div class="gap-base pl-panel flex min-w-0 items-center overflow-hidden">
+            <ResponseStatusCode
+                :status="status"
+                :response="
+                    !pendingRequestData?.isProcessing ? lastLog?.response : undefined
+                "
+            />
+            <div class="border-default w-8 shrink-0 border-b @max-md:hidden"></div>
+            <span
+                class="gap-base inline-flex items-center text-xs whitespace-nowrap @max-sm:hidden"
             >
-                <Import class="size-4" />
-            </div>
-        </AppTooltipWrapper>
+                <span class="tabular-nums" data-testid="response-status-duration">
+                    {{ duration }}
+                </span>
+                <template v-if="!pendingRequestData?.isProcessing">
+                    <span class="text-muted" aria-hidden="true">•</span>
+                    <span data-testid="response-status-size">{{ size }}</span>
+                </template>
+            </span>
+        </div>
+
+        <div class="flex shrink-0 items-center gap-1">
+            <AppTooltip
+                v-if="isImportedFromShare"
+                text="This response was imported from a shareable link"
+            >
+                <AppBadge
+                    variant="soft"
+                    color="info"
+                    icon="i-hugeicons-file-import"
+                    data-testid="imported-badge"
+                >
+                    Imported
+                </AppBadge>
+            </AppTooltip>
+
+            <template v-if="!pendingRequestData?.isProcessing">
+                <RequestHistory />
+            </template>
+
+            <AppButton
+                v-else
+                variant="outline"
+                color="neutral"
+                size="xs"
+                icon="i-hugeicons-refresh-cw-off"
+                label="Cancel"
+                @click="cancelRequest"
+            />
+        </div>
     </div>
 </template>

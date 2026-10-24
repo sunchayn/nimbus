@@ -3,38 +3,41 @@
  * @component ApplicationSwitcher
  * @description A dropdown component for switching between different applications in a multi-app setup.
  */
-import {
-    AppSelect,
-    AppSelectContent,
-    AppSelectGroup,
-    AppSelectItem,
-    AppSelectLabel,
-    AppSelectTrigger,
-    AppSelectValue,
-} from '@/components/base/select';
+import { AppSelect } from '@/components/base/select';
 import { useConfigStore } from '@/stores';
-import { LayersIcon } from 'lucide-vue-next';
-import { type AcceptableValue } from 'reka-ui';
+import { computed } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppApplicationSwitcherProps {}
+export interface ApplicationSwitcherProps {}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppApplicationSwitcherProps>();
+defineProps<ApplicationSwitcherProps>();
 
 const configStore = useConfigStore();
+
+/*
+ * Computed & Methods.
+ */
+
+const items = computed(() => [
+    { type: 'label' as const, label: 'Applications' },
+    ...Object.entries(configStore.applications).map(([key, name]) => ({
+        label: name,
+        value: key,
+    })),
+]);
 
 /*
  * Event Handlers.
  */
 
-const handleApplicationChange = (applicationKey: AcceptableValue) => {
+const handleApplicationChange = (applicationKey: unknown) => {
     if (applicationKey === null) {
         return;
     }
@@ -50,32 +53,14 @@ const handleApplicationChange = (applicationKey: AcceptableValue) => {
     <div class="w-full">
         <AppSelect
             :model-value="configStore.activeApplication || ''"
+            :items="items"
+            variant="outline"
+            size="md"
+            leading-icon="i-hugeicons-layers-01"
+            placeholder="Select an application"
+            class="w-full"
+            :content="{ alignOffset: 2 }"
             @update:model-value="handleApplicationChange"
-        >
-            <AppSelectTrigger
-                class="px-panel w-full border-none text-xs shadow-none focus:ring-0 active:ring-0"
-            >
-                <div class="flex items-center gap-2 overflow-hidden">
-                    <LayersIcon class="text-subtle-foreground size-3.5 shrink-0" />
-                    <AppSelectValue
-                        placeholder="Select an application"
-                        class="truncate"
-                    />
-                </div>
-            </AppSelectTrigger>
-            <AppSelectContent class="min-w-52" :align-offset="2">
-                <AppSelectGroup>
-                    <AppSelectLabel>Applications</AppSelectLabel>
-                    <AppSelectItem
-                        v-for="(name, key) in configStore.applications"
-                        :key="key"
-                        :value="key"
-                        class="text-xs"
-                    >
-                        {{ name }}
-                    </AppSelectItem>
-                </AppSelectGroup>
-            </AppSelectContent>
-        </AppSelect>
+        />
     </div>
 </template>

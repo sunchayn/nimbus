@@ -17,13 +17,13 @@ import { computed, onBeforeMount, type Ref, ref } from 'vue';
  * Types & Interfaces.
  */
 
-export interface AppRequestHeadersProps {}
+export interface RequestHeadersProps {}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppRequestHeadersProps>();
+defineProps<RequestHeadersProps>();
 
 /*
  * Stores.
@@ -82,7 +82,7 @@ onBeforeMount(() => {
                 globalHeader.type === 'generator'
                     ? generateValueFromType(
                           globalHeader.value as GeneratorType,
-                          valueGeneratorStore,
+                          valueGeneratorStore.generateValue,
                       )
                     : String(globalHeader.value),
             enabled: true,

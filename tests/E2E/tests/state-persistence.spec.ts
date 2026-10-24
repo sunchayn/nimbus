@@ -22,7 +22,7 @@ test("State Persistence sanity checklist", async ({page}) => {
     await page.getByTestId("kv-key").nth(3).fill("x-new");
     await page.getByTestId("kv-key").nth(3).press("Tab");
     await page.getByTestId("kv-value").nth(3).fill("x-value");
-    await page.getByRole("button", {name: "Send ( )"}).click();
+    await page.getByRole("button", {name: "Send", exact: true}).click();
 
     await page
         .getByTestId("response-content")
@@ -37,66 +37,48 @@ test("State Persistence sanity checklist", async ({page}) => {
         .toMatchAriaSnapshot(`
     - tablist:
       - tab "Response"
-      - tab "Headers"
-      - tab "Cookies" [selected]
+      - tab /Headers \\d+/
+      - tab /Cookies \\d+/ [selected]
     `);
 
     await expect(page.getByTestId("app-tabs-container")).toMatchAriaSnapshot(`
     - tablist:
-      - tab "Parameters"
+      - tab /Parameters \\d+/
       - tab "Body"
       - tab "Authorization"
-      - tab "Headers" [selected]
+      - tab /Headers \\d+/ [selected]
     `);
 
     await expect(page.getByTestId("kv-value").nth(3)).toHaveValue("x-value");
 
-    await expect(page.locator("#reka-splitter-panel-v-6")).toMatchAriaSnapshot(`
+    await expect(page.getByTestId("routes-panel")).toMatchAriaSnapshot(`
     - list:
       - listitem:
-        - button "authentication":
-          - img
-          - img
+        - button "authentication"
       - listitem:
-        - button "dd":
-          - img
-          - img
+        - button "dd"
       - listitem:
-        - button "inline-validation" [expanded]:
-          - img
-          - img
+        - button "inline-validation" [expanded]
         - list:
           - button "POST /complex"
           - button "POST /conditional"
           - button "POST /enum"
           - button "POST /simple"
       - listitem:
-        - button "request-parameters":
-          - img
-          - img
+        - button "request-parameters"
       - listitem:
-        - button "responses":
-          - img
-          - img
+        - button "responses"
       - listitem:
-        - button "segments":
-          - img
-          - img
+        - button "segments"
       - listitem:
-        - button "shapes" [expanded]:
-          - img
-          - img
+        - button "shapes" [expanded]
         - list:
           - button "POST /array-of-primitives"
           - button "POST /nested-object"
       - listitem:
-        - button "spatie-data":
-          - img
-          - img
+        - button "spatie-data"
       - listitem:
-        - button "verbs":
-          - img
-          - img
+        - button "verbs"
     `);
 
     await page.getByRole("tab", {name: "Authorization"}).click();
@@ -121,13 +103,10 @@ test("State Persistence sanity checklist", async ({page}) => {
 
     await page.reload();
 
-    await expect(page.locator("#reka-splitter-panel-v-6")).toMatchAriaSnapshot(`
-    - text: Routes
+    await expect(page.getByTestId("routes-panel")).toMatchAriaSnapshot(`
     - list:
       - listitem:
-        - button "authentication" [expanded]:
-          - img
-          - img
+        - button "authentication" [expanded]
         - list:
           - button "GET /show-logged-in-user"
     `);
@@ -135,16 +114,16 @@ test("State Persistence sanity checklist", async ({page}) => {
     await expect(page.getByTestId("response-content")).toMatchAriaSnapshot(`
     - tablist:
       - tab "Response"
-      - tab "Headers" [selected]
-      - tab "Cookies"
+      - tab /Headers \\d+/ [selected]
+      - tab /Cookies \\d+/
     `);
 
     await expect(page.getByTestId("app-tabs-container")).toMatchAriaSnapshot(`
     - tablist:
-      - tab "Parameters"
+      - tab /Parameters \\d+/
       - tab "Body"
       - tab "Authorization" [selected]
-      - tab "Headers"
+      - tab /Headers \\d+/
     `);
 
     await expect(

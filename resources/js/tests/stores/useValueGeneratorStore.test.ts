@@ -2,7 +2,7 @@ import type { ValueGenerator } from '@/interfaces/ui';
 import { useValueGeneratorStore } from '@/stores/generators/useValueGeneratorStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { computed, reactive, ref } from 'vue';
+import { reactive } from 'vue';
 
 /*
  * Fixtures.
@@ -21,7 +21,11 @@ const generators: ValueGenerator[] = [
 const commandStore = reactive({
     isCommandOpen: false,
     currentInputRef: null as HTMLElement | null,
-    commandState: { recentGenerators: [] as string[] },
+    commandState: {
+        recentGenerators: [] as string[],
+        searchQuery: '',
+        selectedCategory: null as string | null,
+    },
     openCommand: vi.fn(),
     closeCommand: vi.fn(),
     setSearchQuery: vi.fn(),
@@ -38,18 +42,6 @@ vi.mock('@/stores/generators/useValueGeneratorDefinitionsStore', () => ({
 
 vi.mock('@/stores/generators/useGeneratorCommandStore', () => ({
     useGeneratorCommandStore: () => commandStore,
-}));
-
-vi.mock('@/composables/data/useGeneratorSearch', () => ({
-    useGeneratorSearch: () => ({
-        filteredGenerators: ref(generators),
-        setSearchQuery: vi.fn(),
-        setSelectedCategory: vi.fn(),
-        searchQuery: ref(''),
-        selectedCategory: ref(null),
-        clearFilters: vi.fn(),
-        hasActiveFilters: computed(() => false),
-    }),
 }));
 
 describe('useValueGeneratorStore', () => {
@@ -76,6 +68,29 @@ describe('useValueGeneratorStore', () => {
 
             expect(value).toBe('uuid-value');
             expect(commandStore.addToRecentGenerators).toHaveBeenCalledWith('uuid');
+        });
+    });
+
+    describe('Filtering', () => {
+        it('filters generators using the command store query', () => {
+            // Arrange
+
+            const store = useValueGeneratorStore();
+
+            // Act
+
+            commandStore.commandState.searchQuery = 'uuid';
+            const matching = store.filteredGenerators.map(g => g.id);
+
+            commandStore.commandState.searchQuery = 'nope';
+            const none = store.filteredGenerators;
+
+            commandStore.commandState.searchQuery = '';
+
+            // Assert
+
+            expect(matching).toEqual(['uuid']);
+            expect(none).toEqual([]);
         });
     });
 

@@ -1,82 +1,70 @@
-import {
-    AppPopover,
-    AppPopoverContent,
-    AppPopoverTrigger,
-} from '@/components/base/popover';
-import type { VueWrapper } from '@vue/test-utils';
+import { AppPopover } from '@/components/base/popover';
 import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
 
 /*
  * Fixtures.
  */
 
-/**
- * Factory function to create a mounted wrapper with sensible defaults.
- */
-const createWrapper = (options = {}): VueWrapper => {
-    return mount(
+const mountPopover = (props = {}, withAnchor = false) =>
+    mount(
         {
-            components: { AppPopover, AppPopoverTrigger, AppPopoverContent },
-            template: `
-            <AppPopover>
-                <AppPopoverTrigger>Open</AppPopoverTrigger>
-                <AppPopoverContent>Popover Content</AppPopoverContent>
-            </AppPopover>
-        `,
-            ...options,
+            components: { AppPopover },
+            props: ['open'],
+            template: withAnchor
+                ? `<AppPopover :open="open">
+                    <template #anchor><div data-testid="anchor">Anchor</div></template>
+                    <template #content><p>Popover body</p></template>
+                </AppPopover>`
+                : `<AppPopover :open="open">
+                    <button data-testid="trigger">Toggle</button>
+                    <template #content><p>Popover body</p></template>
+                </AppPopover>`,
         },
-        {
-            global: {
-                plugins: [createPinia()],
-            },
-            attachTo: document.body,
-        },
+        { props, attachTo: document.body },
     );
-};
 
 describe('AppPopover', () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-        vi.clearAllMocks();
+    afterEach(() => {
         document.body.innerHTML = '';
     });
 
-    /*
-     * Rendering tests.
-     */
+    it('keeps the content closed by default', () => {
+        // Arrange & Act
 
-    describe('Rendering', () => {
-        it('renders trigger correctly', () => {
-            // Arrange
+        mountPopover();
 
-            const wrapper = createWrapper();
+        // Assert
 
-            // Assert
-
-            expect(wrapper.find('button').text()).toBe('Open');
-        });
+        expect(document.body.textContent).not.toContain('Popover body');
     });
 
-    /*
-     * State Transition tests.
-     */
+    it('opens when the trigger is clicked', async () => {
+        // Arrange
 
-    describe('Behavior', () => {
-        it('opens content when trigger is clicked', async () => {
-            // Arrange
+        mountPopover();
 
-            const wrapper = createWrapper();
+        // Act
 
-            // Act
+        document.querySelector<HTMLElement>('[data-testid="trigger"]')?.click();
+        await nextTick();
+        await nextTick();
 
-            await wrapper.find('button').trigger('click');
+        // Assert
 
-            // Assert
+        expect(document.body.textContent).toContain('Popover body');
+    });
 
-            expect(document.body.innerHTML).toContain('Popover Content');
-            wrapper.unmount();
-        });
+    it('shows content next to an anchor when controlled open', async () => {
+        // Arrange & Act
+
+        mountPopover({ open: true }, true);
+        await nextTick();
+
+        // Assert
+
+        expect(document.querySelector('[data-testid="anchor"]')).not.toBeNull();
+        expect(document.body.textContent).toContain('Popover body');
     });
 });

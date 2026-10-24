@@ -16,6 +16,13 @@ vi.mock('@/components/domain/Client/Response/ResponseStatus/ResponseStatus.vue',
     default: { template: '<div data-testid="response-status" />' },
 }));
 
+vi.mock(
+    '@/components/domain/Client/Response/ResponseBody/ResponseDownloadDropdown.vue',
+    () => ({
+        default: { template: '<div data-testid="download-dropdown-trigger" />' },
+    }),
+);
+
 vi.mock('@/components/domain/Client/Response/ResponseViewerEmptyState.vue', () => ({
     default: { template: '<div data-testid="response-empty" />' },
 }));

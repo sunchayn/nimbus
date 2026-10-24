@@ -7,7 +7,7 @@ import { type ParameterContract, ParameterType } from '@/interfaces/ui';
 import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
 import type { ComputedRef, Ref } from 'vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, shallowRef } from 'vue';
 
 /*
  * Types & Interfaces.
@@ -34,9 +34,9 @@ export const useEnvironmentVariablesStore = defineStore(
         const collections: Ref<EnvironmentCollection[]> = ref<EnvironmentCollection[]>(
             [],
         );
-        const activeCollectionId = ref<string | null | undefined>(null);
-        const nextVariableId = ref(0);
-        const isRenamingActiveCollection = ref<boolean>(false);
+        const activeCollectionId = shallowRef<string | null | undefined>(null);
+        const nextVariableId = shallowRef(0);
+        const isRenamingActiveCollection = shallowRef<boolean>(false);
 
         /*
          * Private Methods.
@@ -281,7 +281,11 @@ function getStringSegments(
     const matches = Array.from(value.matchAll(PLACEHOLDER_PATTERN));
 
     for (const match of matches) {
-        const index = match.index!;
+        const index = match.index;
+
+        if (index === undefined) {
+            continue;
+        }
 
         if (index > lastIndex) {
             segments.push({

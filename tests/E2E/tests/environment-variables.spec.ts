@@ -36,7 +36,7 @@ test.describe('Environment Variables', () => {
         await endpointInput.fill('_demo/users/{{user_id}}');
 
         // Verify visual feedback (grey highlight for resolved)
-        const resolvedSegment = page.locator('.text-primary').first();
+        const resolvedSegment = page.locator('[data-segment-index].text-highlighted').first();
         await expect(resolvedSegment).toBeVisible();
         await expect(resolvedSegment).toHaveText('{{user_id}}');
 
@@ -60,7 +60,7 @@ test.describe('Environment Variables', () => {
         await expect(headerValueInput).toHaveValue('Bearer {{api_token}}');
 
         // Verify another segment is resolved in headers
-        const headerResolvedSegment = page.getByTestId('request-headers').locator('.text-primary');
+        const headerResolvedSegment = page.getByTestId('request-headers').locator('[data-segment-index].text-highlighted');
         await expect(headerResolvedSegment).toBeVisible();
         await expect(headerResolvedSegment).toHaveText('{{api_token}}');
 
@@ -111,7 +111,7 @@ test.describe('Environment Variables', () => {
 
         // Test Missing variable (Red highlight)
         await endpointInput.fill('{{missing_var}}');
-        const missingSegment = page.locator('[data-segment-index="0"].text-destructive');
+        const missingSegment = page.locator('[data-segment-index="0"].text-error');
         await expect(missingSegment).toBeVisible();
         await expect(missingSegment).toHaveText('{{missing_var}}');
 

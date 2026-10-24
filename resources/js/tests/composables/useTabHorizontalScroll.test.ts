@@ -8,14 +8,25 @@ import { effectScope } from 'vue';
 
 const scrollMocks = vi.hoisted(() => ({
     getScrollBounds: vi.fn(() => ({ current: 50 })),
-    getMaskVisibility: vi.fn(() => ({ showLeftMask: true, showRightMask: false })),
+    getMaskVisibility: vi.fn(() => ({
+        showLeftMask: true,
+        showRightMask: false,
+    })),
     getElementVisibility: vi.fn(() => ({ isFullyVisible: false })),
     calculateScrollToElement: vi.fn(() => 120),
 }));
 
 vi.mock('@/utils/scroll', () => scrollMocks);
+const vueuseMocks = vi.hoisted(() => ({
+    resizeCallback: null as (() => void) | null,
+}));
+
 vi.mock('@vueuse/core', () => ({
     useDebounceFn: vi.fn(fn => fn),
+    useEventListener: vi.fn(),
+    useResizeObserver: vi.fn((_target, callback: () => void) => {
+        vueuseMocks.resizeCallback = callback;
+    }),
 }));
 
 describe('useTabHorizontalScroll', () => {
@@ -65,6 +76,24 @@ describe('useTabHorizontalScroll', () => {
             expect(composable.showLeftMask.value).toBe(true);
         });
 
+        it('updates mask visibility when the container is resized', () => {
+            // Arrange
+
+            const composable = runComposable();
+            composable.scrollContainer.value = {
+                scrollLeft: 0,
+            } as unknown as HTMLElement;
+
+            // Act
+
+            vueuseMocks.resizeCallback?.();
+
+            // Assert
+
+            expect(scrollMocks.getScrollBounds).toHaveBeenCalled();
+            expect(composable.showLeftMask.value).toBe(true);
+        });
+
         it('scrolls tab into view when not visible', () => {
             // Arrange
 
@@ -84,7 +113,10 @@ describe('useTabHorizontalScroll', () => {
             // Assert
 
             expect(scrollMocks.calculateScrollToElement).toHaveBeenCalled();
-            expect(scrollTo).toHaveBeenCalledWith({ left: 120, behavior: 'smooth' });
+            expect(scrollTo).toHaveBeenCalledWith({
+                left: 120,
+                behavior: 'smooth',
+            });
         });
     });
 });

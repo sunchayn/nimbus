@@ -31,7 +31,7 @@ const props = withDefaults(defineProps<AppRippleCircleProps>(), {
 </script>
 
 <template>
-    <div :class="cn('absolute shadow-xl', 'animate-ripple-circle', props.class)" />
+    <div :class="cn('absolute', 'animate-ripple-circle', props.class)" />
 </template>
 
 <style scoped>
@@ -56,6 +56,12 @@ const props = withDefaults(defineProps<AppRippleCircleProps>(), {
 
     50% {
         transform: translate(-50%, -50%) scale(0.9);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-ripple-circle {
+        animation: none;
     }
 }
 </style>

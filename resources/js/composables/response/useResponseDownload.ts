@@ -4,7 +4,7 @@ import { useConfigStore } from '@/stores';
 import { getMimeTypeInfo } from '@/utils/http';
 import { triggerDownload } from '@/utils/ui/download';
 import axios from 'axios';
-import { type ComputedRef, type Ref, computed, ref, watch } from 'vue';
+import { type ComputedRef, type Ref, computed, ref, shallowRef, watch } from 'vue';
 
 export interface UseResponseDownloadResult {
     isResolvingShape: Ref<boolean>;
@@ -17,7 +17,7 @@ export interface UseResponseDownloadResult {
 /**
  * Extracts the content-type header value from a Response object.
  */
-function extractContentType(response?: Response): string {
+const extractContentType = (response?: Response): string => {
     if (!response?.headers) {
         return '';
     }
@@ -25,12 +25,12 @@ function extractContentType(response?: Response): string {
     const header = response.headers.find(h => h.key.toLowerCase() === 'content-type');
 
     return typeof header?.value === 'string' ? header.value : '';
-}
+};
 
 /**
  * Generates a clean download filename slug based on route metadata or request endpoint.
  */
-function getDownloadSlug(request?: Request): string {
+const getDownloadSlug = (request?: Request): string => {
     const routeName = request?.routeDefinition?.metadata?.name;
 
     if (typeof routeName === 'string' && routeName.trim() !== '') {
@@ -45,19 +45,19 @@ function getDownloadSlug(request?: Request): string {
     }
 
     return cleanPath.replace(/\//g, '.');
-}
+};
 
 /**
  * Composable for managing response download logic.
  */
-function useResponseDownload(
+const useResponseDownload = (
     response:
         | Ref<RequestLog | null | undefined>
         | ComputedRef<RequestLog | null | undefined>,
-): UseResponseDownloadResult {
+): UseResponseDownloadResult => {
     const configStore = useConfigStore();
 
-    const isResolvingShape = ref(false);
+    const isResolvingShape = shallowRef(false);
     const resolvedShape = ref<Record<string, unknown> | null>(null);
 
     const isJsonResponse = computed(() => {
@@ -148,6 +148,6 @@ function useResponseDownload(
         downloadRawResponse,
         downloadResponseShape,
     };
-}
+};
 
 export default useResponseDownload;

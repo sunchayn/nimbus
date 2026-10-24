@@ -1,81 +1,72 @@
-import {
-    AppTable,
-    AppTableBody,
-    AppTableCell,
-    AppTableHead,
-    AppTableHeader,
-    AppTableRow,
-} from '@/components/base/table';
-import type { VueWrapper } from '@vue/test-utils';
+import { AppTable } from '@/components/base/table';
 import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 /*
  * Fixtures.
  */
 
-/**
- * Factory function to create a mounted wrapper with sensible defaults.
- */
-const createWrapper = (options = {}): VueWrapper => {
-    return mount(
-        {
-            components: {
-                AppTable,
-                AppTableHeader,
-                AppTableBody,
-                AppTableHead,
-                AppTableRow,
-                AppTableCell,
-            },
-            template: `
-            <AppTable>
-                <AppTableHeader>
-                    <AppTableRow>
-                        <AppTableHead>Header</AppTableHead>
-                    </AppTableRow>
-                </AppTableHeader>
-                <AppTableBody>
-                    <AppTableRow>
-                        <AppTableCell>Cell</AppTableCell>
-                    </AppTableRow>
-                </AppTableBody>
-            </AppTable>
-        `,
-            ...options,
-        },
-        {
-            global: {
-                plugins: [createPinia()],
-            },
-        },
-    );
-};
+const columns = [
+    { accessorKey: 'name', header: 'Name' },
+    { accessorKey: 'role', header: 'Role' },
+];
+
+const data = [
+    { name: 'Ada', role: 'Admin' },
+    { name: 'Bob', role: 'Guest' },
+];
+
+const createWrapper = (props = {}, slots = {}) =>
+    mount(AppTable, { props: { data, columns, ...props }, slots });
 
 describe('AppTable', () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-        vi.clearAllMocks();
-    });
-
-    /*
-     * Rendering tests.
-     */
-
     describe('Rendering', () => {
-        it('renders table structure correctly', () => {
-            // Arrange
+        it('renders the column headers', () => {
+            // Arrange & Act
 
             const wrapper = createWrapper();
 
             // Assert
 
-            expect(wrapper.find('table').exists()).toBe(true);
-            expect(wrapper.find('thead').exists()).toBe(true);
-            expect(wrapper.find('tbody').exists()).toBe(true);
-            expect(wrapper.find('th').text()).toBe('Header');
-            expect(wrapper.find('td').text()).toBe('Cell');
+            expect(wrapper.findAll('th').map(th => th.text())).toEqual(['Name', 'Role']);
+        });
+
+        it('renders one row per data item', () => {
+            // Arrange & Act
+
+            const wrapper = createWrapper();
+
+            // Assert
+
+            expect(wrapper.findAll('tbody tr')).toHaveLength(2);
+            expect(wrapper.text()).toContain('Ada');
+            expect(wrapper.text()).toContain('Guest');
+        });
+
+        it('renders custom cell content through a cell slot', () => {
+            // Arrange & Act
+
+            const wrapper = createWrapper(
+                {},
+                {
+                    'name-cell':
+                        '<template #name-cell="{ row }">[{{ row.original.name }}]</template>',
+                },
+            );
+
+            // Assert
+
+            expect(wrapper.text()).toContain('[Ada]');
+        });
+
+        it('shows the empty text when there is no data', () => {
+            // Arrange & Act
+
+            const wrapper = createWrapper({ data: [], empty: 'Nothing here' });
+
+            // Assert
+
+            expect(wrapper.text()).toContain('Nothing here');
         });
     });
 });

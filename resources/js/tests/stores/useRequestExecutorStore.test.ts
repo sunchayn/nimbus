@@ -10,13 +10,9 @@ import { reactive } from 'vue';
  */
 
 const executeRequest = vi.fn();
-const cancelCurrentRequest = vi.fn();
 
-vi.mock('@/composables/request/useHttpClient', () => ({
-    useHttpClient: () => ({
-        executeRequest,
-        cancelCurrentRequest,
-    }),
+vi.mock('@/utils/request/sendRelayRequest', () => ({
+    sendRelayRequest: (...args: unknown[]) => executeRequest(...args),
 }));
 
 const mockRequestsHistoryStore = reactive({
@@ -123,18 +119,39 @@ describe('useRequestExecutorStore', () => {
             });
         });
 
-        it('cancels current request via http client', () => {
+        it('aborts the in-flight request when canceled', async () => {
+            // Arrange
+
+            const store = useRequestExecutorStore();
+            let signal: AbortSignal | undefined;
+
+            executeRequest.mockImplementation(
+                (_request: PendingRequest, options: { signal: AbortSignal }) => {
+                    signal = options.signal;
+
+                    return Promise.resolve(null);
+                },
+            );
+
+            // Act
+
+            const execution = store.executeRequestWithTiming({ ...request });
+            store.cancelCurrentRequest();
+            await execution;
+
+            // Assert
+
+            expect(signal?.aborted).toBe(true);
+        });
+
+        it('does nothing when canceling without a request in flight', () => {
             // Arrange
 
             const store = useRequestExecutorStore();
 
-            // Act
+            // Act and Assert
 
-            store.cancelCurrentRequest();
-
-            // Assert
-
-            expect(cancelCurrentRequest).toHaveBeenCalled();
+            expect(() => store.cancelCurrentRequest()).not.toThrow();
         });
     });
 });

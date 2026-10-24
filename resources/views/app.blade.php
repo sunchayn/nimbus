@@ -12,10 +12,6 @@
 
     <title>{{ config('app.name', 'Laravel') }} - Nimbus</title>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet"/>
-
     <script>
         (function () {
             const appearance = '{{ $appearance ?? "system" }}';
@@ -67,6 +63,6 @@
     @vite(['resources/css/app.css', 'resources/js/app/app.ts'])
 </head>
 <body class="font-sans antialiased">
-<div id="app"></div>
+<div id="app" class="isolate"></div>
 </body>
 </html>

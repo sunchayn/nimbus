@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {
-    AppPopover,
-    AppPopoverAnchor,
-    AppPopoverContent,
-} from '@/components/base/popover';
+/**
+ * @component EnvVariableSegment
+ * @description Popover that shows the status and value of an environment variable inside an input.
+ */
+import { AppPopover } from '@/components/base/popover';
 import { EnvVariableCheckStatus } from '@/interfaces/common/env-vars';
 
 /*
@@ -29,46 +29,40 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-    <AppPopover :open="isOpen">
-        <AppPopoverAnchor as-child>
+    <AppPopover
+        :open="isOpen && status !== EnvVariableCheckStatus.None"
+        :content="{ side: 'bottom', align: 'start', alignOffset }"
+    >
+        <template #anchor>
             <slot />
-        </AppPopoverAnchor>
+        </template>
 
-        <AppPopoverContent
-            v-if="status !== EnvVariableCheckStatus.None"
-            side="bottom"
-            align="start"
-            class="w-fit p-0 text-xs font-medium"
-            :align-offset="alignOffset"
-            :class="{
-                'max-w-64': status !== EnvVariableCheckStatus.Resolved,
-            }"
-        >
+        <template #content>
             <div
                 :class="{
                     'p-panel': status !== EnvVariableCheckStatus.Resolved,
-                    'bg-gradient-to-tr from-blue-500/5 to-transparent to-50% p-1 py-0.5 dark:from-blue-700/30':
+                    'from-info/5 dark:from-info/30 bg-gradient-to-tr to-transparent to-50% p-1':
                         status === EnvVariableCheckStatus.Resolved,
-                    'bg-gradient-to-tr from-yellow-500/5 to-transparent to-50% py-0.5 dark:from-yellow-700/30':
+                    'from-warning/5 dark:from-warning/30 bg-gradient-to-tr to-transparent to-50% py-1':
                         status === EnvVariableCheckStatus.Empty,
-                    'bg-gradient-to-tr from-rose-500/5 to-transparent to-50% py-0.5 dark:from-rose-700/30':
+                    'from-error/5 dark:from-error/30 bg-gradient-to-tr to-transparent to-50% py-1':
                         status === EnvVariableCheckStatus.Missing,
                 }"
             >
                 <p
                     v-if="status === EnvVariableCheckStatus.Missing"
-                    class="text-muted-foreground leading-tight"
+                    class="text-muted leading-tight"
                 >
                     The referenced variable cannot be found in the selected collection.
                 </p>
                 <p
                     v-else-if="status === EnvVariableCheckStatus.Empty"
-                    class="text-muted-foreground leading-tight"
+                    class="text-muted leading-tight"
                 >
                     The referenced variable is found, but its value is empty.
                 </p>
                 <span v-else>&lt;{{ variableValue }}&gt;</span>
             </div>
-        </AppPopoverContent>
+        </template>
     </AppPopover>
 </template>

@@ -1,15 +1,6 @@
-export { DropdownMenuPortal as AppDropdownMenuPortal } from 'reka-ui';
+import type { DropdownMenuItem } from '@nuxt/ui/components/DropdownMenu.vue';
+
 export { default as AppDropdownMenu } from './AppDropdownMenu.vue';
-export { default as AppDropdownMenuCheckboxItem } from './AppDropdownMenuCheckboxItem.vue';
-export { default as AppDropdownMenuContent } from './AppDropdownMenuContent.vue';
-export { default as AppDropdownMenuGroup } from './AppDropdownMenuGroup.vue';
-export { default as AppDropdownMenuItem } from './AppDropdownMenuItem.vue';
-export { default as AppDropdownMenuLabel } from './AppDropdownMenuLabel.vue';
-export { default as AppDropdownMenuRadioGroup } from './AppDropdownMenuRadioGroup.vue';
-export { default as AppDropdownMenuRadioItem } from './AppDropdownMenuRadioItem.vue';
-export { default as AppDropdownMenuSeparator } from './AppDropdownMenuSeparator.vue';
-export { default as AppDropdownMenuShortcut } from './AppDropdownMenuShortcut.vue';
-export { default as AppDropdownMenuSub } from './AppDropdownMenuSub.vue';
-export { default as AppDropdownMenuSubContent } from './AppDropdownMenuSubContent.vue';
-export { default as AppDropdownMenuSubTrigger } from './AppDropdownMenuSubTrigger.vue';
-export { default as AppDropdownMenuTrigger } from './AppDropdownMenuTrigger.vue';
+export type { AppDropdownMenuProps } from './AppDropdownMenu.vue';
+
+export type AppDropdownMenuItem = DropdownMenuItem;

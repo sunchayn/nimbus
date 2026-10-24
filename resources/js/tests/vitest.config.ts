@@ -1,9 +1,11 @@
+import ui from '@nuxt/ui/vite';
 import vue from '@vitejs/plugin-vue';
 import path from 'node:path';
 import { defineConfig } from 'vitest/config';
+import { nuxtUiOptions } from '../../../vite.config.js';
 
 export default defineConfig({
-    plugins: [vue()],
+    plugins: [vue(), ui(nuxtUiOptions)],
     test: {
         globals: true,
         environment: 'jsdom',

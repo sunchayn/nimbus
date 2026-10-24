@@ -1,67 +1,58 @@
-import {
-    AppTooltip,
-    AppTooltipContent,
-    AppTooltipProvider,
-    AppTooltipTrigger,
-} from '@/components/base/tooltip';
-import type { VueWrapper } from '@vue/test-utils';
+import { AppTooltip } from '@/components/base/tooltip';
+import UApp from '@nuxt/ui/components/App.vue';
 import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
 
 /*
  * Fixtures.
  */
 
-/**
- * Factory function to create a mounted wrapper with sensible defaults.
- */
-const createWrapper = (options = {}): VueWrapper => {
-    return mount(
+const mountTooltip = (props = {}) =>
+    mount(
         {
-            components: {
-                AppTooltip,
-                AppTooltipTrigger,
-                AppTooltipContent,
-                AppTooltipProvider,
-            },
+            components: { AppTooltip, UApp },
+            props: ['text', 'open'],
             template: `
-            <AppTooltipProvider>
-                <AppTooltip>
-                    <AppTooltipTrigger>Hover me</AppTooltipTrigger>
-                    <AppTooltipContent>Tooltip content</AppTooltipContent>
-                </AppTooltip>
-            </AppTooltipProvider>
-        `,
-            ...options,
+                <UApp>
+                    <AppTooltip :text="text" :open="open">
+                        <button data-testid="trigger">Hover me</button>
+                    </AppTooltip>
+                </UApp>
+            `,
         },
-        {
-            global: {
-                plugins: [createPinia()],
-            },
-        },
+        { props, attachTo: document.body },
     );
-};
 
 describe('AppTooltip', () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-        vi.clearAllMocks();
+    afterEach(() => {
+        document.body.innerHTML = '';
     });
 
-    /*
-     * Rendering tests.
-     */
+    it('renders the trigger without showing the text', () => {
+        // Arrange & Act
 
-    describe('Rendering', () => {
-        it('renders trigger correctly', () => {
-            // Arrange
+        mountTooltip({ text: 'Helpful hint' });
 
-            const wrapper = createWrapper();
+        // Assert
 
-            // Assert
+        expect(document.querySelector('[data-testid="trigger"]')?.textContent).toBe(
+            'Hover me',
+        );
+        expect(document.body.textContent).not.toContain('Helpful hint');
+    });
 
-            expect(wrapper.text()).toContain('Hover me');
-        });
+    it('shows the text with the tooltip role when open', async () => {
+        // Arrange & Act
+
+        mountTooltip({ text: 'Helpful hint', open: true });
+        await nextTick();
+        await nextTick();
+
+        // Assert
+
+        expect(document.querySelector('[role="tooltip"]')?.textContent).toContain(
+            'Helpful hint',
+        );
     });
 });

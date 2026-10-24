@@ -1,64 +1,28 @@
 import { AppLabel } from '@/components/base/label';
-import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-/*
- * Fixtures.
- */
-
-/**
- * Factory function to create a mounted wrapper with sensible defaults.
- */
-
-/**
- * Factory function to create a mounted wrapper with sensible defaults.
- */
-const createWrapper = (options = {}): VueWrapper => {
-    return mount(AppLabel, {
-        ...options,
-        global: {
-            plugins: [createPinia()],
-            // @ts-expect-error .global not found in object.
-            ...(options.global || {}),
-        },
-    });
-};
+import { describe, expect, it } from 'vitest';
 
 describe('AppLabel', () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-        vi.clearAllMocks();
-    });
-
-    /*
-     * Rendering tests.
-     */
-
     describe('Rendering', () => {
-        it('renders slot content correctly', () => {
-            // Arrange
+        it('renders slot content in a label element', () => {
+            // Arrange & Act
 
-            const wrapper = createWrapper({
-                slots: { default: 'Name' },
-            });
+            const wrapper = mount(AppLabel, { slots: { default: 'Name' } });
 
             // Assert
 
+            expect(wrapper.element.tagName).toBe('LABEL');
             expect(wrapper.text()).toBe('Name');
         });
 
-        it('applies custom class', () => {
-            // Arrange
+        it('links to a control through the for prop', () => {
+            // Arrange & Act
 
-            const wrapper = createWrapper({
-                props: { class: 'custom-label' },
-            });
+            const wrapper = mount(AppLabel, { props: { for: 'user-id' } });
 
             // Assert
 
-            expect(wrapper.classes()).toContain('custom-label');
+            expect(wrapper.attributes('for')).toBe('user-id');
         });
     });
 });

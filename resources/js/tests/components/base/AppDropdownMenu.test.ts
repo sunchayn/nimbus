@@ -1,90 +1,97 @@
-import {
-    AppDropdownMenu,
-    AppDropdownMenuContent,
-    AppDropdownMenuItem,
-    AppDropdownMenuTrigger,
-} from '@/components/base/dropdown-menu';
-import type { VueWrapper } from '@vue/test-utils';
+import { AppDropdownMenu } from '@/components/base/dropdown-menu';
 import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 
 /*
  * Fixtures.
  */
 
-/**
- * Factory function to create a mounted wrapper with sensible defaults.
- */
-const createWrapper = (options = {}): VueWrapper => {
-    return mount(
+const onSelect = vi.fn();
+
+const mountMenu = (props = {}) =>
+    mount(
         {
-            components: {
-                AppDropdownMenu,
-                AppDropdownMenuTrigger,
-                AppDropdownMenuContent,
-                AppDropdownMenuItem,
-            },
+            components: { AppDropdownMenu },
+            props: ['open'],
+            setup: () => ({
+                items: [
+                    [{ label: 'Group', type: 'label' }],
+                    [
+                        { label: 'First', testId: 'first', onSelect },
+                        { label: 'Second', disabled: true },
+                    ],
+                ],
+            }),
             template: `
-            <AppDropdownMenu>
-                <AppDropdownMenuTrigger>Actions</AppDropdownMenuTrigger>
-                <AppDropdownMenuContent>
-                    <AppDropdownMenuItem>Edit</AppDropdownMenuItem>
-                </AppDropdownMenuContent>
-            </AppDropdownMenu>
-        `,
-            ...options,
+                <AppDropdownMenu :items="items" :open="open">
+                    <button data-testid="trigger">Menu</button>
+                    <template #item-label="{ item }">
+                        <span :data-testid="item.testId">{{ item.label }}</span>
+                    </template>
+                </AppDropdownMenu>
+            `,
         },
-        {
-            global: {
-                plugins: [createPinia()],
-            },
-            attachTo: document.body,
-        },
+        { props, attachTo: document.body },
     );
-};
 
 describe('AppDropdownMenu', () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-        vi.clearAllMocks();
+    afterEach(() => {
         document.body.innerHTML = '';
+        vi.clearAllMocks();
     });
 
-    /*
-     * Rendering tests.
-     */
+    it('renders only the trigger when closed', () => {
+        // Arrange & Act
 
-    describe('Rendering', () => {
-        it('renders trigger correctly', () => {
-            // Arrange
+        mountMenu();
 
-            const wrapper = createWrapper();
+        // Assert
 
-            // Assert
-
-            expect(wrapper.find('button').text()).toBe('Actions');
-        });
+        expect(document.querySelector('[data-testid="trigger"]')).not.toBeNull();
+        expect(document.querySelector('[role="menu"]')).toBeNull();
     });
 
-    /*
-     * State Transition tests.
-     */
+    it('renders items with labels and slot content when open', async () => {
+        // Arrange & Act
 
-    describe('Behavior', () => {
-        it('opens menu items when trigger is clicked', async () => {
-            // Arrange
+        mountMenu({ open: true });
+        await nextTick();
 
-            const wrapper = createWrapper();
+        // Assert
 
-            // Act
+        const menu = document.querySelector('[role="menu"]');
+        expect(menu?.textContent).toContain('Group');
+        expect(menu?.querySelector('[data-testid="first"]')?.textContent).toBe('First');
+        expect(menu?.textContent).toContain('Second');
+    });
 
-            await wrapper.find('button').trigger('click');
+    it('calls onSelect when an item is selected', async () => {
+        // Arrange
 
-            // Assert
+        mountMenu({ open: true });
+        await nextTick();
 
-            expect(document.body.innerHTML).toContain('Edit');
-            wrapper.unmount();
-        });
+        // Act
+
+        const item = document.querySelector<HTMLElement>('[data-testid="first"]');
+        item?.closest<HTMLElement>('[role="menuitem"]')?.click();
+        await nextTick();
+
+        // Assert
+
+        expect(onSelect).toHaveBeenCalledTimes(1);
+    });
+
+    it('marks disabled items', async () => {
+        // Arrange & Act
+
+        mountMenu({ open: true });
+        await nextTick();
+
+        // Assert
+
+        const items = document.querySelectorAll('[role="menuitem"]');
+        expect(items[1].getAttribute('aria-disabled')).toBe('true');
     });
 });

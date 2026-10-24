@@ -10,7 +10,7 @@ import { type HTMLAttributes } from 'vue';
  * Types & Interfaces.
  */
 
-export interface AppPanelSubHeaderProps {
+export interface PanelSubHeaderProps {
     class?: HTMLAttributes['class'];
 }
 
@@ -18,7 +18,7 @@ export interface AppPanelSubHeaderProps {
  * Component Setup.
  */
 
-const props = defineProps<AppPanelSubHeaderProps>();
+const props = defineProps<PanelSubHeaderProps>();
 </script>
 
 <template>
@@ -30,7 +30,7 @@ const props = defineProps<AppPanelSubHeaderProps>();
             )
         "
     >
-        <span class="text-subtle-foreground text-xs">
+        <span class="text-muted text-xs">
             <slot></slot>
         </span>
         <slot name="toolbox"></slot>

@@ -22,7 +22,7 @@ const props = defineProps<AppBrandIconProps>();
 </script>
 <template>
     <svg
-        :class="cn('size-7 text-zinc-900', props.class)"
+        :class="cn('size-7', props.class)"
         width="128"
         height="128"
         viewBox="0 0 128 128"

@@ -8,40 +8,36 @@ import {
 } from '@/utils/payload';
 import type { TypeShape } from '@/utils/request/contentTypeHeaderGenerator';
 import { types } from '@/utils/request/contentTypeHeaderGenerator';
-import { type ComputedRef, type Ref, computed, onMounted, ref, watch } from 'vue';
+import {
+    type ComputedRef,
+    type WritableComputedRef,
+    computed,
+    onMounted,
+    watch,
+} from 'vue';
 
 export interface UseRequestBodyResult {
-    payloadType: Ref<RequestBodyTypeEnum>;
-    payload: Ref<FormData | string | null>;
+    payloadType: WritableComputedRef<RequestBodyTypeEnum>;
+    payload: WritableComputedRef<FormData | string | null>;
     pendingRequestData: ComputedRef<
         ReturnType<typeof useRequestStore>['pendingRequestData']
     >;
     supportsAutoFill: ComputedRef<boolean>;
     autofill: () => void;
     generateCurrentPayload: () => FormData | string | null;
-    initializePayloadTypeFromHeaders: () => void;
     types: TypeShape[];
 }
 
 /**
  * Composable for managing the request body state and payload generation.
  */
-export function useRequestBody(): UseRequestBodyResult {
+export const useRequestBody = (): UseRequestBodyResult => {
     /*
      * Dependencies.
      */
 
     const requestStore = useRequestStore();
     const environmentVariablesStore = useEnvironmentVariablesStore();
-    const generateRandomPayloadFn = generateRandomPayload;
-    const generatePlaceholderPayloadFn = generatePlaceholderPayload;
-
-    /*
-     * State.
-     */
-
-    const payloadType = ref<RequestBodyTypeEnum>(RequestBodyTypeEnum.EMPTY);
-    const payload = ref<FormData | string | null>(null);
 
     /*
      * Computed.
@@ -54,6 +50,36 @@ export function useRequestBody(): UseRequestBodyResult {
             types.find(type => type.id === payloadType.value)?.autoFillable === true &&
             pendingRequestData.value?.schema?.shape !== undefined
         );
+    });
+
+    const payloadType = computed<RequestBodyTypeEnum>({
+        get: () => pendingRequestData.value?.payloadType ?? RequestBodyTypeEnum.EMPTY,
+        set: value => {
+            if (pendingRequestData.value) {
+                pendingRequestData.value.payloadType = value;
+            }
+        },
+    });
+
+    // The body is memoized per method and type, and the request store is the only source.
+    const payload = computed<FormData | string | null>({
+        get: () => {
+            const request = pendingRequestData.value;
+
+            return request?.body?.[request.method]?.[payloadType.value] ?? null;
+        },
+        set: value => {
+            const request = pendingRequestData.value;
+
+            if (!request) {
+                return;
+            }
+
+            const body = (request.body ??= {} as PendingRequest['body']);
+            const methodBody = (body[request.method] ??= {});
+
+            methodBody[payloadType.value] = value;
+        },
     });
 
     /*
@@ -78,7 +104,6 @@ export function useRequestBody(): UseRequestBodyResult {
         const method = pendingRequestData.value.method;
         const body = pendingRequestData.value.body;
 
-        // Use optional chaining and nullish coalescing for cleaner access
         const memoizedBody =
             (body as PendingRequest['body'])?.[method]?.[payloadType.value] ?? null;
 
@@ -93,9 +118,8 @@ export function useRequestBody(): UseRequestBodyResult {
             return null;
         }
 
-        const placeholderPayload = generatePlaceholderPayloadFn(JSONSchema7);
+        const placeholderPayload = generatePlaceholderPayload(JSONSchema7);
 
-        // Store and return the serialized payload
         return serializeSchemaPayload(placeholderPayload, payloadType.value);
     };
 
@@ -149,7 +173,7 @@ export function useRequestBody(): UseRequestBodyResult {
             return;
         }
 
-        const generatedPayload = generateRandomPayloadFn(schemaShape);
+        const generatedPayload = generateRandomPayload(schemaShape);
         const serializedPayload = serializeSchemaPayload(
             generatedPayload,
             payloadType.value,
@@ -162,50 +186,26 @@ export function useRequestBody(): UseRequestBodyResult {
      * Watchers.
      */
 
+    // A body that is missing or cleared gets the schema placeholder so the editor is never blank.
     watch(
-        pendingRequestData,
-        newValue => {
-            payloadType.value = newValue?.payloadType ?? RequestBodyTypeEnum.EMPTY;
-            payload.value = generateCurrentPayload();
-        },
-        { deep: true, immediate: true },
-    );
-
-    watch(payloadType, newValue => {
-        if (pendingRequestData.value === null) {
-            payload.value = generateCurrentPayload();
-
-            return;
-        }
-
-        // Switch between payloads based on the current body type,
-        // Meaning that each tab will have its state.
-        payload.value = generateCurrentPayload();
-        pendingRequestData.value.payloadType = newValue;
-    });
-
-    watch(
-        payload,
+        () => [
+            pendingRequestData.value,
+            pendingRequestData.value?.method,
+            payloadType.value,
+            payload.value,
+        ],
         () => {
-            if (!pendingRequestData.value) {
+            if (payload.value) {
                 return;
             }
 
-            const method = pendingRequestData.value.method;
+            const generated = generateCurrentPayload();
 
-            // Initialize body as object if it's null
-            if (!pendingRequestData.value.body) {
-                pendingRequestData.value.body = {} as PendingRequest['body'];
+            if (generated !== null) {
+                payload.value = generated;
             }
-
-            const body = pendingRequestData.value.body as PendingRequest['body'];
-            if (!body[method]) {
-                body[method] = {};
-            }
-
-            body[method][payloadType.value] = payload.value;
         },
-        { deep: true },
+        { immediate: true },
     );
 
     /*
@@ -214,8 +214,6 @@ export function useRequestBody(): UseRequestBodyResult {
 
     onMounted(() => {
         initializePayloadTypeFromHeaders();
-
-        payload.value = generateCurrentPayload();
     });
 
     return {
@@ -230,9 +228,8 @@ export function useRequestBody(): UseRequestBodyResult {
         // Actions
         autofill,
         generateCurrentPayload,
-        initializePayloadTypeFromHeaders,
 
         // Constants
         types,
     };
-}
+};

@@ -1,7 +1,7 @@
 import type { RequestLog } from '@/interfaces/history/logs';
 import { useSettingsStore } from '@/stores';
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 
 export const useRequestsHistoryStore = defineStore(
     'requestHistory',
@@ -13,7 +13,7 @@ export const useRequestsHistoryStore = defineStore(
 
         // State
         const logs = ref<RequestLog[]>([]);
-        const activeLogIndex = ref<number | null>(null);
+        const activeLogIndex = shallowRef<number | null>(null);
 
         // Computed
         const maxLogs = computed(() => settingsStore.preferences.maxHistoryLogs);
@@ -30,7 +30,6 @@ export const useRequestsHistoryStore = defineStore(
         const addLog = (log: RequestLog) => {
             logs.value.push(log);
 
-            // Maintain max logs limit
             if (logs.value.length > maxLogs.value) {
                 logs.value = logs.value.slice(-maxLogs.value);
             }

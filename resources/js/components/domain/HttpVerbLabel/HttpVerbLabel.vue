@@ -3,7 +3,7 @@
  * @component HttpVerbLabel
  * @description A visual indicator for HTTP methods (GET, POST, etc.) with color coding.
  */
-import { AppBadge } from '@/components/base/badge';
+import { getHttpVerbColorClass } from '@/utils/http';
 import { cn } from '@/utils/ui';
 import { computed } from 'vue';
 
@@ -11,17 +11,17 @@ import { computed } from 'vue';
  * Types & Interfaces.
  */
 
-export interface AppHttpVerbLabelProps {
+export interface HttpVerbLabelProps {
     method: string;
     size?: 'sm' | 'md' | 'lg';
-    variant?: 'default' | 'outline';
+    variant?: 'solid' | 'outline' | 'soft' | 'subtle';
 }
 
 /*
  * Component Setup.
  */
 
-const props = withDefaults(defineProps<AppHttpVerbLabelProps>(), {
+const props = withDefaults(defineProps<HttpVerbLabelProps>(), {
     size: 'sm',
     variant: 'outline',
 });
@@ -30,28 +30,22 @@ const props = withDefaults(defineProps<AppHttpVerbLabelProps>(), {
  * Computed & Methods.
  */
 
-const indicatorColor = computed(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const colors: Record<string, string> = {
-        POST: 'text-success',
-        PUT: 'text-success',
-        DELETE: 'text-destructive',
-    };
-
-    return colors[props.method] ?? null;
-});
+const indicatorColor = computed(() => getHttpVerbColorClass(props.method));
 
 const sizeClasses = computed(() => {
     return {
-        sm: 'min-w-[50px] text-xxs',
-        md: 'min-w-[60px] text-xs',
-        lg: 'min-w-[70px] text-sm',
+        sm: 'min-w-12 text-xxs',
+        md: 'min-w-15 text-xs',
+        lg: 'min-w-18 text-sm',
     }[props.size];
 });
 </script>
 
 <template>
-    <AppBadge :variant="variant" :class="cn('justify-center', sizeClasses)">
-        <span :class="indicatorColor">{{ method }}</span>
-    </AppBadge>
+    <span
+        :class="cn('inline-block font-mono font-medium', sizeClasses, indicatorColor)"
+        data-testid="http-verb-label"
+    >
+        {{ method }}
+    </span>
 </template>

@@ -15,13 +15,13 @@ import RequestBodyPlainText from './RequestBodyPlainText.vue';
  * Types & Interfaces.
  */
 
-export interface AppRequestBodyContentProps {
+export interface RequestBodyContentProps {
     payloadType: RequestBodyTypeEnum;
     payload: FormData | string | null;
     schema?: JSONSchema7;
 }
 
-export interface AppRequestBodyContentEmits {
+export interface RequestBodyContentEmits {
     (e: 'update:payload', value: FormData | string | null): void;
 }
 
@@ -29,16 +29,16 @@ export interface AppRequestBodyContentEmits {
  * Component Setup.
  */
 
-defineProps<AppRequestBodyContentProps>();
+defineProps<RequestBodyContentProps>();
 
-const emit = defineEmits<AppRequestBodyContentEmits>();
+const emit = defineEmits<RequestBodyContentEmits>();
 
 /*
  * Event Handlers.
  */
 
-const updatePayload = (value: FormData | string | null) => {
-    emit('update:payload', value);
+const updatePayload = (value: FormData | string | null | undefined) => {
+    emit('update:payload', value ?? null);
 };
 </script>
 

@@ -8,7 +8,7 @@ import EnvironmentAwareInput from '@/components/common/EnvironmentAwareInput.vue
  * Types & Interfaces.
  */
 
-export type AppRequestAuthorizationBasicAuthModel = {
+export type RequestAuthorizationBasicAuthModel = {
     username: string;
     password: string;
 };
@@ -17,7 +17,7 @@ export type AppRequestAuthorizationBasicAuthModel = {
  * Component Setup.
  */
 
-const model = defineModel<AppRequestAuthorizationBasicAuthModel>({
+const model = defineModel<RequestAuthorizationBasicAuthModel>({
     default: () => ({
         username: '',
         password: '',
@@ -26,9 +26,9 @@ const model = defineModel<AppRequestAuthorizationBasicAuthModel>({
 </script>
 
 <template>
-    <div class="grid h-8 grid-cols-3 border-b">
+    <div class="h-control-lg grid grid-cols-3 border-b">
         <label
-            class="px-panel flex h-8 items-center border-r py-1 text-xs"
+            class="px-panel h-control-lg flex items-center border-r py-1 text-xs"
             for="username"
         >
             Username
@@ -37,12 +37,14 @@ const model = defineModel<AppRequestAuthorizationBasicAuthModel>({
             id="username"
             v-model="model.username"
             placeholder="-"
-            input-class="col-span-2 h-full rounded-none border-0 text-xs shadow-none focus:ring-0 focus-visible:ring-0"
+            variant="none"
+            class="col-span-2"
+            input-class="h-full text-xs"
         />
     </div>
-    <div class="grid h-8 grid-cols-3 border-b">
+    <div class="h-control-lg grid grid-cols-3 border-b">
         <label
-            class="px-panel flex h-8 items-center border-r py-1 text-xs"
+            class="px-panel h-control-lg flex items-center border-r py-1 text-xs"
             for="password"
         >
             Password
@@ -52,7 +54,9 @@ const model = defineModel<AppRequestAuthorizationBasicAuthModel>({
             v-model="model.password"
             type="password"
             placeholder="-"
-            input-class="col-span-2 h-full rounded-none border-0 text-xs shadow-none focus:ring-0 focus-visible:ring-0"
+            variant="none"
+            class="col-span-2"
+            input-class="h-full text-xs"
         />
     </div>
 </template>

@@ -56,7 +56,6 @@ export function generateErrorRequestLog(
 }
 
 const pendingRequestToRequestLogEntry = function (request: PendingRequest): Request {
-    // Extract the memoized body for the current method and payload type
     const methodBody = request.body[request.method] ?? null;
     const currentBody = methodBody ? (methodBody[request.payloadType] ?? null) : null;
 

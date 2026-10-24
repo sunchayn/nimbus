@@ -1,11 +1,10 @@
-import { AppSidebarProvider } from '@/components/base/sidebar';
 import type { GlobalException, RouteExtractorException, RoutesGroup } from '@/interfaces';
 import MainPage from '@/pages/Main.vue';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { h, nextTick, reactive } from 'vue';
+import { nextTick, reactive } from 'vue';
 
 /*
  * Fixtures.
@@ -71,10 +70,7 @@ vi.mock('@/stores', async () => {
  * Factory function to create a mounted wrapper with sensible defaults.
  */
 const createWrapper = (options = {}): VueWrapper => {
-    return mount(AppSidebarProvider, {
-        slots: {
-            default: h(MainPage),
-        },
+    return mount(MainPage, {
         ...options,
         global: {
             plugins: [createPinia()],

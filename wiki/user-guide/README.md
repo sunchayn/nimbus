@@ -90,6 +90,10 @@ The Nimbus interface consists of three main panels:
 2. **Request Builder** (center) - Configure and send requests.
 3. **Response Viewer** (right) - View responses and details.
 
+The top bar gives you access to the **HTTP Client**, the **environment menu** (see [Environment Variables](#environment-variables)), the documentation, the GitHub repository, and the settings page.
+
+Every route you open gets its own request tab above the Request Builder. Use **New request** to start from a blank tab, and the sidebar toggle next to the tabs to hide or show the Route Explorer.
+
 ---
 
 ## Using Nimbus
@@ -102,11 +106,11 @@ The Route Explorer automatically discovers your Laravel API routes and organizes
 
 **Features:**
 - **Search**: Quickly filter routes by endpoint path.
-- **Application Switcher**: Switch between multiple API applications (e.g., Rest API, CMS API) if configured.
-- **Version Selector**: If the active application is versioned, a version picker appears inline with the application name.
+- **Application Switcher**: Switch between multiple API applications (e.g., Rest API, CMS API) if configured. It sits at the bottom of the sidebar.
+- **Version Selector**: If the active application is versioned, a version picker appears next to the application switcher.
 - **Resource Groups**: Routes are automatically grouped by resource (e.g., `users`, `products`).
 - **HTTP Methods**: Each route explicitly shows its supported methods.
-- **Quick Load**: Click any route to immediately load it into the Request Builder.
+- **Quick Load**: Click any route to immediately load it into the Request Builder. Each route opens in its own request tab.
 
 ### Request Builder
 
@@ -122,11 +126,13 @@ The Request Builder provides an intuitive interface for configuring API requests
 
 **URL Parameters**
 - Add query string parameters.
+- The tab shows a counter with the number of parameters.
 - Real-time URL preview.
 
 **Headers**
 - Add custom headers.
 - Global headers automatically included.
+- The tab shows a counter with the number of headers.
 
 **Request Body**
 - JSON editor with syntax highlighting.
@@ -181,10 +187,12 @@ The Response Viewer displays detailed information about API responses.
 - Formatted response body with syntax highlighting.
 - Cookie information (see [Cookie Inspection](#cookie-inspection)).
 
+The Response, Headers, and Cookies tabs show a counter when they have items.
+
 **Features:**
 - Collapsible sections for better organization.
 - Copy response body to clipboard.
-- Download raw response bodies as files with appropriate extensions based on Content-Type.
+- Download raw response bodies as files with appropriate extensions based on Content-Type, using the download button at the end of the status bar.
 - Download the response type shape resolved via static analysis of controllers and resources.
 - Pretty-printed JSON for readability.
 
@@ -227,7 +235,7 @@ Nimbus keeps a log of every request you send, allowing you to quickly "rewind" t
 
 **Features:**
 - **Automatic Logging**: Every execution is recorded with its timestamp, request details, and response status.
-- **Searchable Logs**: Use the search bar within the history dropdown to filter by endpoint path.
+- **Searchable Logs**: Use the filter input within the history dropdown to filter by endpoint path.
 - **Full Restoration**: Clicking any history item will restore the **entire Request Builder state**, including:
     - HTTP Method and Endpoint
     - Headers and Query Parameters
@@ -236,16 +244,16 @@ Nimbus keeps a log of every request you send, allowing you to quickly "rewind" t
 - **Persistent Session**: Your history is preserved across page refreshes.
 
 **How to use:**
-1. Click on the relative timestamp (e.g., "5 minutes ago") next to the response status badge.
-2. Browse or search through your previous requests.
+1. Click on the relative timestamp (e.g., "5 minutes ago") in the response status bar.
+2. Browse or filter your previous requests by endpoint.
 3. Click a log entry to restore its state into the Request Builder.
-4. Use the "Clear History" button to purge your session logs.
+4. Use the "Clear" button to purge your session logs.
 
 #### Downloading Responses
 
-On the response tab, you can download the response body (as is) as a file. The extension will be inherited from the `Content-Type` header.
+Use the download button at the end of the response status bar to open the download options. **Raw response** downloads the response body (as is) as a file. The extension will be inherited from the `Content-Type` header.
 
-You can also download the response type shape* resolved via static analysis of controllers and resources.
+**JSON shape** downloads the response type shape* resolved via static analysis of controllers and resources.
 
 _*This feature is only available for `application/json` responses._
 
@@ -254,17 +262,17 @@ _*This feature is only available for `application/json` responses._
 
 ## Authentication
 
-Nimbus supports multiple authentication methods for testing protected endpoints.
+Nimbus supports multiple authentication methods for testing protected endpoints. Pick one from the **Authorization Type** menu in the Authorization tab.
 
 ![Authorization Options](./assets/auth-options.png)
 
 ### Session-Based Authentication
 
-**Current User Session** allows you to make requests as the currently logged-in user from your main application.
+**Currently Logged-in User** allows you to make requests as the currently logged-in user from your main application.
 
 **How it works:**
 1. Log into your Laravel application in another tab.
-2. Select "Current User Session" in Nimbus.
+2. Select "Currently Logged-in User" in Nimbus.
 3. Requests will include your session cookies.
 
 ### Bearer Tokens
@@ -274,7 +282,7 @@ Standard Bearer token authentication for API endpoints.
 **Use case:** Testing JWT or Sanctum token-protected endpoints.
 
 **How to use:**
-1. Select "Bearer" from authentication options.
+1. Select "Bearer Token" from authentication options.
 2. Enter your access token.
 3. Token is sent in `Authorization: Bearer {token}` header.
 
@@ -285,7 +293,7 @@ HTTP Basic Authentication with username and password.
 **Use case:** Testing endpoints protected with Basic Auth.
 
 **How to use:**
-1. Select "Basic" from authentication options.
+1. Select "Basic Auth" from authentication options.
 2. Enter username and password.
 3. Credentials are base64-encoded and sent in `Authorization` header.
 
@@ -296,7 +304,7 @@ Make requests as any user in your system using their user ID.
 **Use case:** Testing how endpoints behave for different users without logging in as them.
 
 **How it works:**
-1. Select "Impersonate" from authentication options.
+1. Select "Impersonate User with ID" from authentication options.
 2. Enter the user ID.
 3. Nimbus authenticates the request as that user.
 
@@ -342,7 +350,7 @@ Generate realistic values for headers and parameters on-demand.
 **How to use:**
 1. Focus on a value input field.
 2. Click the generator icon (or press Shift twice).
-3. Select the type of value to generate.
+3. Search or filter by category, then select the type of value to generate.
 4. Press Enter or click on the generator to insert.
 
 **Available generators:**
@@ -360,12 +368,12 @@ Although Nimbus provides a lot of convenience out of the box like user impersona
 
 #### Managing Environments
 
-You can manage your environment variables from the **Environments** page, accessible via the sidebar.
+You can manage your environment variables from the **Environments** page. Open the environment menu in the top bar (it shows the active collection, or "No environment") and select **Manage environments**.
 
 ![Environment Management](./assets/env-page.png)
 
 1. **Collections**: Group related variables into named collections (e.g., "Development", "Production").
-2. **Active Collection**: Select a collection from the sidebar to activate its variables across the whole application.
+2. **Active Collection**: Select a collection from the environment menu in the top bar to activate its variables across the whole application. The active collection is marked with an **Active** badge on the Environments page.
 3. **Variable Editor**: Each variable consists of a key, a value, and an enabled toggle.
 
 #### Using Variables
@@ -402,7 +410,7 @@ Transaction Mode allows you to execute requests without affecting your database.
 
 **How it works:**
 1. Click the **Request Options** (sparkles) icon in the endpoint bar.
-2. Toggle **Transaction Mode** to **ON**.
+2. Toggle **Transaction mode** to **ON**.
 3. Execute your request.
 4. Nimbus wraps the entire request in a database transaction and automatically rolls it back once the request is complete.
 
@@ -417,9 +425,10 @@ Export configured requests as cURL commands for use in terminals or scripts.
 ![Export to curl](./assets/export-to-curl.png)
 
 **How to export:**
-1. Configure your request completely
-2. Click the export button
-3. Copy the generated cURL command
+1. Configure your request completely.
+2. Click the **Request Options** (sparkles) icon in the endpoint bar.
+3. Select **Export to cURL**.
+4. Copy the generated cURL command.
 
 ![cURL Command Export](./assets/curl-command-export.png)
 
@@ -444,7 +453,7 @@ Shareable links allow you to capture the exact state of your Request Builder and
 **How to use:**
 1. Configure your request (and optionally execute it to include response context).
 2. Click the **Request Options** (sparkles) icon in the endpoint bar.
-3. Select **Copy Shareable Link**.
+3. Select **Copy shareable link**.
 4. Share the generated URL.
 
 ![Shareable link entry point](./assets/shareable-link.png)
@@ -584,7 +593,7 @@ Nimbus allows you to define multiple distinct applications in your configuration
 ],
 ```
 
-When multiple applications are defined, a Project Switcher appears in the sidebar, allowing you to quickly toggle between them.
+When multiple applications are defined, an application switcher appears at the bottom of the sidebar, allowing you to quickly toggle between them.
 
 ![Applications Switcher](./assets/applications-switcher.png)
 

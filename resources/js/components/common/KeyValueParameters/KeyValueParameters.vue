@@ -5,41 +5,31 @@
  */
 import { AppBadge } from '@/components/base/badge';
 import { AppButton } from '@/components/base/button';
-import { AppInput } from '@/components/base/input';
-import {
-    AppSelect,
-    AppSelectContent,
-    AppSelectItem,
-    AppSelectTrigger,
-    AppSelectValue,
-} from '@/components/base/select';
+import { AppIcon } from '@/components/base/icons';
+import AppSwapIcon from '@/components/base/icons/AppSwapIcon.vue';
+import { AppSelect } from '@/components/base/select';
 import { AppSwitch } from '@/components/base/switch';
-import { AppTooltipWrapper } from '@/components/base/tooltip';
+import { AppTooltip } from '@/components/base/tooltip';
 import EnvironmentAwareInput from '@/components/common/EnvironmentAwareInput.vue';
+import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import { useKeyValueParameters } from '@/composables/ui/useKeyValueParameters';
 import { type ParameterContract } from '@/interfaces/ui';
 import { useValueGeneratorStore } from '@/stores';
 import { cn } from '@/utils/ui';
-import {
-    EyeClosedIcon,
-    EyeIcon,
-    PlusIcon,
-    SparklesIcon,
-    Trash2Icon,
-} from 'lucide-vue-next';
-import { computed, type HTMLAttributes, ref } from 'vue';
+import { useTimeoutFn } from '@vueuse/core';
+import { computed, type HTMLAttributes, ref, shallowRef } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppKeyValueParametersProps {
+export interface KeyValueParametersProps {
     modelValue?: ParameterContract[];
     freeFormTypes?: boolean;
     class?: HTMLAttributes['class'];
 }
 
-export interface AppKeyValueParametersEmits {
+export interface KeyValueParametersEmits {
     (e: 'update:parameters', parameters: ParameterContract[]): void;
 }
 
@@ -47,21 +37,33 @@ export interface AppKeyValueParametersEmits {
  * Component Setup.
  */
 
-const props = withDefaults(defineProps<AppKeyValueParametersProps>(), {
+const props = withDefaults(defineProps<KeyValueParametersProps>(), {
     modelValue: () => [],
     freeFormTypes: false,
     class: undefined,
 });
 
-const emit = defineEmits<AppKeyValueParametersEmits>();
+const emit = defineEmits<KeyValueParametersEmits>();
 
 const { openCommand, closeCommand } = useValueGeneratorStore();
+const { start: scheduleCloseCommand } = useTimeoutFn(closeCommand, 100, {
+    immediate: false,
+});
+
+/*
+ * State.
+ */
+
+const typeItems = [
+    { label: 'Text', value: 'text' },
+    { label: 'File', value: 'file', disabled: true },
+];
 
 /*
  * Refs.
  */
 
-const focusedInputIndex = ref<number | null>(null);
+const focusedInputIndex = shallowRef<number | null>(null);
 const focusedInputRef = ref<HTMLInputElement | null>(null);
 
 /*
@@ -109,11 +111,9 @@ const handleValueInputBlur = (event: FocusEvent) => {
     focusedInputIndex.value = null;
     focusedInputRef.value = null;
 
-    // Delay command closure to prevent race condition between blur and command opening
-    // Problem: When user clicks generator button, blur fires immediately and closes command
-    // before openCommand can complete, causing command to flash open then close
-    // Solution: 100ms delay allows openCommand to finish before closeCommand executes
-    setTimeout(closeCommand, 100);
+    // Clicking the generator button fires blur first, which would close the command too early.
+    // The short delay lets openCommand finish before closeCommand runs.
+    scheduleCloseCommand();
 };
 
 const handleGeneratorClick = () => {
@@ -124,8 +124,25 @@ const handleGeneratorClick = () => {
     openCommand(focusedInputRef.value);
 };
 
+// Rows only animate for edits the user makes here, so switching requests stays instant.
+const animateRows = shallowRef(false);
+
+const { start: scheduleRowMotionEnd } = useTimeoutFn(
+    () => (animateRows.value = false),
+    300,
+    {
+        immediate: false,
+    },
+);
+
+const withRowMotion = (action: () => void) => {
+    animateRows.value = true;
+    action();
+    scheduleRowMotionEnd();
+};
+
 const handleDeleteParameter = (index: number) => {
-    triggerParameterDeletion(index);
+    withRowMotion(() => triggerParameterDeletion(index));
 };
 </script>
 <template>
@@ -134,53 +151,56 @@ const handleDeleteParameter = (index: number) => {
         data-testid="kv-container"
     >
         <!-- Header Actions -->
-        <div class="flex h-8 items-center overflow-hidden border-b p-0">
+        <div class="h-control-lg flex items-center overflow-hidden border-b p-0">
             <AppButton
                 variant="ghost"
                 size="xs"
-                class="px-panel h-full -translate-x-0.5 rounded-none text-xs"
+                icon="i-hugeicons-plus-sign"
+                label="Add"
+                class="px-panel h-full -translate-x-0.5 rounded-none"
                 data-testid="add-button"
-                @click="addNewEmptyParameter"
-            >
-                <PlusIcon />
-                Add
-            </AppButton>
+                @click="withRowMotion(addNewEmptyParameter)"
+            />
 
             <AppButton
                 variant="ghost"
                 size="xs"
-                class="px-panel h-full -translate-x-0.5 rounded-none text-xs"
+                :icon="
+                    areAllParametersDisabled
+                        ? 'i-hugeicons-view'
+                        : 'i-hugeicons-view-off-slash'
+                "
+                :label="areAllParametersDisabled ? 'Enable All' : 'Disable All'"
+                class="px-panel h-full -translate-x-0.5 rounded-none"
                 :disabled="parameters.length <= 1"
                 data-testid="enable-all-button"
                 @click="toggleAllParametersEnabledState"
-            >
-                <EyeIcon v-if="areAllParametersDisabled" />
-                <EyeClosedIcon v-else />
-                {{ areAllParametersDisabled ? 'Enable All' : 'Disable All' }}
-            </AppButton>
+            />
 
             <AppButton
                 variant="ghost"
                 size="xs"
-                class="px-panel h-full -translate-x-0.5 rounded-none text-xs"
-                :class="{
-                    '!text-destructive hover:text-destructive/90': deletingAll,
-                }"
+                icon="i-hugeicons-delete-02"
+                label="Delete All"
+                :color="deletingAll ? 'error' : undefined"
+                class="px-panel h-full -translate-x-0.5 rounded-none"
                 :disabled="parameters.length <= 1"
                 data-testid="delete-all-button"
-                @click="deleteAllParameters"
-            >
-                <Trash2Icon />
-                Delete All
-            </AppButton>
+                @click="withRowMotion(deleteAllParameters)"
+            />
         </div>
 
         <!-- Parameters List -->
-        <div class="flex-1 overflow-y-auto">
+        <TransitionGroup
+            tag="div"
+            name="kv-row"
+            :css="animateRows"
+            class="flex-1 overflow-y-auto"
+        >
             <div
                 v-for="(parameter, index) in parameters"
                 :key="parameter.id"
-                class="flex h-8 border-b"
+                class="h-control-lg flex border-b"
                 data-testid="parameter-row"
             >
                 <!-- Parameter Inputs -->
@@ -190,29 +210,30 @@ const handleDeleteParameter = (index: number) => {
                         v-if="freeFormTypes"
                         v-model="parameter.type"
                         default-value="text"
+                        :items="typeItems"
+                        variant="ghost"
+                        placeholder="Select a Type"
+                        class="ps-panel border-default h-full w-20 rounded-none border-r"
+                        data-testid="type-selector"
                     >
-                        <AppSelectTrigger
-                            class="pl-panel h-full w-[80px] rounded-none border-0 border-r p-0 text-xs shadow-none focus:ring-0"
-                            data-testid="type-selector"
-                        >
-                            <AppSelectValue placeholder="Select a Type" />
-                        </AppSelectTrigger>
-                        <AppSelectContent>
-                            <AppSelectItem value="text">Text</AppSelectItem>
-                            <AppSelectItem value="file" disabled>
-                                File
-                                <AppBadge variant="outline" class="ml-0.5 px-1 py-0">
-                                    soon
-                                </AppBadge>
-                            </AppSelectItem>
-                        </AppSelectContent>
+                        <template #item-label="{ item }">
+                            {{ item.label }}
+                            <AppBadge
+                                v-if="item.value === 'file'"
+                                variant="outline"
+                                color="neutral"
+                            >
+                                soon
+                            </AppBadge>
+                        </template>
                     </AppSelect>
 
                     <!-- Key Input -->
-                    <AppInput
+                    <GeneratorInput
                         v-model="parameter.key"
                         placeholder="Key"
-                        class="selector-key h-full flex-1 rounded-none border-0 border-r shadow-none focus:ring-0 focus-visible:ring-0"
+                        variant="none"
+                        class="selector-key h-full flex-1 border-r"
                         :disabled="!parameter.enabled"
                         name="kv-key"
                         data-testid="kv-key"
@@ -223,12 +244,14 @@ const handleDeleteParameter = (index: number) => {
                     <EnvironmentAwareInput
                         v-model="parameter.value"
                         placeholder="Value"
+                        variant="none"
                         :disabled="!parameter.enabled"
                         name="kv-value"
                         data-testid="kv-value"
                         autocomplete="off"
                         class="border-r"
-                        input-class="pl-panel h-full flex-1 rounded-none border-0 border-r shadow-none focus:ring-0 focus-visible:ring-0"
+                        input-class="ps-panel h-full flex-1"
+                        @keydown.ctrl.space.prevent="handleGeneratorClick"
                         @focus="handleValueInputFocus(index, $event.target)"
                         @blur="handleValueInputBlur"
                     />
@@ -236,42 +259,68 @@ const handleDeleteParameter = (index: number) => {
 
                 <!-- Enable/Disable Toggle -->
                 <div class="flex items-center justify-center border-r px-2">
-                    <AppTooltipWrapper value="Enable/Disable">
-                        <AppSwitch v-model="parameter.enabled" class="h-4 w-8" />
-                    </AppTooltipWrapper>
-                </div>
-
-                <!-- Action Button: Generator or Delete -->
-                <div
-                    v-if="shouldShowGeneratorIcon(index, parameter)"
-                    class="flex cursor-pointer items-center justify-center p-2"
-                    title="Generate Value"
-                    data-testid="generator-button"
-                    @mousedown.prevent="handleGeneratorClick"
-                >
-                    <SparklesIcon
-                        class="text-subtle-foreground hover:text-foreground size-4 transition-colors"
-                    />
-                </div>
-
-                <div
-                    v-else
-                    class="flex items-center justify-center px-2"
-                    data-testid="delete-button"
-                >
-                    <AppTooltipWrapper
-                        value="Delete"
-                        :on-click="() => handleDeleteParameter(index)"
-                    >
-                        <Trash2Icon
-                            class="size-4"
-                            :class="{
-                                'text-destructive': isParameterMarkedForDeletion(index),
-                            }"
+                    <AppTooltip text="Enable/Disable">
+                        <AppSwitch
+                            v-model="parameter.enabled"
+                            :aria-label="
+                                parameter.key
+                                    ? `Enable ${parameter.key}`
+                                    : 'Enable parameter'
+                            "
                         />
-                    </AppTooltipWrapper>
+                    </AppTooltip>
                 </div>
+
+                <!-- Action button, either the generator or delete -->
+                <Transition name="fade-fast" mode="out-in">
+                    <button
+                        v-if="shouldShowGeneratorIcon(index, parameter)"
+                        type="button"
+                        aria-label="Generate value"
+                        aria-keyshortcuts="Control+Space"
+                        class="flex cursor-pointer items-center justify-center p-2"
+                        title="Generate value (Ctrl+Space)"
+                        data-testid="generator-button"
+                        @mousedown.prevent="handleGeneratorClick"
+                    >
+                        <AppIcon
+                            name="i-hugeicons-sparkles"
+                            class="text-muted hover:text-highlighted size-icon-md transition-colors"
+                        />
+                    </button>
+
+                    <div
+                        v-else
+                        class="flex items-center justify-center px-1"
+                        data-testid="delete-button"
+                    >
+                        <AppTooltip text="Delete">
+                            <button
+                                type="button"
+                                :aria-label="
+                                    isParameterMarkedForDeletion(index)
+                                        ? 'Confirm delete'
+                                        : 'Delete'
+                                "
+                                class="p-1"
+                                @click="handleDeleteParameter(index)"
+                            >
+                                <AppSwapIcon
+                                    :name="
+                                        isParameterMarkedForDeletion(index)
+                                            ? 'i-hugeicons-tick-02'
+                                            : 'i-hugeicons-delete-02'
+                                    "
+                                    class="size-icon-md"
+                                    :class="{
+                                        'text-error': isParameterMarkedForDeletion(index),
+                                    }"
+                                />
+                            </button>
+                        </AppTooltip>
+                    </div>
+                </Transition>
             </div>
-        </div>
+        </TransitionGroup>
     </div>
 </template>

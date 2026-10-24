@@ -3,26 +3,17 @@
  * @component RequestAuthorizationSelector
  * @description A dropdown selector for choosing the authentication method.
  */
-import {
-    AppSelect,
-    AppSelectContent,
-    AppSelectGroup,
-    AppSelectItem,
-    AppSelectLabel,
-    AppSelectTrigger,
-    AppSelectValue,
-} from '@/components/base/select';
+import { AppSelect } from '@/components/base/select';
 import { AuthorizationType, type AuthorizationTypeItem } from '@/interfaces/generated';
 import { useRequestStore, useSettingsStore } from '@/stores';
 import { watchOnce } from '@vueuse/core';
-import { SparklesIcon } from 'lucide-vue-next';
 import { computed, type ModelRef } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppRequestAuthorizationSelectorProps {
+export interface RequestAuthorizationSelectorProps {
     types: {
         special: readonly AuthorizationTypeItem[];
         traditional: readonly AuthorizationTypeItem[];
@@ -33,7 +24,7 @@ export interface AppRequestAuthorizationSelectorProps {
  * Component Setup.
  */
 
-const props = defineProps<AppRequestAuthorizationSelectorProps>();
+const props = defineProps<RequestAuthorizationSelectorProps>();
 
 const model: ModelRef<AuthorizationType> = defineModel<AuthorizationType>({
     default: () => AuthorizationType.CurrentUser,
@@ -50,6 +41,33 @@ const settingsStore = useSettingsStore();
  * Computed & Watchers.
  */
 
+const specialIcons: Partial<Record<AuthorizationType, string>> = {
+    [AuthorizationType.CurrentUser]: 'i-hugeicons-user',
+    [AuthorizationType.Impersonate]: 'i-hugeicons-user-switch',
+};
+
+const items = computed(() => [
+    [
+        {
+            type: 'label' as const,
+            label: 'Special',
+            class: 'label-icon-sparkles flex items-center gap-tight',
+        },
+        ...props.types.special.map(type => ({
+            label: type.label,
+            value: type.id,
+            icon: specialIcons[type.id] ?? 'i-hugeicons-user',
+        })),
+    ],
+    [
+        { type: 'label' as const, label: 'Other' },
+        ...props.types.traditional.map(type => ({
+            label: type.label,
+            value: type.id,
+        })),
+    ],
+]);
+
 const pendingRequestData = computed(() => requestStore.pendingRequestData);
 
 watchOnce(
@@ -65,40 +83,13 @@ watchOnce(
 
 <template>
     <div class="flex items-center">
-        <span class="text-subtle-foreground w-[120px] text-xs">Authorization Type:</span>
-        <AppSelect v-model="model">
-            <AppSelectTrigger
-                class="min-w-[120px] rounded-none border-0 text-xs shadow-none focus:ring-0"
-            >
-                <AppSelectValue />
-            </AppSelectTrigger>
-            <AppSelectContent>
-                <AppSelectGroup>
-                    <AppSelectLabel>
-                        <div class="flex items-center">
-                            <SparklesIcon :size="14" class="mr-2" />
-                            Special
-                        </div>
-                    </AppSelectLabel>
-                    <AppSelectItem
-                        v-for="type in props.types.special"
-                        :key="type.id"
-                        :value="type.id"
-                    >
-                        {{ type.label }}
-                    </AppSelectItem>
-                </AppSelectGroup>
-                <AppSelectGroup>
-                    <AppSelectLabel>Other</AppSelectLabel>
-                    <AppSelectItem
-                        v-for="type in props.types.traditional"
-                        :key="type.id"
-                        :value="type.id"
-                    >
-                        {{ type.label }}
-                    </AppSelectItem>
-                </AppSelectGroup>
-            </AppSelectContent>
-        </AppSelect>
+        <span class="text-muted w-30 text-xs">Authorization Type:</span>
+        <AppSelect
+            v-model="model"
+            :items="items"
+            variant="ghost"
+            size="sm"
+            class="min-w-30 rounded-none"
+        />
     </div>
 </template>

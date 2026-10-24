@@ -14,7 +14,7 @@ import pako from 'pako';
 /**
  * Encodes a pending request and optional response into a URL-safe shareable string.
  *
- * The process:
+ * The steps are as follows.
  * 1. Create a minimal payload with essential request/response data
  * 2. Serialize to JSON
  * 3. Compress using pako (deflate)
@@ -72,13 +72,10 @@ export function encodeShareablePayload(
         payload.requestLog = requestLog;
     }
 
-    // Serialize to JSON
     const jsonString = JSON.stringify(payload);
 
-    // Compress using pako (deflate)
     const compressed = pako.deflate(jsonString);
 
-    // Convert to base64 with URL-safe characters
     const base64 = btoa(String.fromCharCode.apply(null, Array.from(compressed)));
 
     return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');

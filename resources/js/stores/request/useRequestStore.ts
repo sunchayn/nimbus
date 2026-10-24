@@ -45,7 +45,6 @@ export const useRequestStore = defineStore('request', () => {
             return;
         }
 
-        // Cancel ongoing request.
         executorStore.cancelCurrentRequest();
 
         tabsStore.openTab(route, supportedRoutes);

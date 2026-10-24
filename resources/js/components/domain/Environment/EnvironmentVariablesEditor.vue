@@ -24,17 +24,17 @@ const handleVariablesUpdate = (variables: ParameterContract[]) => {
 </script>
 
 <template>
-    <div class="relative flex-1 overflow-hidden rounded border border-b-0">
+    <div class="relative flex-1 overflow-hidden rounded-md border border-b-0">
         <div
             v-if="!environmentVariablesStore.activeCollection"
-            class="bg-popover/50 absolute top-0 left-0 z-10 h-full w-full cursor-not-allowed select-none"
+            class="bg-overlay/50 z-sticky absolute top-0 left-0 h-full w-full cursor-not-allowed select-none"
         />
 
         <slot name="header" />
 
-        <PanelSubHeader class="border-y py-1.5">
+        <PanelSubHeader class="border-y py-1">
             Variables defined below can be referenced with
-            <span v-pre class="whitespace-nowrap text-violet-600">
+            <span v-pre class="text-info whitespace-nowrap">
                 {{ variable_key }}
             </span>
         </PanelSubHeader>

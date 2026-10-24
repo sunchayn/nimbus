@@ -9,7 +9,6 @@ import {
 } from '@/components/domain/CodeEditor/extensions';
 import type { Extension } from '@codemirror/state';
 import type { JSONSchema7 } from 'json-schema';
-import { type PrimitiveProps } from 'reka-ui';
 import { computed, type HTMLAttributes } from 'vue';
 import { Codemirror } from 'vue-codemirror';
 
@@ -17,7 +16,7 @@ import { Codemirror } from 'vue-codemirror';
  * Types & Interfaces.
  */
 
-export interface AppCodeEditorProps extends PrimitiveProps {
+export interface CodeEditorProps {
     class?: HTMLAttributes['class'];
     placeholder?: string;
     language: 'json' | 'plain';
@@ -32,7 +31,7 @@ export interface AppCodeEditorProps extends PrimitiveProps {
  * Component Setup.
  */
 
-const props = withDefaults(defineProps<AppCodeEditorProps>(), {
+const props = withDefaults(defineProps<CodeEditorProps>(), {
     readonly: false,
     placeholder: 'Payload...',
     disabled: false,

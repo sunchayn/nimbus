@@ -14,8 +14,8 @@ export interface AppPanelRippleProps {}
 
 <template>
     <AppRipple
-        class="bottom-0 translate-x-2/5 translate-y-1/2 scale-150 bg-white/5 opacity-25 dark:bg-zinc-950/5"
-        circle-class="border-[hsl(var(--primary))] bg-primary/25 blobed"
+        class="bg-default/5 bottom-0 translate-x-2/5 translate-y-1/2 scale-150 opacity-25"
+        circle-class="border-inverted bg-inverted/25 blobed"
     />
 </template>
 

@@ -1,29 +1,36 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="M extends 'click' | 'hover' = 'click' | 'hover'">
 /**
  * @component AppPopover
- * @description Root container for a popover menu.
+ * @description A popover built on Nuxt UI. The default slot is the trigger and `#anchor` anchors it without a trigger.
  */
-import type { PopoverRootEmits, PopoverRootProps } from 'reka-ui';
-import { PopoverRoot, useForwardPropsEmits } from 'reka-ui';
-
-/*
- * Types & Interfaces.
- */
-
-export interface AppPopoverProps extends PopoverRootProps {}
+import { useForwardedProps } from '@/components/base/useForwardedProps';
+import type { PopoverProps, PopoverSlots } from '@nuxt/ui/components/Popover.vue';
+import UPopover from '@nuxt/ui/components/Popover.vue';
 
 /*
  * Component Setup.
  */
 
-const props = defineProps<AppPopoverProps>();
-const emits = defineEmits<PopoverRootEmits>();
+const props = defineProps<PopoverProps<M>>();
 
-const forwarded = useForwardPropsEmits(props, emits);
+const emit = defineEmits<{
+    'update:open': [value: boolean];
+    'close:prevent': [];
+}>();
+
+defineSlots<PopoverSlots<M>>();
+
+const forwarded = useForwardedProps(props);
 </script>
 
 <template>
-    <PopoverRoot data-slot="popover" v-bind="forwarded">
-        <slot />
-    </PopoverRoot>
+    <UPopover
+        v-bind="forwarded"
+        @update:open="value => emit('update:open', value)"
+        @close:prevent="emit('close:prevent')"
+    >
+        <template v-for="(_, name) in $slots" :key="name" #[name]="slotProps">
+            <slot :name="name as never" v-bind="slotProps ?? {}" />
+        </template>
+    </UPopover>
 </template>

@@ -5,15 +5,17 @@
  */
 import RoutesListItem from '@/components/domain/RoutesExplorer/RoutesList/RoutesListItem.vue';
 import RoutesResource from '@/components/domain/RoutesExplorer/RoutesResourceGroup.vue';
+import { useShowingSearchResults } from '@/components/domain/RoutesExplorer/showingSearchResults';
+import { useExplorerVisibility } from '@/composables/ui/useExplorerVisibility';
 import { type RouteDefinition, type RoutesGroup } from '@/interfaces/routes/routes';
 import { useRequestStore } from '@/stores';
-import { computed, inject } from 'vue';
+import { computed } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppRoutesListProps {
+export interface RoutesListProps {
     routes: RoutesGroup[];
 }
 
@@ -21,13 +23,14 @@ export interface AppRoutesListProps {
  * Component Setup.
  */
 
-defineProps<AppRoutesListProps>();
+defineProps<RoutesListProps>();
 
 /*
  * Stores & Dependencies.
  */
 
 const requestStore = useRequestStore();
+const { isExplorerDrawerOpen } = useExplorerVisibility();
 
 /*
  * Computed & Methods.
@@ -60,9 +63,10 @@ const setPendingRequest = (route: RouteDefinition, resourceGroup: RoutesGroup) =
     );
 
     requestStore.initializeRequest(route, availableRoutesForEndpoint);
+    isExplorerDrawerOpen.value = false;
 };
 
-const showingSearchResults = inject('showingSearchResults');
+const showingSearchResults = useShowingSearchResults();
 </script>
 
 <template>

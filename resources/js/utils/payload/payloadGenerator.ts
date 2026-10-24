@@ -92,12 +92,10 @@ function generateValue(
         return generateEnumValue(schema, isPlaceholder);
     }
 
-    // Handle primitive types
     if (schema.type && isPrimitiveType(schema.type)) {
         return generatePrimitiveType(schema, isPlaceholder, propertyName, isRequired);
     }
 
-    // Handle complex types
     if (schema.type && isComplexType(schema.type)) {
         return generateComplexType(schema, isPlaceholder);
     }
@@ -240,7 +238,6 @@ function generateString(
             : generatedValue;
     }
 
-    // Fallback to random alpha string
     return faker.string.alpha({
         length: {
             min: range.minLength,
@@ -284,7 +281,6 @@ function generateInteger(
         return generatedValue;
     }
 
-    // Fallback to random number
     return faker.number.int(range);
 }
 
@@ -313,7 +309,6 @@ function generateFromMatchingGenerator(
     if (schema.format && FORMAT_TO_GENERATOR[schema.format]) {
         const generatorId = FORMAT_TO_GENERATOR[schema.format];
 
-        // Prioritized the defined format if defined
         return (
             allValueGenerators
                 .find((generator: ValueGenerator) => generator.id === generatorId)
@@ -321,7 +316,6 @@ function generateFromMatchingGenerator(
         );
     }
 
-    // Try to guess a generator based on the property name
     for (const patternSettings of PROPERTY_NAME_PATTERNS) {
         if (shouldBeInteger && !patternSettings.isInteger) {
             continue;

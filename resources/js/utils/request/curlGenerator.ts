@@ -123,7 +123,6 @@ function buildRequestHeaderParts(
         return `-H "${header.key}: ${headerValue}"`;
     });
 
-    // Add Content-Type header for payload types with MIME types if not already present
     const mimeType = getMimeTypeForPayloadType(request.payloadType);
     if (mimeType) {
         const hasContentType = validHeaders.some(
@@ -218,7 +217,7 @@ function buildBasicAuthHeader(
     },
     resolver: ResolverFn,
 ): string | null {
-    // btoa() encodes username:password string to Base64 for HTTP Basic Authentication
+    // Basic authentication needs the username and password joined and encoded in Base64.
     const credentials = btoa(
         `${resolver(authValue.username)}:${resolver(authValue.password)}`,
     );

@@ -1,27 +1,27 @@
 import { GeneratorType } from '@/interfaces/http';
-import type { useValueGeneratorStore } from '@/stores';
+
+type GenerateValue = (generatorId: string) => string | number | bigint;
 
 /**
  * Generates a value based on the specified generator type.
  *
- * Maps GeneratorType enum values to their corresponding value generator commands.
+ * Maps GeneratorType enum values to their corresponding generator ids.
  *
  * @param generatorType - The type of value to generate (Uuid, Email, String, etc.)
- * @param valueGeneratorStore - The value generator store instance
+ * @param generate - Produces a value for a generator id
  * @returns The generated string value
  */
 export function generateValueFromType(
     generatorType: GeneratorType,
-    valueGeneratorStore: ReturnType<typeof useValueGeneratorStore>,
+    generate: GenerateValue,
 ): string {
     switch (generatorType) {
         case GeneratorType.Uuid:
-            return valueGeneratorStore.generateValue('uuid') as string;
+            return String(generate('uuid'));
         case GeneratorType.Email:
-            return valueGeneratorStore.generateValue('email') as string;
+            return String(generate('email'));
         case GeneratorType.String:
-            return valueGeneratorStore.generateValue('word') as string;
         default:
-            return valueGeneratorStore.generateValue('word') as string;
+            return String(generate('word'));
     }
 }

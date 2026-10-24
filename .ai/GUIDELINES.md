@@ -57,3 +57,5 @@ Delegate non-trivial, multi-file, or refactoring work to a subagent. Review its 
 - `write-frontend-code`: Vue, TypeScript, Tailwind, and their tests.
 - `task-finalization`: checks before marking work done.
 - `package-compatibility`: PHP and Laravel matrix.
+- `update-doc-screenshots`: re-capture user guide screenshots after UI changes.
+- `record-demo-video`: re-record the demo GIF after UI changes.

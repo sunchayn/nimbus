@@ -1,66 +1,69 @@
 import { AppSwitch } from '@/components/base/switch';
-import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-/*
- * Fixtures.
- */
-
-/**
- * Factory function to create a mounted wrapper with sensible defaults.
- */
-const createWrapper = (options = {}): VueWrapper => {
-    return mount(AppSwitch, {
-        ...options,
-        global: {
-            plugins: [createPinia()],
-        },
-    });
-};
+import { describe, expect, it, vi } from 'vitest';
 
 describe('AppSwitch', () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-        vi.clearAllMocks();
-    });
-
-    /*
-     * Rendering tests.
-     */
-
     describe('Rendering', () => {
-        it('renders correctly', () => {
-            // Arrange
+        it('renders a switch role reflecting the model value', () => {
+            // Arrange & Act
 
-            const wrapper = createWrapper();
+            const wrapper = mount(AppSwitch, { props: { modelValue: true } });
 
             // Assert
 
-            expect(wrapper.exists()).toBe(true);
-            expect(wrapper.find('button').exists()).toBe(true);
+            const control = wrapper.find('[role="switch"]');
+            expect(control.exists()).toBe(true);
+            expect(control.attributes('aria-checked')).toBe('true');
+        });
+
+        it('renders the label prop', () => {
+            // Arrange & Act
+
+            const wrapper = mount(AppSwitch, { props: { label: 'Enable' } });
+
+            // Assert
+
+            expect(wrapper.text()).toContain('Enable');
         });
     });
 
-    /*
-     * State Transition tests.
-     */
-
     describe('Behavior', () => {
-        it('changes state when clicked', async () => {
+        it('emits update:modelValue when clicked', async () => {
             // Arrange
 
-            const wrapper = createWrapper();
-            const button = wrapper.find('button');
+            const onUpdate = vi.fn();
+            const wrapper = mount(AppSwitch, {
+                props: { modelValue: false, 'onUpdate:modelValue': onUpdate },
+            });
 
             // Act
 
-            await button.trigger('click');
+            await wrapper.find('[role="switch"]').trigger('click');
 
             // Assert
 
-            expect(button.attributes('data-state')).toBe('checked');
+            expect(onUpdate).toHaveBeenCalledWith(true);
+        });
+
+        it('does not emit when disabled', async () => {
+            // Arrange
+
+            const onUpdate = vi.fn();
+            const wrapper = mount(AppSwitch, {
+                props: {
+                    modelValue: false,
+                    disabled: true,
+                    'onUpdate:modelValue': onUpdate,
+                },
+            });
+
+            // Act
+
+            await wrapper.find('[role="switch"]').trigger('click');
+
+            // Assert
+
+            expect(onUpdate).not.toHaveBeenCalled();
         });
     });
 });

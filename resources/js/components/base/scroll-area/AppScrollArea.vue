@@ -1,86 +1,50 @@
 <script setup lang="ts">
 /**
  * @component AppScrollArea
- * @description A custom-styled scrollable container using radix-ui primitives.
+ * @description Native scroll container built on Nuxt UI.
  */
-import { cn } from '@/utils/ui';
-import { reactiveOmit } from '@vueuse/core';
-import type { ScrollAreaRootProps } from 'reka-ui';
-import { ScrollAreaCorner, ScrollAreaRoot, ScrollAreaViewport } from 'reka-ui';
-import { computed, type HTMLAttributes, ref } from 'vue';
-import AppScrollBar from './AppScrollBar.vue';
+import { useForwardedProps } from '@/components/base/useForwardedProps';
+import type { ScrollAreaProps } from '@nuxt/ui/components/ScrollArea.vue';
+import UScrollArea from '@nuxt/ui/components/ScrollArea.vue';
+import { useEventListener } from '@vueuse/core';
+import { computed, useTemplateRef } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppScrollAreaProps extends ScrollAreaRootProps {
-    class?: HTMLAttributes['class'];
-    viewportChildTag?: string;
-}
+export interface AppScrollAreaProps extends ScrollAreaProps {}
 
 /*
- * Component Setup.
+ * State.
  */
 
-const props = withDefaults(defineProps<AppScrollAreaProps>(), {
-    class: undefined,
-    viewportChildTag: 'div',
-});
+const props = defineProps<AppScrollAreaProps>();
 
-const delegatedProps = reactiveOmit(props, 'class', 'type');
+const forwarded = useForwardedProps(props);
+
+const scrollArea = useTemplateRef<{ $el: HTMLElement }>('scrollArea');
 
 const emit = defineEmits<{
     scroll: [event: Event];
 }>();
 
 /*
- * State.
- */
-
-const viewportComponent = ref<InstanceType<typeof ScrollAreaViewport> | null>(null);
-
-/*
- * Computed.
- */
-
-const viewportClassForChildHeight = computed(
-    () => `[&>${props.viewportChildTag}]:h-full`,
-);
-
-/*
  * Exposes.
  */
 
-defineExpose({
-    get viewport() {
-        return viewportComponent.value?.viewportElement ?? null;
-    },
-});
+const viewport = computed(
+    () => (scrollArea.value?.$el as HTMLElement | undefined) ?? null,
+);
+
+// UScrollArea only emits its own scroll state, so the native event is forwarded here.
+useEventListener(viewport, 'scroll', event => emit('scroll', event));
+
+defineExpose({ viewport });
 </script>
 
 <template>
-    <ScrollAreaRoot
-        type="hover"
-        data-slot="scroll-area"
-        v-bind="delegatedProps"
-        :class="cn('relative', props.class)"
-    >
-        <ScrollAreaViewport
-            ref="viewportComponent"
-            :as-child="true"
-            data-slot="scroll-area-viewport"
-            :class="
-                cn(
-                    'focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1',
-                    viewportClassForChildHeight,
-                )
-            "
-            @scroll="event => emit('scroll', event)"
-        >
-            <slot />
-        </ScrollAreaViewport>
-        <AppScrollBar class="z-[50]" />
-        <ScrollAreaCorner />
-    </ScrollAreaRoot>
+    <UScrollArea ref="scrollArea" v-bind="forwarded">
+        <slot />
+    </UScrollArea>
 </template>

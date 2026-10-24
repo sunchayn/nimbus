@@ -22,14 +22,7 @@ const props = defineProps<AppPanelProps>();
 </script>
 
 <template>
-    <div
-        :class="
-            cn(
-                'flex flex-col bg-white text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50',
-                props.class,
-            )
-        "
-    >
+    <div :class="cn('bg-default text-default flex flex-col', props.class)">
         <slot />
     </div>
 </template>

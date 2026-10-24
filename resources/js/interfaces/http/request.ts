@@ -28,21 +28,10 @@ export interface PendingRequest {
     /**
      * Request body data organized by HTTP method and payload type.
      *
-     * Structure: { [method]: { [payloadType]: bodyData } }
-     *
+     * The shape is a map of method to a map of payload type to body data.
      * This allows storing different body content for different HTTP methods
      * and payload types (JSON, FormData, etc.) for the same request,
      * enabling users to switch between methods while preserving their input.
-     *
-     * Example: {
-     *   "POST": {
-     *     "json": '{"name": "John"}',
-     *     "form-data": FormData object
-     *   },
-     *   "PUT": {
-     *     "json": '{"id": 1, "name": "Jane"}'
-     *   }
-     * }
      */
     body: {
         [_key in string]?: {
@@ -73,15 +62,9 @@ export interface PendingRequest {
     /**
      * All available routes for the current endpoint (different HTTP methods).
      *
-     * Used to:
-     * - Categorize methods as "Supported" vs "Other" in the UI
-     * - Provide schema information when switching between HTTP methods
-     * - Enable method switching while preserving endpoint context
-     *
-     * Example: For endpoint "/users", this might contain:
-     * - GET /users (list users)
-     * - POST /users (create user)
-     * - PUT /users (update user)
+     * It separates "Supported" methods from "Other" in the UI.
+     * It also provides schema information when switching between HTTP methods.
+     * For endpoint "/users", it might contain GET, POST, and PUT routes.
      */
     supportedRoutes: RouteDefinition[];
 

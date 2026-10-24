@@ -12,7 +12,7 @@ test("Dump and Die visualization sanity checklist", async ({ page }) => {
         await page.getByTestId("endpoint-input").click();
         await page.waitForTimeout(300); // <- Wait for next tick.
 
-        await page.getByRole("button", { name: "Send ( )" }).click();
+        await page.getByRole("button", { name: "Send", exact: true }).click();
 
         await expect(page.getByTestId("response-status-text")).toContainText(
             "Dump & Die",
@@ -71,7 +71,7 @@ test("Dump and Die visualization sanity checklist", async ({ page }) => {
     //  status assertions
 
     await expect(page.getByTestId("response-status-indicator")).toHaveClass(
-        /text-violet-600/,
+        /text-secondary/,
     );
 
     //  dump #0 (array root)

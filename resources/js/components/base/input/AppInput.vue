@@ -1,29 +1,18 @@
 <script setup lang="ts">
 /**
  * @component AppInput
- * @description A standard text input component with double-shift value generation support.
+ * @description Text input built on Nuxt UI.
  */
-import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
-import { useValueGeneratorStore } from '@/stores';
-import { cn } from '@/utils/ui';
-import { useVModel } from '@vueuse/core';
-import type { HTMLAttributes } from 'vue';
-import { ref } from 'vue';
-import { inputVariants, type InputVariants } from './index';
+import { useForwardedProps } from '@/components/base/useForwardedProps';
+import type { InputProps } from '@nuxt/ui/components/Input.vue';
+import UInput from '@nuxt/ui/components/Input.vue';
+import { useTemplateRef } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppInputProps {
-    defaultValue?: string | number;
-    modelValue?: string | number;
-    class?: HTMLAttributes['class'];
-    type?: string;
-    placeholder?: string;
-    disabled?: boolean;
-    variant?: InputVariants['variant'];
-}
+export interface AppInputProps extends InputProps<string | number> {}
 
 /*
  * Component Setup.
@@ -31,49 +20,31 @@ export interface AppInputProps {
 
 const props = defineProps<AppInputProps>();
 
-const emits = defineEmits<{
-    (e: 'update:modelValue', payload: string | number): void;
+const emit = defineEmits<{
+    'update:modelValue': [value: string | number];
 }>();
 
-const modelValue = useVModel(props, 'modelValue', emits, {
-    passive: true,
-    defaultValue: props.defaultValue,
+const forwarded = useForwardedProps(props);
+const input = useTemplateRef<{ inputRef: HTMLInputElement | null }>('input');
+
+defineExpose({
+    get inputRef() {
+        return input.value?.inputRef ?? null;
+    },
 });
-
-/*
- * Computed & Methods.
- */
-
-const { openCommand } = useValueGeneratorStore();
-const inputRef = ref<HTMLInputElement>();
-
-// Shift+Shift tracking
-const lastShiftPress = ref<number>(0);
-const shiftPressThreshold = 500; // 500ms window for double shift
-
-const handleKeydown = (event: KeyboardEvent) => {
-    if (event.key === 'Shift') {
-        const now = Date.now();
-
-        // Check if this is a double shift press within the threshold
-        if (now - lastShiftPress.value < shiftPressThreshold) {
-            event.preventDefault();
-            openCommand(inputRef.value, ValueGeneratorCommandOpenMethod.SHIFT_SHIFT);
-        }
-
-        lastShiftPress.value = now;
-    }
-};
 </script>
 
 <template>
-    <input
-        ref="inputRef"
-        v-model="modelValue"
-        :type="type ?? 'text'"
-        :class="cn(inputVariants({ variant }), props.class)"
-        :placeholder="placeholder"
-        :disabled="disabled"
-        @keydown="handleKeydown"
-    />
+    <UInput
+        ref="input"
+        v-bind="forwarded"
+        @update:model-value="value => emit('update:modelValue', value)"
+    >
+        <template v-if="$slots.leading" #leading="slotProps">
+            <slot name="leading" v-bind="slotProps" />
+        </template>
+        <template v-if="$slots.trailing" #trailing="slotProps">
+            <slot name="trailing" v-bind="slotProps" />
+        </template>
+    </UInput>
 </template>

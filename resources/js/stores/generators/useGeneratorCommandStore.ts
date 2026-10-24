@@ -1,7 +1,7 @@
 import type { GeneratorCommandState } from '@/interfaces/ui';
 import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 
 /**
  * Store for managing generator command UI state.
@@ -20,7 +20,7 @@ export const useGeneratorCommandStore = defineStore('_generatorCommand', () => {
         recentGenerators: [],
     });
 
-    const isCommandOpen = ref(false);
+    const isCommandOpen = shallowRef(false);
     const currentInputRef = ref<HTMLElement | null>(null);
 
     // Command open method tracking using WeakMap for memory efficiency

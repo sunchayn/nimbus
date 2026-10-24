@@ -13,7 +13,7 @@ import { computed } from 'vue';
  * Types & Interfaces.
  */
 
-export interface AppRequestBodyJsonProps {
+export interface RequestBodyJsonProps {
     schema: JSONSchema7 | undefined;
 }
 
@@ -21,7 +21,7 @@ export interface AppRequestBodyJsonProps {
  * Component Setup.
  */
 
-defineProps<AppRequestBodyJsonProps>();
+defineProps<RequestBodyJsonProps>();
 
 const model = defineModel<string>({
     default: '',

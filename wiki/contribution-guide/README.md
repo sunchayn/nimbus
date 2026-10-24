@@ -23,6 +23,7 @@ Welcome to the Nimbus contributor guide. This document provides everything you n
 **Reference**
 - [Coding Standards](#coding-standards)
 - [Style Guides](#style-guides)
+- [Design System](#design-system)
 - [Architecture Rules](#architecture-rules)
 
 ---
@@ -96,7 +97,7 @@ src/
 resources/js/
 ├── app/                  # Application setup and initialization
 ├── components/           # Vue components
-│   ├── base/             # Reusable UI components (buttons, inputs)
+│   ├── base/             # Thin App wrappers over Nuxt UI (buttons, inputs)
 │   ├── common/           # Shared components (modals, dropdowns)
 │   ├── domain/           # Business logic components (request builder)
 │   └── layout/           # Layout components (panels, navigation)
@@ -623,6 +624,9 @@ class SchemaBuilderUnitTest extends TestCase
 - Mock external dependencies (API calls, stores).
 - Use `data-testid` attributes for selectors.
 - Focus on component behavior, not implementation details.
+- Never assert Tailwind class names.
+- Nuxt UI is installed globally in `resources/js/tests/setup.ts`, so `mount` works for base components without extra setup.
+- Overlays such as dialogs, popovers and menus render in `document.body`, so assert on `document.body` or `screen`.
 
 **Linting and formatting:**
 
@@ -988,44 +992,178 @@ Use categorized TODO comments for future work.
 
 ### Tailwind CSS Usage
 
-#### Use Utility Classes Only
+#### Use Semantic and Token Utilities
 
-Use Tailwind's utility classes exclusively. Avoid custom CSS when possible.
+Use Tailwind utility classes built from the design system. Avoid custom CSS when possible.
 
 ```vue
-<!-- Good - Tailwind utilities -->
+<!-- Good - semantic and token utilities -->
 <div class="flex h-screen max-h-screen overflow-hidden">
-  <div class="bg-white border-r border-zinc-200 p-4">
-    <h2 class="text-lg font-semibold text-zinc-900 mb-4">Routes</h2>
+  <div class="bg-muted border-r border-default p-4">
+    <h2 class="text-lg font-semibold text-highlighted mb-4">Routes</h2>
   </div>
 </div>
 
-<!-- Bad - custom CSS -->
-<div class="custom-layout">
-  <div class="sidebar">
-    <h2 class="sidebar-title">Routes</h2>
-  </div>
+<!-- Bad - raw palette classes and arbitrary values -->
+<div class="bg-white border-r border-zinc-200 p-[14px] z-[50]">
+  <h2 class="text-zinc-900">Routes</h2>
 </div>
-
-<style>
-.custom-layout { /* ... */ }
-.sidebar { /* ... */ }
-</style>
 ```
+
+Semantic utilities follow dark mode, so a `dark:` twin is not needed.
 
 #### Component Class Extraction
 
 For repeated patterns, extract to component props or composables, not CSS classes.
+Component sizes and colors belong to the theme preset, not to the call site.
 
-```vue
-<script setup lang="ts">
-const buttonClasses = computed(() => ({
-  base: 'px-4 py-2 rounded font-medium transition-colors',
-  primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-  secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-}))
-</script>
+---
+
+## Design System
+
+Nimbus uses Nuxt UI v4 behind thin `App*` wrappers.
+
+### Structure
+
+1. `resources/css/themes/base.css` holds the default theme on `:root`, with a `.dark` block after each layer for the values that differ in dark mode.
+2. `resources/css/variables/layout.css` holds the layout sizes, such as the toolbar height and the sidebar width.
+3. `tools/ui/theme.js` holds the Nuxt UI component preset. It has shared class strings at the top and one section per component in alphabetical order. It is passed to the Nuxt UI plugin in `vite.config.js`.
+4. `resources/js/components/base` holds the wrappers. A wrapper keeps the `App` name, exposes the Nuxt UI props, and passes attributes through. It holds no sizes, colors or classes.
+
+Only files in `components/base` import from `@nuxt/ui`. The exceptions are `app.ts`, `App.vue`, the test setup and the Vite config.
+
+### Token Layers
+
+1. Primitives are raw scales, such as the type scale, the control scale and the item rows.
+2. Semantic tokens are roles, such as the `--ui-*` colors, `--border-w`, `--elevation-control`, `--elevation-overlay`, `--press-translate`, gaps, layers and durations. Components read these.
+3. Component tokens are narrow knobs, such as `--tab-active-bg`, `--tab-active-shadow`, `--tab-active-border`, `--sidebar-item-active-bg` and `--overlay-separator`. Each one defaults to a semantic token.
+
+A theme can override any layer. Most themes only touch primitives and semantic tokens.
+Component tokens let a theme change one component without touching the others.
+
+### The Preset Never Changes Per Theme
+
+1. `tools/ui/theme.js` holds no theme name, no raw palette class, and no arbitrary px, rem or hex value.
+2. Every visual difference between themes is a token. If a difference cannot be expressed with an existing token, add a token to `base.css` with the current value first, then read it in the preset.
+3. Run `npm run check:theme` after you edit the preset. It fails on a raw palette class, a theme name, a variable class such as `p-(--card-padding)`, or an arbitrary value.
+
+### Token Utilities
+
+Classes never read a token with the variable syntax, such as `gap-(--gap-base)`.
+Each token has a named utility instead.
+Most are registered in the `@theme inline` block of `base.css`, so Tailwind builds them from its namespaces.
+The control scale has no Tailwind namespace, so `app.css` defines it with `@utility`.
+Every utility reads the runtime variable, so a theme that overrides the variable also changes the utility.
+
+| Family | Utilities | Token |
+| --- | --- | --- |
+| Gaps and spacing | `gap-tight`, `gap-base`, `gap-loose`, also with `p`, `m` and the other spacing prefixes | `--gap-*` |
+| Surface padding | `p-card`, `p-dialog`, `p-popover`, `p-menu`, `p-toast`, `p-panel`, `p-tabs` | `--*-padding` |
+| Role gaps | `gap-dialog-gap`, `gap-tabs-gap`, `gap-nav-gap` | `--dialog-gap`, `--tabs-gap`, `--nav-gap` |
+| Control height | `h-control-*`, `min-h-control-*`, `w-control-*`, `min-w-control-*` | `--control-h-*` |
+| Control padding | `px-control-*`, `ps-control-*`, `pe-control-*` | `--control-px-*` |
+| Control gap | `gap-control-*` | `--control-gap-*` |
+| Control text | `text-control-*`, which also sets the line height | `--control-text-*`, `--control-leading-*` |
+| Icons and rows | `size-icon-*`, `size-nav-icon`, `h-item-sm`, `h-item-md` | `--control-icon-*`, `--nav-icon-size`, `--item-h-*` |
+| Text | `text-xxs`, `text-menu-label` | `--text-xxs`, `--menu-label-text` |
+| Border width | `ring-line`, `border-b-line`, `border-s-line`, `border-e-line`, `w-line`, `h-line` | `--border-w` |
+| Elevation | `shadow-control`, `shadow-overlay`, `shadow-modal`, `shadow-tab-active` | `--elevation-*`, `--tab-active-shadow` |
+| Layers | `z-sticky`, `z-raised`, `z-overlay`, `z-toast` | `--z-*` |
+| Motion | `duration-fast`, `duration-base`, `animate-fade-in-fast`, `animate-fade-out-base`, `animate-collapsible-down` | `--duration-*` |
+| States | `opacity-disabled`, `translate-y-press`, `translate-y-tooltip-nudge` | `--disabled-opacity`, `--press-translate`, `--tooltip-nudge` |
+| Overlay sizes | `min-w-overlay`, `max-w-popover`, `max-w-dialog`, `max-w-dialog-lg`, `max-h-dialog` | `--overlay-min-w`, `--popover-max-w`, `--dialog-max-w`, `--dialog-lg-max-w`, `--dialog-max-h` |
+| Component colors | `bg-separator`, `bg-tab-active-bg`, `text-tab-active-text`, `ring-tab-active-border`, `bg-sidebar-item-active`, `caret-default` | the matching component token |
+| Layout | `h-toolbar`, `min-h-toolbar`, `h-sub-toolbar`, `min-h-sub-toolbar` | `--toolbar-height`, `--sub-toolbar-height` |
+
+The control sizes are `xs`, `sm`, `md` and `lg`.
+To add a utility, register the token in `base.css` or `app.css`, then add its name to `twMergeConfig` in `tools/ui/theme.js`.
+Tailwind merge needs the name to replace a Nuxt UI default class, such as `shadow-overlay` over `shadow-lg`.
+Variables that Reka sets, such as `--reka-select-trigger-width`, keep the variable syntax.
+
+### Adding a Theme
+
+1. Create `resources/css/themes/<name>.css`.
+2. Put the overrides in one `[data-theme='<name>']` block, and the dark values in a `.dark[data-theme='<name>']` block.
+3. The file holds only variable overrides. It has no component selectors and no `@apply`.
+4. A theme that needs its own font loads it in the same file, so other themes do not pay for it.
+5. The app ships only the default theme today. When a second theme exists, its file is loaded on demand and `data-theme` is set next to the `.dark` class.
+
+### Control Scale
+
+| Size | Control height | Item row |
+| --- | --- | --- |
+| `xs` | 20px | |
+| `sm` | 24px | 24px with `text-xs` |
+| `md` | 28px, the default | 28px with `text-sm` |
+| `lg` | 32px | |
+
+Use the component `size` prop. For custom elements use `h-control-md`, `px-control-md`, `gap-control-md` and `size-icon-md`.
+Radius roles are `rounded-sm` for items, buttons and tooltips, `rounded-md` for inputs, cards and menus, and `rounded-lg` for dialogs and the command popover.
+Overlays fade only, with no zoom or slide.
+
+### Spacing Scale
+
+Every padding and gap in the preset comes from one scale of tokens in `resources/css/themes/base.css`.
+Wrappers and call sites never pick their own value.
+
+| Token | Value | Used for |
+| --- | --- | --- |
+| `--gap-tight` | 4px | Gaps inside rows, label to field, title to description |
+| `--gap-base` | 8px | Gaps between controls, dialog footer buttons, panel padding |
+| `--gap-loose` | 12px | Gaps between groups of content |
+| `--menu-padding` | 4px | Inset of dropdown, select and command groups, and their separators |
+| `--popover-padding` | 8px | Popover content |
+| `--card-padding` | 12px | Cards and panels inside pages |
+| `--toast-padding` | 12px | Toasts |
+| `--dialog-padding` | 12px | Modal and slideover surface |
+| `--dialog-gap` | 12px | Space between the dialog header, body and footer |
+| `--dialog-max-w` | 480px | Default dialog width |
+| `--dialog-lg-max-w` | 560px | Dialogs that show a code block, set with `max-w-dialog-lg` on the content slot |
+| `--dialog-max-h` | 70dvh | Dialog height limit, the body scrolls inside it |
+
+The control scale (`--control-px-*` and `--control-gap-*`) sets the inside of buttons, fields, tabs and menu rows.
+Dialogs pad the surface once and use no dividers, so the header, body and footer slots add no padding.
+Content passed into a popover or dialog slot adds no outer padding, because the surface already has it.
+Dialog titles are `text-sm` semibold with a `size-icon-md` icon, and descriptions are `text-xs` muted, 4px below the title.
+The close button is `sm` and sits in the title row.
+Dialog footer buttons use `size="sm"`, and code boxes inside a dialog use `text-xs` mono with `p-base` and scroll inside the body.
+Alerts pad 8px by 10px with `text-xs` text and a `size-icon-sm` icon.
+Group labels in menus and selects use 11px semibold muted text, with no uppercase, and a line above every group after the first.
+
+### Adding a Wrapper
+
+1. Create `resources/js/components/base/<name>/App<Name>.vue` that wraps the Nuxt UI component, imported explicitly, for example `import UButton from '@nuxt/ui/components/Button.vue'`.
+2. Expose the Nuxt UI props and slots and pass `data-testid` through.
+3. Export it from the folder `index.ts`.
+4. Add the visual rules to the component section in `tools/ui/theme.js`, in alphabetical order.
+5. Add a test in `resources/js/tests/components/base` that checks behavior.
+
+### Changing a Theme Value
+
+1. Change colors, scale values, elevation, layers and durations in `resources/css/themes/base.css`.
+2. Change how a component uses them in its section of `tools/ui/theme.js`, then run `npm run check:theme`.
+3. Check the result in the running app, in light and dark mode.
+
+### Icons
+
+1. Icons come from the HugeIcons collection. Write full literal names such as `i-hugeicons-cancel-01`.
+2. Use them through `AppIcon` or an `icon`, `leading-icon` or `trailing-icon` prop.
+3. Never build a name from parts, because a name built at runtime is not bundled and would fetch from the network.
+4. When data holds icons, store the literal string name and render it with `AppIcon`.
+5. Nuxt UI's own icons are set in `nuxtUiIcons` in `vite.config.js`. Every key must point to a HugeIcons name, otherwise Nuxt UI falls back to a default icon that is not installed and is fetched from the network.
+
+### Toasts
+
+Use `useAppToast` from `@/components/base/toast`.
+
+```typescript
+const toast = useAppToast();
+
+toast.success('Saved');
+toast.error('Request failed', { description: 'Try again.' });
 ```
+
+It offers `success`, `warning` and `error`. Each takes a title and optional `description` and `duration`.
 
 ---
 

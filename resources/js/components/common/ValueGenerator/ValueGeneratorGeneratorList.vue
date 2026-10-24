@@ -1,26 +1,20 @@
 <script setup lang="ts">
 /**
  * @component ValueGeneratorGeneratorList
- * @description The list of available generators for the value generator command palette.
+ * @description The command palette listing the available generators, with search and recent items.
  */
-import {
-    AppCommandEmpty,
-    AppCommandGroup,
-    AppCommandItem,
-    AppCommandList,
-} from '@/components/base/command';
+import { AppCommand } from '@/components/base/command';
 import { type ValueGenerator } from '@/interfaces/ui';
 import { useValueGeneratorStore } from '@/stores';
-import { SparklesIcon } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { computed, reactive, useTemplateRef, watch } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppValueGeneratorGeneratorListProps {}
+export interface ValueGeneratorGeneratorListProps {}
 
-export interface AppValueGeneratorGeneratorListEmits {
+export interface ValueGeneratorGeneratorListEmits {
     (e: 'generator-selected', generatorId: string): void;
 }
 
@@ -28,91 +22,91 @@ export interface AppValueGeneratorGeneratorListEmits {
  * Component Setup.
  */
 
-defineProps<AppValueGeneratorGeneratorListProps>();
-const emits = defineEmits<AppValueGeneratorGeneratorListEmits>();
+defineProps<ValueGeneratorGeneratorListProps>();
+const emits = defineEmits<ValueGeneratorGeneratorListEmits>();
 
 const store = useValueGeneratorStore();
+
+/*
+ * State.
+ */
+
+const filterState = reactive({ search: '' });
+const command = useTemplateRef<{ focusInput: () => void }>('command');
+
+store.restoreCommandState({ filterState });
+
+watch(
+    () => filterState.search,
+    newSearch => {
+        store.setSearchQuery(newSearch || '');
+    },
+);
 
 /*
  * Computed & Methods.
  */
 
-const hasRecentGenerators = computed(() => store.recentGenerators.length > 0);
+const focusInput = (): void => command.value?.focusInput();
 
-const getGeneratorIcon = (generator: ValueGenerator) => generator.icon || SparklesIcon;
+defineExpose({ focusInput });
 
-const emitGeneratorSelectedEvent = (generatorId: string) => {
-    emits('generator-selected', generatorId);
-};
+const toItem = (generator: ValueGenerator) => ({
+    label: generator.name,
+    icon: generator.icon ?? 'i-hugeicons-sparkles',
+    generator,
+    onSelect: () => {
+        filterState.search = '';
+        emits('generator-selected', generator.id);
+    },
+});
 
-/**
- * Checks if a category has any generators in the filtered results.
- */
-const categoryHasGenerators = (categoryId: string) => {
-    if (!store.filteredGenerators) {
-        return false;
-    }
+const recentGenerators = computed(() => {
+    const search = filterState.search.toLowerCase();
 
-    return store.filteredGenerators.some(
-        (generator: ValueGenerator) => generator.category.id === categoryId,
+    return store.recentGenerators.filter((generator: ValueGenerator) =>
+        generator.name.toLowerCase().includes(search),
     );
-};
+});
 
-/**
- * Gets all generators for a specific category from filtered results.
- */
-const getGeneratorsForCategory = (categoryId: string) => {
-    if (!store.filteredGenerators) {
-        return [];
-    }
+const groups = computed(() => {
+    const filtered: ValueGenerator[] = store.filteredGenerators ?? [];
 
-    return store.filteredGenerators.filter(
-        (generator: ValueGenerator) => generator.category.id === categoryId,
-    );
-};
+    const categoryGroups = (store.categories ?? []).map(category => ({
+        id: category.id,
+        label: category.name,
+        ignoreFilter: true,
+        items: filtered
+            .filter(generator => generator.category.id === category.id)
+            .map(toItem),
+    }));
+
+    return [
+        {
+            id: 'recent',
+            label: 'Recent',
+            ignoreFilter: true,
+            items: recentGenerators.value.map(toItem),
+        },
+        ...categoryGroups,
+    ].filter(group => group.items.length > 0);
+});
 </script>
 
 <template>
-    <AppCommandList class="max-h-64 overflow-y-auto">
-        <AppCommandEmpty class="p-3 text-left">
-            No generators found. Try a different search query.
-        </AppCommandEmpty>
-
-        <!-- Recent Generators Section -->
-        <AppCommandGroup v-if="hasRecentGenerators" heading="Recent">
-            <AppCommandItem
-                v-for="generator in store.recentGenerators"
-                :key="generator.id"
-                :value="generator.name"
-                @select="emitGeneratorSelectedEvent(generator.id)"
-            >
-                <component
-                    :is="getGeneratorIcon(generator)"
-                    class="text-subtle-foreground size-4 flex-shrink-0"
-                />
-                <span class="font-medium">{{ generator.name }}</span>
-            </AppCommandItem>
-        </AppCommandGroup>
-
-        <!-- Category Groups -->
-        <template v-for="category in store.categories || []" :key="category.id">
-            <AppCommandGroup
-                v-if="categoryHasGenerators(category.id)"
-                :heading="category.name"
-            >
-                <AppCommandItem
-                    v-for="generator in getGeneratorsForCategory(category.id)"
-                    :key="generator.id"
-                    :value="generator.name"
-                    @select="emitGeneratorSelectedEvent(generator.id)"
-                >
-                    <component
-                        :is="getGeneratorIcon(generator)"
-                        class="size-4 flex-shrink-0 text-zinc-500"
-                    />
-                    <span class="font-medium">{{ generator.name }}</span>
-                </AppCommandItem>
-            </AppCommandGroup>
+    <AppCommand
+        ref="command"
+        v-model:search-term="filterState.search"
+        :groups="groups"
+        placeholder="Search generators..."
+        :ui="{ content: 'max-h-64 overflow-y-auto' }"
+    >
+        <template #empty>No generators found. Try a different search query.</template>
+        <template #header>
+            <slot name="header" />
         </template>
-    </AppCommandList>
+        <template #footer>
+            <slot name="footer" />
+        </template>
+    </AppCommand>
 </template>

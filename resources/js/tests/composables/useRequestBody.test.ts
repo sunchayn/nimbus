@@ -4,7 +4,7 @@ import type { PendingRequest } from '@/interfaces/http';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { effectScope, reactive } from 'vue';
+import { effectScope, nextTick, reactive } from 'vue';
 
 /*
  * Fixtures.
@@ -152,5 +152,112 @@ describe('useRequestBody', () => {
 
         expect(composable.payloadType.value).toBe(RequestBodyTypeEnum.JSON);
         expect(composable.payload.value as string).toBe('{"immediate":true}');
+    });
+
+    it('stores the placeholder in the request body on setup', () => {
+        runComposable();
+
+        expect(requestStore.pendingRequestData?.body.POST?.json).toBe(
+            '{"serialized":true}',
+        );
+    });
+
+    it('writes payload edits into the body of the current method and type', () => {
+        const composable = runComposable();
+
+        composable.payload.value = '{"edited":true}';
+
+        expect(requestStore.pendingRequestData?.body.POST?.json).toBe('{"edited":true}');
+    });
+
+    it('refills the placeholder when the payload is cleared', async () => {
+        const composable = runComposable();
+        composable.payload.value = '{"edited":true}';
+
+        composable.payload.value = '';
+        await nextTick();
+
+        expect(composable.payload.value).toBe('{"serialized":true}');
+    });
+
+    it('keeps a cleared payload empty when there is no schema shape', async () => {
+        const pending = requestStore.pendingRequestData!;
+        pending.schema = { extractionErrors: null } as PendingRequest['schema'];
+        const composable = runComposable();
+
+        composable.payload.value = 'something';
+        composable.payload.value = '';
+        await nextTick();
+
+        expect(composable.payload.value).toBe('');
+    });
+
+    it('returns null for the empty body type', async () => {
+        const composable = runComposable();
+
+        composable.payloadType.value = RequestBodyTypeEnum.EMPTY;
+        await nextTick();
+
+        expect(composable.payload.value).toBeNull();
+        expect(composable.generateCurrentPayload()).toBeNull();
+    });
+
+    it('restores the form data when switching to another type and back', async () => {
+        const composable = runComposable();
+        const formData = new FormData();
+        formData.set('name', 'Jane');
+
+        composable.payloadType.value = RequestBodyTypeEnum.FORM_DATA;
+        composable.payload.value = formData;
+        composable.payloadType.value = RequestBodyTypeEnum.JSON;
+        await nextTick();
+        composable.payloadType.value = RequestBodyTypeEnum.FORM_DATA;
+        await nextTick();
+
+        expect(composable.payload.value).toBe(formData);
+    });
+
+    it('keeps each method body when the method changes and changes back', async () => {
+        const composable = runComposable();
+        composable.payload.value = '{"post":true}';
+
+        requestStore.pendingRequestData!.method = 'PUT';
+        await nextTick();
+        composable.payload.value = '{"put":true}';
+
+        requestStore.pendingRequestData!.method = 'POST';
+        await nextTick();
+
+        expect(composable.payload.value).toBe('{"post":true}');
+    });
+
+    it('keeps a separate payload per type and updates the request type', async () => {
+        const composable = runComposable();
+        composable.payload.value = '{"json":true}';
+
+        composable.payloadType.value = RequestBodyTypeEnum.PLAIN_TEXT;
+        await nextTick();
+
+        expect(requestStore.pendingRequestData?.payloadType).toBe(
+            RequestBodyTypeEnum.PLAIN_TEXT,
+        );
+        expect(composable.payload.value).toBe('{"serialized":true}');
+
+        composable.payloadType.value = RequestBodyTypeEnum.JSON;
+
+        expect(composable.payload.value).toBe('{"json":true}');
+    });
+
+    it('follows the active request when it is replaced', async () => {
+        const composable = runComposable();
+        const other = createPendingRequest();
+        other.payloadType = RequestBodyTypeEnum.PLAIN_TEXT;
+        other.body = { POST: { [RequestBodyTypeEnum.PLAIN_TEXT]: 'other' } };
+
+        requestStore.pendingRequestData = other;
+        await nextTick();
+
+        expect(composable.payloadType.value).toBe(RequestBodyTypeEnum.PLAIN_TEXT);
+        expect(composable.payload.value).toBe('other');
     });
 });

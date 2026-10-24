@@ -5,9 +5,24 @@ import {
 } from '@/interfaces/common/env-vars';
 import { json } from '@codemirror/lang-json';
 import { type Diagnostic, linter, lintGutter } from '@codemirror/lint';
-import { EditorState, type Extension } from '@codemirror/state';
+import { EditorState, type Extension, RangeSetBuilder } from '@codemirror/state';
+import {
+    Decoration,
+    type DecorationSet,
+    EditorView,
+    ViewPlugin,
+    type ViewUpdate,
+} from '@codemirror/view';
 import { jsonSchema } from 'codemirror-json-schema';
 import type { JSONSchema7 } from 'json-schema';
+
+// Keeps writing assistants such as Grammarly away from code editors.
+const noWritingAssistants = EditorView.contentAttributes.of({
+    spellcheck: 'false',
+    'data-gramm': 'false',
+    'data-gramm_editor': 'false',
+    'data-enable-grammarly': 'false',
+});
 
 export const jsonExtensions = (
     readonly: boolean,
@@ -29,10 +44,10 @@ export const jsonExtensions = (
 };
 
 export const commonExtensions = (readonly: boolean): Extension[] => {
-    const extensions = [lintGutter()];
+    const extensions = [lintGutter(), noWritingAssistants];
 
     if (readonly) {
-        extensions.push(EditorState.readOnly.of(true));
+        extensions.push(EditorState.readOnly.of(true), EditorView.editable.of(false));
     }
 
     return extensions;
@@ -41,7 +56,64 @@ export const commonExtensions = (readonly: boolean): Extension[] => {
 export const fallbackExtensions = (readonly: boolean): Extension[] =>
     commonExtensions(readonly);
 
+const chipClasses: Partial<Record<EnvVariableCheckStatus, string>> = {
+    [EnvVariableCheckStatus.Resolved]: 'cm-env-chip cm-env-chip-resolved',
+    [EnvVariableCheckStatus.Empty]: 'cm-env-chip cm-env-chip-empty',
+    [EnvVariableCheckStatus.Missing]: 'cm-env-chip cm-env-chip-missing',
+};
+
+/**
+ * Draws each environment placeholder as an inline chip colored by its status.
+ */
+const envVariableChips = (
+    getStatus: (value: string) => EnvVariableCheckStatus,
+): Extension => {
+    const build = (view: EditorView): DecorationSet => {
+        const builder = new RangeSetBuilder<Decoration>();
+        const text = view.state.doc.toString();
+
+        for (const match of text.matchAll(PLACEHOLDER_PATTERN)) {
+            const className = chipClasses[getStatus(match[1])];
+
+            if (match.index === undefined || className === undefined) {
+                continue;
+            }
+
+            builder.add(
+                match.index,
+                match.index + match[0].length,
+                Decoration.mark({ class: className }),
+            );
+        }
+
+        return builder.finish();
+    };
+
+    return ViewPlugin.fromClass(
+        class {
+            decorations: DecorationSet;
+
+            constructor(view: EditorView) {
+                this.decorations = build(view);
+            }
+
+            update(update: ViewUpdate) {
+                if (update.docChanged || update.viewportChanged) {
+                    this.decorations = build(update.view);
+                }
+            }
+        },
+        { decorations: plugin => plugin.decorations },
+    );
+};
+
 export const envVariablesCheck = (
+    getStatus: (value: string) => EnvVariableCheckStatus,
+): Extension => {
+    return [envVariableChips(getStatus), envVariablesLinter(getStatus)];
+};
+
+const envVariablesLinter = (
     getStatus: (value: string) => EnvVariableCheckStatus,
 ): Extension => {
     return linter(view => {

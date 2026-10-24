@@ -1,30 +1,40 @@
 <script setup lang="ts">
 /**
  * @component AppCollapsible
- * @description An interactive component that expands/collapses content.
+ * @description A collapsible built on Nuxt UI. The default slot is the trigger and `#content` is the body.
  */
-import type { CollapsibleRootEmits, CollapsibleRootProps } from 'reka-ui';
-import { CollapsibleRoot, useForwardPropsEmits } from 'reka-ui';
+import { useForwardedProps } from '@/components/base/useForwardedProps';
+import type {
+    CollapsibleProps,
+    CollapsibleSlots,
+} from '@nuxt/ui/components/Collapsible.vue';
+import UCollapsible from '@nuxt/ui/components/Collapsible.vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppCollapsibleProps extends CollapsibleRootProps {}
+export interface AppCollapsibleProps extends CollapsibleProps {}
 
 /*
  * Component Setup.
  */
 
 const props = defineProps<AppCollapsibleProps>();
-const emits = defineEmits<CollapsibleRootEmits>();
 
-const forwarded = useForwardPropsEmits(props, emits);
+const emit = defineEmits<{
+    'update:open': [value: boolean];
+}>();
+
+defineSlots<CollapsibleSlots>();
+
+const forwarded = useForwardedProps(props);
 </script>
 
 <template>
-    <!-- eslint-disable-next-line vue/no-template-shadow -->
-    <CollapsibleRoot v-slot="{ open }" v-bind="forwarded">
-        <slot :open="open" />
-    </CollapsibleRoot>
+    <UCollapsible v-bind="forwarded" @update:open="value => emit('update:open', value)">
+        <template v-for="(_, name) in $slots" :key="name" #[name]="slotProps">
+            <slot :name="name as never" v-bind="slotProps ?? {}" />
+        </template>
+    </UCollapsible>
 </template>

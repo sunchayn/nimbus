@@ -31,8 +31,8 @@ const props = withDefaults(defineProps<AppBorderBeamProps>(), {
     duration: 15000,
     anchor: 10,
     borderWidth: 1.5,
-    colorFrom: '#ffaa40',
-    colorTo: '#9c40ff',
+    colorFrom: 'var(--beam-from)',
+    colorTo: 'var(--beam-to)',
     delay: 0,
 });
 
@@ -46,15 +46,7 @@ const delayInSeconds = computed(() => `${props.delay}s`);
 
 <template>
     <div
-        :class="
-            cn(
-                'border-beam',
-                'pointer-events-none absolute inset-0 rounded-[inherit] [border:calc(var(--border-width)*1px)_solid_transparent]',
-                '![mask-composite:intersect] ![mask-clip:padding-box,border-box] [mask:linear-gradient(transparent,transparent),linear-gradient(white,white)]',
-                'animate-border-beam after:absolute after:aspect-square after:w-[calc(var(--size)*1px)] after:[animation-delay:var(--delay)] after:[background:linear-gradient(to_left,var(--color-from),var(--color-to),transparent)] after:[offset-anchor:calc(var(--anchor)*1%)_50%] after:[offset-path:rect(0_auto_auto_0_round_calc(var(--size)*1px))]',
-                props.class,
-            )
-        "
+        :class="cn('border-beam pointer-events-none absolute inset-0', props.class)"
     ></div>
 </template>
 
@@ -67,15 +59,42 @@ const delayInSeconds = computed(() => `${props.delay}s`);
     --color-from: v-bind(colorFrom);
     --color-to: v-bind(colorTo);
     --delay: v-bind(delayInSeconds);
+
+    border: calc(var(--border-width) * 1px) solid transparent;
+    border-radius: inherit;
+
+    /*
+     * The mask only cuts the beam to the border ring.
+     * Its colors never render, so they are not theme colors.
+     */
+    mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
+    mask-clip: padding-box, border-box;
+    mask-composite: intersect;
 }
 
-.animate-border-beam::after {
+.border-beam::after {
+    content: '';
+    position: absolute;
+    aspect-ratio: 1;
+    width: calc(var(--size) * 1px);
+    background: linear-gradient(to left, var(--color-from), var(--color-to), transparent);
+    offset-anchor: calc(var(--anchor) * 1%) 50%;
+    offset-path: rect(0 auto auto 0 round calc(var(--size) * 1px));
     animation: border-beam-anim var(--duration) infinite linear;
+    animation-delay: var(--delay);
 }
 
 @keyframes border-beam-anim {
     to {
         offset-distance: 100%;
+    }
+}
+
+/* The beam is decorative, so it is hidden when the user prefers less motion. */
+@media (prefers-reduced-motion: reduce) {
+    .border-beam::after {
+        animation: none;
+        display: none;
     }
 }
 </style>

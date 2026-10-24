@@ -5,33 +5,24 @@
  */
 import { AppBadge } from '@/components/base/badge';
 import { AppScrollArea } from '@/components/base/scroll-area';
-import {
-    AppTabs,
-    AppTabsContent,
-    AppTabsList,
-    AppTabsTrigger,
-} from '@/components/base/tabs';
-import { AppTooltipWrapper } from '@/components/base/tooltip';
+import { AppTabs } from '@/components/base/tabs';
+import { AppTooltip } from '@/components/base/tooltip';
 import ResponseBody from '@/components/domain/Client/Response/ResponseBody/ResponseBody.vue';
-import ResponseDownloadDropdown from '@/components/domain/Client/Response/ResponseBody/ResponseDownloadDropdown.vue';
 import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDumpAndDie.vue';
 import ResponseCookies from '@/components/domain/Client/Response/ResponseCookies/ResponseCookies.vue';
 import ResponseHeaders from '@/components/domain/Client/Response/ResponseHeaders/ResponseHeaders.vue';
-import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
-import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
 import type { RequestLog } from '@/interfaces/history/logs';
 import { STATUS } from '@/interfaces/http';
 import { useRequestStore } from '@/stores';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
-import { DatabaseBackupIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppResponseViewerResponseProps {
+export interface ResponseViewerResponseProps {
     response?: RequestLog | null;
 }
 
@@ -39,7 +30,7 @@ export interface AppResponseViewerResponseProps {
  * Component Setup.
  */
 
-const props = defineProps<AppResponseViewerResponseProps>();
+const props = defineProps<ResponseViewerResponseProps>();
 
 /*
  * Stores.
@@ -53,13 +44,30 @@ const requestStore = useRequestStore();
 
 const tab = useStorage(singletonPersistenceKey('response-viewer-tab'), 'response');
 
-const {
-    scrollContainer,
-    showLeftMask,
-    showRightMask,
-    updateScrollMasks,
-    scrollTabIntoView,
-} = useTabHorizontalScroll();
+// The badge is always shown, so the tab keeps its width when the count changes.
+const countBadge = (count: number | undefined) => ({
+    label: String(count ?? 0),
+    size: 'sm' as const,
+    variant: 'subtle' as const,
+    color: 'neutral' as const,
+    class: 'min-w-5 justify-center font-mono tabular-nums',
+});
+
+const tabs = computed(() => [
+    { label: 'Response', value: 'response', slot: 'response' },
+    {
+        label: 'Headers',
+        value: 'response-headers',
+        slot: 'response-headers',
+        badge: countBadge(props.response?.response?.headers.length),
+    },
+    {
+        label: 'Cookies',
+        value: 'response-cookies',
+        slot: 'response-cookies',
+        badge: countBadge(props.response?.response?.cookies.length),
+    },
+]);
 
 /*
  * Computed & Methods.
@@ -67,89 +75,53 @@ const {
 
 const lastLog = computed(() => props.response);
 const pendingRequestData = computed(() => requestStore.pendingRequestData);
-
-const showTransactionAlert = computed(() => {
-    return lastLog.value?.request.transactionMode;
-});
-
-const handleTabClick = (event: Event) => {
-    scrollTabIntoView(event.currentTarget as HTMLElement);
-};
 </script>
 
 <template>
-    <div class="relative min-h-0 flex-1">
-        <div
-            v-if="pendingRequestData?.isProcessing"
-            class="bg-background absolute top-0 left-0 z-[100] h-full w-full animate-pulse opacity-75"
-        />
-        <AppTabs
-            :default-value="tab"
-            class="mt-0 flex h-full flex-col overflow-auto"
-            @update:model-value="tab = $event as string"
+    <div class="motion-safe:animate-fade-in-fast relative min-h-0 flex-1">
+        <Transition
+            leave-active-class="transition-opacity duration-fast motion-reduce:transition-none"
+            leave-to-class="opacity-0"
         >
-            <div class="bg-subtle flex items-center justify-between border-b">
-                <div class="relative min-w-0 flex-1">
-                    <div
-                        ref="scrollContainer"
-                        class="scrollbar-hide flex items-center justify-between overflow-x-auto"
-                        style="scrollbar-width: none; -ms-overflow-style: none"
-                        @scroll="updateScrollMasks"
-                    >
-                        <AppTabsList class="h-toolbar px-panel rounded-none">
-                            <AppTabsTrigger
-                                value="response"
-                                label="Response"
-                                @click="handleTabClick"
-                            />
-                            <AppTabsTrigger
-                                value="response-headers"
-                                label="Headers"
-                                @click="handleTabClick"
-                            />
-                            <AppTabsTrigger
-                                value="response-cookies"
-                                label="Cookies"
-                                @click="handleTabClick"
-                            />
-                        </AppTabsList>
-                    </div>
-
-                    <!-- Scroll Gradient Masks -->
-                    <div
-                        v-show="showLeftMask"
-                        class="from-subtle via-subtle/80 pointer-events-none absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r to-transparent transition-opacity duration-200"
-                    />
-                    <div
-                        v-show="showRightMask"
-                        class="from-subtle via-subtle/80 pointer-events-none absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l to-transparent transition-opacity duration-200"
-                    />
-                </div>
-
-                <div class="pr-panel flex items-center gap-2">
-                    <AppTooltipWrapper
-                        v-if="showTransactionAlert"
-                        value="Changes were automatically rolled back for this request"
-                    >
-                        <div class="flex items-center">
-                            <AppBadge variant="outline" class="gap-1">
-                                <DatabaseBackupIcon class="size-3 min-w-3" />
-                                Transaction Mode
-                            </AppBadge>
-                        </div>
-                    </AppTooltipWrapper>
-                </div>
-            </div>
-            <AppTabsContent
-                value="response"
-                class="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden"
+            <div
+                v-if="pendingRequestData?.isProcessing"
+                class="z-raised absolute top-0 left-0 h-full w-full"
             >
-                <PanelSubHeader class="border-b">
-                    <template #toolbox>
-                        <ResponseDownloadDropdown :response="lastLog" />
-                    </template>
-                </PanelSubHeader>
-
+                <div class="bg-default size-full opacity-75 motion-safe:animate-pulse" />
+            </div>
+        </Transition>
+        <AppTabs
+            v-model="tab"
+            :items="tabs"
+            variant="link"
+            color="neutral"
+            class="mt-0 h-full gap-0 overflow-auto"
+            :ui="{
+                list: 'h-toolbar overflow-x-auto rounded-none px-0',
+                trigger: 'px-panel',
+                content:
+                    'border-default flex min-h-0 flex-1 flex-col overflow-hidden border-t',
+            }"
+        >
+            <template #list-trailing>
+                <div
+                    v-if="response?.request.transactionMode"
+                    class="px-panel ms-auto flex shrink-0 items-center"
+                >
+                    <AppTooltip
+                        text="Changes were automatically rolled back for this request"
+                    >
+                        <AppBadge
+                            variant="outline"
+                            color="neutral"
+                            icon="i-hugeicons-database-backup"
+                        >
+                            Transaction mode
+                        </AppBadge>
+                    </AppTooltip>
+                </div>
+            </template>
+            <template #response>
                 <AppScrollArea
                     v-if="lastLog?.response?.status !== STATUS.DUMP_AND_DIE"
                     class="min-h-0 flex-1"
@@ -164,19 +136,13 @@ const handleTabClick = (event: Event) => {
                     v-else
                     :raw-content="lastLog?.response?.body ?? '[]'"
                 />
-            </AppTabsContent>
-            <AppTabsContent
-                value="response-headers"
-                class="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden"
-            >
+            </template>
+            <template #response-headers>
                 <ResponseHeaders :headers="lastLog?.response?.headers ?? []" />
-            </AppTabsContent>
-            <AppTabsContent
-                value="response-cookies"
-                class="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden"
-            >
+            </template>
+            <template #response-cookies>
                 <ResponseCookies :cookies="lastLog?.response?.cookies ?? []" />
-            </AppTabsContent>
+            </template>
         </AppTabs>
     </div>
 </template>

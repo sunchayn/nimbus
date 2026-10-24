@@ -11,7 +11,7 @@ export class BasePage {
         await this.page.getByTestId('endpoint-input').click();
         await this.page.waitForTimeout(300); // <- Wait for next tick.
 
-        await this.page.getByRole('button', { name: 'Send ( )' }).click();
+        await this.page.getByRole('button', { name: 'Send', exact: true }).click();
 
         await expect(this.page.getByTestId('response-status-text')).not.toContainText(
             'Pending',
@@ -134,7 +134,8 @@ export class BasePage {
      */
 
     async goToEnvironments() {
-        await this.page.getByRole('button', { name: 'Environments' }).click();
+        await this.page.getByTestId('environment-switcher').click();
+        await this.page.getByRole('menuitem', { name: 'Manage environments' }).click();
         await expect(this.page.getByTestId('environment-page')).toBeVisible();
     }
 
@@ -143,7 +144,7 @@ export class BasePage {
     }
 
     async renameActiveCollection(name: string) {
-        // Since we use EditableRoot from reka-ui, we need to click the preview to edit.
+        // AppEditable wraps the Reka Editable, so we need to click the preview to edit.
         const editor = this.page.getByTestId('collection-name-editor');
         await editor.click({ force: true });
         

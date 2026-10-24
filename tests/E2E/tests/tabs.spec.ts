@@ -17,7 +17,7 @@ test('Multiple tabs support and isolated responses', async ({ page, basePage }) 
 
     // Assert - Verify it appears in Sidebar Tabs
     const tabs = page.getByTestId('sidebar-tab');
-    await expect(tabs.filter({ hasText: /GET\s*verbs\/verbs/ })).toBeVisible();
+    await expect(tabs.filter({ hasText: /GET\s*verbs$/ })).toBeVisible();
 
     // Act - Open second tab (Route 2)
 
@@ -25,7 +25,7 @@ test('Multiple tabs support and isolated responses', async ({ page, basePage }) 
 
     // Assert - Verify second tab is created and response is empty
 
-    await expect(tabs.filter({ hasText: /PATCH\s*verbs\/verbs/ })).toBeVisible();
+    await expect(tabs.filter({ hasText: /PATCH\s*verbs$/ })).toBeVisible();
     await expect(page.getByTestId('response-empty')).toBeVisible();
 
     // Act - Execute request in second tab
@@ -35,7 +35,7 @@ test('Multiple tabs support and isolated responses', async ({ page, basePage }) 
 
     // Act - Switch back to first tab via Open Tabs menu
 
-    await tabs.filter({ hasText: /GET\s*verbs\/verbs/ }).click();
+    await tabs.filter({ hasText: /GET\s*verbs$/ }).click();
 
     // Assert - Verify isolated response (should be 200 from Route 1)
 
@@ -43,7 +43,7 @@ test('Multiple tabs support and isolated responses', async ({ page, basePage }) 
 
     // Act - Switch back to second tab via Open Tabs menu
 
-    await tabs.filter({ hasText: /PATCH\s*verbs\/verbs/ }).click();
+    await tabs.filter({ hasText: /PATCH\s*verbs$/ }).click();
 
     // Assert - Verify isolated response (should be 422 from Route 2)
 
@@ -55,12 +55,12 @@ test('Multiple tabs support and isolated responses', async ({ page, basePage }) 
     await expect(tabs).toHaveCount(2);
 
     // Hover over the tab to show the close button and click it
-    const getTab = tabs.filter({ hasText: /GET\s*verbs\/verbs/ });
+    const getTab = tabs.filter({ hasText: /GET\s*verbs$/ });
     await getTab.hover();
     await getTab.getByTestId('sidebar-tab-close').click();
 
     // Assert - Verify tab is closed and only the other one remains
     await expect(tabs).toHaveCount(1);
-    await expect(tabs.filter({ hasText: /GET\s*verbs\/verbs/ })).not.toBeVisible();
-    await expect(tabs.filter({ hasText: /PATCH\s*verbs\/verbs/ })).toBeVisible();
+    await expect(tabs.filter({ hasText: /GET\s*verbs$/ })).not.toBeVisible();
+    await expect(tabs.filter({ hasText: /PATCH\s*verbs$/ })).toBeVisible();
 });

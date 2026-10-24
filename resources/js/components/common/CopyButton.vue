@@ -4,13 +4,13 @@
  * @description A small button for copying text to the clipboard with status feedback.
  */
 import { AppButton } from '@/components/base/button';
-import { CheckIcon, CopyIcon } from 'lucide-vue-next';
+import AppSwapIcon from '@/components/base/icons/AppSwapIcon.vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppCopyButtonProps {
+export interface CopyButtonProps {
     onClick: () => void;
     copied: boolean;
 }
@@ -19,12 +19,23 @@ export interface AppCopyButtonProps {
  * Component Setup.
  */
 
-defineProps<AppCopyButtonProps>();
+defineProps<CopyButtonProps>();
 </script>
 
 <template>
-    <AppButton size="xs" variant="ghost" class="size-6" @click="onClick">
-        <CopyIcon v-if="!copied" class="size-3" />
-        <CheckIcon v-else class="size-3 text-green-800 dark:text-green-500" />
+    <AppButton
+        size="xs"
+        variant="ghost"
+        square
+        :aria-label="copied ? 'Copied' : 'Copy'"
+        :color="copied ? 'success' : undefined"
+        @click="onClick"
+    >
+        <template #leading>
+            <AppSwapIcon
+                :name="copied ? 'i-hugeicons-tick-02' : 'i-hugeicons-copy-01'"
+                class="size-icon-sm"
+            />
+        </template>
     </AppButton>
 </template>

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 /**
  * @component HistoryItem
- * @description A single item in the request history dropdown.
+ * @description A single entry in the request history list.
  */
-import { AppDropdownMenuItem } from '@/components/base/dropdown-menu';
 import StatusIndicator from '@/components/domain/Client/Response/ResponseStatus/StatusIndicator.vue';
 import HttpVerbLabel from '@/components/domain/HttpVerbLabel/HttpVerbLabel.vue';
 import { type RequestLog } from '@/interfaces/history/logs';
@@ -11,101 +10,69 @@ import { type Response, STATUS } from '@/interfaces/http';
 import { useTimeAgo } from '@vueuse/core';
 import prettyBytes from 'pretty-bytes';
 import prettyMs from 'pretty-ms';
+import { computed } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppHistoryItemProps {
+export interface HistoryItemProps {
     log: RequestLog & {
         response: Response;
     };
-    index: number;
-}
-
-export interface AppHistoryItemEmits {
-    (e: 'select', index: number): void;
+    active?: boolean;
 }
 
 /*
  * Component Setup.
  */
 
-const props = defineProps<AppHistoryItemProps>();
+const props = defineProps<HistoryItemProps>();
 
-const emit = defineEmits<AppHistoryItemEmits>();
+// Endpoints are stored without the leading slash.
+const endpoint = computed(() => `/${props.log.request.endpoint.replace(/^\//, '')}`);
 
-/*
- * Methods.
- */
-
-const timeToTimeAgo = (timestamp: number): string => {
-    const timeAgo = useTimeAgo(new Date(timestamp * 1000));
-
-    return timeAgo.value;
-};
+const timeAgo = useTimeAgo(computed(() => new Date(props.log.response.timestamp * 1000)));
 </script>
 
 <template>
-    <AppDropdownMenuItem
-        class="p-panel p-panel flex cursor-pointer flex-col items-start transition-colors"
-        @select="emit('select', props.index)"
+    <button
+        type="button"
+        :aria-current="active ? 'true' : undefined"
+        class="hover:bg-elevated focus-visible:bg-elevated data-[active=true]:bg-elevated grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 px-3 py-2 text-start focus-visible:outline-none"
+        :data-active="active"
     >
-        <div class="flex w-full gap-2">
-            <div class="flex flex-1 flex-col gap-2">
-                <div
-                    class="flex w-full justify-between gap-1 leading-tight"
-                    :title="props.log.request.endpoint"
-                >
-                    <div class="flex-1 truncate">
-                        <HttpVerbLabel
-                            :method="props.log.request.method"
-                            data-testid="history-item-method"
-                        />
-
-                        <span class="ml-1 text-xs" data-testid="history-item-endpoint">
-                            {{ props.log.request.endpoint }}
-                        </span>
-                    </div>
-
-                    <StatusIndicator
-                        :status="props.log.response.status ?? STATUS.EMPTY"
-                        data-testid="history-item-status"
-                    />
-                </div>
-                <div class="text-xxs flex min-w-0 flex-1 items-center gap-2">
-                    <span class="text-nowrap" data-testid="response-status-badge">
-                        {{ props.log.response.statusCode }}
-                        -
-                        {{ props.log.response.statusText }}
-                    </span>
-
-                    <div class="border-border w-8 border-b"></div>
-
-                    <div class="flex w-full items-center justify-between">
-                        <div>
-                            <span class="text-subtle-foreground whitespace-nowrap">
-                                {{
-                                    prettyMs(props.log.durationInMs, {
-                                        compact: true,
-                                    })
-                                }}
-                            </span>
-                            <span
-                                v-if="props.log.response"
-                                class="text-subtle-foreground text-xxs whitespace-nowrap"
-                            >
-                                &nbsp;/
-                                {{ prettyBytes(props.log.response.sizeInBytes) }}
-                            </span>
-                        </div>
-
-                        <small class="text-subtle-foreground text-xxs whitespace-nowrap">
-                            {{ timeToTimeAgo(props.log.response.timestamp) }}
-                        </small>
-                    </div>
-                </div>
-            </div>
+        <div class="w-verb">
+            <HttpVerbLabel
+                :method="props.log.request.method"
+                data-testid="history-item-method"
+            />
         </div>
-    </AppDropdownMenuItem>
+        <span
+            class="text-default truncate font-mono text-xs"
+            :title="props.log.request.endpoint"
+            data-testid="history-item-endpoint"
+        >
+            {{ endpoint }}
+        </span>
+        <small class="text-muted text-xxs whitespace-nowrap">{{ timeAgo }}</small>
+
+        <span
+            class="text-muted text-xxs gap-x-tight col-span-2 col-start-1 flex min-w-0 flex-wrap items-center font-mono"
+        >
+            <StatusIndicator
+                :status="props.log.response.status ?? STATUS.EMPTY"
+                class="shrink-0"
+                data-testid="history-item-status"
+            />
+            <span data-testid="response-status-badge">
+                {{ props.log.response.statusCode }} -
+                {{ props.log.response.statusText }}
+            </span>
+            <span aria-hidden="true">·</span>
+            <span>{{ prettyMs(props.log.durationInMs, { compact: true }) }}</span>
+            <span aria-hidden="true">·</span>
+            <span>{{ prettyBytes(props.log.response.sizeInBytes) }}</span>
+        </span>
+    </button>
 </template>

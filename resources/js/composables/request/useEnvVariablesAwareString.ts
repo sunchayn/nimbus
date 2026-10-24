@@ -1,6 +1,6 @@
 import { type StringSegment } from '@/interfaces/common/env-vars';
 import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
-import { computed, type ComputedRef, type Ref, ref, watch } from 'vue';
+import { computed, type ComputedRef, type Ref, shallowRef, watch } from 'vue';
 
 export interface EnvVariablesAwareStringResult {
     raw: Ref<string>;
@@ -14,16 +14,16 @@ export interface EnvVariablesAwareStringResult {
  * @param source - The reactive string source to resolve.
  * @returns Reactive resolution state and utilities.
  */
-export function useEnvVariablesAwareString(
+export const useEnvVariablesAwareString = (
     source: Ref<string>,
-): EnvVariablesAwareStringResult {
+): EnvVariablesAwareStringResult => {
     const environmentVariablesStore = useEnvironmentVariablesStore();
 
     /*
      * State.
      */
 
-    const rawValue: Ref<string> = ref('');
+    const rawValue: Ref<string> = shallowRef('');
 
     /*
      * Computed.
@@ -68,4 +68,4 @@ export function useEnvVariablesAwareString(
         resolved: fullyResolvedString,
         segments,
     };
-}
+};

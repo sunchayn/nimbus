@@ -3,13 +3,13 @@
  * @component ErrorCardHeader
  * @description Header for the error card displaying the error message.
  */
-import { TriangleAlertIcon } from 'lucide-vue-next';
+import AppRoundIndicator from '@/components/base/round-indicator/AppRoundIndicator.vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppErrorCardHeaderProps {
+export interface ErrorCardHeaderProps {
     message: string;
 }
 
@@ -17,23 +17,19 @@ export interface AppErrorCardHeaderProps {
  * Component Setup.
  */
 
-const props = defineProps<AppErrorCardHeaderProps>();
+const props = defineProps<ErrorCardHeaderProps>();
 </script>
 
 <template>
-    <div
-        class="from-destructive/10 relative z-10 border-b bg-gradient-to-r to-transparent"
-    >
-        <div class="flex">
-            <div class="bg-destructive/10 dark:bg-destructive/20 flex items-center px-4">
-                <TriangleAlertIcon class="text-destructive dark:text-foreground size-4" />
-            </div>
-            <div class="p-2.5">
-                <h2 class="text-md leading-tight font-semibold">
-                    {{ props.message }}
-                </h2>
-                <p class="text-subtle-foreground text-sm">Route extraction failed</p>
-            </div>
+    <div class="gap-base px-card py-base flex items-start border-b">
+        <div class="h-item-sm flex shrink-0 items-center">
+            <AppRoundIndicator class="text-error" />
+        </div>
+        <div class="min-w-0">
+            <h1 class="text-highlighted h-item-sm flex items-center text-sm font-medium">
+                Route extraction failed
+            </h1>
+            <p class="text-muted pb-tight text-xs break-words">{{ props.message }}</p>
         </div>
     </div>
 </template>

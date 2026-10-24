@@ -26,7 +26,6 @@ import type { AxiosResponseHeaders } from 'axios';
 export const normalizeHeaders = (
     headers: AxiosResponseHeaders | undefined,
 ): Array<RequestHeader> => {
-    // Return empty array if no headers provided
     if (!headers) {
         return [];
     }
@@ -34,10 +33,9 @@ export const normalizeHeaders = (
     return Object.keys(headers).flatMap(key => {
         let values = headers[key];
 
-        // Wrap values into an array
         values = Array.isArray(values) ? values : [values];
 
-        // Handle edge case: empty array (shouldn't happen but defensive)
+        // An empty array should not happen, but the guard keeps the result defined.
         if (values.length === 0) {
             return {
                 key,

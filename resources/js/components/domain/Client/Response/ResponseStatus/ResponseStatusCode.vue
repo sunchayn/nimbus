@@ -11,7 +11,7 @@ import { type Response, STATUS } from '@/interfaces/http';
  * Types & Interfaces.
  */
 
-export interface AppResponseStatusCodeProps {
+export interface ResponseStatusCodeProps {
     status: STATUS;
     response: Response | undefined;
 }
@@ -20,11 +20,11 @@ export interface AppResponseStatusCodeProps {
  * Component Setup.
  */
 
-const props = defineProps<AppResponseStatusCodeProps>();
+const props = defineProps<ResponseStatusCodeProps>();
 </script>
 
 <template>
-    <div class="flex items-center space-x-2">
+    <div class="gap-base flex items-center">
         <StatusIndicator :status="props.status" data-testid="response-status-indicator" />
         <span class="text-xs text-nowrap" data-testid="response-status-text">
             {{ props.status }}
@@ -32,6 +32,7 @@ const props = defineProps<AppResponseStatusCodeProps>();
         <AppBadge
             v-if="props.response && props.status !== STATUS.DUMP_AND_DIE"
             variant="outline"
+            color="neutral"
             class="text-nowrap"
             data-testid="response-status-badge"
         >
@@ -41,6 +42,7 @@ const props = defineProps<AppResponseStatusCodeProps>();
         <AppBadge
             v-else-if="props.status === STATUS.PENDING"
             variant="outline"
+            color="neutral"
             class="text-nowrap"
         >
             -

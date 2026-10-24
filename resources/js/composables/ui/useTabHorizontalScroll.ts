@@ -1,3 +1,4 @@
+import { useScrollMasks } from '@/composables/ui/useScrollMasks';
 import type { TabNavigationScrollConfig } from '@/config/tab-navigation-scroll';
 import { tabNavigationScrollConfig } from '@/config/tab-navigation-scroll';
 import {
@@ -7,14 +8,13 @@ import {
     getScrollBounds,
 } from '@/utils/scroll';
 import type { ScrollBounds } from '@/utils/scroll/tabScrollUtils';
-import { useDebounceFn } from '@vueuse/core';
+import { useEventListener, useResizeObserver } from '@vueuse/core';
 import {
     computed,
     nextTick,
     onMounted,
     onUnmounted,
     readonly,
-    ref,
     type ComputedRef,
     type DeepReadonly,
     type Ref,
@@ -36,103 +36,54 @@ export interface UseTabHorizontalScrollResult {
  * Manages left/right gradient masks based on scroll position and provides
  * functionality to scroll specific tabs into the visible area.
  */
-export function useTabHorizontalScroll(
+export const useTabHorizontalScroll = (
     config?: Partial<TabNavigationScrollConfig>,
-): UseTabHorizontalScrollResult {
-    /*
-     * Configuration.
-     *
-     * Note: variables are assigned explicitly to make the config keys referencable.
-     */
-
+): UseTabHorizontalScrollResult => {
     const maskWidth = config?.MASK_WIDTH ?? tabNavigationScrollConfig.MASK_WIDTH;
 
-    const scrollThreshold =
-        config?.SCROLL_THRESHOLD ?? tabNavigationScrollConfig.SCROLL_THRESHOLD;
+    const {
+        scrollContainer,
+        showStartMask,
+        showEndMask,
+        savedScrollPosition,
+        scrollThreshold,
+        updateScrollMasks,
+        debouncedUpdateMasks,
+        scrollElementIntoView,
+    } = useScrollMasks({
+        config,
+        scrollProperty: 'left',
+        computeMasks: (container, threshold) => {
+            const bounds = getScrollBounds(container, threshold);
+            const visibility = getMaskVisibility(bounds);
 
-    const scrollPadding =
-        config?.SCROLL_PADDING ?? tabNavigationScrollConfig.SCROLL_PADDING;
+            return {
+                showStartMask: visibility.showLeftMask,
+                showEndMask: visibility.showRightMask,
+                position: bounds.current,
+            };
+        },
+        computeScrollTarget: (element, container, settings) => {
+            const visibility = getElementVisibility(element, container, maskWidth);
 
-    const animationDuration =
-        config?.ANIMATION_DURATION ?? tabNavigationScrollConfig.ANIMATION_DURATION;
+            if (visibility.isFullyVisible) {
+                return null;
+            }
 
-    const debounceDelay =
-        config?.DEBOUNCE_DELAY ?? tabNavigationScrollConfig.DEBOUNCE_DELAY;
-
-    /*
-     * State.
-     */
-
-    const scrollContainer = ref<HTMLElement | null>(null);
-    const showLeftMask = ref(false);
-    const showRightMask = ref(false);
-    const savedScrollPosition = ref(0);
-
-    /*
-     * Computed.
-     */
+            return calculateScrollToElement(
+                element,
+                container,
+                maskWidth,
+                settings.SCROLL_PADDING,
+            );
+        },
+    });
 
     const scrollBounds = computed(() =>
         scrollContainer.value
             ? getScrollBounds(scrollContainer.value, scrollThreshold)
             : null,
     );
-
-    /*
-     * Actions.
-     */
-
-    /**
-     * Updates gradient mask visibility based on scroll position.
-     */
-    const updateScrollMasks = () => {
-        if (!scrollContainer.value) {
-            return;
-        }
-
-        const bounds = getScrollBounds(scrollContainer.value, scrollThreshold);
-        const maskVisibility = getMaskVisibility(bounds);
-
-        showLeftMask.value = maskVisibility.showLeftMask;
-        showRightMask.value = maskVisibility.showRightMask;
-        savedScrollPosition.value = bounds.current;
-    };
-
-    const debouncedUpdateMasks = useDebounceFn(updateScrollMasks, debounceDelay);
-
-    /**
-     * Scrolls a tab button into view, accounting for gradient masks.
-     */
-    const scrollTabIntoView = (buttonElement: HTMLElement) => {
-        if (!scrollContainer.value) {
-            return;
-        }
-
-        const visibility = getElementVisibility(
-            buttonElement,
-            scrollContainer.value,
-            maskWidth,
-        );
-
-        if (!visibility.isFullyVisible) {
-            const targetScrollLeft = calculateScrollToElement(
-                buttonElement,
-                scrollContainer.value,
-                maskWidth,
-                scrollPadding,
-            );
-
-            scrollContainer.value.scrollTo({
-                left: targetScrollLeft,
-                behavior: 'smooth',
-            });
-
-            // Update masks after scrolling animation completes
-            setTimeout(() => {
-                updateScrollMasks();
-            }, animationDuration);
-        }
-    };
 
     /**
      * Restores the previously saved scroll position.
@@ -147,52 +98,34 @@ export function useTabHorizontalScroll(
         updateScrollMasks();
     };
 
-    /**
-     * Sets up scroll event listeners.
-     */
-    const setupScrollListeners = () => {
-        if (!scrollContainer.value) {
-            return;
-        }
+    // Callers assign the container after mount, so listeners must follow the ref.
+    useEventListener(scrollContainer, 'scroll', debouncedUpdateMasks, {
+        passive: true,
+    });
 
-        scrollContainer.value.addEventListener('scroll', debouncedUpdateMasks, {
-            passive: true,
-        });
-
-        return () => {
-            scrollContainer.value?.removeEventListener('scroll', debouncedUpdateMasks);
-        };
-    };
-
-    /*
-     * Lifecycle.
-     */
-
-    let cleanupScrollListeners: (() => void) | null = null;
+    // Window and splitter resizes change the overflow without firing a scroll event.
+    useResizeObserver(scrollContainer, updateScrollMasks);
 
     onMounted(() => {
-        cleanupScrollListeners = setupScrollListeners() ?? null;
-
         debouncedUpdateMasks();
     });
 
     onUnmounted(() => {
-        cleanupScrollListeners?.();
         savedScrollPosition.value = 0;
     });
 
     return {
         // State
         scrollContainer,
-        showLeftMask: readonly(showLeftMask),
-        showRightMask: readonly(showRightMask),
+        showLeftMask: readonly(showStartMask),
+        showRightMask: readonly(showEndMask),
 
         // Computed
         scrollBounds,
 
         // Actions
         updateScrollMasks,
-        scrollTabIntoView,
+        scrollTabIntoView: scrollElementIntoView,
         restoreScrollPosition,
     };
-}
+};

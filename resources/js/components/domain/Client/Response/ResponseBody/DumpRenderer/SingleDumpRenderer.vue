@@ -3,11 +3,8 @@
  * @component SingleDumpRenderer
  * @description Recursively renders a single dump value, handling different types (objects, arrays, strings, etc.).
  */
-import {
-    AppCollapsible,
-    AppCollapsibleContent,
-    AppCollapsibleTrigger,
-} from '@/components/base/collapsible';
+import { AppCollapsible } from '@/components/base/collapsible';
+import { AppIcon } from '@/components/base/icons';
 import DumpKeyRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/DumpKeyRenderer.vue';
 import {
     type ArrayDump,
@@ -27,14 +24,13 @@ import {
 import ObjectDumpValuePropertyKey from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/ObjectDumpValuePropertyKey.vue';
 import UninitializedDumpRenderer from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/UninitializedDumpRenderer.vue';
 import { DumpValueType } from '@/interfaces/generated/dump-value-types';
-import { ChevronRight } from 'lucide-vue-next';
 import { computed, type ComputedRef } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppDumpNodeRendererProps {
+export interface SingleDumpRendererProps {
     dump: DumpValue;
     depth?: number;
     keyName?: string;
@@ -45,7 +41,7 @@ export interface AppDumpNodeRendererProps {
  * Component Setup.
  */
 
-const props = withDefaults(defineProps<AppDumpNodeRendererProps>(), {
+const props = withDefaults(defineProps<SingleDumpRendererProps>(), {
     depth: 0,
     keyName: undefined,
     numericalKey: false,
@@ -126,7 +122,7 @@ const nestedValues: ComputedRef<
 </script>
 
 <template>
-    <div v-if="!isNestable" class="flex gap-0.5">
+    <div v-if="!isNestable" class="flex gap-1">
         <slot name="key">
             <DumpKeyRenderer
                 v-if="keyName !== undefined"
@@ -157,7 +153,7 @@ const nestedValues: ComputedRef<
             />
 
             <div v-else>
-                <small class="text-destructive">
+                <small class="text-error">
                     Invalid dump value type `{{ dump.type }}` received. Please create a
                     <a
                         class="underline"
@@ -175,10 +171,12 @@ const nestedValues: ComputedRef<
         v-else
         class="flex flex-col"
         :default-open="depth === 0"
+        :disabled="nestedValues.length === 0"
         data-testid="app-collapsible"
     >
-        <AppCollapsibleTrigger
-            class="group/collapsible-trigger -mx-1 flex items-center gap-1 rounded-sm px-1 text-sm hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50"
+        <button
+            type="button"
+            class="group/collapsible-trigger hover:bg-elevated/50 -mx-1 flex items-center gap-1 rounded-sm px-1 text-sm"
             data-testid="collapsible-trigger"
             :disabled="nestedValues.length === 0"
         >
@@ -191,20 +189,22 @@ const nestedValues: ComputedRef<
             </slot>
 
             <span class="flex w-full items-center text-left">
-                <ChevronRight
-                    class="size-3 text-zinc-500 transition-transform group-data-[state=open]/collapsible-trigger:rotate-90"
+                <AppIcon
+                    name="i-hugeicons-arrow-right-01"
+                    class="text-muted size-icon-xs transition-transform group-data-[state=open]/collapsible-trigger:rotate-90"
                 />
-                <span class="ml-1 text-xs text-zinc-500 dark:text-zinc-400">
+                <span class="text-muted ms-1 text-xs">
                     {{ nestableNodeSummary }}
                 </span>
             </span>
-        </AppCollapsibleTrigger>
-        <AppCollapsibleContent>
-            <div class="ml-2 border-l border-zinc-200 pl-2 dark:border-zinc-800">
+        </button>
+
+        <template #content>
+            <div class="border-default ms-2 border-s ps-2">
                 <div
                     v-for="(nestedValue, key) in nestedValues"
                     :key="`${keyName ?? 'root'}-${key}`"
-                    class="flex items-center gap-1 py-0.5"
+                    class="flex items-center gap-1 py-1"
                 >
                     <template v-if="dump.type === DumpValueType.Object">
                         <SingleDumpRenderer
@@ -232,7 +232,7 @@ const nestedValues: ComputedRef<
                     />
 
                     <div v-else>
-                        <small class="text-destructive">
+                        <small class="text-error">
                             Invalid nested value type `{{ dump.type }}` received. Please
                             create a
                             <a
@@ -246,6 +246,6 @@ const nestedValues: ComputedRef<
                     </div>
                 </div>
             </div>
-        </AppCollapsibleContent>
+        </template>
     </AppCollapsible>
 </template>

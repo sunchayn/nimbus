@@ -1,5 +1,5 @@
 import { useResizeObserver } from '@vueuse/core';
-import { type ComputedRef, type Ref, type TemplateRef, computed, ref } from 'vue';
+import { type ComputedRef, type Ref, type TemplateRef, computed, shallowRef } from 'vue';
 
 export interface UseResponsiveResizableResult {
     thresholds: ComputedRef<'vertical' | 'horizontal'>[];
@@ -8,15 +8,15 @@ export interface UseResponsiveResizableResult {
 /**
  * Manages resizable panel's direction based on width thresholds.
  */
-export function useResponsiveResizable(
+export const useResponsiveResizable = (
     thresholds: number[],
     element: TemplateRef,
-): UseResponsiveResizableResult {
+): UseResponsiveResizableResult => {
     /*
      * State.
      */
 
-    const elementWidth: Ref<number> = ref(
+    const elementWidth: Ref<number> = shallowRef(
         // @ts-expect-error it is a mess to annotate the element properly.
         element.value?.$el?.contentRect.width ?? window.screen.width,
     );
@@ -46,4 +46,4 @@ export function useResponsiveResizable(
         // Computed
         thresholds: computedThresholds,
     };
-}
+};

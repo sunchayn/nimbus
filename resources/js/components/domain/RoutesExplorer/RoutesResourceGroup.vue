@@ -3,26 +3,18 @@
  * @component RoutesResourceGroup
  * @description A collapsible sidebar group for a specific route resource.
  */
-import {
-    AppCollapsible,
-    AppCollapsibleContent,
-    AppCollapsibleTrigger,
-} from '@/components/base/collapsible';
-import {
-    AppSidebarMenuButton,
-    AppSidebarMenuItem,
-    AppSidebarMenuSub,
-} from '@/components/base/sidebar';
+import { AppCollapsible } from '@/components/base/collapsible';
+import AppIcon from '@/components/base/icons/AppIcon.vue';
+import ExplorerRow from '@/components/domain/RoutesExplorer/ExplorerRow.vue';
+import { useShowingSearchResults } from '@/components/domain/RoutesExplorer/showingSearchResults';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
-import { ChevronRight, Folder } from 'lucide-vue-next';
-import { inject } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppRoutesResourceGroupProps {
+export interface RoutesResourceGroupProps {
     resource: string;
 }
 
@@ -30,7 +22,7 @@ export interface AppRoutesResourceGroupProps {
  * Component Setup.
  */
 
-const props = defineProps<AppRoutesResourceGroupProps>();
+const props = defineProps<RoutesResourceGroupProps>();
 
 /*
  * State.
@@ -41,35 +33,34 @@ const isOpen = useStorage(
     false,
 );
 
-const showingSearchResults = inject('showingSearchResults');
+const showingSearchResults = useShowingSearchResults();
 </script>
 
 <template>
-    <AppSidebarMenuItem>
+    <li>
         <AppCollapsible
-            class="group/collapsible [&[data-state=open]>button>svg:first-child]:rotate-90"
+            class="group/collapsible"
             :default-open="isOpen"
             :open="showingSearchResults ? true : isOpen"
             @update:open="isOpen = $event"
         >
-            <AppCollapsibleTrigger as-child>
-                <AppSidebarMenuButton
-                    class="focus-visible:bg-sidebar-accent data-[active=true]:focus-visible:bg-sidebar-accent focus-visible:ring-0"
+            <ExplorerRow>
+                <AppIcon
+                    name="i-hugeicons-arrow-right-01"
+                    class="-mx-tight shrink-0 transition-transform group-data-[state=open]/collapsible:rotate-90"
+                />
+                <AppIcon name="i-hugeicons-folder-01" class="shrink-0" />
+                <span class="max-w-45 truncate sm:max-w-55 md:max-w-65 lg:max-w-75">
+                    {{ props.resource }}
+                </span>
+            </ExplorerRow>
+            <template #content>
+                <ul
+                    class="border-default ms-3 flex min-w-0 flex-col gap-1 border-s py-1 ps-1"
                 >
-                    <ChevronRight class="transition-transform" />
-                    <Folder />
-                    <span
-                        class="max-w-[180px] truncate sm:max-w-[220px] md:max-w-[260px] lg:max-w-[300px]"
-                    >
-                        {{ props.resource }}
-                    </span>
-                </AppSidebarMenuButton>
-            </AppCollapsibleTrigger>
-            <AppCollapsibleContent class="overflow-hidden">
-                <AppSidebarMenuSub>
                     <slot />
-                </AppSidebarMenuSub>
-            </AppCollapsibleContent>
+                </ul>
+            </template>
         </AppCollapsible>
-    </AppSidebarMenuItem>
+    </li>
 </template>

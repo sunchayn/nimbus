@@ -29,7 +29,7 @@ test('Clicking around', async ({ page }) => {
     await page.getByRole('tab', { name: 'Body' }).click();
     await expect(page.getByTestId('app-tabs-container').getByRole('textbox')).toContainText('"ip": "<placeholder>",');
     await page.getByRole('button', { name: 'Auto Fill' }).click();
-    await page.getByRole('button', { name: 'Send ( )' }).click();
+    await page.getByRole('button', { name: 'Send', exact: true }).click();
     await expect(page.getByTestId('response-status-text')).toContainText('Success');
     await expect(page.getByTestId('response-status-badge')).toContainText('201 - Created');
     await expect(page.getByTestId('response-content').getByRole('textbox')).toContainText('"message": "Order created successfully",');

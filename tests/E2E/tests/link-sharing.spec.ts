@@ -99,8 +99,8 @@ test('Link Sharing complete workflow', async ({ page, basePage }) => {
 
     // Assert - Verify toast notification is shown
 
-    await expect(page.getByText('Shared Request Restored')).toBeVisible();
-    await expect(page.getByText('Request and response have been imported from the shareable link.')).toBeVisible();
+    await expect(page.getByText('Shared Request Restored', { exact: true })).toBeVisible();
+    await expect(page.getByText('Request and response have been imported from the shareable link.', { exact: true })).toBeVisible();
 
     // Assert - Verify notification is shown
 

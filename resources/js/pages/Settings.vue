@@ -1,22 +1,15 @@
 <script setup lang="ts">
+/**
+ * @component SettingsPage
+ * @description Page for user preferences and the read-only package configuration.
+ */
 import { AppButton } from '@/components/base/button';
-import { CheckCircleIcon, RefreshCwIcon, SettingsIcon } from 'lucide-vue-next';
-import { ref } from 'vue';
-import { toast } from 'vue-sonner';
+import { AppIcon } from '@/components/base/icons';
+import { useAppToast } from '@/components/base/toast';
+import { ref, shallowRef } from 'vue';
 
-import {
-    AppDialog,
-    AppDialogContent,
-    AppDialogDescription,
-    AppDialogFooter,
-    AppDialogHeader,
-    AppDialogTitle,
-} from '@/components/base/dialog';
-import {
-    AppPopover,
-    AppPopoverContent,
-    AppPopoverTrigger,
-} from '@/components/base/popover';
+import { AppDialog } from '@/components/base/dialog';
+import { AppPopover } from '@/components/base/popover';
 import CopyButton from '@/components/common/CopyButton.vue';
 import ConfigReadonlySection from '@/components/domain/Settings/ConfigReadonlySection.vue';
 import UserPreferencesSection from '@/components/domain/Settings/UserPreferencesSection.vue';
@@ -41,7 +34,8 @@ const settingsStore = useSettingsStore();
  */
 
 const lastResetTime = ref<Date | null>(null);
-const showResetDialog = ref(false);
+const showResetDialog = shallowRef(false);
+const toast = useAppToast();
 
 /*
  * Methods.
@@ -74,11 +68,17 @@ const copyPublishCommand = async () => {
 
 <template>
     <div>
-        <PageLayout title="Settings" :icon="SettingsIcon">
+        <PageLayout title="Settings" icon="i-hugeicons-settings-01">
             <!-- Header Actions -->
             <template #header-actions>
-                <div v-if="lastResetTime" class="text-subtle-foreground mr-3 text-xs">
-                    <CheckCircleIcon class="mr-1 inline h-3 w-3" />
+                <div
+                    v-if="lastResetTime"
+                    class="text-muted mr-loose gap-tight flex items-center text-xs"
+                >
+                    <AppIcon
+                        name="i-hugeicons-checkmark-circle-02"
+                        class="size-icon-xs"
+                    />
                     Reset {{ lastResetTime.toLocaleTimeString() }}
                 </div>
             </template>
@@ -92,28 +92,31 @@ const copyPublishCommand = async () => {
 
             <!-- Subheader Right -->
             <template #subheader-right>
-                <AppButton variant="ghost" size="xs" @click="showResetConfirmation">
-                    <RefreshCwIcon class="mr-1 h-3 w-3" />
-                    Reset
-                </AppButton>
+                <AppButton
+                    variant="ghost"
+                    size="xs"
+                    icon="i-hugeicons-refresh"
+                    label="Reset"
+                    @click="showResetConfirmation"
+                />
             </template>
 
             <!-- Content -->
             <template #content>
                 <div class="h-full overflow-auto">
                     <div class="p-panel">
-                        <div class="max-w-6xl space-y-12">
+                        <div class="gap-loose flex max-w-6xl flex-col">
                             <!-- Server Configuration Section -->
-                            <div>
-                                <div class="mb-6">
-                                    <h2 class="text-xl font-semibold">
+                            <div class="gap-loose flex flex-col">
+                                <div class="gap-tight flex flex-col">
+                                    <h2 class="text-base font-semibold">
                                         Server Configuration
                                     </h2>
-                                    <p class="text-subtle-foreground text-sm">
+                                    <p class="text-muted max-w-5xl text-sm text-balance">
                                         These values are read from your Laravel
                                         application's
                                         <code
-                                            class="rounded bg-zinc-100 px-1 dark:bg-zinc-900"
+                                            class="bg-elevated inline-block rounded-sm px-1"
                                         >
                                             config/nimbus.php
                                         </code>
@@ -121,17 +124,17 @@ const copyPublishCommand = async () => {
                                         structured, what base URL is used, and which
                                         headers are automatically included with requests.
                                     </p>
-                                    <small class="text-subtle-foreground italic">
+                                    <p class="text-muted text-xs italic">
                                         To customize these settings,
                                         <AppPopover>
-                                            <AppPopoverTrigger
-                                                as="span"
-                                                class="inline-block cursor-pointer text-zinc-600 underline hover:text-blue-800 dark:text-zinc-400 dark:hover:text-blue-200"
+                                            <button
+                                                type="button"
+                                                class="text-muted hover:text-highlighted inline-block cursor-pointer underline"
                                             >
                                                 publish the config file
-                                            </AppPopoverTrigger>
-                                            <AppPopoverContent class="w-[450px]">
-                                                <div class="space-y-3">
+                                            </button>
+                                            <template #content>
+                                                <div class="gap-base flex flex-col">
                                                     <div>
                                                         <h4 class="text-sm font-bold">
                                                             Publish Configuration
@@ -144,7 +147,7 @@ const copyPublishCommand = async () => {
                                                         </p>
                                                     </div>
                                                     <div
-                                                        class="relative flex items-center space-x-2 rounded bg-zinc-100 p-3 font-mono text-xs dark:bg-zinc-900"
+                                                        class="bg-muted gap-base p-base relative flex items-center rounded-md font-mono text-xs"
                                                     >
                                                         <code class="flex-1">
                                                             php artisan vendor:publish
@@ -155,25 +158,23 @@ const copyPublishCommand = async () => {
                                                             :copied="copied"
                                                         />
                                                     </div>
-                                                    <p
-                                                        class="text-subtle-foreground text-xs"
-                                                    >
+                                                    <p class="text-muted text-xs">
                                                         This will create
                                                         <code
-                                                            class="rounded bg-zinc-100 px-1 dark:bg-zinc-900"
+                                                            class="bg-elevated inline-block rounded-sm px-1"
                                                         >
                                                             config/nimbus.php
                                                         </code>
                                                         in your project root.
                                                     </p>
                                                 </div>
-                                            </AppPopoverContent>
+                                            </template>
                                         </AppPopover>
                                         and edit the values directly.
-                                    </small>
-                                    <div class="my-2 text-xs">
+                                    </p>
+                                    <div class="text-xs">
                                         <div
-                                            class="bg-subtle inline-flex items-center space-x-2 rounded px-1.5 py-0.5 font-mono"
+                                            class="bg-muted gap-base inline-flex items-center rounded-sm p-1 pl-2 font-mono"
                                         >
                                             <span>{{ VERSION }}</span>
                                             <CopyButton
@@ -187,17 +188,15 @@ const copyPublishCommand = async () => {
                             </div>
 
                             <!-- Section Divider -->
-                            <div
-                                class="my-8 border-t border-zinc-200 dark:border-zinc-800"
-                            />
+                            <div class="border-default border-t" />
 
                             <!-- User Preferences Section -->
-                            <div>
-                                <div class="mb-6">
-                                    <h2 class="text-xl font-semibold">
+                            <div class="gap-loose flex flex-col">
+                                <div class="gap-tight flex flex-col">
+                                    <h2 class="text-base font-semibold">
                                         User Preferences
                                     </h2>
-                                    <p class="text-subtle-foreground text-sm">
+                                    <p class="text-muted max-w-5xl text-sm text-balance">
                                         Personal settings that are saved locally and
                                         customize your experience with the application.
                                     </p>
@@ -211,22 +210,17 @@ const copyPublishCommand = async () => {
         </PageLayout>
 
         <!-- Reset Confirmation Dialog -->
-        <AppDialog v-model:open="showResetDialog">
-            <AppDialogContent>
-                <AppDialogHeader>
-                    <AppDialogTitle>Reset Settings</AppDialogTitle>
-                    <AppDialogDescription>
-                        Are you sure you want to reset all your preferences to their
-                        default values? This action cannot be undone.
-                    </AppDialogDescription>
-                </AppDialogHeader>
-                <AppDialogFooter>
-                    <AppButton size="xs" variant="outline" @click="cancelReset">
-                        Cancel
-                    </AppButton>
-                    <AppButton size="xs" @click="confirmReset">Reset Settings</AppButton>
-                </AppDialogFooter>
-            </AppDialogContent>
+        <AppDialog
+            v-model:open="showResetDialog"
+            title="Reset Settings"
+            description="Are you sure you want to reset all your preferences to their default values? This action cannot be undone."
+        >
+            <template #footer>
+                <AppButton size="sm" variant="outline" @click="cancelReset">
+                    Cancel
+                </AppButton>
+                <AppButton size="sm" @click="confirmReset">Reset Settings</AppButton>
+            </template>
         </AppDialog>
     </div>
 </template>

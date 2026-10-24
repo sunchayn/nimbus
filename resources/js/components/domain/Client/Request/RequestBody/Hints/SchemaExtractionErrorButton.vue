@@ -3,24 +3,15 @@
  * @component SchemaExtractionErrorButton
  * @description A button that opens a dialog displaying details about schema extraction errors.
  */
+import { AppAlert } from '@/components/base/alert';
 import { AppButton } from '@/components/base/button';
-import {
-    AppDialog,
-    AppDialogClose,
-    AppDialogContent,
-    AppDialogDescription,
-    AppDialogFooter,
-    AppDialogHeader,
-    AppDialogTitle,
-    AppDialogTrigger,
-} from '@/components/base/dialog';
-import { ChevronsLeftRightIcon } from 'lucide-vue-next';
+import { AppDialog } from '@/components/base/dialog';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppSchemaExtractionErrorButtonProps {
+export interface SchemaExtractionErrorButtonProps {
     errorHtml: string;
 }
 
@@ -28,42 +19,39 @@ export interface AppSchemaExtractionErrorButtonProps {
  * Component Setup.
  */
 
-defineProps<AppSchemaExtractionErrorButtonProps>();
+defineProps<SchemaExtractionErrorButtonProps>();
 </script>
 
 <template>
-    <AppDialog>
-        <AppDialogTrigger>
-            <AppButton size="xs" variant="ghost">
-                <ChevronsLeftRightIcon />
-                Error Info
-            </AppButton>
-        </AppDialogTrigger>
-        <AppDialogContent
-            class="to-background from-destructive/10 dark:from-destructive/15 flex max-h-[90dvh] flex-col bg-gradient-to-bl to-50% sm:max-w-[600px]"
-        >
-            <AppDialogHeader>
-                <AppDialogTitle>Schema Extraction Error</AppDialogTitle>
-                <AppDialogDescription>
-                    The following error was thrown when trying to call the `rules()`
-                    method from the request.
-                </AppDialogDescription>
-            </AppDialogHeader>
-            <div
-                class="dark:bg-subtle bg-destructive/10 max-w-full flex-1 overflow-auto p-2 leading-tight wrap-anywhere"
-            >
-                <!-- eslint-disable-next-line vue/no-v-html -->
-                <p v-html="errorHtml" />
+    <AppDialog
+        title="Schema extraction error"
+        description="The following error was thrown when trying to call the `rules()` method from the request."
+        :ui="{ content: 'max-w-dialog-lg' }"
+    >
+        <AppButton
+            size="xs"
+            variant="ghost"
+            icon="i-hugeicons-arrow-left-right"
+            label="Error Info"
+        />
+
+        <template #body>
+            <div class="gap-loose flex flex-col">
+                <AppAlert color="error" variant="subtle">
+                    <template #description>
+                        <!-- eslint-disable-next-line vue/no-v-html -->
+                        <p class="overflow-auto wrap-anywhere" v-html="errorHtml" />
+                    </template>
+                </AppAlert>
+                <p class="text-xs italic">
+                    Note: An attempt to understand the schema statically (from the code as
+                    is) was made. The schema might not be complete.
+                </p>
             </div>
-            <p class="text-xs italic">
-                Note: An attempt to understand the schema statically (from the code as is)
-                was made. The schema might not be complete.
-            </p>
-            <AppDialogFooter class="sm:justify-start">
-                <AppDialogClose as-child>
-                    <AppButton variant="secondary">Dismiss</AppButton>
-                </AppDialogClose>
-            </AppDialogFooter>
-        </AppDialogContent>
+        </template>
+
+        <template #footer="{ close }">
+            <AppButton size="sm" variant="outline" @click="close">Dismiss</AppButton>
+        </template>
     </AppDialog>
 </template>

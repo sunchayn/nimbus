@@ -5,38 +5,40 @@
  */
 import { AppBadge } from '@/components/base/badge';
 import { useValueGeneratorStore } from '@/stores';
-import { ArrowBigUpIcon } from 'lucide-vue-next';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppValueGeneratorFooterProps {}
+export interface ValueGeneratorFooterProps {}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppValueGeneratorFooterProps>();
+defineProps<ValueGeneratorFooterProps>();
 
 const store = useValueGeneratorStore();
 </script>
 
 <template>
     <div
-        class="border-border bg-subtle text-subtle-foreground border-t p-2 text-center text-xs"
+        class="border-default bg-muted text-muted gap-base flex flex-col border-t p-2 text-center text-xs"
     >
         <!-- Shift-Shift Shortcut Hint -->
         <div
             v-if="!store.wasOpenedViaShiftShift"
-            class="mb-2 flex items-center justify-center gap-1.5 text-xs"
+            class="flex items-center justify-center gap-2 text-xs"
         >
             <span>Press</span>
 
-            <AppBadge variant="outline" size="xs" class="flex items-center gap-1">
-                <ArrowBigUpIcon class="size-3" />
-                Shift
-            </AppBadge>
+            <AppBadge
+                variant="outline"
+                color="neutral"
+                size="xs"
+                icon="i-hugeicons-arrow-up-big"
+                label="Shift"
+            />
 
             <span>twice to open this command</span>
         </div>

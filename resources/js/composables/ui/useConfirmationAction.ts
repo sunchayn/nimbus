@@ -1,4 +1,4 @@
-import { onUnmounted, reactive } from 'vue';
+import { onScopeDispose, reactive } from 'vue';
 
 export interface UseConfirmationActionOptions {
     duration?: number;
@@ -8,6 +8,7 @@ export interface UseConfirmationActionResult {
     isConfirming: (id?: string | number) => boolean;
     trigger: (callback: () => void, id?: string | number) => void;
     cancel: (id?: string | number) => void;
+    cancelAll: () => void;
 }
 
 /**
@@ -16,9 +17,9 @@ export interface UseConfirmationActionResult {
  * Supports both standalone single-action confirmation and multiple
  * independent confirmations identified by unique keys.
  */
-export function useConfirmationAction(
+export const useConfirmationAction = (
     options: UseConfirmationActionOptions = {},
-): UseConfirmationActionResult {
+): UseConfirmationActionResult => {
     const { duration = 3000 } = options;
 
     const timers = new Map<string | number, number>();
@@ -63,15 +64,21 @@ export function useConfirmationAction(
         timers.set(id, timeoutId);
     };
 
-    onUnmounted(() => {
+    /**
+     * Cancels every pending confirmation and its timer.
+     */
+    const cancelAll = () => {
         timers.forEach(timeoutId => window.clearTimeout(timeoutId));
         timers.clear();
         confirmationStates.clear();
-    });
+    };
+
+    onScopeDispose(cancelAll);
 
     return {
         isConfirming,
         trigger,
         cancel,
+        cancelAll,
     };
-}
+};

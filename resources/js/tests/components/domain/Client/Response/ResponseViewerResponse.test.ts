@@ -86,9 +86,9 @@ describe('ResponseViewerResponse', () => {
         global.URL.revokeObjectURL = vi.fn();
     });
 
-    it('renders the response download dropdown component', () => {
+    it('leaves the download action to the status row', () => {
         const wrapper = createWrapper();
         const dropdown = wrapper.findComponent({ name: 'ResponseDownloadDropdown' });
-        expect(dropdown.exists()).toBe(true);
+        expect(dropdown.exists()).toBe(false);
     });
 });

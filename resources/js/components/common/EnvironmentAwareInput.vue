@@ -4,20 +4,14 @@
  * @description A high-fidelity input component that supports environment variable highlighting
  * and individual tooltips for multiple env variable segments using a dual-layer mirrored approach.
  */
-import { AppInput, inputVariants, type InputVariants } from '@/components/base/input';
+import type { AppInputProps } from '@/components/base/input';
 import { EnvVariableSegment } from '@/components/common/EnvVariableSegment';
+import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import { useEnvVariablesAwareString } from '@/composables/request/useEnvVariablesAwareString';
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
 import { EnvVariableCheckStatus } from '@/interfaces/common/env-vars';
-import { cn } from '@/utils/ui';
-import {
-    computed,
-    nextTick,
-    onMounted,
-    ref,
-    watch,
-    type ComponentPublicInstance,
-} from 'vue';
+import { cn, withOccurrenceKeys } from '@/utils/ui';
+import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
 
 defineOptions({
     inheritAttrs: false,
@@ -28,16 +22,12 @@ defineOptions({
  */
 
 export interface Props {
-    modelValue: string;
     placeholder?: string;
     disabled?: boolean;
     class?: string;
     inputClass?: string;
-    variant?: InputVariants['variant'];
-}
-
-export interface AppEnvironmentAwareInputEmits {
-    (event: 'update:modelValue', value: string): void;
+    variant?: AppInputProps['variant'];
+    size?: AppInputProps['size'];
 }
 
 /*
@@ -49,36 +39,24 @@ const props = withDefaults(defineProps<Props>(), {
     disabled: false,
     class: '',
     inputClass: '',
-    variant: 'default',
+    variant: 'outline',
+    size: 'md',
 });
 
-const emit = defineEmits<AppEnvironmentAwareInputEmits>();
+const modelValue = defineModel<string>({ required: true });
 
 /*
  * State.
  */
 
-const internalRawValue = ref('');
-const isInputActive = ref(false);
-const activelyHoveredEnvVariableSegment = ref<number | null>(null);
-const inputRef = ref<ComponentPublicInstance | HTMLElement | null>(null);
-const mirrorRef = ref<HTMLDivElement | null>(null);
-
-/**
- * We wrap the parent's modelValue in a proxy computed that useEnvVariablesAwareString will manage.
- */
-const parentSourceProxy = computed({
-    get: () => props.modelValue,
-    set: (value: string) => emit('update:modelValue', value),
-});
+const internalRawValue = shallowRef('');
+const isInputActive = shallowRef(false);
+const activelyHoveredEnvVariableSegment = shallowRef<number | null>(null);
+const inputRef = useTemplateRef<InstanceType<typeof GeneratorInput>>('inputRef');
+const mirrorRef = useTemplateRef<HTMLDivElement>('mirrorRef');
 
 const delegatedProps = computed(() => {
-    /**
-     * We MUST filter out modelValue from the delegated props.
-     * If we don't, AppInput will emit raw string updates directly to the parent,
-     * bypassing our useEnvVariablesAwareString logic.
-     */
-    const { class: _, inputClass: __, modelValue: ___, ...rest } = props;
+    const { class: _, inputClass: __, ...rest } = props;
 
     return rest;
 });
@@ -92,7 +70,11 @@ const { scrollContainer, showLeftMask, showRightMask, updateScrollMasks } =
         SCROLL_THRESHOLD: 4,
     });
 
-const { raw: rawValue, segments } = useEnvVariablesAwareString(parentSourceProxy);
+const { raw: rawValue, segments } = useEnvVariablesAwareString(modelValue);
+
+const keyedSegments = computed(() =>
+    withOccurrenceKeys(segments.value, segment => segment.text),
+);
 
 /*
  * Actions.
@@ -109,10 +91,9 @@ const handleScroll = (event: Event) => {
  * Detects which rich-text segment is being hovered through the transparent input.
  */
 const handleMouseMove = (event: MouseEvent) => {
-    const node = inputRef.value;
-    const el = node && '$el' in node ? (node.$el as HTMLElement) : (node as HTMLElement);
+    const el = inputRef.value?.inputRef;
 
-    if (!el || !(el instanceof HTMLElement)) {
+    if (!el) {
         return;
     }
 
@@ -151,7 +132,7 @@ const handleMouseLeave = () => {
  * Watchers.
  */
 
-// Inbound sync: Parent -> Local Input
+// Inbound sync from the parent to the local input.
 watch(
     rawValue,
     (newValue: string) => {
@@ -162,7 +143,7 @@ watch(
     { immediate: true },
 );
 
-// Outbound sync: Local Input -> Parent
+// Outbound sync from the local input to the parent.
 watch(internalRawValue, (newValue: string) => {
     if (newValue !== rawValue.value) {
         rawValue.value = newValue;
@@ -180,10 +161,8 @@ watch(internalRawValue, () => {
  */
 
 onMounted(() => {
-    if (inputRef.value) {
-        const node = inputRef.value;
-        scrollContainer.value =
-            node && '$el' in node ? (node.$el as HTMLElement) : (node as HTMLElement);
+    if (inputRef.value?.inputRef) {
+        scrollContainer.value = inputRef.value.inputRef;
 
         updateScrollMasks();
     }
@@ -202,17 +181,18 @@ defineExpose({
 <template>
     <div :class="cn('relative flex h-full min-w-0 flex-1 items-stretch', props.class)">
         <!-- Actual Input (Transparent text) - TOP LAYER -->
-        <AppInput
+        <GeneratorInput
             ref="inputRef"
             v-model="internalRawValue"
             v-bind="{ ...delegatedProps, ...$attrs }"
             :variant="variant"
-            :class="
-                cn(
-                    'caret-foreground relative z-10 h-full flex-1 bg-transparent text-transparent',
+            class="z-sticky relative h-full flex-1"
+            :ui="{
+                base: cn(
+                    'h-full flex-1 bg-transparent text-transparent caret-default',
                     inputClass,
-                )
-            "
+                ),
+            }"
             spellcheck="false"
             @scroll="handleScroll"
             @mousemove="handleMouseMove"
@@ -227,13 +207,13 @@ defineExpose({
             ref="mirrorRef"
             :class="
                 cn(
-                    'pointer-events-none absolute inset-0 z-0 flex items-center overflow-hidden whitespace-pre',
-                    inputVariants({ variant }),
+                    'pointer-events-none absolute inset-0 flex items-center overflow-hidden whitespace-pre',
+                    size === 'sm' ? 'px-control-sm text-xs' : 'px-control-md text-sm',
                     inputClass,
                 )
             "
         >
-            <template v-for="(segment, index) in segments" :key="index">
+            <template v-for="({ item: segment, key }, index) in keyedSegments" :key="key">
                 <EnvVariableSegment
                     v-if="segment.isEnvVariable"
                     :status="segment.status || EnvVariableCheckStatus.None"
@@ -244,11 +224,11 @@ defineExpose({
                         :data-segment-index="index"
                         class="pointer-events-auto inline leading-none transition-colors"
                         :class="{
-                            'bg-destructive/15 text-destructive':
+                            'bg-error/15 text-error':
                                 segment.status === EnvVariableCheckStatus.Missing,
                             'bg-warning/15 text-warning':
                                 segment.status === EnvVariableCheckStatus.Empty,
-                            'bg-primary/20 text-primary':
+                            'bg-inverted/20 text-highlighted':
                                 segment.status === EnvVariableCheckStatus.Resolved,
                         }"
                     >
@@ -257,7 +237,7 @@ defineExpose({
                 </EnvVariableSegment>
                 <span
                     v-else
-                    class="text-foreground inline leading-none"
+                    class="text-default inline leading-none"
                     :data-segment-index="index"
                 >
                     {{ segment.text }}
@@ -268,11 +248,11 @@ defineExpose({
         <!-- Scroll Gradient Masks -->
         <div
             v-show="showLeftMask"
-            class="from-background pointer-events-none absolute top-0 bottom-0 left-0 z-20 w-8 bg-gradient-to-r to-transparent transition-opacity duration-200"
+            class="from-default z-raised w-fade pointer-events-none absolute top-0 bottom-0 left-0 bg-gradient-to-r to-transparent transition-opacity duration-200"
         />
         <div
             v-show="showRightMask"
-            class="from-background pointer-events-none absolute top-0 right-0 bottom-0 z-20 w-8 bg-gradient-to-l to-transparent transition-opacity duration-200"
+            class="from-default z-raised w-fade pointer-events-none absolute top-0 right-0 bottom-0 bg-gradient-to-l to-transparent transition-opacity duration-200"
         />
     </div>
 </template>

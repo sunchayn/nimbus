@@ -1,105 +1,126 @@
-import {
-    AppTabs,
-    AppTabsContent,
-    AppTabsList,
-    AppTabsTrigger,
-} from '@/components/base/tabs';
-import type { VueWrapper } from '@vue/test-utils';
-import { flushPromises, mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick, ref } from 'vue';
+import { AppTabs } from '@/components/base/tabs';
+import { mount } from '@vue/test-utils';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 
 /*
  * Fixtures.
  */
 
-/**
- * Factory function to create a mounted wrapper with sensible defaults.
- */
-const createWrapper = (options = {}): VueWrapper => {
-    return mount(
-        {
-            components: { AppTabs, AppTabsList, AppTabsTrigger, AppTabsContent },
-            setup() {
-                const activeTab = ref('tab1');
+const items = [
+    { label: 'Tab 1', value: 'tab1', slot: 'one' },
+    { label: 'Tab 2', value: 'tab2', slot: 'two' },
+];
 
-                return { activeTab };
-            },
-            template: `
-            <AppTabs v-model="activeTab" v-bind="tabsProps">
-                <AppTabsList>
-                    <AppTabsTrigger value="tab1">Tab 1</AppTabsTrigger>
-                    <AppTabsTrigger value="tab2">Tab 2</AppTabsTrigger>
-                </AppTabsList>
-                <AppTabsContent value="tab1" data-testid="c1">Content 1</AppTabsContent>
-                <AppTabsContent value="tab2" data-testid="c2">Content 2</AppTabsContent>
-            </AppTabs>
-        `,
-            data() {
-                return {
-                    // @ts-expect-error .props not found in object.
-                    tabsProps: options.props || {},
-                };
-            },
-            ...options,
+const createWrapper = (props = {}) =>
+    mount(AppTabs, {
+        props: { items, modelValue: 'tab1', ...props },
+        slots: {
+            one: '<div data-testid="c1">Content 1</div>',
+            two: '<div data-testid="c2">Content 2</div>',
         },
-        {
-            global: {
-                plugins: [createPinia()],
-            },
-        },
-    );
-};
-
-describe('AppTabs', () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-        vi.clearAllMocks();
+        attachTo: document.body,
     });
 
-    /*
-     * Rendering tests.
-     */
+describe('AppTabs', () => {
+    beforeAll(() => {
+        // jsdom has no scrolling, and the active tab is scrolled into view on change.
+        Element.prototype.scrollTo = vi.fn();
+    });
 
     describe('Rendering', () => {
-        it('renders list items correctly', () => {
-            // Arrange
+        it('renders one tab per item with its label', () => {
+            // Arrange & Act
+
+            const wrapper = createWrapper();
+            const tabs = wrapper.findAll('[role="tab"]');
+
+            // Assert
+
+            expect(tabs.map(tab => tab.text())).toEqual(['Tab 1', 'Tab 2']);
+            wrapper.unmount();
+        });
+
+        it('marks the model value tab as selected', () => {
+            // Arrange & Act
+
+            const wrapper = createWrapper({ modelValue: 'tab2' });
+            const tabs = wrapper.findAll('[role="tab"]');
+
+            // Assert
+
+            expect(tabs[1].attributes('aria-selected')).toBe('true');
+            expect(tabs[0].attributes('aria-selected')).toBe('false');
+            wrapper.unmount();
+        });
+
+        it('shows the active panel content', () => {
+            // Arrange & Act
 
             const wrapper = createWrapper();
 
             // Assert
 
-            const triggers = wrapper.findAll('[role="tab"]');
-            expect(triggers).toHaveLength(2);
-            expect(triggers[0].text()).toBe('Tab 1');
+            expect(wrapper.get('[data-testid="c1"]').isVisible()).toBe(true);
+            wrapper.unmount();
         });
     });
 
-    /*
-     * State Transition tests.
-     */
-
-    describe('Behavior', () => {
-        it('switches content when model-value prop is updated', async () => {
-            // Arrange
+    describe('Mounting behavior', () => {
+        it('keeps inactive panels mounted by default', () => {
+            // Arrange & Act
 
             const wrapper = createWrapper();
-
-            // Act
-
-            // @ts-expect-error .activeTab not found in wrapper.vm.
-            wrapper.vm.activeTab = 'tab2';
-            await flushPromises();
-            await nextTick();
-            await nextTick();
 
             // Assert
 
             expect(wrapper.find('[data-testid="c2"]').exists()).toBe(true);
-            expect(wrapper.find('[data-testid="c2"]').attributes('data-state')).toBe(
-                'active',
-            );
+            wrapper.unmount();
+        });
+
+        it('unmounts inactive panels when unmountOnHide is true', () => {
+            // Arrange & Act
+
+            const wrapper = createWrapper({ unmountOnHide: true });
+
+            // Assert
+
+            expect(wrapper.find('[data-testid="c2"]').exists()).toBe(false);
+            wrapper.unmount();
+        });
+    });
+
+    describe('Scroll masks', () => {
+        it('shows no edge fade when the list does not overflow', async () => {
+            // Arrange & Act
+
+            const wrapper = createWrapper();
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            // Assert
+
+            expect(wrapper.attributes('data-mask-start')).toBeUndefined();
+            expect(wrapper.attributes('data-mask-end')).toBeUndefined();
+            wrapper.unmount();
+        });
+    });
+
+    describe('Interaction', () => {
+        it('emits update:modelValue when another tab is activated', async () => {
+            // Arrange
+
+            const onUpdate = vi.fn();
+            const wrapper = createWrapper({ 'onUpdate:modelValue': onUpdate });
+
+            // Act
+
+            await wrapper.findAll('[role="tab"]')[1].trigger('mousedown', { button: 0 });
+            await nextTick();
+
+            // Assert
+
+            expect(onUpdate).toHaveBeenCalledWith('tab2');
+            wrapper.unmount();
         });
     });
 });

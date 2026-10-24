@@ -3,12 +3,10 @@
  * @component ValueGenerator
  * @description Global command palette for value generation across the application.
  */
-import { AppCommand, AppCommandInput } from '@/components/base/command';
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
 import { useValueGeneratorStore } from '@/stores';
-import { computed, watch } from 'vue';
+import { ref, useTemplateRef, watch } from 'vue';
 import ValueGeneratorCategoryFilters from './ValueGeneratorCategoryFilters.vue';
-import ValueGeneratorCommandKeepAlive from './ValueGeneratorCommandKeepAlive.vue';
 import ValueGeneratorFooter from './ValueGeneratorFooter.vue';
 import ValueGeneratorGeneratorList from './ValueGeneratorGeneratorList.vue';
 
@@ -16,7 +14,7 @@ import ValueGeneratorGeneratorList from './ValueGeneratorGeneratorList.vue';
  * Types & Interfaces.
  */
 
-export interface AppValueGeneratorEmits {
+export interface ValueGeneratorEmits {
     (e: 'valueGenerated', value: string | number | bigint): void;
 }
 
@@ -24,19 +22,22 @@ export interface AppValueGeneratorEmits {
  * Component Setup.
  */
 
-const emits = defineEmits<AppValueGeneratorEmits>();
+const emits = defineEmits<ValueGeneratorEmits>();
 
 const store = useValueGeneratorStore();
 const { restoreScrollPosition } = useTabHorizontalScroll();
+const generatorList = useTemplateRef<{ focusInput: () => void }>('generatorList');
 
 /*
  * Computed & Methods.
  */
 
 /**
- * Gets the command position relative to the input that opened it.
+ * The command position relative to the input that opened it.
+ *
+ * It is calculated when the command opens, because the input rect is not reactive.
  */
-const commandPosition = computed(() => calculateCommandPosition(store.currentInputRef));
+const commandPosition = ref<Record<string, string | undefined>>({});
 
 /**
  * Creates an input event to trigger change handlers
@@ -49,32 +50,44 @@ const createInputEvent = (): Event => {
  * Calculates the position for the command palette relative to the input element
  */
 const calculateCommandPosition = (inputRef: HTMLElement | null) => {
+    const margin = 8;
+    const commandWidth = Math.min(448, window.innerWidth - margin * 2);
+    const width = `${commandWidth}px`;
+
     if (!inputRef) {
-        return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
+        return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width };
     }
 
     const rect = inputRef.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
     const commandHeight = 400; // Approximate command height
 
-    // Position below the input if there's space, otherwise above
-    const shouldPositionBelow = rect.bottom + commandHeight < viewportHeight;
-    const top = shouldPositionBelow ? rect.bottom + 4 : rect.top - commandHeight - 4;
+    // Keep the command inside the viewport horizontally.
+    const left = Math.max(
+        margin,
+        Math.min(rect.left, window.innerWidth - commandWidth - margin),
+    );
+
+    // Position below the input if there's space, otherwise above and anchored to the input.
+    const shouldPositionBelow = rect.bottom + commandHeight < window.innerHeight;
+
+    if (shouldPositionBelow) {
+        return {
+            top: `${rect.bottom + 4}px`,
+            left: `${left}px`,
+            transform: 'none',
+            width,
+        };
+    }
 
     return {
-        top: `${top}px`,
-        left: `${rect.left}px`,
+        bottom: `${window.innerHeight - rect.top + 4}px`,
+        left: `${left}px`,
         transform: 'none',
+        width,
     };
 };
 
-const changeFocusToTheCommandSearchBox = () => {
-    const commandInput = document.querySelector(
-        '[data-slot="command-input"]',
-    ) as HTMLInputElement;
-
-    commandInput?.focus();
-};
+const changeFocusToTheCommandSearchBox = (): void => generatorList.value?.focusInput();
 
 const onGeneratorSelected = (generatorId: string) => {
     const value = store.generateValue(generatorId);
@@ -105,9 +118,10 @@ watch(
             return;
         }
 
+        commandPosition.value = calculateCommandPosition(store.currentInputRef);
+
         await restoreScrollPosition();
 
-        // As the command is opened, focus the command input for immediate keyboard navigation.
         changeFocusToTheCommandSearchBox();
     },
 );
@@ -117,37 +131,36 @@ watch(
     <Teleport to="body">
         <div
             v-if="store.isCommandOpen"
-            class="fixed inset-0 z-50"
+            class="z-overlay fixed inset-0"
             data-testid="value-generator-overlay"
             @click="store.closeCommand"
         >
             <div
-                class="absolute w-full max-w-md"
+                class="absolute"
                 :style="commandPosition"
                 data-testid="value-generator-command"
                 @click.stop
             >
-                <AppCommand
-                    class="rounded-lg border shadow-md"
+                <div
+                    class="border-default shadow-overlay overflow-hidden rounded-lg border"
                     data-ValueGenerator-focus-hook
                     data-testid="value-generator-focus-hook"
                     @keydown.escape="store.closeCommand"
                 >
-                    <AppCommandInput
-                        placeholder="Search generators..."
-                        class="border-0 focus:ring-0"
-                    />
-
-                    <ValueGeneratorCommandKeepAlive />
-
-                    <ValueGeneratorCategoryFilters />
-
                     <ValueGeneratorGeneratorList
+                        ref="generatorList"
                         @generator-selected="onGeneratorSelected"
-                    />
-
-                    <ValueGeneratorFooter />
-                </AppCommand>
+                    >
+                        <template #header>
+                            <ValueGeneratorCategoryFilters
+                                @focus-search="changeFocusToTheCommandSearchBox"
+                            />
+                        </template>
+                        <template #footer>
+                            <ValueGeneratorFooter />
+                        </template>
+                    </ValueGeneratorGeneratorList>
+                </div>
             </div>
         </div>
     </Teleport>

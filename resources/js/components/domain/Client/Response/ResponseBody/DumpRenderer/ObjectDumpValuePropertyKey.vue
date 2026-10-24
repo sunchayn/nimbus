@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component ObjectDumpValuePropertyKey
+ * @description Renders an object property name with its visibility symbol in a dump.
+ */
 import type { ObjectDumpProperty } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
 import { styles } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
 import { cn } from '@/utils';
@@ -12,9 +16,9 @@ defineProps<PropsShape>();
 
 const visibilityColor = (visibility: 'public' | 'protected' | 'private') => {
     return {
-        public: 'text-emerald-600 dark:text-emerald-500',
-        protected: 'text-amber-600 dark:text-amber-500',
-        private: 'text-zinc-500 dark:text-zinc-400',
+        public: 'text-success',
+        protected: 'text-warning',
+        private: 'text-muted',
     }[visibility];
 };
 

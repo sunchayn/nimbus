@@ -3,19 +3,14 @@
  * @component RequestBodySelector
  * @description Dropdown to select the request body type (JSON, FormData, etc).
  */
-import {
-    AppSelect,
-    AppSelectContent,
-    AppSelectItem,
-    AppSelectTrigger,
-    AppSelectValue,
-} from '@/components/base/select';
+import { AppSelect } from '@/components/base/select';
+import { computed } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppRequestBodySelectorProps {
+export interface RequestBodySelectorProps {
     types: Array<{ id: string; label: string }>;
 }
 
@@ -23,29 +18,26 @@ export interface AppRequestBodySelectorProps {
  * Component Setup.
  */
 
-const props = defineProps<AppRequestBodySelectorProps>();
+const props = defineProps<RequestBodySelectorProps>();
 
 const model = defineModel<string>({
     default: () => '',
 });
+
+const items = computed(() =>
+    props.types.map(type => ({ label: type.label, value: type.id })),
+);
 </script>
 
 <template>
     <div class="flex items-center">
-        <span class="text-subtle-foreground w-[80px] text-xs">Payload Type:</span>
-        <AppSelect v-model="model">
-            <AppSelectTrigger variant="toolbar" class="min-w-[120px] text-xs">
-                <AppSelectValue />
-            </AppSelectTrigger>
-            <AppSelectContent>
-                <AppSelectItem
-                    v-for="type in props.types"
-                    :key="type.id"
-                    :value="type.id"
-                >
-                    {{ type.label }}
-                </AppSelectItem>
-            </AppSelectContent>
-        </AppSelect>
+        <span class="text-muted w-20 text-xs">Payload Type:</span>
+        <AppSelect
+            v-model="model"
+            :items="items"
+            variant="ghost"
+            size="sm"
+            class="min-w-30"
+        />
     </div>
 </template>

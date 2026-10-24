@@ -14,7 +14,7 @@ import { computed } from 'vue';
  * Types & Interfaces.
  */
 
-export interface AppResponseHeadersProps {
+export interface ResponseHeadersProps {
     headers: HttpHeadersArray;
 }
 
@@ -22,7 +22,7 @@ export interface AppResponseHeadersProps {
  * Component Setup.
  */
 
-const props = defineProps<AppResponseHeadersProps>();
+const props = defineProps<ResponseHeadersProps>();
 
 const { copy, copied } = useClipboard();
 

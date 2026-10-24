@@ -1,37 +1,37 @@
 <script setup lang="ts">
 /**
  * @component AppTooltip
- * @description Root container for a tooltip component.
+ * @description A tooltip built on Nuxt UI. The default slot is the trigger.
  */
-import {
-    TooltipRoot,
-    type TooltipRootEmits,
-    type TooltipRootProps,
-    useForwardPropsEmits,
-} from 'reka-ui';
+import { useForwardedProps } from '@/components/base/useForwardedProps';
+import type { TooltipProps, TooltipSlots } from '@nuxt/ui/components/Tooltip.vue';
+import UTooltip from '@nuxt/ui/components/Tooltip.vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppTooltipProps extends TooltipRootProps {}
+export interface AppTooltipProps extends TooltipProps {}
 
 /*
  * Component Setup.
  */
 
 const props = defineProps<AppTooltipProps>();
-const emits = defineEmits<TooltipRootEmits>();
 
-/*
- * Computed & Methods.
- */
+const emit = defineEmits<{
+    'update:open': [value: boolean];
+}>();
 
-const forwarded = useForwardPropsEmits(props, emits);
+defineSlots<TooltipSlots>();
+
+const forwarded = useForwardedProps(props);
 </script>
 
 <template>
-    <TooltipRoot v-bind="forwarded">
-        <slot />
-    </TooltipRoot>
+    <UTooltip v-bind="forwarded" @update:open="value => emit('update:open', value)">
+        <template v-for="(_, name) in $slots" :key="name" #[name]="slotProps">
+            <slot :name="name as never" v-bind="slotProps ?? {}" />
+        </template>
+    </UTooltip>
 </template>

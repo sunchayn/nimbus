@@ -1,15 +1,29 @@
 @import 'tailwindcss';
-@import './variables/theme.css';
+@import '@nuxt/ui';
+@import './themes/base.css';
 @import './variables/layout.css';
 @import './vendor.css';
 
-@config "../../tools/tailwind/tailwind.config.js";
-
 @layer base {
+    /* Native feel, no rubber band bounce at the edge of any scrollable element. */
+    /*
+     * Horizontal swipes never navigate back.
+     * Vertical chaining stays on for nested scrollers, so wheel scrolling over a code box still reaches the pane.
+     */
+    * {
+        overscroll-behavior-x: none;
+    }
+
+    html,
     body {
         overscroll-behavior: none;
-        background: var(--color-background);
-        color: var(--color-foreground);
+    }
+
+    body {
+        background: var(--ui-bg);
+        color: var(--ui-text);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
     }
 
     *,
@@ -17,16 +31,35 @@
     ::before,
     ::backdrop,
     ::file-selector-button {
-        border-color: var(--color-border);
+        border-color: var(--ui-border);
     }
 
+    /*
+     * Clickable controls show the pointer cursor and their labels are not selectable.
+     * Content text stays selectable.
+     */
     button,
-    [role='button'] {
+    [role='button'],
+    [role='tab'],
+    [role='menuitem'],
+    [role='menuitemcheckbox'],
+    [role='menuitemradio'],
+    [role='option'],
+    [role='switch'],
+    [role='checkbox'],
+    [role='radio'] {
         cursor: pointer;
+        user-select: none;
+    }
+
+    /* Line icons read their stroke from a token, so a theme can make them bolder. */
+    .iconify--hugeicons [stroke-width] {
+        stroke-width: var(--icon-stroke-w);
     }
 
     button:disabled,
-    [role='button']:disabled {
+    [aria-disabled='true'],
+    [data-disabled] {
         cursor: default;
     }
 
@@ -40,54 +73,224 @@
     }
 
     *:hover {
-        scrollbar-color: var(--color-zinc-400) transparent;
-    }
-
-    .dark *:hover {
-        scrollbar-color: var(--color-zinc-600) transparent;
+        scrollbar-color: var(--ui-text-dimmed) transparent;
     }
 }
 
-@layer utilities {
+/*
+ * Toolbar heights. They fix both bounds, so content never stretches the bar.
+ */
+@utility h-toolbar {
+    min-height: var(--toolbar-height);
+    max-height: var(--toolbar-height);
+}
+
+@utility min-h-toolbar {
+    min-height: var(--toolbar-height);
+}
+
+@utility h-sub-toolbar {
+    min-height: var(--sub-toolbar-height);
+    max-height: var(--sub-toolbar-height);
+}
+
+@utility min-h-sub-toolbar {
+    min-height: var(--sub-toolbar-height);
+}
+
+/*
+ * Control scale, such as h-control-md, px-control-md and gap-control-md.
+ * The lookups live in themes/base.css.
+ */
+@utility h-control-* {
+    height: --value(--control-height-*);
+}
+
+@utility min-h-control-* {
+    min-height: --value(--control-height-*);
+}
+
+@utility w-control-* {
+    width: --value(--control-height-*);
+}
+
+@utility min-w-control-* {
+    min-width: --value(--control-height-*);
+}
+
+@utility px-control-* {
+    padding-inline: --value(--control-inline-*);
+}
+
+@utility ps-control-* {
+    padding-inline-start: --value(--control-inline-*);
+}
+
+@utility pe-control-* {
+    padding-inline-end: --value(--control-inline-*);
+}
+
+@utility gap-control-* {
+    gap: --value(--control-space-*);
+}
+
+/*
+ * A pane is a card on the window background.
+ */
+@utility pane-surface {
+    background: var(--ui-bg);
+    border: var(--border-w) solid var(--ui-border);
+    border-radius: var(--pane-radius);
+    overflow: hidden;
+}
+
+@utility no-scrollbar {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+@layer components {
+    /* Select labels have no icon slot, so the icon is a mask drawn before the label text. */
+    .label-icon-sparkles::before {
+        content: '';
+        width: var(--control-icon-xs);
+        height: var(--control-icon-xs);
+        background-color: currentColor;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='black' stroke-linejoin='round' stroke-width='1.75' d='m15 2l.539 2.392a5.39 5.39 0 0 0 4.07 4.07L22 9l-2.392.539a5.39 5.39 0 0 0-4.07 4.07L15 16l-.539-2.392a5.39 5.39 0 0 0-4.07-4.07L8 9l2.392-.539a5.39 5.39 0 0 0 4.07-4.07zM7 12l.385 1.708a3.85 3.85 0 0 0 2.907 2.907L12 17l-1.708.385a3.85 3.85 0 0 0-2.907 2.907L7 22l-.385-1.708a3.85 3.85 0 0 0-2.907-2.907L2 17l1.708-.385a3.85 3.85 0 0 0 2.907-2.907z'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+
     /*
-     * Height utilities.
+     * Edge fades for an overflowing AppTabs list.
+     * The list itself is masked, so the tabs fade out without any overlay element.
      */
+    [data-tabs-scroll] > [data-slot='list'] {
+        --tabs-fade-start: #000;
+        --tabs-fade-end: #000;
 
-    .h-toolbar {
-        min-height: var(--toolbar-height);
-        max-height: var(--toolbar-height);
+        mask-image: linear-gradient(
+            to right,
+            var(--tabs-fade-start),
+            #000 var(--tabs-mask-width),
+            #000 calc(100% - var(--tabs-mask-width)),
+            var(--tabs-fade-end)
+        );
     }
 
-    .h-sub-toolbar {
-        min-height: var(--sub-toolbar-height);
-        max-height: var(--sub-toolbar-height);
+    [data-tabs-scroll][data-mask-start] > [data-slot='list'] {
+        --tabs-fade-start: transparent;
     }
 
-    .min-h-sub-toolbar {
-        min-height: var(--sub-toolbar-height);
+    [data-tabs-scroll][data-mask-end] > [data-slot='list'] {
+        --tabs-fade-end: transparent;
+    }
+}
+
+/*
+ * Unlayered on purpose, so the focus ring width token wins over the Nuxt UI outline utilities.
+ */
+:focus-visible {
+    outline-width: var(--focus-ring-w);
+
+    /* Inset, so a parent with hidden overflow never crops the ring. */
+    outline-offset: -2px;
+}
+
+@utility mask-fade-start {
+    --fade-start: transparent;
+    mask-image: linear-gradient(to right, var(--fade-start), #000 1.5rem, #000 calc(100% - 1.5rem), var(--fade-end, #000));
+}
+
+@utility mask-fade-end {
+    --fade-end: transparent;
+    mask-image: linear-gradient(to right, var(--fade-start, #000), #000 1.5rem, #000 calc(100% - 1.5rem), var(--fade-end));
+}
+
+/*
+ * Buttons shrink slightly while pressed and settle back with a little spring.
+ */
+@utility press-feedback {
+    transition-property:
+        color, background-color, border-color, text-decoration-color, fill, stroke, scale;
+    transition-timing-function:
+        var(--default-transition-timing-function), var(--default-transition-timing-function),
+        var(--default-transition-timing-function), var(--default-transition-timing-function),
+        var(--default-transition-timing-function), var(--default-transition-timing-function),
+        var(--ease-elastic);
+
+    @media (prefers-reduced-motion: no-preference) {
+        &:active:not(:disabled, [aria-disabled='true']) {
+            scale: var(--press-scale);
+        }
+    }
+}
+
+/* Short opacity fade for controls that appear in place of each other. */
+.fade-fast-enter-active,
+.fade-fast-leave-active {
+    transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.fade-fast-enter-from,
+.fade-fast-leave-to {
+    opacity: 0;
+}
+
+/*
+ * Request tabs grow in and collapse out, and key-value rows do the same with their height.
+ * Reduced motion skips both.
+ */
+@media (prefers-reduced-motion: no-preference) {
+    .tab-in {
+        animation: tab-in var(--duration-base) var(--ease-out);
     }
 
-    /*
-     * Panel content padding utilities.
-     */
-
-    .p-panel {
-        padding: var(--panel-padding);
+    .tab-closing {
+        pointer-events: none;
+        animation: tab-out var(--duration-base) var(--ease-out) forwards;
     }
 
-    .px-panel {
-        padding-inline: var(--panel-padding);
+    @keyframes tab-in {
+        from {
+            max-width: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        to {
+            max-width: 14rem;
+            opacity: 1;
+            overflow: hidden;
+        }
     }
 
-    .pl-panel {
-        padding-left: var(--panel-padding);
+    @keyframes tab-out {
+        from {
+            max-width: 14rem;
+            opacity: 1;
+            overflow: hidden;
+        }
+
+        to {
+            max-width: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
     }
 
-    .pr-panel {
-        padding-right: var(--panel-padding);
+    .kv-row-enter-active,
+    .kv-row-leave-active {
+        overflow: hidden;
+        transition:
+            height var(--duration-base) var(--ease-out),
+            opacity var(--duration-base) var(--ease-out);
     }
 
-    .no-scrollbar {
-        @apply [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+    .kv-row-enter-from,
+    .kv-row-leave-to {
+        height: 0 !important;
+        opacity: 0;
     }
 }

@@ -11,11 +11,13 @@
 
 import '~/app.css';
 import './bootstrap';
+import './devErrors';
 
 /*
  * Core Vue Dependencies.
  */
 
+import ui from '@nuxt/ui/vue-plugin';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
@@ -31,15 +33,12 @@ import router from './router';
  * Application Initialization.
  * Initialize and mount the Vue application
  *
- * This creates a new Vue app instance with:
- * - Pinia store for state management
- * - Vue Router for client-side routing
- * - Main App component as the root component
+ * This creates a new Vue app instance with a Pinia store for state management,
+ * Vue Router for client-side routing, and the main App component as the root.
  */
 
 const app = createApp(App);
 
-// Configure application plugins
 const pinia = createPinia();
 app.use(pinia);
 pinia.use(
@@ -48,6 +47,6 @@ pinia.use(
     }),
 );
 app.use(router);
+app.use(ui);
 
-// Mount the application to the DOM
 app.mount('#app');

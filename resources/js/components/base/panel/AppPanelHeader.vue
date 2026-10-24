@@ -22,7 +22,7 @@ const props = defineProps<AppPanelHeaderProps>();
 </script>
 
 <template>
-    <div :class="cn('px-panel flex items-center gap-2 py-2.5', props.class)">
+    <div :class="cn('px-panel flex items-center gap-2 py-2', props.class)">
         <slot />
     </div>
 </template>

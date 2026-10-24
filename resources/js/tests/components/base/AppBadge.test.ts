@@ -1,86 +1,53 @@
 import { AppBadge } from '@/components/base/badge';
-import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-/*
- * Fixtures.
- */
-
-/**
- * Factory function to create a mounted wrapper with sensible defaults.
- */
-
-/**
- * Factory function to create a mounted wrapper with sensible defaults.
- */
-const createWrapper = (options = {}): VueWrapper => {
-    return mount(AppBadge, {
-        ...options,
-        global: {
-            plugins: [createPinia()],
-            // @ts-expect-error .global not found in object.
-            ...(options.global ?? {}),
-        },
-    });
-};
+import { describe, expect, it } from 'vitest';
 
 describe('AppBadge', () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-        vi.clearAllMocks();
-    });
-
-    /*
-     * Rendering tests.
-     */
-
     describe('Rendering', () => {
-        it('renders slot content correctly', () => {
-            // Arrange
+        it('renders slot content', () => {
+            // Arrange & Act
 
-            const wrapper = createWrapper({
-                slots: { default: 'Test Badge' },
-            });
+            const wrapper = mount(AppBadge, { slots: { default: 'GET' } });
 
             // Assert
 
-            expect(wrapper.text()).toBe('Test Badge');
+            expect(wrapper.text()).toBe('GET');
         });
 
-        it('applies default variant classes', () => {
-            // Arrange
+        it('renders the label prop when there is no slot', () => {
+            // Arrange & Act
 
-            const wrapper = createWrapper();
+            const wrapper = mount(AppBadge, { props: { label: 'New' } });
 
             // Assert
 
-            expect(wrapper.classes()).toContain('bg-primary');
+            expect(wrapper.text()).toBe('New');
         });
 
-        it('applies destructive variant classes', () => {
-            // Arrange
+        it('passes data-testid through', () => {
+            // Arrange & Act
 
-            const wrapper = createWrapper({
-                props: { variant: 'destructive' },
-            });
+            const wrapper = mount(AppBadge, { attrs: { 'data-testid': 'badge' } });
 
             // Assert
 
-            expect(wrapper.classes()).toContain('bg-destructive');
+            expect(wrapper.attributes('data-testid')).toBe('badge');
         });
 
-        it('applies custom class from props', () => {
-            // Arrange
+        it.each(['solid', 'outline', 'soft', 'subtle'] as const)(
+            'accepts the %s variant',
+            variant => {
+                // Arrange & Act
 
-            const wrapper = createWrapper({
-                props: { class: 'custom-class' },
-            });
+                const wrapper = mount(AppBadge, {
+                    props: { variant, color: 'neutral' },
+                    slots: { default: 'Tag' },
+                });
 
-            // Assert
+                // Assert
 
-            expect(wrapper.classes()).toContain('custom-class');
-        });
+                expect(wrapper.text()).toBe('Tag');
+            },
+        );
     });
 });

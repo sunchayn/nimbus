@@ -3,39 +3,24 @@
  * @component RouteExplorer
  * @description The main sidebar component for exploring and searching available API routes.
  */
-import {
-    AppResizableHandle,
-    AppResizablePanel,
-    AppResizablePanelGroup,
-} from '@/components/base/resizable';
 import { AppScrollArea } from '@/components/base/scroll-area';
-import {
-    AppSidebar,
-    AppSidebarContent,
-    AppSidebarGroup,
-    AppSidebarGroupContent,
-    AppSidebarGroupLabel,
-    AppSidebarInput,
-    AppSidebarMenu,
-} from '@/components/base/sidebar';
+import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import ApplicationSwitcher from '@/components/domain/RoutesExplorer/ApplicationSwitcher.vue';
-import OpenTabs from '@/components/domain/RoutesExplorer/OpenTabs.vue';
-import RouteExplorerHeader from '@/components/domain/RoutesExplorer/RouteExplorerHeader.vue';
 import RouteExplorerVersionSelector from '@/components/domain/RoutesExplorer/RouteExplorerVersionSelector.vue';
 import RoutesList from '@/components/domain/RoutesExplorer/RoutesList/RoutesList.vue';
+import { showingSearchResultsKey } from '@/components/domain/RoutesExplorer/showingSearchResults';
 import { useTabVerticalScroll } from '@/composables/ui/useTabVerticalScroll';
 import { type RouteDefinition, type RoutesGroup } from '@/interfaces/routes/routes';
-import { useConfigStore, useTabsStore } from '@/stores';
-import { uniquePersistenceKey } from '@/utils/stores';
+import { useConfigStore } from '@/stores';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
-import { computed, provide, ref, watch } from 'vue';
+import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppRouteExplorerProps {
+export interface RouteExplorerProps {
     routes: { [_key in string]?: RoutesGroup[] } | null;
 }
 
@@ -43,25 +28,18 @@ export interface AppRouteExplorerProps {
  * Component Setup.
  */
 
-const props = defineProps<AppRouteExplorerProps>();
+const props = defineProps<RouteExplorerProps>();
 
 const configStore = useConfigStore();
-const tabsStore = useTabsStore();
 
 /*
  * State.
  */
 
 const search = useStorage(singletonPersistenceKey('routes-explorer-search-keyword'), '');
-const currentVersion = ref('');
+const currentVersion = shallowRef('');
 
-const openTabsPanel = ref<InstanceType<typeof AppResizablePanel> | null>(null);
-const isOpenTabsExpanded = useStorage(
-    uniquePersistenceKey(`routes-explorer-open-tabs-expanded`),
-    false,
-);
-
-const scrollAreaRef = ref<InstanceType<typeof AppScrollArea> | null>(null);
+const scrollAreaRef = useTemplateRef<InstanceType<typeof AppScrollArea>>('scrollAreaRef');
 
 const {
     scrollContainer: routesScrollContainer,
@@ -135,22 +113,6 @@ const hasMultipleApplications = computed(
 
 const showingSearchResults = computed(() => search.value.trim().length > 0);
 
-const handlePanelCollapse = () => {
-    isOpenTabsExpanded.value = false;
-};
-
-const handlePanelExpand = () => {
-    isOpenTabsExpanded.value = true;
-};
-
-watch(isOpenTabsExpanded, newValue => {
-    if (newValue) {
-        openTabsPanel.value?.expand();
-    } else {
-        openTabsPanel.value?.collapse();
-    }
-});
-
 watch(
     () => scrollAreaRef.value?.viewport,
     viewport => {
@@ -161,98 +123,74 @@ watch(
     { immediate: true },
 );
 
-provide('showingSearchResults', showingSearchResults);
+provide(showingSearchResultsKey, showingSearchResults);
 </script>
 
 <template>
-    <AppSidebar collapsible="none" class="flex h-full max-h-screen w-full">
-        <RouteExplorerHeader />
-        <div>
-            <AppSidebarInput
+    <div class="text-default flex h-full max-h-screen w-full flex-col">
+        <div class="pb-tight flex shrink-0 items-center gap-1">
+            <GeneratorInput
                 v-model="search"
-                variant="toolbar"
+                size="md"
+                variant="outline"
+                leading-icon="i-hugeicons-search-01"
                 placeholder="Type to search..."
                 :disabled="routesInVersion.length === 0"
-                class="h-[calc(var(--toolbar-height)+1px)] w-full border-b text-xs"
+                class="min-w-0 flex-1"
             />
-            <div class="h-sub-toolbar flex items-center overflow-hidden border-b">
-                <ApplicationSwitcher v-if="hasMultipleApplications" class="flex-1" />
+        </div>
+        <div class="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+            <div
+                data-testid="routes-panel"
+                class="relative flex h-full w-full min-w-0 flex-col"
+            >
                 <div
-                    v-if="configStore.isVersioned && versions.length"
-                    class="h-full w-[80px] shrink-0 border-l"
+                    class="relative min-h-0 w-full flex-1 overflow-hidden text-sm"
                     :class="{
-                        'flex-1': !hasMultipleApplications,
+                        'border-default border-t': showRoutesTopMask,
                     }"
                 >
-                    <RouteExplorerVersionSelector
-                        v-model="currentVersion"
-                        :versions="versions"
+                    <div
+                        v-show="showRoutesTopMask"
+                        class="from-muted z-sticky h-fade pointer-events-none absolute top-0 right-0 left-0 bg-gradient-to-b from-20% to-transparent transition-opacity duration-300"
+                    />
+                    <AppScrollArea
+                        ref="scrollAreaRef"
+                        class="h-full"
+                        @scroll="updateRoutesScrollMasks"
+                    >
+                        <ul class="flex w-full min-w-0 flex-col gap-1">
+                            <RoutesList v-if="routes !== null" :routes="filteredRoutes" />
+                            <div v-else class="px-2">
+                                <p class="mb-2 text-xs">
+                                    Routes extraction was Interrupted, check the error on
+                                    the page.
+                                </p>
+                            </div>
+                        </ul>
+                    </AppScrollArea>
+                    <div
+                        v-show="showRoutesBottomMask"
+                        class="from-muted z-sticky h-fade pointer-events-none absolute right-0 bottom-0 left-0 bg-gradient-to-t from-20% to-transparent transition-opacity duration-300"
                     />
                 </div>
             </div>
         </div>
-        <AppSidebarContent class="overflow-hidden">
-            <AppResizablePanelGroup
-                :key="tabsStore.tabs.length > 0 ? 'with-tabs' : 'no-tabs'"
-                auto-save-id="route-explorer"
-                direction="vertical"
+        <div
+            v-if="hasMultipleApplications || (configStore.isVersioned && versions.length)"
+            class="flex shrink-0 items-center gap-1 pt-2"
+        >
+            <ApplicationSwitcher v-if="hasMultipleApplications" class="min-w-0 flex-1" />
+            <div
+                v-if="configStore.isVersioned && versions.length"
+                class="shrink-0"
+                :class="hasMultipleApplications ? 'w-20' : 'min-w-0 flex-1'"
             >
-                <template v-if="tabsStore.tabs.length > 0">
-                    <AppResizablePanel
-                        ref="openTabsPanel"
-                        :order="1"
-                        :min-size="20"
-                        :default-size="20"
-                        :collapsed-size="0"
-                        :collapsible="true"
-                        :collapsed="!isOpenTabsExpanded"
-                        class="min-h-[32px]"
-                        @collapse="handlePanelCollapse"
-                        @expand="handlePanelExpand"
-                    >
-                        <OpenTabs v-model:is-open="isOpenTabsExpanded" />
-                    </AppResizablePanel>
-                    <AppResizableHandle />
-                </template>
-                <AppResizablePanel :order="2" :min-size="50" :default-size="100">
-                    <AppSidebarGroup class="flex h-full flex-col p-0">
-                        <AppSidebarGroupLabel>Routes</AppSidebarGroupLabel>
-                        <AppSidebarGroupContent
-                            class="relative min-h-0 flex-1 overflow-hidden"
-                            :class="{
-                                'border-t': showRoutesTopMask,
-                            }"
-                        >
-                            <div
-                                v-show="showRoutesTopMask"
-                                class="from-sidebar pointer-events-none absolute top-0 right-0 left-0 z-10 h-8 bg-gradient-to-b from-20% to-transparent transition-opacity duration-300"
-                            />
-                            <AppScrollArea
-                                ref="scrollAreaRef"
-                                class="h-full"
-                                @scroll="updateRoutesScrollMasks"
-                            >
-                                <AppSidebarMenu>
-                                    <RoutesList
-                                        v-if="routes !== null"
-                                        :routes="filteredRoutes"
-                                    />
-                                    <div v-else class="px-2">
-                                        <p class="mb-2 text-xs">
-                                            Routes extraction was Interrupted, check the
-                                            error on the page.
-                                        </p>
-                                    </div>
-                                </AppSidebarMenu>
-                            </AppScrollArea>
-                            <div
-                                v-show="showRoutesBottomMask"
-                                class="from-sidebar pointer-events-none absolute right-0 bottom-0 left-0 z-10 h-8 bg-gradient-to-t from-20% to-transparent transition-opacity duration-300"
-                            />
-                        </AppSidebarGroupContent>
-                    </AppSidebarGroup>
-                </AppResizablePanel>
-            </AppResizablePanelGroup>
-        </AppSidebarContent>
-    </AppSidebar>
+                <RouteExplorerVersionSelector
+                    v-model="currentVersion"
+                    :versions="versions"
+                />
+            </div>
+        </div>
+    </div>
 </template>

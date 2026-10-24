@@ -1,41 +1,19 @@
 <script setup lang="ts">
 /**
  * @component RequestHistory
- * @description A dropdown menu showing the history of requests made to the current endpoint.
+ * @description A popover listing the requests sent so far, with search and a clear action.
  */
 import { AppButton } from '@/components/base/button';
-import {
-    AppDropdownMenu,
-    AppDropdownMenuContent,
-    AppDropdownMenuSeparator,
-    AppDropdownMenuTrigger,
-} from '@/components/base/dropdown-menu';
-import {
-    AppInputGroup,
-    AppInputGroupAddon,
-    AppInputGroupInput,
-} from '@/components/base/input-group';
-import { AppScrollArea } from '@/components/base/scroll-area';
+import { AppIcon } from '@/components/base/icons';
+import { AppPopover } from '@/components/base/popover';
+import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import HistoryItem from '@/components/domain/Client/Response/ResponseStatus/History/HistoryItem.vue';
+import { useConfirmationAction } from '@/composables/ui/useConfirmationAction';
 import { type RequestLog } from '@/interfaces/history/logs';
 import { type Response } from '@/interfaces/http';
 import { useRequestsHistoryStore, useRequestStore } from '@/stores';
-import { cn } from '@/utils/ui';
 import { useTimeAgo } from '@vueuse/core';
-import { HistoryIcon, Search, Trash2Icon } from 'lucide-vue-next';
-import { computed, nextTick, ref, watch } from 'vue';
-
-/*
- * Types & Interfaces.
- */
-
-export interface AppRequestHistoryProps {}
-
-/*
- * Component Setup.
- */
-
-defineProps<AppRequestHistoryProps>();
+import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue';
 
 /*
  * Stores.
@@ -48,209 +26,156 @@ const historyStore = useRequestsHistoryStore();
  * State.
  */
 
-const isOpen = ref(false);
-const searchQuery = ref('');
-const searchInputRef = ref<HTMLInputElement | null>(null);
-const isConfirmingClear = ref(false);
-const clearHistoryTimeoutId = ref<number | null>(null);
+const isOpen = shallowRef(false);
+const searchQuery = shallowRef('');
+const searchInputRef =
+    useTemplateRef<InstanceType<typeof GeneratorInput>>('searchInputRef');
+const {
+    isConfirming: isConfirmingClear,
+    trigger: triggerClear,
+    cancel: cancelClearConfirmation,
+} = useConfirmationAction({ duration: 1000 });
 
 /*
  * Computed & Methods.
  */
 
-const lastLog = computed(() => historyStore.lastLog);
+type LogWithResponse = RequestLog & { response: Response };
 
-const timeToTimeAgo = (timestamp: number): string => {
-    const timeAgo = useTimeAgo(new Date(timestamp * 1000));
+const lastTimestamp = computed(() => {
+    const timestamp = historyStore.lastLog?.response?.timestamp;
 
-    return timeAgo.value;
-};
-
-const readableTime = computed(() => {
-    if (lastLog.value?.response === undefined) {
-        return '';
-    }
-
-    return timeToTimeAgo(lastLog.value.response.timestamp);
+    return timestamp === undefined ? null : new Date(timestamp * 1000);
 });
 
-const absoluteTime = computed(() => {
-    if (lastLog.value?.response === undefined) {
-        return '';
-    }
+const timeAgo = useTimeAgo(computed(() => lastTimestamp.value ?? new Date()));
 
-    const timestamp = new Date(lastLog.value.response.timestamp * 1000);
-
-    return timestamp.toLocaleString('en-US', {
+const absoluteTime = computed(() =>
+    lastTimestamp.value?.toLocaleString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-    });
-});
+    }),
+);
 
-const selectHistoryItem = (index: number) => {
-    const log = historyStore.allLogs[index];
-
-    if (!log) {
-        return;
-    }
-
-    historyStore.setActiveLog(index);
-
-    requestStore.restoreFromHistory(log);
-};
-
-const reversedLogs = computed(() => {
-    return [...historyStore.allLogs]
-        .filter(log => log.response !== undefined)
-        .reverse() as (RequestLog & { response: Response })[];
-});
+const logs = computed(() =>
+    [...historyStore.allLogs]
+        .filter((log): log is LogWithResponse => log.response !== undefined)
+        .reverse(),
+);
 
 const filteredLogs = computed(() => {
-    if (!searchQuery.value.trim()) {
-        return reversedLogs.value;
-    }
+    const query = searchQuery.value.trim().toLowerCase();
 
-    const query = searchQuery.value.toLowerCase();
-
-    return reversedLogs.value.filter(log =>
-        log.request.endpoint.toLowerCase().includes(query),
-    );
+    return query
+        ? logs.value.filter(log => log.request.endpoint.toLowerCase().includes(query))
+        : logs.value;
 });
 
-const getOriginalIndex = (reversedIndex: number) => {
-    const logsWithResponse = historyStore.allLogs.filter(
-        log => log.response !== undefined,
-    );
-    const originalLog = logsWithResponse[logsWithResponse.length - 1 - reversedIndex];
-
-    return historyStore.allLogs.indexOf(originalLog);
+const selectLog = (log: LogWithResponse) => {
+    historyStore.setActiveLog(historyStore.allLogs.indexOf(log));
+    requestStore.restoreFromHistory(log);
+    isOpen.value = false;
 };
 
-const resetClearConfirmation = () => {
-    isConfirmingClear.value = false;
-    if (clearHistoryTimeoutId.value) {
-        window.clearTimeout(clearHistoryTimeoutId.value);
-        clearHistoryTimeoutId.value = null;
-    }
-};
+const isActive = (log: LogWithResponse) => historyStore.lastLog === log;
 
 const handleClearHistory = () => {
-    if (isConfirmingClear.value) {
+    triggerClear(() => {
         historyStore.clearLogs();
-        resetClearConfirmation();
         isOpen.value = false;
-
-        return;
-    }
-
-    isConfirmingClear.value = true;
-
-    if (clearHistoryTimeoutId.value) {
-        window.clearTimeout(clearHistoryTimeoutId.value);
-    }
-
-    clearHistoryTimeoutId.value = window.setTimeout(() => {
-        resetClearConfirmation();
-    }, 1000);
+    });
 };
 
 /*
  * Watchers.
  */
 
-// Auto-focus search input when dropdown opens
-watch(isOpen, async newValue => {
-    if (newValue) {
+watch(isOpen, async open => {
+    if (open) {
         await nextTick();
-        searchInputRef.value?.focus();
+        searchInputRef.value?.inputRef?.focus();
     } else {
-        // Clear search when dropdown closes
         searchQuery.value = '';
+        cancelClearConfirmation();
     }
 });
 </script>
 
 <template>
-    <AppDropdownMenu v-if="reversedLogs.length" v-model:open="isOpen">
-        <AppDropdownMenuTrigger as-child>
-            <AppButton
-                variant="ghost"
-                size="xs"
-                class="rounded px-1 transition-colors hover:bg-zinc-100 focus:outline-none focus-visible:ring-0 dark:hover:bg-zinc-800 dark:focus-visible:ring-0"
-                data-testid="response-history-trigger"
-            >
-                <small class="text-subtle-foreground text-xs" :title="absoluteTime">
-                    {{ readableTime }}
-                </small>
-                <HistoryIcon class="size-3" />
-            </AppButton>
-        </AppDropdownMenuTrigger>
-        <AppDropdownMenuContent align="end" class="w-sm p-0">
-            <AppScrollArea class="max-h-96 overflow-y-auto">
-                <div class="px-panel my-2 flex gap-2">
-                    <AppButton
-                        variant="outline"
-                        size="xs"
-                        class="h-sub-toolbar justify-start shadow-none transition-colors"
-                        :class="
-                            cn(
-                                isConfirmingClear &&
-                                    'text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300',
-                            )
-                        "
-                        data-testid="clear-history-button"
-                        @click="handleClearHistory"
-                    >
-                        <Trash2Icon class="size-3" />
-                        Clear History
-                    </AppButton>
-                    <AppInputGroup class="h-sub-toolbar">
-                        <AppInputGroupInput
-                            ref="searchInputRef"
-                            v-model="searchQuery"
-                            placeholder="Type to search"
-                            data-testid="history-search-input"
-                        />
-                        <AppInputGroupAddon>
-                            <Search class="size-3" />
-                        </AppInputGroupAddon>
-                    </AppInputGroup>
-                </div>
+    <AppPopover
+        v-if="logs.length"
+        v-model:open="isOpen"
+        :content="{ align: 'end', collisionPadding: 8 }"
+        :ui="{
+            content:
+                'flex w-screen max-h-(--reka-popover-content-available-height) max-w-popover flex-col p-0',
+        }"
+    >
+        <AppButton
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            icon="i-hugeicons-history"
+            aria-label="Request history"
+            trailing
+            data-testid="response-history-trigger"
+        >
+            <small class="text-muted text-xs @max-md:hidden" :title="absoluteTime">
+                {{ timeAgo }}
+            </small>
+        </AppButton>
 
-                <AppDropdownMenuSeparator />
+        <template #content>
+            <div class="border-default flex items-center gap-1 border-b p-1">
+                <GeneratorInput
+                    ref="searchInputRef"
+                    v-model="searchQuery"
+                    variant="none"
+                    size="sm"
+                    class="min-w-0 flex-1"
+                    leading-icon="i-hugeicons-search-01"
+                    placeholder="Filter by endpoint..."
+                    data-testid="history-search-input"
+                />
+                <AppButton
+                    variant="ghost"
+                    size="sm"
+                    :color="isConfirmingClear() ? 'error' : 'neutral'"
+                    icon="i-hugeicons-delete-02"
+                    :label="isConfirmingClear() ? 'Confirm' : 'Clear'"
+                    data-testid="clear-history-button"
+                    @click="handleClearHistory"
+                />
+            </div>
 
-                <template v-if="filteredLogs.length">
-                    <template
-                        v-for="(log, index) in filteredLogs"
-                        :key="log.request.endpoint + log.response.timestamp"
+            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+                <ul v-if="filteredLogs.length" class="divide-default divide-y">
+                    <li
+                        v-for="log in filteredLogs"
+                        :key="log.response.timestamp + log.request.endpoint"
                     >
                         <HistoryItem
                             :log="log"
-                            :index="getOriginalIndex(reversedLogs.indexOf(log))"
+                            :active="isActive(log)"
                             data-testid="history-item"
                             :data-endpoint="log.request.endpoint"
                             :data-method="log.request.method"
-                            @select="selectHistoryItem"
+                            @click="selectLog(log)"
                         />
-
-                        <AppDropdownMenuSeparator
-                            v-if="index < filteredLogs.length - 1"
-                        />
-                    </template>
-                </template>
-
+                    </li>
+                </ul>
                 <div
                     v-else
-                    class="text-subtle-foreground flex flex-col items-center justify-center gap-2 py-8 text-center text-sm"
+                    class="text-muted gap-base flex flex-col items-center p-6 text-center text-sm"
                     data-testid="history-empty-state"
                 >
-                    <Search class="size-8 opacity-20" />
+                    <AppIcon name="i-hugeicons-search-01" class="size-8 opacity-20" />
                     <p>No results found matching your keyword</p>
                 </div>
-            </AppScrollArea>
-        </AppDropdownMenuContent>
-    </AppDropdownMenu>
+            </div>
+        </template>
+    </AppPopover>
 </template>

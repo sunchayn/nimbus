@@ -1,10 +1,2 @@
 export { default as AppDialog } from './AppDialog.vue';
-export { default as AppDialogClose } from './AppDialogClose.vue';
-export { default as AppDialogContent } from './AppDialogContent.vue';
-export { default as AppDialogDescription } from './AppDialogDescription.vue';
-export { default as AppDialogFooter } from './AppDialogFooter.vue';
-export { default as AppDialogHeader } from './AppDialogHeader.vue';
-export { default as AppDialogOverlay } from './AppDialogOverlay.vue';
-export { default as AppDialogScrollContent } from './AppDialogScrollContent.vue';
-export { default as AppDialogTitle } from './AppDialogTitle.vue';
-export { default as AppDialogTrigger } from './AppDialogTrigger.vue';
+export type { AppDialogProps } from './AppDialog.vue';

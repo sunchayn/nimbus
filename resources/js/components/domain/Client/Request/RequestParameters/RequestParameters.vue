@@ -15,13 +15,13 @@ import { computed } from 'vue';
  * Types & Interfaces.
  */
 
-export interface AppRequestParametersProps {}
+export interface RequestParametersProps {}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppRequestParametersProps>();
+defineProps<RequestParametersProps>();
 
 /*
  * Stores & Dependencies.
@@ -53,11 +53,11 @@ const copyPreview = () => copy(preview.value);
 
 <template>
     <PanelSubHeader class="border-b">Query Parameters</PanelSubHeader>
-    <div class="px-panel bg-subtle flex border-b py-2 text-xs">
+    <div class="px-panel bg-muted flex border-b py-2 text-xs">
         <div class="flex-1">
             <small class="font-medium">URL Preview</small>
             <p v-if="preview.length">{{ preview }}</p>
-            <p v-else class="text-subtle-foreground">Pick an endpoint to start</p>
+            <p v-else class="text-muted">Pick an endpoint to start</p>
         </div>
         <div>
             <CopyButton :on-click="copyPreview" :copied="previewCopied" />

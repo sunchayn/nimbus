@@ -3,7 +3,6 @@
  * @component ExampleComponent
  * @description Brief description of the component's purpose.
  *
- * USAGE:
  * Copy this template when creating new components to ensure consistent
  * Props/Emits contracts and TypeScript interfaces.
  */
@@ -18,10 +17,8 @@ import { computed } from 'vue';
  * Export this interface if consumers need to type-check component usage.
  */
 export interface ExampleComponentProps {
-    /** Primary data to display (required) */
-    modelValue: string;
-    /** Visual variant of the component */
-    variant?: 'default' | 'primary' | 'destructive';
+    /** Nuxt UI color vocabulary, use the same names as the base wrappers */
+    color?: 'neutral' | 'error';
     /** Disabled state - prevents user interaction */
     disabled?: boolean;
 }
@@ -31,7 +28,6 @@ export interface ExampleComponentProps {
  * Using type-based declaration for ESLint compliance.
  */
 export interface ExampleComponentEmits {
-    (event: 'update:modelValue', value: string): void;
     (event: 'submit'): void;
     (event: 'error', error: Error): void;
 }
@@ -41,19 +37,22 @@ export interface ExampleComponentEmits {
  */
 
 const props = withDefaults(defineProps<ExampleComponentProps>(), {
-    variant: 'default',
+    color: 'neutral',
     disabled: false,
 });
 
 const emit = defineEmits<ExampleComponentEmits>();
 
+/** Two-way bound value, used with `v-model` by the parent. */
+const model = defineModel<string>({ required: true });
+
 /*
  * Computed & Methods.
  */
 
-const computedClasses = computed(() => ({
-    'is-disabled': props.disabled,
-    [`variant-${props.variant}`]: true,
+const dataAttributes = computed(() => ({
+    'data-color': props.color,
+    'data-disabled': props.disabled ? '' : undefined,
 }));
 
 function handleSubmit(): void {
@@ -69,9 +68,9 @@ function _handleError(error: Error): void {
 </script>
 
 <template>
-    <div :class="computedClasses">
+    <div v-bind="dataAttributes">
         <!-- Default slot for content -->
-        <slot />
+        <slot>{{ model }}</slot>
 
         <!-- Named slot example -->
         <slot name="actions">

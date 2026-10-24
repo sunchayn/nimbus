@@ -42,3 +42,7 @@ jobs:
         if: steps.filter.outputs.types == 'true'
         run: npm run type:check
 
+      - name: Run Theme Check
+        if: steps.filter.outputs.types == 'true'
+        run: npm run check:theme
+

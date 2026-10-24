@@ -6,24 +6,20 @@
 import KeyValueParametersBuilder from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
 import { type ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
-import { nextTick, ref, watch } from 'vue';
+import { rowsByFormData } from '@/utils/request/formDataRows';
+import { ref, watch } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppRequestBodyFormDataProps {}
-
-export interface AppRequestBodyFormDataEmits {
-    (e: 'update:modelValue', value: FormData | null): void;
-}
+export interface RequestBodyFormDataProps {}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppRequestBodyFormDataProps>();
-const emit = defineEmits<AppRequestBodyFormDataEmits>();
+defineProps<RequestBodyFormDataProps>();
 
 const model = defineModel<FormData | null>({
     default: () => null,
@@ -33,9 +29,8 @@ const model = defineModel<FormData | null>({
  * State.
  */
 
-// A guard flag to prevent endless syncing looping between the component and parent as it will mutate its dependency.
-const isPropagatingChangesToParent = ref(false);
-
+// The rows keep per-row state that FormData cannot hold, such as the enabled flag.
+// So the rows are a local view that is rebuilt only when the model comes from outside.
 const payload = ref<ParameterContract[]>([]);
 
 /*
@@ -57,8 +52,7 @@ function convertFormDataToParametersArray(form: FormData): ParameterContract[] {
 
     form.forEach((entryValue: FormDataEntryValue, key: string) => {
         if (entryValue instanceof File) {
-            // For files, we'll store the filename as a placeholder
-            // Note: File uploads are not properly tested or verified.
+            // The filename is stored as a placeholder because file uploads are not verified.
             // TODO [Feature] Properly support file uploads.
             parameters.push({
                 type: ParameterType.File,
@@ -81,39 +75,33 @@ function convertFormDataToParametersArray(form: FormData): ParameterContract[] {
     return parameters;
 }
 
+// FormData is not made reactive, so its identity tells us the model came from this component.
+let lastEmittedFormData: FormData | null = null;
+
 const handlePayloadUpdate = (parameters: ParameterContract[]) => {
-    isPropagatingChangesToParent.value = true;
     payload.value = parameters;
-    emit('update:modelValue', convertParametersArrayToFormData(parameters));
+    lastEmittedFormData = convertParametersArrayToFormData(parameters);
+    rowsByFormData.set(lastEmittedFormData, parameters);
+    model.value = lastEmittedFormData;
 };
 
 /*
  * Watchers.
  */
 
+// Immediate so a remounted editor shows the stored body instead of an empty row that would overwrite it.
 watch(
     model,
     (newModel: FormData | null) => {
-        if (newModel === null) {
+        if (newModel === null || newModel === lastEmittedFormData) {
             return;
         }
 
-        if (isPropagatingChangesToParent.value) {
-            return;
-        }
-
-        // Re-initialize the payload if the parent updated the payload from an exterior source.
-        // For instance, when the user changes to a different endpoint.
+        // Re-initialize the rows when the parent replaced the model, such as on endpoint change.
         payload.value =
-            newModel instanceof FormData
-                ? convertFormDataToParametersArray(newModel)
-                : [];
-
-        nextTick(() => {
-            isPropagatingChangesToParent.value = false;
-        });
+            rowsByFormData.get(newModel) ?? convertFormDataToParametersArray(newModel);
     },
-    { deep: true },
+    { immediate: true },
 );
 </script>
 

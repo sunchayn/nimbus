@@ -17,13 +17,13 @@ import { AuthorizationType } from '@/interfaces/generated';
  * Types & Interfaces.
  */
 
-export interface AppRequestAuthorizationProps {}
+export interface RequestAuthorizationProps {}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppRequestAuthorizationProps>();
+defineProps<RequestAuthorizationProps>();
 
 /*
  * Composables.

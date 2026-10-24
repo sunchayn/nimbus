@@ -3,7 +3,7 @@ import type { ParameterContract } from '@/interfaces';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import type { Ref } from 'vue';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 
 /*
  * Fixtures.
@@ -13,7 +13,6 @@ import { ref } from 'vue';
 vi.mock('@/config', () => ({
     keyValueParametersConfig: {
         DELETION_CONFIRMATION_TIMEOUT: 2000,
-        SYNC_DEBOUNCE_DELAY: 0,
     },
 }));
 
@@ -78,7 +77,7 @@ describe('useKeyValueParameters', () => {
             expect(composable.areAllParametersDisabled.value).toBe(true);
         });
 
-        it('should update parameters from parent modelValue', () => {
+        it('should update parameters from parent modelValue', async () => {
             // Arrange
 
             modelValue.value = [
@@ -93,7 +92,7 @@ describe('useKeyValueParameters', () => {
 
             // Act
 
-            composable.updateParametersFromParentModel();
+            await nextTick();
 
             // Assert
 

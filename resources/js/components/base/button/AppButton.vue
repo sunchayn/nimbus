@@ -1,41 +1,35 @@
 <script setup lang="ts">
 /**
  * @component AppButton
- * @description Standard button component with multiple variants and sizes.
+ * @description Button built on Nuxt UI with its color, variant and size vocabulary.
+ * The default slot is forwarded only when given, so icon-only buttons stay square.
  */
-import { cn } from '@/utils/ui';
-import { Primitive, type PrimitiveProps } from 'reka-ui';
-import type { HTMLAttributes } from 'vue';
-import { type ButtonVariants, buttonVariants } from './index';
+import { useForwardedProps } from '@/components/base/useForwardedProps';
+import type { ButtonProps } from '@nuxt/ui/components/Button.vue';
+import UButton from '@nuxt/ui/components/Button.vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppButtonProps extends PrimitiveProps {
-    variant?: ButtonVariants['variant'];
-    size?: ButtonVariants['size'];
-    class?: HTMLAttributes['class'];
-}
+export interface AppButtonProps extends ButtonProps {}
 
 /*
  * Component Setup.
  */
 
-const props = withDefaults(defineProps<AppButtonProps>(), {
-    as: 'button',
-    variant: 'default',
-    size: 'default',
-    class: '',
-});
+const props = defineProps<AppButtonProps>();
+
+const forwarded = useForwardedProps(props);
 </script>
 
 <template>
-    <Primitive
-        :as="as"
-        :as-child="asChild"
-        :class="cn(buttonVariants({ variant, size }), props.class)"
-    >
-        <slot />
-    </Primitive>
+    <UButton v-bind="forwarded">
+        <template v-if="$slots.default" #default>
+            <slot />
+        </template>
+        <template v-if="$slots.leading" #leading>
+            <slot name="leading" />
+        </template>
+    </UButton>
 </template>

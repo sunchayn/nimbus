@@ -65,7 +65,7 @@ describe('ObjectDumpValuePropertyKey', () => {
             expect(wrapper.text()).toContain('publicProp:');
 
             const span = wrapper.find('span > span');
-            expect(span.classes()).toContain('text-emerald-600');
+            expect(span.classes()).toContain('text-success');
         });
 
         it('displays protected property with # symbol and amber color', async () => {
@@ -87,7 +87,7 @@ describe('ObjectDumpValuePropertyKey', () => {
             expect(wrapper.text()).toContain('protectedProp:');
 
             const span = wrapper.find('span > span');
-            expect(span.classes()).toContain('text-amber-600');
+            expect(span.classes()).toContain('text-warning');
         });
 
         it('displays private property with - symbol and zinc color', async () => {
@@ -109,7 +109,7 @@ describe('ObjectDumpValuePropertyKey', () => {
             expect(wrapper.text()).toContain('privateProp:');
 
             const span = wrapper.find('span > span');
-            expect(span.classes()).toContain('text-zinc-500');
+            expect(span.classes()).toContain('text-muted');
         });
 
         it('displays key name after visibility symbol', async () => {
@@ -147,8 +147,7 @@ describe('ObjectDumpValuePropertyKey', () => {
             // Assert
 
             const visibilitySpan = wrapper.find('span > span');
-            expect(visibilitySpan.classes()).toContain('text-emerald-600');
-            expect(visibilitySpan.classes()).toContain('dark:text-emerald-500');
+            expect(visibilitySpan.classes()).toContain('text-success');
         });
 
         it('applies correct CSS classes for protected visibility', async () => {
@@ -167,8 +166,7 @@ describe('ObjectDumpValuePropertyKey', () => {
             // Assert
 
             const visibilitySpan = wrapper.find('span > span');
-            expect(visibilitySpan.classes()).toContain('text-amber-600');
-            expect(visibilitySpan.classes()).toContain('dark:text-amber-500');
+            expect(visibilitySpan.classes()).toContain('text-warning');
         });
 
         it('applies correct CSS classes for private visibility', async () => {
@@ -187,8 +185,7 @@ describe('ObjectDumpValuePropertyKey', () => {
             // Assert
 
             const visibilitySpan = wrapper.find('span > span');
-            expect(visibilitySpan.classes()).toContain('text-zinc-500');
-            expect(visibilitySpan.classes()).toContain('dark:text-zinc-400');
+            expect(visibilitySpan.classes()).toContain('text-muted');
         });
     });
 

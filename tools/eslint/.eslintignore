@@ -11,3 +11,5 @@
 ../../package-lock.json
 ../../composer.lock
 
+../../auto-imports.d.ts
+../../components.d.ts

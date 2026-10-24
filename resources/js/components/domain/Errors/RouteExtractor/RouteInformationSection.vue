@@ -10,7 +10,7 @@ import { type ExceptionRouteContext } from '@/interfaces/routes/exceptions';
  * Types & Interfaces.
  */
 
-export interface AppRouteInformationSectionProps {
+export interface RouteInformationSectionProps {
     routeContext: ExceptionRouteContext;
 }
 
@@ -18,54 +18,52 @@ export interface AppRouteInformationSectionProps {
  * Component Setup.
  */
 
-defineProps<AppRouteInformationSectionProps>();
+defineProps<RouteInformationSectionProps>();
 </script>
 
 <template>
-    <div>
-        <h3 class="mb-2 font-semibold">Route Information</h3>
-        <div class="space-y-2 rounded-lg border p-4">
-            <!-- URI -->
-            <div v-if="routeContext.uri" class="flex items-center gap-2">
-                <span class="text-subtle-foreground w-20 text-sm font-medium">URI:</span>
-                <code class="bg-subtle rounded border px-2 py-1 text-sm">
-                    {{ routeContext.uri }}
-                </code>
-            </div>
+    <div class="gap-base flex flex-col">
+        <h3 class="text-highlighted text-xs font-medium">Route Information</h3>
+        <dl
+            class="gap-x-base gap-y-tight bg-muted p-base grid grid-cols-[auto_1fr] items-center rounded-md border text-xs"
+        >
+            <template v-if="routeContext.uri">
+                <dt class="text-muted">URI</dt>
+                <dd>
+                    <code class="bg-default rounded-sm border px-1">
+                        {{ routeContext.uri }}
+                    </code>
+                </dd>
+            </template>
 
-            <!-- HTTP Methods -->
-            <div v-if="routeContext.methods" class="flex items-center gap-2">
-                <span class="text-subtle-foreground w-20 text-sm font-medium">
-                    Methods:
-                </span>
-                <div class="flex gap-1">
+            <template v-if="routeContext.methods">
+                <dt class="text-muted">Methods</dt>
+                <dd class="gap-tight flex">
                     <HttpVerbLabel
                         v-for="method in routeContext.methods"
                         :key="method"
                         :method="method"
                     />
-                </div>
-            </div>
+                </dd>
+            </template>
 
-            <!-- Controller Class -->
-            <div v-if="routeContext.controllerClass" class="flex items-center gap-2">
-                <span class="text-subtle-foreground w-20 text-sm font-medium">
-                    Controller:
-                </span>
-                <code class="bg-subtle rounded border px-2 py-1 text-sm">
-                    {{ routeContext.controllerClass }}
-                </code>
-            </div>
+            <template v-if="routeContext.controllerClass">
+                <dt class="text-muted">Controller</dt>
+                <dd>
+                    <code class="bg-default rounded-sm border px-1 break-all">
+                        {{ routeContext.controllerClass }}
+                    </code>
+                </dd>
+            </template>
 
-            <!-- Controller Method -->
-            <div v-if="routeContext.controllerMethod" class="flex items-center gap-2">
-                <span class="text-subtle-foreground w-20 text-sm font-medium">
-                    Method:
-                </span>
-                <code class="bg-subtle rounded border px-2 py-1 text-sm">
-                    {{ routeContext.controllerMethod }}
-                </code>
-            </div>
-        </div>
+            <template v-if="routeContext.controllerMethod">
+                <dt class="text-muted">Method</dt>
+                <dd>
+                    <code class="bg-default rounded-sm border px-1">
+                        {{ routeContext.controllerMethod }}
+                    </code>
+                </dd>
+            </template>
+        </dl>
     </div>
 </template>

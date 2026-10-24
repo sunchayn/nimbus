@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component UninitializedDumpRenderer
+ * @description Renders an uninitialized property in a dump.
+ */
 import type { UninitializedDump } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
 import { styles } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
 import { cn } from '@/utils';

@@ -1,3 +1,4 @@
+import ResponseDownloadDropdown from '@/components/domain/Client/Response/ResponseBody/ResponseDownloadDropdown.vue';
 import useResponseDownload from '@/composables/response/useResponseDownload';
 import type { RequestLog } from '@/interfaces/history/logs';
 import { mount } from '@vue/test-utils';
@@ -5,7 +6,6 @@ import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ComputedRef } from 'vue';
 import { ref } from 'vue';
-import ResponseDownloadDropdown from '../../../../../components/domain/Client/Response/ResponseBody/ResponseDownloadDropdown.vue';
 
 vi.mock('@/composables/response/useResponseDownload');
 
@@ -47,10 +47,10 @@ describe('ResponseDownloadDropdown', () => {
         const wrapper = createWrapper();
         const trigger = wrapper.find('[data-testid="download-dropdown-trigger"]');
         expect(trigger.exists()).toBe(true);
-        expect(trigger.text()).toContain('Download');
+        expect(trigger.attributes('aria-label')).toBe('Download');
     });
 
-    it('displays loading spinner and disables option when prefetching shape', async () => {
+    it('disables the option while the shape is resolving', async () => {
         mockIsResolvingShape.value = true;
         const wrapper = createWrapper();
 
@@ -62,10 +62,9 @@ describe('ResponseDownloadDropdown', () => {
             '[data-testid="download-shape-option"]',
         );
         expect(shapeOption).not.toBeNull();
-        expect(shapeOption?.getAttribute('disabled')).toBeDefined();
-
-        const spinner = shapeOption?.querySelector('.animate-spin');
-        expect(spinner).not.toBeNull();
+        expect(
+            shapeOption?.closest('[role="menuitem"]')?.getAttribute('aria-disabled'),
+        ).toBe('true');
     });
 
     it('disables the Response Shape option if the response is not json', async () => {
@@ -79,7 +78,9 @@ describe('ResponseDownloadDropdown', () => {
             '[data-testid="download-shape-option"]',
         );
         expect(shapeOption).not.toBeNull();
-        expect(shapeOption?.getAttribute('disabled')).toBeDefined();
+        expect(
+            shapeOption?.closest('[role="menuitem"]')?.getAttribute('aria-disabled'),
+        ).toBe('true');
     });
 
     it('triggers correct actions on option clicks', async () => {

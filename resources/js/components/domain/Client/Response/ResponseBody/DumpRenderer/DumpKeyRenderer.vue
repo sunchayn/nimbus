@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component DumpKeyRenderer
+ * @description Renders the key of an array or object entry in a dump.
+ */
 import { styles } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
 
 withDefaults(defineProps<{ keyName: string | number; numerical?: boolean }>(), {

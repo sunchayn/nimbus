@@ -7,7 +7,7 @@ import {
     searchRoutes,
 } from '@/utils/routes';
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 
 export const useRoutesStore = defineStore('routes', () => {
     /*
@@ -16,8 +16,8 @@ export const useRoutesStore = defineStore('routes', () => {
 
     const routes = ref<{ [key: string]: RoutesGroup[] } | null>(null);
     const routeExtractorException = ref<RouteExtractorException | null>(null);
-    const isLoading = ref(false);
-    const error = ref<string | null>(null);
+    const isLoading = shallowRef(false);
+    const error = shallowRef<string | null>(null);
 
     /*
      * Actions.

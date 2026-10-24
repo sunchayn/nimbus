@@ -102,4 +102,44 @@ describe('useConfirmationAction', () => {
         cancel();
         expect(isConfirming()).toBe(false);
     });
+
+    it('should cancel only the given id and keep other pending confirmations', () => {
+        const { isConfirming, trigger, cancel } = useConfirmationAction();
+
+        trigger(() => {}, 1);
+        trigger(() => {}, 'bulk');
+
+        cancel(1);
+
+        expect(isConfirming(1)).toBe(false);
+        expect(isConfirming('bulk')).toBe(true);
+    });
+
+    it('should cancel all pending confirmations and their timers', () => {
+        const { isConfirming, trigger, cancelAll } = useConfirmationAction({
+            duration: 1000,
+        });
+        const callback = vi.fn();
+
+        trigger(callback, 1);
+        trigger(callback, 2);
+
+        cancelAll();
+
+        expect(isConfirming(1)).toBe(false);
+        expect(isConfirming(2)).toBe(false);
+        expect(vi.getTimerCount()).toBe(0);
+    });
+
+    it('should restart the confirmation after its timeout so a late click does not run the callback', () => {
+        const { isConfirming, trigger } = useConfirmationAction({ duration: 1000 });
+        const callback = vi.fn();
+
+        trigger(callback, 'x');
+        vi.advanceTimersByTime(1000);
+        trigger(callback, 'x');
+
+        expect(callback).not.toHaveBeenCalled();
+        expect(isConfirming('x')).toBe(true);
+    });
 });

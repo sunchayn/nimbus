@@ -1,27 +1,11 @@
 import AppInput from '@/components/base/input/AppInput.vue';
-import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
+import { describe, expect, it, vi } from 'vitest';
 
 /*
  * Fixtures.
  */
-
-const openCommand = vi.fn();
-
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
-
-    return {
-        ...actual,
-        useValueGeneratorStore: () => ({
-            openCommand,
-        }),
-    };
-});
 
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
@@ -30,7 +14,6 @@ const createWrapper = (options = {}): VueWrapper => {
     return mount(AppInput, {
         ...options,
         global: {
-            plugins: [createPinia()],
             // @ts-expect-error .global not found in object.
             ...(options.global || {}),
         },
@@ -38,12 +21,6 @@ const createWrapper = (options = {}): VueWrapper => {
 };
 
 describe('AppInput', () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-        vi.clearAllMocks();
-        openCommand.mockClear();
-    });
-
     /*
      * State Transition tests.
      */
@@ -52,55 +29,44 @@ describe('AppInput', () => {
         it('syncs model value updates', async () => {
             // Arrange
 
+            const onUpdate = vi.fn();
             const wrapper = createWrapper({
-                props: {
-                    modelValue: 'initial',
-                    'onUpdate:modelValue': async (event: string | number) => {
-                        await (wrapper as VueWrapper).setProps({
-                            modelValue: event,
-                        });
-                    },
-                },
+                props: { modelValue: 'initial', 'onUpdate:modelValue': onUpdate },
+            });
+
+            // Act
+
+            await wrapper.find('input').setValue('updated');
+
+            // Assert
+
+            expect(onUpdate).toHaveBeenCalledWith('updated');
+        });
+
+        it('passes data-testid, placeholder and type to the input element', () => {
+            // Arrange & Act
+
+            const wrapper = createWrapper({
+                props: { placeholder: 'Key', type: 'password' },
+                attrs: { 'data-testid': 'my-input' },
             });
             const input = wrapper.find('input');
 
-            // Act
-
-            await input.setValue('updated');
-
             // Assert
 
-            // @ts-expect-error cannot figure out the argument.
-            expect(wrapper.props('modelValue')).toBe('updated');
+            expect(input.attributes('data-testid')).toBe('my-input');
+            expect(input.attributes('placeholder')).toBe('Key');
+            expect(input.attributes('type')).toBe('password');
         });
 
-        it('triggers generator command on double shift', async () => {
-            // Arrange
+        it('disables the input element', () => {
+            // Arrange & Act
 
-            vi.useFakeTimers();
-            const wrapper = createWrapper();
-            const input = wrapper.find('input');
-
-            // Act
-
-            // First press
-            await input.trigger('keydown', { key: 'Shift' });
-
-            // Advance by 200ms (threshold is 500ms)
-            vi.advanceTimersByTime(200);
-
-            // Second press
-            await input.trigger('keydown', { key: 'Shift' });
-            await nextTick();
+            const wrapper = createWrapper({ props: { disabled: true } });
 
             // Assert
 
-            expect(openCommand).toHaveBeenCalledWith(
-                input.element,
-                ValueGeneratorCommandOpenMethod.SHIFT_SHIFT,
-            );
-
-            vi.useRealTimers();
+            expect(wrapper.find('input').attributes('disabled')).toBeDefined();
         });
     });
 });

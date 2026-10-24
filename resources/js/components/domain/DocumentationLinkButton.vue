@@ -4,14 +4,13 @@
  * @description A consistent external link button pointing to the application documentation.
  */
 import { AppButton } from '@/components/base/button';
-import { ExternalLinkIcon } from 'lucide-vue-next';
 import { type HTMLAttributes } from 'vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppDocumentationLinkButtonProps {
+export interface DocumentationLinkButtonProps {
     class?: HTMLAttributes['class'];
 }
 
@@ -19,7 +18,7 @@ export interface AppDocumentationLinkButtonProps {
  * Component Setup.
  */
 
-defineProps<AppDocumentationLinkButtonProps>();
+defineProps<DocumentationLinkButtonProps>();
 </script>
 
 <template>
@@ -28,8 +27,7 @@ defineProps<AppDocumentationLinkButtonProps>();
         as="a"
         href="https://github.com/sunchayn/nimbus/tree/base/wiki/user-guide"
         target="_blank"
-    >
-        <ExternalLinkIcon />
-        Documentation
-    </AppButton>
+        icon="i-hugeicons-link-square-02"
+        label="Documentation"
+    />
 </template>

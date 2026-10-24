@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AppIcon } from '@/components/base/icons';
 /**
  * @component RequestAuthorizationNone
  * @description Info panel indicating no authentication is being used.
@@ -9,25 +10,24 @@ import {
     AppPanelHeader,
     AppPanelTitle,
 } from '@/components/base/panel';
-import { LockKeyholeOpenIcon } from 'lucide-vue-next';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppRequestAuthorizationNoneProps {}
+export interface RequestAuthorizationNoneProps {}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppRequestAuthorizationNoneProps>();
+defineProps<RequestAuthorizationNoneProps>();
 </script>
 
 <template>
     <AppPanel class="border-b shadow-none">
         <AppPanelHeader class="items-start">
-            <LockKeyholeOpenIcon class="size-5 min-w-5" />
+            <AppIcon name="i-hugeicons-square-unlock-02" class="size-icon-lg shrink-0" />
             <div class="flex flex-col">
                 <AppPanelTitle>No Authorization</AppPanelTitle>
                 <AppPanelDescription>

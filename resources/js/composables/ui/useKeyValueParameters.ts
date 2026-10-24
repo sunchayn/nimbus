@@ -1,16 +1,9 @@
+import { useConfirmationAction } from '@/composables/ui/useConfirmationAction';
 import { keyValueParametersConfig } from '@/config';
 import type { ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
-import { useCounter, watchDebounced } from '@vueuse/core';
-import {
-    type ComputedRef,
-    type Ref,
-    computed,
-    onBeforeMount,
-    reactive,
-    ref,
-    watch,
-} from 'vue';
+import { useCounter } from '@vueuse/core';
+import { type ComputedRef, type Ref, computed, onBeforeMount, ref, watch } from 'vue';
 
 export interface UseKeyValueParametersResult<T extends ParameterContract> {
     parameters: Ref<T[]>;
@@ -20,7 +13,6 @@ export interface UseKeyValueParametersResult<T extends ParameterContract> {
     toggleAllParametersEnabledState: () => void;
     triggerParameterDeletion: (index: number) => void;
     deleteAllParameters: () => void;
-    updateParametersFromParentModel: () => void;
     isParameterMarkedForDeletion: (id: number) => boolean;
     clearAllDeletionStates: () => void;
 }
@@ -31,10 +23,10 @@ export interface UseKeyValueParametersResult<T extends ParameterContract> {
  * @param modelValue - The current parameters from the parent (read-only)
  * @param onUpdate - Callback to notify parent of parameter changes
  */
-export function useKeyValueParameters<T extends ParameterContract>(
+export const useKeyValueParameters = <T extends ParameterContract>(
     modelValue: Ref<T[]>,
     onUpdate: (parameters: T[]) => void,
-): UseKeyValueParametersResult<T> {
+): UseKeyValueParametersResult<T> => {
     /*
      * Dependencies.
      */
@@ -47,13 +39,13 @@ export function useKeyValueParameters<T extends ParameterContract>(
 
     const parameters: Ref<T[]> = ref([]);
 
-    interface DeletionState {
-        deleting: boolean;
-        timeoutId?: number;
-    }
-
-    const deletionStatesForParameters = reactive(new Map<number, DeletionState>());
-    const bulkDeletionState: Ref<DeletionState> = ref({ deleting: false });
+    const {
+        isConfirming,
+        trigger: triggerConfirmation,
+        cancelAll: clearAllDeletionStates,
+    } = useConfirmationAction({
+        duration: keyValueParametersConfig.DELETION_CONFIRMATION_TIMEOUT,
+    });
 
     /*
      * Utilities.
@@ -67,110 +59,20 @@ export function useKeyValueParameters<T extends ParameterContract>(
         enabled: true,
     });
 
-    /**
-     * Initiates deletion confirmation for a parameter.
-     * Returns true if this is the confirmation click (second click).
-     */
-    const initiateParameterDeletion = (identifier: number): boolean => {
-        const state = deletionStatesForParameters.get(identifier);
+    const BULK_DELETION_KEY = 'all';
 
-        if (state?.deleting) {
-            clearParameterDeletionState(identifier);
+    const isParameterMarkedForDeletion = (parameterId: number): boolean =>
+        isConfirming(parameterId);
 
-            return true;
-        }
-
-        setParameterDeletionState(identifier);
-
-        return false;
-    };
-
-    /**
-     * Checks if a parameter is marked for deletion.
-     */
-    const isParameterMarkedForDeletion = (parameterId: number): boolean => {
-        return deletionStatesForParameters.get(parameterId)?.deleting ?? false;
-    };
-
-    /**
-     * Clears deletion state for a parameter.
-     */
-    const clearParameterDeletionState = (parameterId: number): void => {
-        const state = deletionStatesForParameters.get(parameterId);
-
-        if (state?.timeoutId) {
-            clearTimeout(state.timeoutId);
-        }
-
-        deletionStatesForParameters.delete(parameterId);
-    };
-
-    /**
-     * Sets deletion state with automatic timeout.
-     */
-    const setParameterDeletionState = (parameterId: number): void => {
-        const timeoutId = window.setTimeout(() => {
-            deletionStatesForParameters.delete(parameterId);
-        }, keyValueParametersConfig.DELETION_CONFIRMATION_TIMEOUT);
-
-        deletionStatesForParameters.set(parameterId, {
-            deleting: true,
-            timeoutId,
-        });
-    };
-
-    /**
-     * Initiates bulk deletion confirmation.
-     * Returns true if this is the confirmation click (second click).
-     */
-    const initiateBulkDeletion = (): boolean => {
-        if (bulkDeletionState.value.deleting) {
-            clearBulkDeletionState();
-
-            return true;
-        }
-
-        markForBulkDeletion();
-
-        return false;
-    };
-
-    /**
-     * Checks if bulk deletion is marked for confirmation.
-     */
-    const isBulkDeletionMarked = (): boolean => {
-        return bulkDeletionState.value.deleting;
-    };
-
-    /**
-     * Clears bulk deletion state.
-     */
-    const clearBulkDeletionState = (): void => {
-        if (bulkDeletionState.value.timeoutId) {
-            clearTimeout(bulkDeletionState.value.timeoutId);
-        }
-
-        bulkDeletionState.value = { deleting: false };
-    };
-
-    /**
-     * Sets bulk deletion state with automatic timeout.
-     */
-    const markForBulkDeletion = (): void => {
-        const timeoutId = window.setTimeout(() => {
-            bulkDeletionState.value = { deleting: false };
-        }, keyValueParametersConfig.DELETION_CONFIRMATION_TIMEOUT);
-
-        bulkDeletionState.value = { deleting: true, timeoutId };
-    };
-
-    /**
-     * Clears all deletion states.
-     */
-    const clearAllDeletionStates = (): void => {
-        deletionStatesForParameters.forEach((_, id) => clearParameterDeletionState(id));
-        clearBulkDeletionState();
-    };
+    const hasSameContent = (a: T[], b: T[]): boolean =>
+        a.length === b.length &&
+        a.every(
+            (row, index) =>
+                row.key === b[index].key &&
+                row.value === b[index].value &&
+                row.type === b[index].type &&
+                row.enabled === b[index].enabled,
+        );
 
     /**
      * Reconciliation logic to update internal parameters from the parent modelValue.
@@ -181,7 +83,6 @@ export function useKeyValueParameters<T extends ParameterContract>(
     const updateParametersFromParentModel = (): void => {
         const incoming = modelValue.value ?? [];
 
-        // Map current parameters by id for reconciliation
         const currentById = new Map(
             parameters.value.map(parameter => [parameter.id, parameter]),
         );
@@ -214,9 +115,8 @@ export function useKeyValueParameters<T extends ParameterContract>(
             nextParameters.push(createParameterSkeleton(nextParameterId.value) as T);
         }
 
-        // Only update if the resulting content is different from current internal state
-        // to avoid triggering redundant observers.
-        if (JSON.stringify(parameters.value) !== JSON.stringify(incoming)) {
+        // Skip the update when only ids differ, otherwise our own echo would loop back as a change.
+        if (!hasSameContent(parameters.value, nextParameters)) {
             parameters.value = nextParameters;
         }
     };
@@ -246,7 +146,7 @@ export function useKeyValueParameters<T extends ParameterContract>(
         parameters.value.every(parameter => !parameter.enabled),
     );
 
-    const deletingAll = computed(() => isBulkDeletionMarked());
+    const deletingAll = computed(() => isConfirming(BULK_DELETION_KEY));
 
     /*
      * Actions.
@@ -287,13 +187,7 @@ export function useKeyValueParameters<T extends ParameterContract>(
             return;
         }
 
-        const shouldDelete = initiateParameterDeletion(index);
-
-        if (!shouldDelete) {
-            return;
-        }
-
-        parameters.value.splice(index, 1);
+        triggerConfirmation(() => parameters.value.splice(index, 1), index);
     };
 
     /**
@@ -302,32 +196,18 @@ export function useKeyValueParameters<T extends ParameterContract>(
      * Prevents accidental bulk deletion by requiring confirmation within the configured timeout.
      */
     const deleteAllParameters = (): void => {
-        const shouldDelete = initiateBulkDeletion();
-
-        if (!shouldDelete) {
-            return;
-        }
-
-        parameters.value = [];
+        triggerConfirmation(() => {
+            parameters.value = [];
+        }, BULK_DELETION_KEY);
     };
 
     /*
      * Watchers.
      */
 
-    // Watch for internal changes to notify parent
-    watchDebounced(
-        parameters,
-        () => {
-            notifyParentOfChanges();
-        },
-        {
-            deep: true,
-            debounce: keyValueParametersConfig.SYNC_DEBOUNCE_DELAY,
-        },
-    );
+    // Not debounced, because an edit pending during a tab switch would be lost.
+    watch(parameters, notifyParentOfChanges, { deep: true });
 
-    // Watch for external changes to sync from parent.
     watch(
         modelValue,
         () => {
@@ -340,7 +220,6 @@ export function useKeyValueParameters<T extends ParameterContract>(
      * Lifecycle.
      */
 
-    // Initialize parameters from parent model
     onBeforeMount(() => {
         updateParametersFromParentModel();
 
@@ -360,10 +239,9 @@ export function useKeyValueParameters<T extends ParameterContract>(
         toggleAllParametersEnabledState,
         triggerParameterDeletion,
         deleteAllParameters,
-        updateParametersFromParentModel,
 
         // Utilities
         isParameterMarkedForDeletion,
         clearAllDeletionStates,
     };
-}
+};

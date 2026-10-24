@@ -3,19 +3,13 @@
  * @component RouteExplorerVersionSelector
  * @description A dropdown for selecting the API version.
  */
-import {
-    AppSelect,
-    AppSelectContent,
-    AppSelectItem,
-    AppSelectTrigger,
-    AppSelectValue,
-} from '@/components/base/select';
+import { AppSelect } from '@/components/base/select';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppRouteExplorerVersionSelectorProps {
+export interface RouteExplorerVersionSelectorProps {
     versions: string[];
 }
 
@@ -23,27 +17,18 @@ export interface AppRouteExplorerVersionSelectorProps {
  * Component Setup.
  */
 
-defineProps<AppRouteExplorerVersionSelectorProps>();
+defineProps<RouteExplorerVersionSelectorProps>();
 
 const model = defineModel<string>();
 </script>
 
 <template>
-    <AppSelect v-model="model" class="flex items-center">
-        <AppSelectTrigger
-            class="px-panel w-full rounded-none border-0 text-xs shadow-none focus:ring-0 focus-visible:outline-none active:ring-0"
-        >
-            <AppSelectValue placeholder="Select API Version" />
-        </AppSelectTrigger>
-        <AppSelectContent>
-            <AppSelectItem
-                v-for="value in versions"
-                :key="value"
-                :value="value"
-                class="text-xs"
-            >
-                {{ value }}
-            </AppSelectItem>
-        </AppSelectContent>
-    </AppSelect>
+    <AppSelect
+        v-model="model"
+        :items="versions"
+        variant="outline"
+        size="md"
+        placeholder="Select API Version"
+        class="w-full"
+    />
 </template>

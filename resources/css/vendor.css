@@ -1,13 +1,11 @@
-@import 'vue-sonner/style.css';
-
 @layer components {
     .cm-focused {
         outline: none !important;
     }
 
     .cm-tooltip {
-        background-color: var(--color-popover) !important;
-        border-color: var(--color-border) !important;
+        background-color: var(--surface-overlay) !important;
+        border-color: var(--ui-border) !important;
         @apply flex flex-col;
     }
 
@@ -17,27 +15,101 @@
     }
 
     .gw-glitched {
-        @apply text-gray-500;
+        @apply text-dimmed;
     }
 
+    /* The gutter shares the editor surface, so the editor reads as one flat pane. */
     .cm-gutters {
-        background-color: var(--color-subtle) !important;
-        border-color: var(--color-border) !important;
+        background-color: var(--ui-bg) !important;
+        border-right: 0 !important;
+        color: var(--ui-text-dimmed) !important;
+    }
+
+    .cm-foldGutter .cm-gutterElement {
+        cursor: pointer;
+        color: var(--ui-text-dimmed);
+    }
+
+    .cm-foldGutter .cm-gutterElement:hover {
+        color: var(--ui-text-highlighted);
+    }
+
+    /* Environment placeholders drawn as chips. */
+    .cm-line .cm-env-chip {
+        border: 1px solid var(--ui-border);
+        border-radius: var(--radius-sm);
+        padding: 0 2px;
+        background-color: var(--ui-bg-elevated);
+        color: var(--ui-text) !important;
+    }
+
+    .cm-line .cm-env-chip-resolved {
+        border-color: color-mix(in oklab, var(--ui-info) 40%, transparent);
+        background-color: color-mix(in oklab, var(--ui-info) 10%, transparent);
+    }
+
+    .cm-line .cm-env-chip-empty {
+        border-color: color-mix(in oklab, var(--ui-warning) 40%, transparent);
+        background-color: color-mix(in oklab, var(--ui-warning) 10%, transparent);
+    }
+
+    .cm-line .cm-env-chip-missing {
+        border-color: color-mix(in oklab, var(--ui-error) 40%, transparent);
+        background-color: color-mix(in oklab, var(--ui-error) 10%, transparent);
+    }
+
+    /* Autocomplete popup and its documentation panel use the overlay surface. */
+    .cm-tooltip-autocomplete {
+        box-shadow: var(--elevation-overlay);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+    }
+
+    .cm-tooltip-autocomplete > ul {
+        font-family: var(--font-mono) !important;
+        font-size: 0.75rem;
+        padding: var(--gap-tight);
+    }
+
+    .cm-tooltip-autocomplete > ul > li {
+        border-radius: var(--radius-sm);
+        padding: 2px var(--gap-base) !important;
+        color: var(--ui-text);
+    }
+
+    .cm-tooltip-autocomplete > ul > li[aria-selected] {
+        background-color: var(--ui-bg-elevated) !important;
+        color: var(--ui-text-highlighted) !important;
+    }
+
+    .cm-completionMatchedText {
+        text-decoration: none !important;
+        font-weight: 600;
+    }
+
+    .cm-completionInfo {
+        background-color: var(--surface-overlay);
+        border: 1px solid var(--ui-border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--elevation-overlay);
+        padding: var(--gap-tight) var(--gap-base) !important;
+        font-size: 0.75rem;
+        color: var(--ui-text);
     }
 
     .cm-activeLineGutter,
     .cm-activeLine {
-        background-color: var(--color-accent) !important;
+        background-color: var(--ui-bg-elevated) !important;
     }
 
     .cm-line span {
-        color: var(--color-subtle-foreground) !important;
+        color: var(--ui-text-muted) !important;
     }
 
     .cm-tooltip-lint {
-        background-color: var(--color-popover) !important;
-        border: 1px solid var(--color-border) !important;
-        box-shadow: var(--shadow-lg) !important;
+        background-color: var(--surface-overlay) !important;
+        border: 1px solid var(--ui-border) !important;
+        box-shadow: var(--elevation-overlay) !important;
         overflow: hidden !important;
         transform: translateY(5px);
     }
@@ -47,7 +119,7 @@
     }
 
     .cm-diagnosticText {
-        color: var(--color-foreground) !important;
+        color: var(--ui-text) !important;
         & code {
             font-family: inherit !important;
             font-weight: 600 !important;
@@ -55,12 +127,12 @@
     }
 
     .cm-diagnosticSource {
-        color: var(--color-foreground) !important;
+        color: var(--ui-text) !important;
     }
 
     .cm-lint-tooltip-item {
         padding: 4px 8px !important;
-        border-bottom: 1px solid var(--color-border) !important;
+        border-bottom: 1px solid var(--ui-border) !important;
     }
 
     .cm-lint-tooltip-item:last-child {
@@ -70,10 +142,10 @@
     .cm-diagnostic {
         font-size: 0.75rem !important;
         line-height: calc(1 / 0.75) !important;
-        color: var(--color-popover-foreground) !important;
-        --diagnostic--border-color: var(--color-border);
+        color: var(--ui-text) !important;
+        --diagnostic--border-color: var(--ui-border);
         border-left: 3px solid var(--diagnostic--border-color) !important;
-        border-bottom: 1px solid var(--color-border);
+        border-bottom: 1px solid var(--ui-border);
 
         &:last-child {
             border-bottom: 0;
@@ -81,15 +153,15 @@
     }
 
     .cm-diagnostic-info {
-        --diagnostic--border-color: var(--color-blue-500);
+        --diagnostic--border-color: var(--ui-info);
     }
 
     .cm-diagnostic-warning {
-        --diagnostic--border-color: var(--color-yellow-500);
+        --diagnostic--border-color: var(--ui-warning);
     }
 
     .cm-diagnostic-error {
-        --diagnostic--border-color: var(--color-destructive);
+        --diagnostic--border-color: var(--ui-error);
     }
 
     .cm-gutterElement {
@@ -112,7 +184,7 @@
     }
 
     .cm-lint-marker-warning {
-        color: var(--color-warning);
+        color: var(--ui-warning);
         font-size: 0.75rem !important;
     }
 

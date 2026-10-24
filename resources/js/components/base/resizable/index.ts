@@ -1,3 +1,5 @@
-export { default as AppResizableHandle } from './AppResizableHandle.vue';
-export { default as AppResizablePanel } from './AppResizablePanel.vue';
-export { default as AppResizablePanelGroup } from './AppResizablePanelGroup.vue';
+import type { SplitterItem } from '@nuxt/ui/components/Splitter.vue';
+
+export { default as AppSplitter } from './AppSplitter.vue';
+
+export type AppSplitterItem = SplitterItem;

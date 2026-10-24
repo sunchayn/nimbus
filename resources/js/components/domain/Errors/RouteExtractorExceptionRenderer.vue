@@ -10,7 +10,7 @@ import RouteSpecificExtractorExceptionRenderer from './RouteSpecificExtractorExc
  * Types & Interfaces.
  */
 
-export interface AppRouteExtractorExceptionRendererProps {
+export interface RouteExtractorExceptionRendererProps {
     error: RouteExtractorException;
 }
 
@@ -18,7 +18,7 @@ export interface AppRouteExtractorExceptionRendererProps {
  * Component Setup.
  */
 
-defineProps<AppRouteExtractorExceptionRendererProps>();
+defineProps<RouteExtractorExceptionRendererProps>();
 </script>
 
 <template>

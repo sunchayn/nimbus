@@ -35,3 +35,7 @@ node_modules/
 CLAUDE.md
 AGENTS.md
 skills-lock.json
+
+# Nuxt UI generated declarations
+auto-imports.d.ts
+components.d.ts

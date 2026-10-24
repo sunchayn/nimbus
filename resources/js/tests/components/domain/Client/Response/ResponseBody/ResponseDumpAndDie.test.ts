@@ -11,6 +11,12 @@ import { nextTick } from 'vue';
  * Fixtures.
  */
 
+const toastError = vi.hoisted(() => vi.fn());
+
+vi.mock('@/components/base/toast', () => ({
+    useAppToast: () => ({ success: vi.fn(), warning: vi.fn(), error: toastError }),
+}));
+
 vi.mock('@/components/layout/PanelSubHeader/PanelSubHeader.vue', () => ({
     default: {
         name: 'PanelSubHeader',
@@ -38,28 +44,6 @@ vi.mock('@/components/domain/Client/Response/ResponseBody/DumpRenderer', () => (
         name: 'SingleDumpRenderer',
         template: '<div data-testid="single-dump-renderer" />',
         props: ['dump', 'class'],
-    },
-}));
-
-vi.mock('@/components/base/tooltip/AppTooltipWrapper.vue', () => ({
-    default: {
-        name: 'AppTooltipWrapper',
-        template: '<div><slot /></div>',
-    },
-}));
-
-vi.mock('lucide-vue-next', () => ({
-    ChevronLeft: {
-        name: 'ChevronLeft',
-        template: '<svg data-testid="chevron-left" />',
-    },
-    ChevronRight: {
-        name: 'ChevronRight',
-        template: '<svg data-testid="chevron-right" />',
-    },
-    Trash2Icon: {
-        name: 'Trash2Icon',
-        template: '<svg data-testid="trash-icon" />',
     },
 }));
 
@@ -174,7 +158,7 @@ describe('ResponseDumpAndDie', () => {
             expect(wrapper.text()).toContain('First');
         });
 
-        it('first click marks dump for deletion (trash icon turns red)', async () => {
+        it('first click arms deletion and keeps the dump', async () => {
             // Arrange
 
             const snapshot1 = createDumpSnapshot('1', 'First', '2024-01-01 12:00:00', [
@@ -200,8 +184,25 @@ describe('ResponseDumpAndDie', () => {
 
             // Assert
 
-            const trashIcon = deleteButton.find('[data-testid="trash-icon"]');
-            expect(trashIcon.classes()).toContain('text-destructive');
+            expect(wrapper.find('[data-testid="delete-dump-button"]').exists()).toBe(
+                true,
+            );
+            expect(wrapper.text()).toContain('/ 2');
+        });
+    });
+
+    describe('Invalid content', () => {
+        it('shows an error toast when the snapshot cannot be parsed', () => {
+            // Arrange & Act
+
+            createWrapper({ props: { rawContent: '{not json' } });
+
+            // Assert
+
+            expect(toastError).toHaveBeenCalledWith(
+                'Failed to read the dump snapshot',
+                expect.any(Object),
+            );
         });
     });
 });

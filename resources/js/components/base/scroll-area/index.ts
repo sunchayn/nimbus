@@ -1,2 +1,2 @@
 export { default as AppScrollArea } from './AppScrollArea.vue';
-export { default as AppScrollBar } from './AppScrollBar.vue';
+export type { AppScrollAreaProps } from './AppScrollArea.vue';

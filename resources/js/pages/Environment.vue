@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/**
+ * @component EnvironmentPage
+ * @description Page for managing global environment collections and their variables.
+ */
 import { AppButton } from '@/components/base/button';
 import {
     EnvironmentCollectionHeader,
@@ -7,7 +11,6 @@ import {
 } from '@/components/domain/Environment';
 import PageLayout from '@/components/layout/PageLayout.vue';
 import { useEnvironmentVariablesStore } from '@/stores';
-import { Layers3Icon, PlusIcon } from 'lucide-vue-next';
 
 defineOptions({
     name: 'EnvironmentPage',
@@ -17,7 +20,11 @@ const environmentVariablesStore = useEnvironmentVariablesStore();
 </script>
 
 <template>
-    <PageLayout title="Environments" :icon="Layers3Icon" data-testid="environment-page">
+    <PageLayout
+        title="Environments"
+        icon="i-hugeicons-all-bookmark"
+        data-testid="environment-page"
+    >
         <template #subheader-left>
             <div>
                 <span class="text-sm">Global application variables</span>
@@ -28,35 +35,36 @@ const environmentVariablesStore = useEnvironmentVariablesStore();
             <AppButton
                 variant="ghost"
                 size="xs"
+                icon="i-hugeicons-plus-sign"
+                label="New Collection"
                 data-testid="add-collection-btn"
                 @click="environmentVariablesStore.addCollection"
-            >
-                <PlusIcon />
-                New Collection
-            </AppButton>
+            />
         </template>
 
         <template #content>
             <div class="p-panel h-full overflow-auto">
-                <div class="max-w-6xl">
+                <div class="gap-loose flex max-w-6xl flex-col">
                     <!-- Screen Header -->
-                    <div class="mb-3">
-                        <h2 class="text-xl font-semibold">Collections</h2>
-                        <p class="text-subtle-foreground mb-1.5 text-sm leading-tight">
-                            These are namespaces and group of global variables that can be
-                            re-used across the application.
-                        </p>
-                        <p class="text-subtle-foreground text-xs leading-tight italic">
-                            Note: environment configuration is not shared between nimbus
-                            installations.
-                        </p>
+                    <div>
+                        <h2 class="text-base font-semibold">Collections</h2>
+                        <div class="gap-tight flex flex-col">
+                            <p class="text-muted text-sm leading-tight">
+                                These are namespaces and group of global variables that
+                                can be re-used across the application.
+                            </p>
+                            <p class="text-muted text-xs leading-tight italic">
+                                Note: environment configuration is not shared between
+                                nimbus installations.
+                            </p>
+                        </div>
                     </div>
 
                     <div class="flex flex-col items-start gap-2 md:flex-row">
-                        <!-- Sidebar: Collection List -->
+                        <!-- Sidebar with the collection list -->
                         <EnvironmentCollectionList />
 
-                        <!-- Detail: Variable Editor -->
+                        <!-- Detail with the variable editor -->
                         <EnvironmentVariablesEditor>
                             <template #header>
                                 <EnvironmentCollectionHeader />

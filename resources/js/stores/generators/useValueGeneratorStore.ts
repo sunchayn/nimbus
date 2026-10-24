@@ -1,8 +1,8 @@
-import { useGeneratorSearch } from '@/composables/data/useGeneratorSearch';
 import type { ValueGenerator } from '@/interfaces/ui';
 import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
+import { filterGenerators } from '@/utils/value-generator/filterGenerators';
 import { defineStore } from 'pinia';
-import { computed, ref, watch } from 'vue';
+import { computed } from 'vue';
 import { useGeneratorCommandStore } from './useGeneratorCommandStore';
 import { useValueGeneratorDefinitionsStore } from './useValueGeneratorDefinitionsStore';
 
@@ -20,33 +20,20 @@ export const useValueGeneratorStore = defineStore('valueGenerator', () => {
     const generatorsStore = useValueGeneratorDefinitionsStore();
     const commandStore = useGeneratorCommandStore();
 
-    // Local refs that sync with command store for proper reactivity
-    const isCommandOpen = ref(false);
-    const currentInputRef = ref<HTMLElement | null>(null);
-
-    // Sync local refs with command store
-    watch(
-        () => commandStore.isCommandOpen,
-        newValue => {
-            isCommandOpen.value = newValue;
-        },
-        { immediate: true },
-    );
-
-    watch(
-        () => commandStore.currentInputRef,
-        newValue => {
-            currentInputRef.value = newValue;
-        },
-        { immediate: true },
-    );
-
-    // Use the search composable with a function that returns the current generators
-    const searchComposable = useGeneratorSearch(generatorsStore.generators);
-
     /*
      * Computed.
      */
+
+    const isCommandOpen = computed(() => commandStore.isCommandOpen);
+    const currentInputRef = computed(() => commandStore.currentInputRef);
+
+    const filteredGenerators = computed(() =>
+        filterGenerators(
+            generatorsStore.generators,
+            commandStore.commandState.searchQuery,
+            commandStore.commandState.selectedCategory,
+        ),
+    );
 
     const recentGenerators = computed(() => {
         return commandStore.commandState.recentGenerators
@@ -98,7 +85,6 @@ export const useValueGeneratorStore = defineStore('valueGenerator', () => {
      */
     const setSearchQuery = (query: string) => {
         commandStore.setSearchQuery(query);
-        searchComposable.setSearchQuery(query);
     };
 
     /**
@@ -106,7 +92,6 @@ export const useValueGeneratorStore = defineStore('valueGenerator', () => {
      */
     const setSelectedCategory = (categoryId: string | null) => {
         commandStore.setSelectedCategory(categoryId);
-        searchComposable.setSelectedCategory(categoryId);
     };
 
     /**
@@ -121,8 +106,7 @@ export const useValueGeneratorStore = defineStore('valueGenerator', () => {
     const wasOpenedViaShiftShift = computed(() => commandStore.wasOpenedViaShiftShift);
 
     return {
-        // State from command store (using local synced refs).
-        // TODO [Refactor] check if this proxying mess is still needed.
+        // State from command store
         isCommandOpen,
         currentInputRef,
         commandState: commandStore.commandState,
@@ -132,7 +116,7 @@ export const useValueGeneratorStore = defineStore('valueGenerator', () => {
         generators: generatorsStore.generators,
 
         // Computed
-        filteredGenerators: searchComposable.filteredGenerators,
+        filteredGenerators,
         recentGenerators,
         wasOpenedViaShiftShift,
 

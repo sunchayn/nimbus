@@ -1,13 +1,19 @@
-import { useHttpClient } from '@/composables/request/useHttpClient';
+import { httpClientConfig } from '@/config';
 import type { ErrorPlainResponse, PendingRequest } from '@/interfaces/http';
-import { useRequestsHistoryStore, useTabsStore } from '@/stores';
+import {
+    useConfigStore,
+    useEnvironmentVariablesStore,
+    useRequestsHistoryStore,
+    useTabsStore,
+} from '@/stores';
 import {
     createRequestTimer,
     generateErrorRequestLog,
     generateSuccessRequestLog,
 } from '@/utils/request';
+import { sendRelayRequest } from '@/utils/request/sendRelayRequest';
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, shallowRef } from 'vue';
 
 /**
  * Store for managing request execution and timing.
@@ -22,14 +28,17 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
 
     const historyStore = useRequestsHistoryStore();
     const tabsStore = useTabsStore();
-    const { executeRequest, cancelCurrentRequest } = useHttpClient();
+    const configStore = useConfigStore();
+    const environmentVariablesStore = useEnvironmentVariablesStore();
 
     /*
      * State.
      */
 
-    const isProcessing = ref(false);
-    const duration = ref(0);
+    const isProcessing = shallowRef(false);
+    const duration = shallowRef(0);
+
+    let abortController: AbortController | null = null;
 
     /*
      * Computed.
@@ -48,6 +57,40 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
      * Request Execution Actions.
      */
 
+    const cancelCurrentRequest = () => {
+        abortController?.abort();
+    };
+
+    const executeRequest = async (request: PendingRequest) => {
+        // Prevent concurrent requests to avoid race conditions.
+        if (abortController) {
+            throw new Error('Request already in progress');
+        }
+
+        abortController = new AbortController();
+
+        try {
+            const timeoutPromise = new Promise<never>((_, reject) =>
+                setTimeout(
+                    () => reject(new Error('Request timeout')),
+                    httpClientConfig.TIMEOUT,
+                ),
+            );
+
+            return await Promise.race([
+                sendRelayRequest(request, {
+                    apiUrl: configStore.apiUrl,
+                    appBasePath: configStore.appBasePath,
+                    resolve: environmentVariablesStore.resolve,
+                    signal: abortController.signal,
+                }),
+                timeoutPromise,
+            ]);
+        } finally {
+            abortController = null;
+        }
+    };
+
     /**
      * Executes the provided request with timing and error handling.
      *
@@ -62,7 +105,6 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
         let timer: ReturnType<typeof createRequestTimer> | null = null;
 
         const cleanupAfterPendingRequest = () => {
-            // Clear the timer
             if (timer) {
                 timer.stop();
             }
@@ -72,11 +114,9 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
         };
 
         try {
-            // Update the request processing state
             requestData.isProcessing = true;
             requestData.durationInMs = 0;
 
-            // Start timer to update duration in real-time
             timer = createRequestTimer(elapsed => {
                 if (requestData.isProcessing) {
                     requestData.durationInMs = elapsed;
@@ -96,17 +136,15 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
                 return;
             }
 
-            // Create RequestLog for history using utility function
             const requestLog = generateSuccessRequestLog(
                 requestData,
                 result.duration,
-                result.response!,
+                result.response,
             );
 
             historyStore.addLog(requestLog);
             tabsStore.updateActiveTabResponse(requestLog);
         } catch (error) {
-            // Create RequestLog for history with error using utility function
             const requestLog = generateErrorRequestLog(
                 requestData,
                 error as ErrorPlainResponse,

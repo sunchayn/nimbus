@@ -19,7 +19,7 @@ import { nextTick } from 'vue';
  */
 const createDefaultProps = () => ({
     modelValue: 'initial',
-    variant: 'default' as const,
+    color: 'neutral' as const,
     disabled: false,
 });
 
@@ -31,14 +31,16 @@ const createWrapper = (props = {}): VueWrapper => {
     // Replace with actual component
     const ExampleComponent = {
         template:
-            '<div><input @input="$emit(\'update:modelValue\', ($event.target as HTMLInputElement).value)"></div>',
-        props: ['modelValue', 'variant', 'disabled', 'mode'],
+            '<div :data-color="color" :data-disabled="disabled ? \'\' : undefined"><input @input="$emit(\'update:modelValue\', ($event.target as HTMLInputElement).value)"></div>',
+        props: ['modelValue', 'color', 'disabled', 'mode'],
         emits: ['update:modelValue', 'submit', 'error'],
     };
 
     return mount(ExampleComponent, {
         props: { ...createDefaultProps(), ...props },
         global: {
+            // The Nuxt UI plugin is installed for every mount by tests/setup.ts.
+            // Import Nuxt UI components explicitly from '@nuxt/ui/components/...'.
             plugins: [createPinia()],
             stubs: {
                 // Stub heavy child components to isolate unit under test
@@ -69,14 +71,14 @@ describe('ExampleComponent', () => {
             expect(wrapper.exists()).toBe(true);
         });
 
-        it('applies variant class correctly', () => {
+        it('reflects the color prop in the rendered output', () => {
             // Arrange
 
-            const wrapper = createWrapper({ variant: 'destructive' });
+            const wrapper = createWrapper({ color: 'error' });
 
             // Assert
 
-            expect(wrapper.classes()).toContain('variant-destructive');
+            expect(wrapper.attributes('data-color')).toBe('error');
         });
     });
 
@@ -96,7 +98,7 @@ describe('ExampleComponent', () => {
 
             // Assert
 
-            expect(wrapper.classes()).toContain('is-disabled');
+            expect(wrapper.attributes('data-disabled')).toBeDefined();
         });
 
         it('emits update:modelValue when internal state changes', async () => {

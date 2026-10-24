@@ -13,10 +13,9 @@ import axios from 'axios';
 window.axios = axios;
 
 /*
- * Configure Axios defaults:
- * - Set 'X-Requested-With' to identify AJAX requests for backend frameworks.
- * - Enable sending credentials (cookies, auth headers) with cross-site requests.
- * @see https://axios-http.com/docs/req_config
+ * The 'X-Requested-With' header identifies AJAX requests for backend frameworks.
+ * Credentials are sent with cross-site requests.
+ * See https://axios-http.com/docs/req_config
  */
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.axios.defaults.withCredentials = true;
@@ -34,7 +33,6 @@ type AxiosExtendedConfig = InternalAxiosRequestConfig & {
 const setupAxiosInterceptors = (
     minimumDelay: number = httpClientConfig.MINIMUM_DELAY,
 ): void => {
-    // Request interceptor to track request start time
     axios.interceptors.request.use(
         (config: InternalAxiosRequestConfig): AxiosExtendedConfig => ({
             ...config,
@@ -78,5 +76,4 @@ const setupAxiosInterceptors = (
     );
 };
 
-// Initialize interceptors
 setupAxiosInterceptors();

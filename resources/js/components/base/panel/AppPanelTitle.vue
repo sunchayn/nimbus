@@ -22,7 +22,14 @@ const props = defineProps<AppPanelTitleProps>();
 </script>
 
 <template>
-    <h3 :class="cn('text-sm leading-none font-semibold tracking-tight', props.class)">
+    <h3
+        :class="
+            cn(
+                'text-highlighted text-sm leading-none font-semibold tracking-tight',
+                props.class,
+            )
+        "
+    >
         <slot />
     </h3>
 </template>

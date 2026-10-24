@@ -1,30 +1,29 @@
 <script setup lang="ts">
 /**
  * @component AppBadge
- * @description A small visual indicator for status, categories, or labels.
+ * @description Small status or label indicator built on Nuxt UI.
  */
-import { cn } from '@/utils/ui';
-import type { HTMLAttributes } from 'vue';
-import { type BadgeVariants, badgeVariants } from './index';
+import { useForwardedProps } from '@/components/base/useForwardedProps';
+import type { BadgeProps } from '@nuxt/ui/components/Badge.vue';
+import UBadge from '@nuxt/ui/components/Badge.vue';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppBadgeProps {
-    variant?: BadgeVariants['variant'];
-    class?: HTMLAttributes['class'];
-}
+export interface AppBadgeProps extends BadgeProps {}
 
 /*
  * Component Setup.
  */
 
 const props = defineProps<AppBadgeProps>();
+
+const forwarded = useForwardedProps(props);
 </script>
 
 <template>
-    <div :class="cn(badgeVariants({ variant }), props.class)">
+    <UBadge v-bind="forwarded">
         <slot />
-    </div>
+    </UBadge>
 </template>

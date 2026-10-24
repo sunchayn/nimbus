@@ -3,17 +3,16 @@
      * Layout Variables.
      */
 
-    --radius: 0.5rem;
-
     /* Toolbar Heights */
-    --toolbar-height: 40px;
-    --sub-toolbar-height: 34px;
+    --toolbar-height: 36px;
+    --sub-toolbar-height: 32px;
 
     /* Panel Content Padding */
-    --panel-padding: calc(var(--spacing) * 2);
+    --panel-padding: var(--gap-base);
 
     /* Additional Layout Variables */
     --header-height: 60px;
-    --sidebar-width: 280px;
-    --sidebar-collapsed-width: 60px;
+    --sidebar-expanded-width: 280px;
+    --sidebar-width: var(--sidebar-expanded-width);
+    --sidebar-collapsed-width: 3rem;
 }

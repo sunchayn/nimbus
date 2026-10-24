@@ -21,7 +21,7 @@ export interface UseRequestAuthorizationResult {
  *
  * Centralizes authorization type selection, validation, and persistence to the request store.
  */
-export function useRequestAuthorization(): UseRequestAuthorizationResult {
+export const useRequestAuthorization = (): UseRequestAuthorizationResult => {
     /*
      * Dependencies.
      */
@@ -63,7 +63,6 @@ export function useRequestAuthorization(): UseRequestAuthorizationResult {
 
     const authorizationStates = new Map<AuthorizationType, AuthorizationContract>();
 
-    // Initialize with default states
     Object.entries(defaultAuthStates).forEach(([type, state]) => {
         authorizationStates.set(
             type as AuthorizationType,
@@ -103,12 +102,10 @@ export function useRequestAuthorization(): UseRequestAuthorizationResult {
      * for each type using the state manager.
      */
     const updateAuthorizationType = (newValue: AuthorizationType): void => {
-        // Save current state before switching
         authorizationStates.set(authorization.value.type, {
             ...authorization.value,
         });
 
-        // Switch to new type and restore its previous state
         const savedState = authorizationStates.get(newValue);
         const restoredAuth = (
             savedState ? { ...savedState } : defaultAuthStates[newValue]
@@ -131,7 +128,6 @@ export function useRequestAuthorization(): UseRequestAuthorizationResult {
             type: AuthorizationType.CurrentUser,
         };
 
-        // Prevent redundant updates
         if (JSON.stringify(newValue) === JSON.stringify(currentAuth.value)) {
             return;
         }
@@ -149,7 +145,6 @@ export function useRequestAuthorization(): UseRequestAuthorizationResult {
      * for execution and updates the local state cache.
      */
     const saveAuthorizationToStore = (): void => {
-        // Update local state cache
         authorizationStates.set(authorization.value.type, {
             ...authorization.value,
         });
@@ -177,4 +172,4 @@ export function useRequestAuthorization(): UseRequestAuthorizationResult {
         updateCurrentAuthorizationValue,
         saveAuthorizationToStore,
     };
-}
+};

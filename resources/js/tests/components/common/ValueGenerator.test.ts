@@ -37,6 +37,7 @@ vi.mock('@/components/common/ValueGenerator/ValueGeneratorGeneratorList.vue', ()
         template:
             '<button data-testid="trigger-generator" @click="$emit(\'generator-selected\', \'email\')">Gen</button>',
         emits: ['generator-selected'],
+        methods: { focusInput: () => undefined },
     },
 }));
 

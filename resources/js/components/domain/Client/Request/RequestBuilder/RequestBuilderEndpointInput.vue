@@ -1,0 +1,122 @@
+<script setup lang="ts">
+/**
+ * @component RequestBuilderEndpointInput
+ * @description The endpoint input field and send button for the request builder.
+ */
+import { AppButton } from '@/components/base/button';
+import { AppPopover } from '@/components/base/popover';
+import { AppTooltip } from '@/components/base/tooltip';
+import EnvironmentAwareInput from '@/components/common/EnvironmentAwareInput.vue';
+
+import { useRouteParameterParsing } from '@/composables/request/useRouteParameterParsing';
+import { useRouteSegmentSelection } from '@/composables/request/useRouteSegmentSelection';
+import { useRequestStore } from '@/stores';
+import { computed, shallowRef } from 'vue';
+import RequestBuilderEndpointParameterWarningContent from './RequestBuilderEndpointParameterWarningContent.vue';
+
+/*
+ * Stores.
+ */
+
+const requestStore = useRequestStore();
+
+/*
+ * State.
+ */
+
+const showParameterWarning = shallowRef(false);
+
+/*
+ * Computed.
+ */
+
+const pendingRequestData = computed(() => requestStore.pendingRequestData);
+
+const endpoint = computed({
+    get: () => pendingRequestData.value?.endpoint ?? '',
+    set: (value: string) => requestStore.updateRequestEndpoint(value),
+});
+
+/*
+ * Composables.
+ */
+
+const { parameters, hasParameters } = useRouteParameterParsing(endpoint);
+
+/*
+ * Actions.
+ */
+
+const { handleClick: autoSelectRouteVariableSegmentWhenApplicable } =
+    useRouteSegmentSelection({ endpoint });
+
+const executeCurrentRequest = async function () {
+    if (!requestStore.pendingRequestData) {
+        return;
+    }
+
+    if (hasParameters.value) {
+        showParameterWarning.value = true;
+
+        return;
+    }
+
+    showParameterWarning.value = false;
+
+    await requestStore.executeCurrentRequest();
+};
+
+const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
+    if (event.key !== 'Enter') {
+        return;
+    }
+
+    event.preventDefault();
+    executeCurrentRequest();
+};
+</script>
+
+<template>
+    <div class="h-toolbar flex min-w-0 flex-1 items-center">
+        <!-- Endpoint Input with Rich Env Variables Highlighting -->
+        <EnvironmentAwareInput
+            v-model="endpoint"
+            variant="none"
+            size="sm"
+            class="h-full flex-1"
+            placeholder="<endpoint>"
+            data-testid="endpoint-input"
+            @click="autoSelectRouteVariableSegmentWhenApplicable"
+            @keydown="executeCurrentRequestWhenEnterIsPressed"
+        />
+
+        <div class="flex items-center gap-1 pe-1">
+            <AppPopover v-model:open="showParameterWarning" :content="{ align: 'start' }">
+                <template #anchor>
+                    <AppTooltip text="Send (Enter)">
+                        <AppButton
+                            size="sm"
+                            :label="pendingRequestData?.isProcessing ? 'Sending' : 'Send'"
+                            :loading="pendingRequestData?.isProcessing"
+                            trailing-icon="i-hugeicons-arrow-turn-backward"
+                            :disabled="
+                                !pendingRequestData || pendingRequestData?.isProcessing
+                            "
+                            @click="executeCurrentRequest"
+                        />
+                    </AppTooltip>
+                </template>
+
+                <template #content>
+                    <div class="w-80 p-1">
+                        <RequestBuilderEndpointParameterWarningContent
+                            :parameters="parameters"
+                        />
+                    </div>
+                </template>
+            </AppPopover>
+
+            <slot name="options-menu" />
+        </div>
+    </div>
+</template>

@@ -48,15 +48,12 @@ function appendQueryParam(
     }
 
     if (Array.isArray(value)) {
-        // Append each array element with [] notation
         value.forEach(item => appendQueryParam(searchParams, `${key}[]`, item));
     } else if (typeof value === 'object') {
-        // Recursively handle nested objects
         Object.entries(value).forEach(([subKey, subValue]) => {
             appendQueryParam(searchParams, `${key}[${subKey}]`, subValue);
         });
     } else {
-        // Primitive value: append directly
         searchParams.append(key, String(value));
     }
 }

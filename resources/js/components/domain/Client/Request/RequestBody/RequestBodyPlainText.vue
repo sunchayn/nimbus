@@ -12,13 +12,13 @@ import { computed } from 'vue';
  * Types & Interfaces.
  */
 
-export interface AppRequestBodyPlainTextProps {}
+export interface RequestBodyPlainTextProps {}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppRequestBodyPlainTextProps>();
+defineProps<RequestBodyPlainTextProps>();
 
 const model = defineModel<string>({
     default: '',

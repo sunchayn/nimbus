@@ -4,17 +4,10 @@
  * @description Provides a dropdown menu with options to download the raw response or its schema shape.
  */
 import { AppButton } from '@/components/base/button';
-import {
-    AppDropdownMenu,
-    AppDropdownMenuContent,
-    AppDropdownMenuItem,
-    AppDropdownMenuLabel,
-    AppDropdownMenuSeparator,
-    AppDropdownMenuTrigger,
-} from '@/components/base/dropdown-menu';
+import type { AppDropdownMenuItem } from '@/components/base/dropdown-menu';
+import { AppDropdownMenu } from '@/components/base/dropdown-menu';
 import useResponseDownload from '@/composables/response/useResponseDownload';
 import type { RequestLog } from '@/interfaces/history/logs';
-import { DownloadIcon, Loader2Icon } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 /*
@@ -35,42 +28,39 @@ const responseRef = computed(() => props.response);
 
 const { isResolvingShape, isJsonResponse, downloadRawResponse, downloadResponseShape } =
     useResponseDownload(responseRef);
+
+const items = computed<AppDropdownMenuItem[][]>(() => [
+    [
+        { label: 'Download options', type: 'label' },
+        {
+            label: 'Raw response',
+            testId: 'download-raw-option',
+            onSelect: downloadRawResponse,
+        },
+        {
+            label: 'JSON shape',
+            testId: 'download-shape-option',
+            loading: isResolvingShape.value,
+            disabled: isResolvingShape.value || !isJsonResponse.value,
+            onSelect: downloadResponseShape,
+        },
+    ],
+]);
 </script>
 
 <template>
-    <AppDropdownMenu @update:open="open => open">
-        <AppDropdownMenuTrigger as-child>
-            <AppButton
-                variant="outline"
-                size="xs"
-                data-testid="download-dropdown-trigger"
-            >
-                <DownloadIcon class="size-3" />
-                <span class="text-xs">Download</span>
-            </AppButton>
-        </AppDropdownMenuTrigger>
-        <AppDropdownMenuContent align="end" class="w-44">
-            <AppDropdownMenuLabel class="text-xs">Download Options</AppDropdownMenuLabel>
-            <AppDropdownMenuSeparator />
-            <AppDropdownMenuItem
-                class="cursor-pointer gap-1.5 text-xs"
-                data-testid="download-raw-option"
-                @click="downloadRawResponse"
-            >
-                <span>Raw Response</span>
-            </AppDropdownMenuItem>
-            <AppDropdownMenuItem
-                class="cursor-pointer justify-between gap-1.5 text-xs"
-                data-testid="download-shape-option"
-                :disabled="isResolvingShape || !isJsonResponse"
-                @click="downloadResponseShape"
-            >
-                <span>JSON Shape</span>
-                <Loader2Icon
-                    v-if="isResolvingShape"
-                    class="size-3 animate-spin text-zinc-400"
-                />
-            </AppDropdownMenuItem>
-        </AppDropdownMenuContent>
+    <AppDropdownMenu :items="items" :content="{ align: 'end' }">
+        <AppButton
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            icon="i-hugeicons-download-04"
+            aria-label="Download"
+            data-testid="download-dropdown-trigger"
+        />
+
+        <template #item-label="{ item }">
+            <span :data-testid="item.testId">{{ item.label }}</span>
+        </template>
     </AppDropdownMenu>
 </template>

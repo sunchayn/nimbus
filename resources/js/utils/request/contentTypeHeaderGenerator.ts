@@ -14,11 +14,8 @@ export interface TypeShape {
 /**
  * Available request body types with their MIME type mappings.
  *
- * This constant defines the supported payload types and their characteristics:
- * - id: The enum value identifying the type
- * - label: Human-readable name for UI display
- * - autoFillable: Whether the type supports schema-based auto-fill
- * - mimeType: The Content-Type header value, or null if no header should be set
+ * Each entry has an id, a label for the UI, and an autoFillable flag for schema-based auto-fill.
+ * The mimeType is the Content-Type header value, or null if no header should be set.
  */
 export const types: TypeShape[] = [
     {
@@ -66,10 +63,9 @@ export function getMimeTypeForPayloadType(
 /**
  * Generates a new headers array with the appropriate Content-Type header.
  *
- * This function creates a new array of headers based on the payload type:
- * - If the payload type has a MIME type, adds/updates the Content-Type header
- * - If the payload type has no MIME type (e.g., EMPTY), removes any Content-Type header
- * - Does NOT mutate the input headers array
+ * A payload type with a MIME type adds or updates the Content-Type header.
+ * A payload type without one, such as EMPTY, removes any Content-Type header.
+ * The input headers array is not mutated.
  *
  * @param payloadType - The request body type to generate Content-Type for
  * @param existingHeaders - The current headers array
@@ -94,21 +90,17 @@ export function generateContentTypeHeader(
         (header: HttpHeaders) => header.key.toLowerCase() === 'content-type',
     );
 
-    // If no MIME type for this payload type, remove Content-Type if it exists
     if (mimeType === null) {
         if (contentTypeIndex !== -1) {
-            // Return new array without the Content-Type header
             return [
                 ...existingHeaders.slice(0, contentTypeIndex),
                 ...existingHeaders.slice(contentTypeIndex + 1),
             ];
         }
 
-        // No Content-Type to remove, return as-is
         return existingHeaders;
     }
 
-    // If Content-Type exists, update it
     if (contentTypeIndex !== -1) {
         return [
             ...existingHeaders.slice(0, contentTypeIndex),
@@ -120,7 +112,6 @@ export function generateContentTypeHeader(
         ];
     }
 
-    // Add new Content-Type header
     return [
         ...existingHeaders,
         {

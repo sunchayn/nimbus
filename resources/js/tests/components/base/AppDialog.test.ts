@@ -1,78 +1,83 @@
-import { AppDialog, AppDialogContent, AppDialogTrigger } from '@/components/base/dialog';
-import type { VueWrapper } from '@vue/test-utils';
+import { AppDialog } from '@/components/base/dialog';
 import { mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
 
 /*
  * Fixtures.
  */
 
-/**
- * Factory function to create a mounted wrapper with sensible defaults.
- */
-const createWrapper = (options = {}): VueWrapper => {
-    return mount(
+const mountDialog = (props = {}) =>
+    mount(
         {
-            components: { AppDialog, AppDialogTrigger, AppDialogContent },
+            components: { AppDialog },
+            props: ['open', 'title', 'description'],
             template: `
-            <AppDialog>
-                <AppDialogTrigger>Open</AppDialogTrigger>
-                <AppDialogContent>Dialog Content</AppDialogContent>
-            </AppDialog>
-        `,
-            ...options,
+                <AppDialog :open="open" :title="title" :description="description">
+                    <button data-testid="trigger">Open</button>
+                    <template #body>Body text</template>
+                    <template #footer="{ close }">
+                        <button data-testid="dismiss" @click="close">Dismiss</button>
+                    </template>
+                </AppDialog>
+            `,
         },
-        {
-            global: {
-                plugins: [createPinia()],
-            },
-            attachTo: document.body,
-        },
+        { props, attachTo: document.body },
     );
-};
 
 describe('AppDialog', () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-        vi.clearAllMocks();
+    afterEach(() => {
         document.body.innerHTML = '';
     });
 
-    /*
-     * Rendering tests.
-     */
+    it('renders the trigger and keeps the content closed by default', () => {
+        // Arrange & Act
 
-    describe('Rendering', () => {
-        it('renders trigger correctly', () => {
-            // Arrange
+        mountDialog();
 
-            const wrapper = createWrapper();
+        // Assert
 
-            // Assert
-
-            expect(wrapper.find('button').text()).toBe('Open');
-        });
+        expect(document.querySelector('[data-testid="trigger"]')).not.toBeNull();
+        expect(document.body.textContent).not.toContain('Body text');
     });
 
-    /*
-     * State Transition tests.
-     */
+    it('renders title, description and slots when open', async () => {
+        // Arrange & Act
 
-    describe('Behavior', () => {
-        it('opens content when trigger is clicked', async () => {
-            // Arrange
+        mountDialog({ open: true, title: 'My title', description: 'My description' });
+        await nextTick();
 
-            const wrapper = createWrapper();
+        // Assert
 
-            // Act
+        const dialog = document.querySelector('[role="dialog"]');
+        expect(dialog).not.toBeNull();
+        expect(dialog?.textContent).toContain('My title');
+        expect(dialog?.textContent).toContain('My description');
+        expect(dialog?.textContent).toContain('Body text');
+    });
 
-            await wrapper.find('button').trigger('click');
+    it('opens when the trigger is clicked and closes through the footer slot', async () => {
+        // Arrange
 
-            // Assert
+        mountDialog({ title: 'T' });
 
-            expect(document.body.innerHTML).toContain('Dialog Content');
-            wrapper.unmount();
-        });
+        // Act
+
+        document.querySelector<HTMLElement>('[data-testid="trigger"]')?.click();
+        await nextTick();
+        await nextTick();
+
+        // Assert
+
+        expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+
+        // Act
+
+        document.querySelector<HTMLElement>('[data-testid="dismiss"]')?.click();
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // Assert
+
+        expect(document.querySelector('[role="dialog"]')).toBeNull();
     });
 });

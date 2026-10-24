@@ -1,116 +1,125 @@
-import {
-    AppSelect,
-    AppSelectContent,
-    AppSelectItem,
-    AppSelectTrigger,
-    AppSelectValue,
-} from '@/components/base/select';
-import type { VueWrapper } from '@vue/test-utils';
+import { AppSelect } from '@/components/base/select';
 import { flushPromises, mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-
-// Mock ResizeObserver
-global.ResizeObserver = class ResizeObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-};
-
-// Mock ScrollIntoView
-window.HTMLElement.prototype.scrollIntoView = vi.fn();
-window.HTMLElement.prototype.hasPointerCapture = vi.fn();
-window.HTMLElement.prototype.releasePointerCapture = vi.fn();
-
-// Mock PointerEvent
-class MockPointerEvent extends Event {
-    button: number;
-    ctrlKey: boolean;
-    metaKey: boolean;
-    shiftKey: boolean;
-    constructor(type: string, props: PointerEventInit) {
-        super(type, props);
-        this.button = props.button || 0;
-        this.ctrlKey = props.ctrlKey || false;
-        this.metaKey = props.metaKey || false;
-        this.shiftKey = props.shiftKey || false;
-    }
-}
-window.PointerEvent = MockPointerEvent as unknown as typeof PointerEvent;
 
 /*
  * Fixtures.
  */
 
-const createWrapper = (options = {}): VueWrapper => {
-    return mount(
-        {
-            components: {
-                AppSelect,
-                AppSelectTrigger,
-                AppSelectValue,
-                AppSelectContent,
-                AppSelectItem,
-            },
-            template: `
-            <AppSelect v-bind="selectProps">
-                <AppSelectTrigger>
-                    <AppSelectValue placeholder="Select" />
-                </AppSelectTrigger>
-                <AppSelectContent>
-                    <AppSelectItem value="opt1">Option 1</AppSelectItem>
-                </AppSelectContent>
-            </AppSelect>
-        `,
-            data() {
-                // @ts-expect-error .props not found in object.
-                return { selectProps: options.props || {} };
-            },
-        },
-        {
-            global: { plugins: [createPinia()] },
-            attachTo: document.body,
-        },
-    );
-};
+const items = [
+    { label: 'Option 1', value: 'opt1' },
+    { label: 'Option 2', value: 'opt2' },
+];
 
-describe('AppSelect', () => {
-    beforeEach(() => {
-        setActivePinia(createPinia());
-        document.body.innerHTML = '';
-        vi.clearAllMocks();
+const createWrapper = (props = {}) =>
+    mount(AppSelect, {
+        props: { items, placeholder: 'Select', ...props },
+        attrs: { 'data-testid': 'select-trigger' },
+        attachTo: document.body,
     });
 
-    describe('Behavior', () => {
-        it('opens options when trigger is clicked', async () => {
-            // Arrange
+describe('AppSelect', () => {
+    afterEach(() => {
+        document.body.innerHTML = '';
+    });
+
+    describe('Rendering', () => {
+        it('renders the placeholder when there is no value', () => {
+            // Arrange & Act
 
             const wrapper = createWrapper();
 
-            const buttonWrapper = wrapper.find('button');
+            // Assert
+
+            expect(wrapper.text()).toContain('Select');
+        });
+
+        it('renders the label of the selected item', () => {
+            // Arrange & Act
+
+            const wrapper = createWrapper({ modelValue: 'opt2' });
+
+            // Assert
+
+            expect(wrapper.text()).toContain('Option 2');
+        });
+
+        it('exposes a combobox role and passes the test id to the trigger', () => {
+            // Arrange & Act
+
+            const wrapper = createWrapper();
+            const trigger = wrapper.get('[data-testid="select-trigger"]');
+
+            // Assert
+
+            expect(trigger.attributes('role')).toBe('combobox');
+        });
+
+        it('renders custom label content through the item-label slot', async () => {
+            // Arrange
+
+            const wrapper = mount(AppSelect, {
+                props: { items, open: true },
+                slots: { 'item-label': '<span data-testid="custom">custom</span>' },
+                attachTo: document.body,
+            });
 
             // Act
-            // Radix/reka-ui often requires pointer interactions
-            await buttonWrapper.trigger('pointerdown', { button: 0 });
-            await buttonWrapper.trigger('pointerup', { button: 0 });
-            await buttonWrapper.trigger('click', { button: 0 });
-
-            await flushPromises();
-            await nextTick();
-            await nextTick();
-            await nextTick();
 
             await nextTick();
 
             // Assert
 
-            const options = document.querySelectorAll('[role="option"]');
-            const hasOption = Array.from(options).some(opt =>
-                opt.textContent?.includes('Option 1'),
-            );
+            expect(document.body.querySelector('[data-testid="custom"]')).not.toBeNull();
+            wrapper.unmount();
+        });
+    });
 
-            expect(hasOption).toBe(true);
+    describe('Overlay', () => {
+        it('lists group labels and options in the body when open', async () => {
+            // Arrange
+
+            const wrapper = mount(AppSelect, {
+                props: {
+                    open: true,
+                    items: [[{ type: 'label', label: 'Group A' }, ...items]],
+                },
+                attachTo: document.body,
+            });
+
+            // Act
+
+            await nextTick();
+
+            // Assert
+
+            expect(document.body.textContent).toContain('Group A');
+            expect(document.body.querySelectorAll('[role="option"]')).toHaveLength(2);
+            wrapper.unmount();
+        });
+
+        it('emits update:modelValue when an option is chosen', async () => {
+            // Arrange
+
+            const onUpdate = vi.fn();
+            const wrapper = mount(AppSelect, {
+                props: { items, open: true, 'onUpdate:modelValue': onUpdate },
+                attachTo: document.body,
+            });
+            await nextTick();
+
+            // Act
+
+            const option = document.body.querySelectorAll('[role="option"]')[1];
+            option.dispatchEvent(
+                new PointerEvent('pointerup', { pointerType: 'mouse', bubbles: true }),
+            );
+            await flushPromises();
+
+            // Assert
+
+            expect(onUpdate).toHaveBeenCalledWith('opt2');
             wrapper.unmount();
         });
     });

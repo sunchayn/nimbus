@@ -9,7 +9,7 @@ import CodeEditor from '@/components/domain/CodeEditor/CodeEditor.vue';
  * Types & Interfaces.
  */
 
-export interface AppResponseBodyProps {
+export interface ResponseBodyProps {
     content: string;
 }
 
@@ -17,7 +17,7 @@ export interface AppResponseBodyProps {
  * Component Setup.
  */
 
-defineProps<AppResponseBodyProps>();
+defineProps<ResponseBodyProps>();
 </script>
 
 <template>

@@ -3,6 +3,7 @@
  * @component ValueGeneratorCategoryFilters
  * @description Category tabs for filtering the value generator command palette.
  */
+import { AppIcon } from '@/components/base/icons';
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
 import { useValueGeneratorStore } from '@/stores';
 
@@ -10,13 +11,14 @@ import { useValueGeneratorStore } from '@/stores';
  * Types & Interfaces.
  */
 
-export interface AppValueGeneratorCategoryFiltersProps {}
+export interface ValueGeneratorCategoryFiltersProps {}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppValueGeneratorCategoryFiltersProps>();
+defineProps<ValueGeneratorCategoryFiltersProps>();
+const emits = defineEmits<{ (e: 'focus-search'): void }>();
 
 const store = useValueGeneratorStore();
 
@@ -36,16 +38,8 @@ const getCategoryButtonClass = (categoryId: string) => {
     const isSelected = store.commandState.selectedCategory === categoryId;
 
     return isSelected
-        ? 'bg-background text-foreground shadow'
-        : 'text-subtle-foreground hover:text-foreground';
-};
-
-const changeFocusToTheCommandSearchBox = () => {
-    const commandInput = document.querySelector(
-        '[data-slot="command-input"]',
-    ) as HTMLInputElement;
-
-    commandInput?.focus();
+        ? 'bg-default text-highlighted'
+        : 'text-muted hover:text-highlighted';
 };
 
 /**
@@ -74,8 +68,7 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
     event.preventDefault();
     event.stopPropagation();
 
-    // Move the focus to the command search box for better UX.
-    changeFocusToTheCommandSearchBox();
+    emits('focus-search');
 };
 </script>
 
@@ -85,7 +78,7 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
         <div class="relative">
             <div
                 ref="scrollContainer"
-                class="scrollbar-hide bg-subtle flex items-center gap-1 overflow-x-auto rounded-lg p-1"
+                class="scrollbar-hide bg-muted flex items-center gap-1 overflow-x-auto rounded-md p-1"
                 style="scrollbar-width: none; -ms-overflow-style: none"
                 @scroll="updateScrollMasks"
                 @keydown="handleCategoryArrowNavigation"
@@ -95,12 +88,16 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
                     :key="category.id"
                     tabindex="0"
                     :class="[
-                        'ring-offset-background focus-visible:ring-ring flex flex-shrink-0 items-center justify-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
+                        'focus-visible:ring-primary h-control-xs flex shrink-0 items-center justify-center gap-1 rounded-sm px-2 text-xs font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
                         getCategoryButtonClass(category.id),
                     ]"
                     @click="event => handleCategoryClick(event, category.id)"
                 >
-                    <component :is="category.icon" class="size-3" />
+                    <AppIcon
+                        v-if="category.icon"
+                        :name="category.icon"
+                        class="size-icon-xs"
+                    />
                     {{ category.name }}
                 </button>
             </div>
@@ -108,11 +105,11 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
             <!-- Scroll Gradient Masks -->
             <div
                 v-show="showLeftMask"
-                class="from-subtle via-subtle/80 pointer-events-none absolute top-0 bottom-0 left-0 w-8 rounded-l-lg bg-gradient-to-r to-transparent transition-opacity duration-200"
+                class="from-muted via-muted/80 w-fade pointer-events-none absolute top-0 bottom-0 left-0 rounded-l-md bg-gradient-to-r to-transparent transition-opacity duration-200"
             />
             <div
                 v-show="showRightMask"
-                class="from-subtle via-subtle/80 pointer-events-none absolute top-0 right-0 bottom-0 w-8 rounded-r-lg bg-gradient-to-l to-transparent transition-opacity duration-200"
+                class="from-muted via-muted/80 w-fade pointer-events-none absolute top-0 right-0 bottom-0 rounded-r-md bg-gradient-to-l to-transparent transition-opacity duration-200"
             />
         </div>
     </div>

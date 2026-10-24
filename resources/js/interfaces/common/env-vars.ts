@@ -3,7 +3,7 @@
  */
 
 /**
- * Global pattern for environment variable placeholders: {{variable_name}}
+ * Global pattern for environment variable placeholders such as {{variable_name}}.
  */
 export const PLACEHOLDER_PATTERN = /\{\{([^}]+)\}\}/g;
 

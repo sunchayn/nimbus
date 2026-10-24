@@ -55,7 +55,6 @@ export const getElementVisibility = (
     const { elementOffsetLeft, elementRight, visibleAreaLeft, visibleAreaRight } =
         calculateElementAndVisibleArea(element, container, maskWidth);
 
-    // Check visibility states
     const isFullyVisible =
         elementOffsetLeft >= visibleAreaLeft && elementRight <= visibleAreaRight;
     const isCutOffLeft = elementOffsetLeft < visibleAreaLeft;
@@ -97,7 +96,6 @@ function calculateElementAndVisibleArea(
     const elementWidth = element.offsetWidth;
     const elementRight = elementOffsetLeft + elementWidth;
 
-    // Calculate visible area accounting for gradient masks
     const visibleAreaLeft = currentScrollLeft + maskWidth;
     const visibleAreaRight = currentScrollLeft + containerWidth - maskWidth;
 
@@ -137,12 +135,9 @@ export const calculateScrollToElement = (
 
     let targetScrollLeft = currentScrollLeft;
 
-    // If element is cut off on the left side, scroll left
     if (elementOffsetLeft < visibleAreaLeft) {
         targetScrollLeft = Math.max(0, elementOffsetLeft - maskWidth - scrollPadding);
-    }
-    // If element is cut off on the right side, scroll right
-    else if (elementRight > visibleAreaRight) {
+    } else if (elementRight > visibleAreaRight) {
         targetScrollLeft = elementRight - containerWidth + maskWidth + scrollPadding;
     }
 

@@ -7,7 +7,7 @@
 
 import type { SharedState } from '@/interfaces/share';
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 
 export const useSharedStateStore = defineStore('sharedState', () => {
     /*
@@ -15,7 +15,7 @@ export const useSharedStateStore = defineStore('sharedState', () => {
      */
 
     const sharedState = ref<SharedState | null>(null);
-    const isRestoredFromShare = ref(false);
+    const isRestoredFromShare = shallowRef(false);
 
     /*
      * Computed.

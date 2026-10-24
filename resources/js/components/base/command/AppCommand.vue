@@ -1,120 +1,91 @@
-<script setup lang="ts">
+<script
+    setup
+    lang="ts"
+    generic="G extends CommandPaletteGroup<T>, T extends CommandPaletteItem"
+>
 /**
  * @component AppCommand
- * @description The root container for a command palette or search menu.
+ * @description Command palette built on Nuxt UI. Pass `groups` of items and bind the query with `v-model:search-term`.
+ * The `header` slot renders between the search input and the list.
  */
-import { cn } from '@/utils/ui';
-import { reactiveOmit } from '@vueuse/core';
-import type { ListboxRootEmits, ListboxRootProps } from 'reka-ui';
-import { ListboxRoot, useFilter, useForwardPropsEmits } from 'reka-ui';
-import type { HTMLAttributes } from 'vue';
-import { reactive, ref, watch } from 'vue';
-import { provideCommandContext } from '.';
-
-/*
- * Types & Interfaces.
- */
-
-export interface AppCommandProps extends ListboxRootProps {
-    class?: HTMLAttributes['class'];
-}
+import { useForwardedProps } from '@/components/base/useForwardedProps';
+import type {
+    CommandPaletteGroup,
+    CommandPaletteItem,
+    CommandPaletteProps,
+    CommandPaletteSlots,
+} from '@nuxt/ui/components/CommandPalette.vue';
+import UCommandPalette from '@nuxt/ui/components/CommandPalette.vue';
+import { type ComponentPublicInstance, computed, useTemplateRef } from 'vue';
 
 /*
  * Component Setup.
  */
 
-const props = withDefaults(defineProps<AppCommandProps>(), {
-    modelValue: '',
-    class: undefined,
-});
+const props = defineProps<CommandPaletteProps<G, T> & { searchTerm?: string }>();
 
-const emits = defineEmits<ListboxRootEmits>();
+const emit = defineEmits<{
+    'update:modelValue': [value: T];
+    'update:searchTerm': [value: string];
+    'update:open': [value: boolean];
+    highlight: [payload: { ref: HTMLElement; value: T } | undefined];
+    leave: [event: Event];
+    entryFocus: [event: CustomEvent];
+}>();
 
-const delegatedProps = reactiveOmit(props, 'class');
+const slots = defineSlots<
+    CommandPaletteSlots<T, G> & { header?(props: Record<string, never>): unknown }
+>();
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
+const forwarded = useForwardedProps(props);
 
-/*
- * Computed & Methods.
+const palette = useTemplateRef<ComponentPublicInstance>('palette');
+
+/**
+ * Moves the focus to the search input.
  */
+const focusInput = (): void => {
+    const anchor: unknown = palette.value?.$el;
 
-const allItems = ref<Map<string, string>>(new Map());
-const allGroups = ref<Map<string, Set<string>>>(new Map());
+    // Nuxt UI renders a fragment, so the root element is the first one after the anchor node.
+    let root = anchor instanceof Node ? anchor : null;
 
-const { contains } = useFilter({ sensitivity: 'base' });
-const filterState = reactive({
-    search: '',
-    filtered: {
-        /** The count of all visible items. */
-        count: 0,
-
-        /** Map from visible item id to its search score. */
-        items: new Map() as Map<string, number>,
-
-        /** Set of groups with at least one visible item. */
-        groups: new Set() as Set<string>,
-    },
-});
-
-function filterItems() {
-    if (!filterState.search) {
-        filterState.filtered.count = allItems.value.size;
-        // Do nothing, each item will know to show itself because search is empty
-
-        return;
+    while (root && !(root instanceof Element)) {
+        root = root.nextSibling;
     }
 
-    // Reset the groups
-    filterState.filtered.groups = new Set();
-    let itemCount = 0;
+    root?.querySelector('input')?.focus();
+};
 
-    // Check which items should be included
-    for (const [id, value] of allItems.value) {
-        const score = contains(value, filterState.search);
-        filterState.filtered.items.set(id, score ? 1 : 0);
-        if (score) {
-            itemCount++;
-        }
-    }
+defineExpose({ focusInput });
 
-    // Check which groups have at least 1 item shown
-    for (const [groupId, group] of allGroups.value) {
-        for (const itemId of group) {
-            if (filterState.filtered.items.get(itemId)! > 0) {
-                filterState.filtered.groups.add(groupId);
-                break;
-            }
-        }
-    }
-
-    filterState.filtered.count = itemCount;
-}
-
-watch(
-    () => filterState.search,
-    () => {
-        filterItems();
-    },
+const passthroughSlots = computed(() =>
+    Object.keys(slots).filter(name => name !== 'header' && name !== 'footer'),
 );
-
-provideCommandContext({
-    allItems,
-    allGroups,
-    filterState,
-});
 </script>
 
 <template>
-    <ListboxRoot
-        data-slot="command"
+    <UCommandPalette
+        ref="palette"
         v-bind="forwarded"
-        :class="
-            cn(
-                'bg-background flex h-full w-full flex-col overflow-hidden rounded-md',
-                props.class,
-            )
-        "
+        @update:model-value="value => emit('update:modelValue', value as T)"
+        @update:search-term="value => emit('update:searchTerm', value)"
+        @update:open="value => emit('update:open', value)"
+        @highlight="payload => emit('highlight', payload as never)"
+        @leave="event => emit('leave', event)"
+        @entry-focus="event => emit('entryFocus', event)"
     >
-        <slot />
-    </ListboxRoot>
+        <template v-for="name in passthroughSlots" :key="name" #[name]="slotProps">
+            <slot :name="name as never" v-bind="(slotProps ?? {}) as any" />
+        </template>
+        <!-- Nuxt UI has no slot above the list, so the preset reorders these parts with CSS order. -->
+        <template v-if="slots.header || slots.footer" #footer="slotProps">
+            <div v-if="slots.header" data-slot="command-header">
+                <slot name="header" />
+            </div>
+            <div v-if="slots.footer" data-slot="command-footer">
+                <slot name="footer" v-bind="slotProps" />
+            </div>
+        </template>
+    </UCommandPalette>
 </template>

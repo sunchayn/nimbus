@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AppIcon } from '@/components/base/icons';
 /**
  * @component RequestAuthorizationCurrentUser
  * @description Info panel displaying the current user's authentication status.
@@ -10,19 +11,18 @@ import {
     AppPanelTitle,
 } from '@/components/base/panel';
 import { useConfigStore } from '@/stores';
-import { AlertCircleIcon, User2Icon } from 'lucide-vue-next';
 
 /*
  * Types & Interfaces.
  */
 
-export interface AppRequestAuthorizationCurrentUserProps {}
+export interface RequestAuthorizationCurrentUserProps {}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppRequestAuthorizationCurrentUserProps>();
+defineProps<RequestAuthorizationCurrentUserProps>();
 
 const configStore = useConfigStore();
 </script>
@@ -30,8 +30,16 @@ const configStore = useConfigStore();
 <template>
     <AppPanel class="border-b shadow-none">
         <AppPanelHeader class="items-start">
-            <User2Icon v-if="configStore.isLoggedIn" class="size-5 min-w-5" />
-            <AlertCircleIcon v-else class="text-destructive size-5 min-w-5" />
+            <AppIcon
+                v-if="configStore.isLoggedIn"
+                name="i-hugeicons-user-circle"
+                class="size-icon-lg shrink-0"
+            />
+            <AppIcon
+                v-else
+                name="i-hugeicons-alert-circle"
+                class="text-error size-icon-lg shrink-0"
+            />
             <div class="flex flex-col">
                 <AppPanelTitle v-if="configStore.isLoggedIn">
                     You're logged in!

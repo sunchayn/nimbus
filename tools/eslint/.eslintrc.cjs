@@ -22,6 +22,7 @@ module.exports = {
         es2022: true,
         node: true,
     },
+    plugins: ['import'],
     rules: {
         /*
         * TypeScript.
@@ -46,6 +47,7 @@ module.exports = {
         */
 
         curly: ['error', 'all'],
+        'import/no-relative-parent-imports': 'error',
         'newline-before-return': 'error',
 
         /*
@@ -82,4 +84,16 @@ module.exports = {
             },
         ],
     },
+    overrides: [
+        {
+            // Other folders still use function declarations, so the rule is limited to composables.
+            files: ['resources/js/composables/**'],
+            rules: { 'func-style': ['error', 'expression', { allowArrowFunctions: true }] },
+        },
+        {
+            // Tests and configs import files that live outside resources/js.
+            files: ['resources/js/tests/**'],
+            rules: { 'import/no-relative-parent-imports': 'off' },
+        },
+    ],
 };

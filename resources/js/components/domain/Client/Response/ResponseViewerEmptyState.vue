@@ -10,21 +10,21 @@ import DocumentationLinkButton from '@/components/domain/DocumentationLinkButton
  * Types & Interfaces.
  */
 
-export interface AppResponseViewerEmptyStateProps {}
+export interface ResponseViewerEmptyStateProps {}
 
 /*
  * Component Setup.
  */
 
-defineProps<AppResponseViewerEmptyStateProps>();
+defineProps<ResponseViewerEmptyStateProps>();
 </script>
 
 <template>
     <AppPanelStateContainer>
-        <h2 class="text-lg font-medium">You didn't perform any requests yet</h2>
+        <h2 class="text-base font-medium">No requests yet</h2>
         <p class="mb-2 text-sm">
-            Make request and the result will appear here. Make sure to check the Wiki in
-            case of doubts.
+            Send a request and the response appears here. Check the user guide for more
+            information.
         </p>
         <DocumentationLinkButton />
     </AppPanelStateContainer>

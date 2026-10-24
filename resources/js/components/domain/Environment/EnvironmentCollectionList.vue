@@ -4,9 +4,9 @@
  * @description Renders the sidemenu list of environment collections with active state management.
  */
 import { AppBadge } from '@/components/base/badge';
+import { AppIcon } from '@/components/base/icons';
 import AppRoundIndicator from '@/components/base/round-indicator/AppRoundIndicator.vue';
 import { useEnvironmentVariablesStore } from '@/stores';
-import { PlusIcon } from 'lucide-vue-next';
 
 /*
  * Stores & Dependencies.
@@ -24,18 +24,18 @@ const handleCollectionSelect = (collectionId: string) => {
 </script>
 
 <template>
-    <div class="flex w-full max-w-xs flex-col space-y-2">
+    <div class="gap-base flex w-full max-w-xs flex-col">
         <div
             v-if="!environmentVariablesStore.hasCollections"
             type="button"
-            class="hover:bg-subtle w-full cursor-pointer rounded border text-left text-sm"
+            class="hover:bg-muted w-full cursor-pointer rounded-sm border text-left text-sm"
             @click="environmentVariablesStore.addCollection"
         >
             <div
-                class="p-panel h-toolbar flex items-center gap-1.5"
+                class="p-panel h-toolbar flex items-center gap-2"
                 data-testid="empty-collection-placeholder"
             >
-                <PlusIcon class="size-3" />
+                <AppIcon name="i-hugeicons-plus-sign" class="size-icon-xs" />
                 Add your first Collection
             </div>
         </div>
@@ -44,28 +44,28 @@ const handleCollectionSelect = (collectionId: string) => {
             v-for="collection in environmentVariablesStore.collections"
             :key="collection.id"
             type="button"
-            class="p-panel hover:bg-subtle w-full cursor-pointer rounded border text-left text-sm"
+            class="p-panel hover:bg-muted w-full cursor-pointer rounded-sm border text-left text-sm"
             data-testid="collection-item"
             :class="{
-                'bg-subtle':
+                'bg-muted':
                     environmentVariablesStore.activeCollectionId === collection.id,
             }"
             @click="handleCollectionSelect(collection.id)"
         >
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-2">
                 <div class="flex-1 gap-1 leading-tight">
                     <div class="mb-0 font-medium">{{ collection.name }}</div>
                     <span class="text-xs">
                         {{ collection.variables.length }} variables
                     </span>
                 </div>
-                <div class="flex items-center gap-2.5">
+                <div class="flex items-center gap-2">
                     <AppBadge
                         v-if="
                             environmentVariablesStore.activeCollectionId === collection.id
                         "
                         variant="outline"
-                        class="text-emerald-600"
+                        color="success"
                         data-testid="collection-active-badge"
                     >
                         Active
@@ -74,9 +74,9 @@ const handleCollectionSelect = (collectionId: string) => {
                         v-if="
                             environmentVariablesStore.activeCollectionId === collection.id
                         "
-                        class="text-emerald-600"
+                        class="text-success"
                     />
-                    <AppRoundIndicator v-else class="text-subtle-foreground" />
+                    <AppRoundIndicator v-else class="text-muted" />
                 </div>
             </div>
         </div>

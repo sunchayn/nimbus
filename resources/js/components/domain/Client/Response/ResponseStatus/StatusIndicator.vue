@@ -12,7 +12,7 @@ import { computed } from 'vue';
  * Types & Interfaces.
  */
 
-export interface AppStatusIndicatorProps {
+export interface StatusIndicatorProps {
     status: STATUS;
 }
 
@@ -20,21 +20,21 @@ export interface AppStatusIndicatorProps {
  * Component Setup.
  */
 
-const props = defineProps<AppStatusIndicatorProps>();
+const props = defineProps<StatusIndicatorProps>();
 
 /*
  * Constants.
  */
 
 const variants = {
-    [STATUS.INFORMATION]: 'text-zinc-500',
-    [STATUS.SUCCESS]: 'text-emerald-600',
-    [STATUS.REDIRECT]: 'text-blue-500',
-    [STATUS.CLIENT_ERROR]: 'text-amber-500',
-    [STATUS.SERVER_ERROR]: 'text-rose-500',
-    [STATUS.OTHER]: 'text-zinc-500',
-    [STATUS.EMPTY]: 'text-zinc-900',
-    [STATUS.DUMP_AND_DIE]: 'text-violet-600',
+    [STATUS.INFORMATION]: 'text-muted',
+    [STATUS.SUCCESS]: 'text-success',
+    [STATUS.REDIRECT]: 'text-info',
+    [STATUS.CLIENT_ERROR]: 'text-warning',
+    [STATUS.SERVER_ERROR]: 'text-error',
+    [STATUS.OTHER]: 'text-muted',
+    [STATUS.EMPTY]: 'text-highlighted',
+    [STATUS.DUMP_AND_DIE]: 'text-secondary',
     [STATUS.PENDING]: '',
 };
 
@@ -51,7 +51,10 @@ const indicatorColor = computed<string>(() => {
     <Spinner
         v-if="props.status === STATUS.PENDING"
         data-testid="pending-request-spinner"
-        class="text-accent-foreground size-4 animate-spin"
+        class="text-default size-icon-md animate-spin"
     />
-    <AppRoundIndicator v-else :class="indicatorColor" />
+    <AppRoundIndicator
+        v-else
+        :class="[indicatorColor, 'duration-base transition-colors']"
+    />
 </template>

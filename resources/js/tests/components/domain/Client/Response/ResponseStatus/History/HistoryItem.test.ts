@@ -10,13 +10,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
  * Fixtures.
  */
 
-vi.mock('@/components/base/dropdown-menu', () => ({
-    AppDropdownMenuItem: {
-        name: 'AppDropdownMenuItem',
-        template: '<div><slot /></div>',
-    },
-}));
-
 /**
  * Factory function to create a mounted wrapper with sensible defaults.
  */
@@ -62,7 +55,6 @@ describe('HistoryItem', () => {
             const wrapper = createWrapper({
                 props: {
                     log: mockLog,
-                    index: 0,
                 },
             });
 
