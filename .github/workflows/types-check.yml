@@ -13,7 +13,6 @@ jobs:
 
     steps:
       - name: Checkout code
-        if: ${{ !env.ACT }}
         uses: actions/checkout@v4
 
       - name: Check for changes

@@ -60,7 +60,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        if: needs.changes.outputs.php == 'true' && !env.ACT
+        if: needs.changes.outputs.php == 'true'
         uses: actions/checkout@v4
 
       - name: Setup PHP

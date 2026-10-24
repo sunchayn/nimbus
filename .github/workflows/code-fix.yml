@@ -17,7 +17,6 @@ jobs:
       fixable: ${{ steps.filter.outputs.fixable }}
     steps:
       - name: Checkout code
-        if: ${{ !env.ACT }}
         uses: actions/checkout@v4
         with:
           repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
@@ -49,7 +48,6 @@ jobs:
 
     steps:
       - name: Checkout code
-        if: ${{ !env.ACT }}
         uses: actions/checkout@v4
         with:
           repository: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
@@ -69,7 +67,6 @@ jobs:
         run: npm run style:fix
 
       - name: Commit JS changes
-        if: ${{ !env.ACT }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "style: apply TS style fixes"
@@ -87,7 +84,6 @@ jobs:
         run: composer rector
 
       - name: Commit Rector changes
-        if: ${{ !env.ACT }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "refactor: apply rector"
@@ -96,7 +92,6 @@ jobs:
         run: composer style:fix
 
       - name: Commit php changes
-        if: ${{ !env.ACT }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "style: apply php style fixes"

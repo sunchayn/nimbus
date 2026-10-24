@@ -13,7 +13,6 @@ jobs:
     name: E2E Tests
     steps:
       - name: Checkout code
-        if: ${{ !env.ACT }}
         uses: actions/checkout@v4
 
       - name: Determine branch and repo for E2E setup
