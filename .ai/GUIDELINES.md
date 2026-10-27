@@ -17,7 +17,8 @@ No database, no Eloquent, no migrations.
 - `src/Http/Api/<Domain>`, `src/Http/Web/Controllers`: HTTP layer. Routes in `routes/api.php` and `routes/web.php`.
 - `src/Console`: Artisan commands.
 - `resources/js`: see each folder's `README.md`. Never edit `interfaces/generated`, run `php bin/intellisense`.
-- `tests/App` and `tests/Integration` mirror `src`. `tests/E2E` is Playwright. `resources/js/tests` is Vitest.
+- `workbench/`: Testbench dev app with demo routes (`_demo/*`), an OpenAPI file, and seeders. Its code uses the `Workbench\` namespace.
+- `tests/App` and `tests/Integration` mirror `src`. `tests/E2E` is Playwright and runs against `workbench/`. `resources/js/tests` is Vitest.
 - Modules are isolated. Cross them through Actions, DTOs, or `Contracts`, and add a contract only when a second module needs it.
 
 ## Commands
@@ -25,6 +26,8 @@ No database, no Eloquent, no migrations.
 - `composer test`, `composer test:parallel`, `composer phpstan`, `composer rector`, `composer style:fix`
 - `composer switch:l10` to `l13`
 - `npm run style:check`, `npm run type:check`, `npm run test:run`, `npm run test:e2e`
+- `composer build`, `composer serve`: build the `workbench/` app (Testbench) and serve it on two servers, ports 8000 and 8001. E2E starts or reuses the same servers through Playwright. Demo UI at `/demo`.
+- `composer dev`: `composer serve` and `npm run dev` together.
 - `php bin/intellisense`
 
 Prefer a named script over a vendor binary.

@@ -1,0 +1,5 @@
+/storage
+.env
+.env.dusk
+php_server*.log
+/database/*.sqlite

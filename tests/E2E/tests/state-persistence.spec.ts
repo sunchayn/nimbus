@@ -3,7 +3,7 @@ import {expect, test} from '../core/fixtures';
 test("State Persistence sanity checklist", async ({page}) => {
     // Note: Generated with Playwright codegen.
 
-    await page.goto("http://127.0.0.1:8000/demo/");
+    await page.goto("/demo/");
 
     await page.getByRole("button", {name: "inline-validation"}).click();
     await page.getByRole("button", {name: "shapes"}).click();

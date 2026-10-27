@@ -8,13 +8,14 @@ metadata:
 
 # Update Doc Screenshots
 
-Screenshots in `wiki/user-guide/assets` are produced by `capture.mjs`, which sits next to this file. It drives the demo app with Playwright, one feature at a time. The script is part of this skill, so keep it in sync with the UI.
+Screenshots in `wiki/user-guide/assets` are produced by `capture.mjs`, which sits next to this file. It drives the demo app (the `workbench/` app) with Playwright, one feature at a time. The script is part of this skill, so keep it in sync with the UI.
 
 ## Prerequisites
 
-1. The demo app answers on `http://127.0.0.1:8000/demo`. Check with `curl -sI http://127.0.0.1:8000/demo`. If it is down, ask the user to start it, for example with `php tests/E2E/.scripts/bin launch`.
-2. The Vite dev server runs (`npm run dev`), so the page loads the current source. Never run `npm run build` and never touch `resources/dist`.
-3. Playwright browsers are installed (`npx playwright install chromium`).
+1. The workbench answers on `http://127.0.0.1:8000/demo`. Check with `curl -sI http://127.0.0.1:8000/demo`. If it is down, ask the user to start it with `composer dev`.
+2. `composer dev` also runs the Vite dev server, so the page loads the current source. Never run `npm run build` and never touch `resources/dist`.
+3. When the workbench runs on another port, pass it with `--base`, for example `--base http://127.0.0.1:8110/demo`.
+4. Playwright browsers are installed (`npx playwright install chromium`).
 
 ## Workflow
 
@@ -59,7 +60,9 @@ Treat `capture.mjs` as code that follows the UI. Read the diff of the UI change,
 ## Known Limits
 
 - `env-variables-resolved-value` needs a hover tooltip that did not open under headless Chromium. Always check the image. If the tooltip is missing, keep the old file and tell the user.
-- The demo app has no logged-in user, so the auth menu image shows a "Please log in first" notice.
+- A fresh browser context has no logged-in user, so the auth menu image would show a "Please log in first" notice.
+  The script avoids it with `open(browser, '', { login: true })`, which visits `/dev/login-as-new-user` first.
+  Use `/dev/login-as/{id}` instead to log in as a seeded user. Use `login: true` for any shot that needs a logged-in user.
 - The images contain generated data such as names and UUIDs. Do not diff them for content, only for layout.
 
 ## Anti-Patterns

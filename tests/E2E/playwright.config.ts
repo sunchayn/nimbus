@@ -1,12 +1,22 @@
 import { defineConfig, devices } from '@playwright/test';
+import { fileURLToPath } from 'node:url';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
+const root = fileURLToPath(new URL('../..', import.meta.url));
+
+/*
+ * The relay endpoint calls back into the app, so the workbench needs a second server.
+ * Both ports match NIMBUS_RELAY_ENDPOINT and APP_URL in workbench/.env.example.
+ * Locally, running servers (for example from `composer dev`) are reused.
  */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+const workbenchServer = (port: number) => ({
+    command: `php vendor/bin/testbench serve --port=${port}`,
+    cwd: root,
+    url: `http://127.0.0.1:${port}/demo`,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+    // The Dump and Die demo adds the app container dump only in the testing environment.
+    env: { APP_ENV: 'testing' },
+});
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -14,14 +24,16 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
     testDir: "./tests",
     timeout: 160_000,
+    // Stops the run before the CI job limit so the report is still written.
+    globalTimeout: process.env.CI ? 6 * 60_000 : undefined,
     fullyParallel: true,
-    /* Fail the build on CI if you accidentally left test.only in the source code. */
+    // Fail the build on CI if you accidentally left test.only in the source code.
     forbidOnly: !!process.env.CI,
     retries: 0,
-    workers: process.env.CI ? 1 : 8,
-    /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-    reporter: "html",
-    /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+    workers: process.env.CI ? 4 : 8,
+    // Reporter to use. See https://playwright.dev/docs/test-reporters
+    reporter: process.env.CI ? [["list"], ["html"]] : "html",
+    // Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions.
     use: {
         baseURL: "http://127.0.0.1:8000",
         trace: "retain-on-failure",
@@ -33,7 +45,9 @@ export default defineConfig({
         actionTimeout: process.env.CI ? 0 : 2_000,
     },
 
-    /* Configure projects for major browsers */
+    webServer: [workbenchServer(8000), workbenchServer(8001)],
+
+    // Configure projects for major browsers
     projects: !process.env.CI
         ? [
             {

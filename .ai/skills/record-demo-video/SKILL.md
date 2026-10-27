@@ -12,7 +12,7 @@ The demo GIF at `art/nimbus-demo-video.gif` is embedded in the root `README.md`.
 
 ## Prerequisites
 
-1. The demo app answers on `http://127.0.0.1:8000/demo`. Check with `curl -sI http://127.0.0.1:8000/demo`. If it is down, ask the user to start it, for example with `php tests/E2E/.scripts/bin launch`.
+1. The demo app answers on `http://127.0.0.1:8000/demo`. Check with `curl -sI http://127.0.0.1:8000/demo`. If it is down, ask the user to start it with `composer serve`.
 2. The Vite dev server runs (`npm run dev`), so the page loads the current source. Never run `npm run build` and never touch `resources/dist`.
 3. `ffmpeg` is on the PATH and Playwright browsers are installed (`npx playwright install chromium`).
 

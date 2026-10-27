@@ -36,7 +36,7 @@ class NimbusIndexTest extends TestCase
 
         // Mock Vite to prevent asset loading issues
         Vite::shouldReceive('useBuildDirectory')->with('vendor/nimbus')->atMost()->once();
-        Vite::shouldReceive('useHotFile')->with(base_path('/vendor/sunchayn/nimbus/resources/dist/hot'))->atMost()->once();
+        Vite::shouldReceive('useHotFile')->with(dirname(__DIR__, 2).'/resources/dist/hot')->atMost()->once();
         Vite::shouldReceive('__invoke')->andReturn('<script src="/nimbus/app.js"></script>')->atMost()->once();
     }
 

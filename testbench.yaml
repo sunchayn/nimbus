@@ -1,0 +1,31 @@
+laravel: '@testbench'
+
+providers:
+  - Spatie\LaravelData\LaravelDataServiceProvider
+  - Sunchayn\Nimbus\NimbusServiceProvider
+  - Workbench\App\Providers\WorkbenchServiceProvider
+
+migrations:
+  - workbench/database/migrations
+
+seeders:
+  - Workbench\Database\Seeders\DatabaseSeeder
+
+workbench:
+  start: '/'
+  install: true
+  health: false
+  discovers:
+    web: true
+    api: true
+    commands: true
+    config: true
+    components: false
+    factories: true
+    views: false
+  build:
+    - asset-publish
+    - db-wipe
+    - migrate-fresh
+  assets:
+    - laravel-assets

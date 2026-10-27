@@ -53,7 +53,9 @@
             "Sunchayn\\Nimbus\\Tests\\": "tests/",
             "Sunchayn\\Nimbus\\Tests\\App\\": "tests/App/",
             "Sunchayn\\Nimbus\\Tests\\Integration\\": "tests/Integration/",
-            "Sunchayn\\Nimbus\\Tests\\E2E\\": "tests/E2E/"
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
         }
     },
     "scripts": {
@@ -71,7 +73,20 @@
         "switch:l10": "LARAVEL_VERSION=10 composer run-script switch",
         "switch:l11": "LARAVEL_VERSION=11 composer run-script switch",
         "switch:l12": "LARAVEL_VERSION=12 composer run-script switch",
-        "switch:l13": "LARAVEL_VERSION=13 composer run-script switch"
+        "switch:l13": "LARAVEL_VERSION=13 composer run-script switch",
+        "build": [
+            "@php -r \"touch('workbench/database/database.sqlite');\"",
+            "@php vendor/bin/testbench workbench:build --ansi"
+        ],
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "npx concurrently -c \"#93c5fd,#c4b5fd\" --names=app,relay --kill-others \"php vendor/bin/testbench serve --port=8000\" \"php vendor/bin/testbench serve --port=8001\""
+        ],
+        "dev": [
+            "Composer\\Config::disableProcessTimeout",
+            "npx concurrently -c \"#93c5fd,#c4b5fd\" \"composer serve\" \"npm run dev\" --names=server,vite --kill-others"
+        ]
     },
     "config": {
         "sort-packages": true,

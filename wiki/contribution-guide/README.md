@@ -363,50 +363,24 @@ composer install
 npm install
 ```
 
-#### 2. Clone the Development Repository
+#### 2. Run the Workbench
 
-The dev repository provides a foundation for testing the package with a Laravel application.
+The `workbench/` directory is a Laravel app powered by [Orchestra Testbench](https://packages.tools/testbench). It loads the package with demo routes, an OpenAPI file, and seeders, so no host application is needed.
 
 ```bash
-git clone https://github.com/sunchayn/nimbus-dev.git
-cd nimbus-dev
-composer run setup
+composer serve
 ```
 
-#### 3. Start a Web Server
+This builds the workbench (assets, SQLite database, migrations) and starts two servers with `npx concurrently`. Press Ctrl+C to stop both.
 
-**Important:** The relay endpoint requires a real web server by default. Using `php artisan serve` alone won't work out of the box (check [#3.1](#31-using-it-without-a-real-server) for instructions on how to make it work).
+| Server | URL | Role |
+|--------|-----|------|
+| Main | `http://127.0.0.1:8000` | Serves the app. Nimbus is available at `/demo`. |
+| Relay | `http://127.0.0.1:8001` | Receives the requests Nimbus relays. |
 
-**Suggeted Options:**
-- **Laravel Herd** - Recommended for macOS.
-- **Laravel Sail** - Docker-based environment.
-- **Valet** - Nginx-based for macOS.
-- **Docker/Nginx/Apache** - Manual setup.
+#### 3. Why Two Servers
 
-**Why not the built-in server?**
-
-PHP's built-in server is single-threaded. When the relay endpoint makes a request back to the application, it creates a deadlock where the server waits for itself to respond.
-
-#### 3.1. Using it without a real server
-
-If you need to run Nimbus without a dedicated web server, you can still use php artisan serve with a two-server setup.
-
-A. In the nimbus-dev directory, start the main development process:
-```bash
-composer dev
-```
-
-B. In a separate terminal tab (or windo), start another PHP server:
-```bash
-php artisan serve
-```
-
-C. Once both are running, open your config/nimbus.php file and set the routes.apiBaseUrl value to the URL of the second server (the one started with php artisan serve).
-
-```php
-// Example.
-'apiBaseUrl' => 'http://127.0.0.1:8000',
-```
+The built-in PHP server handles one request at a time. When the relay endpoint calls back into the application, a single server would wait for itself and deadlock. `composer serve` sets `APP_URL` and `NIMBUS_RELAY_ENDPOINT` as environment variables so the main server relays through the second one.
 
 #### 4. Run Frontend Development Server
 
@@ -415,12 +389,14 @@ C. Once both are running, open your config/nimbus.php file and set the routes.ap
 npm run dev
 ```
 
+To run the two servers and Vite together in one terminal, use `composer dev`. It runs `composer serve` and `npm run dev` side by side through `npx concurrently`, and Ctrl+C stops everything.
+
 #### 5. Access Nimbus
 
-Navigate to your Laravel application's Nimbus endpoint:
+Open the Nimbus endpoint of the workbench:
 
 ```
-http://your-app.test/nimbus
+http://127.0.0.1:8000/demo
 ```
 
 ### Testing Different Laravel Versions

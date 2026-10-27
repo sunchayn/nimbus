@@ -37,9 +37,13 @@ const shot = (page, name, clip) =>
         ...(clip && { clip: { x: clip[0], y: clip[1], width: clip[2], height: clip[3] } }),
     });
 
-const open = async (browser, query = '') => {
+const open = async (browser, query = '', { login = false } = {}) => {
     const context = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 2 });
     const page = await context.newPage();
+
+    if (login) {
+        await page.goto(`${new URL(BASE).origin}/dev/login-as-new-user`);
+    }
 
     await page.goto(`${BASE}${query}`);
     await page.waitForLoadState('networkidle');
@@ -149,7 +153,7 @@ const layout = async (browser) => {
 };
 
 const schema = async (browser) => {
-    const page = await open(browser);
+    const page = await open(browser, '', { login: true });
 
     await step('schema-validation', async () => {
         await openRoute(page, 'inline-validation', /POST \/conditional/);

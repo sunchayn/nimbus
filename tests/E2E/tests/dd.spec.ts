@@ -1,7 +1,7 @@
 import { test, expect, Page } from "@playwright/test";
 
 test("Dump and Die visualization sanity checklist", async ({ page }) => {
-    await page.goto("http://127.0.0.1:8000/demo/");
+    await page.goto("/demo/");
 
     //  helpers
 

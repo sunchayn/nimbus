@@ -110,7 +110,7 @@ class NimbusIndexController
     private function configureVite(): void
     {
         Vite::useBuildDirectory('vendor/nimbus');
-        Vite::useHotFile(base_path('/vendor/sunchayn/nimbus/resources/dist/hot'));
+        Vite::useHotFile(dirname(__DIR__, 4).'/resources/dist/hot');
     }
 
     private function handleIgnoreRouteError(Actions\IgnoreRouteErrorAction $ignoreRouteErrorAction): void

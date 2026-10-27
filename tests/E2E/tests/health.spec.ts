@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('Page loads', async ({ page }) => {
   await page.goto('/demo');
 
-  await expect(page).toHaveTitle('E2E Tests - Nimbus');
+  await expect(page).toHaveTitle('Workbench - Nimbus');
 
   await expect(page.getByTestId('app-tabs-container')).toBeInViewport();
 });

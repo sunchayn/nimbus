@@ -26,3 +26,5 @@
 /tsconfig.json                 export-ignore
 /vite.config.js                export-ignore
 /wiki                          export-ignore
+/workbench                     export-ignore
+/testbench.yaml                export-ignore
