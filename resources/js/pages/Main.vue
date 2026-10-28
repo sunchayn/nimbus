@@ -11,7 +11,7 @@ import { useSharedStateRestoration } from '@/composables/request/useSharedStateR
 import { useExplorerVisibility } from '@/composables/ui/useExplorerVisibility';
 import { useErrorStore, useRoutesStore } from '@/stores';
 import type { TemplateRef } from 'vue';
-import { computed, onBeforeMount, onMounted, useTemplateRef, watch } from 'vue';
+import { computed, onBeforeMount, useTemplateRef, watch } from 'vue';
 
 defineOptions({
     name: 'MainPage',
@@ -48,9 +48,12 @@ const panelsGroupElement: TemplateRef = useTemplateRef('panels-group');
 const { isExplorerOpen, isExplorerDrawerOpen, isCompact } = useExplorerVisibility();
 
 // The handle is the gap between groups, and it shows a thin line while hovered or dragged.
-const handleUi = {
-    handle: 'relative w-group bg-transparent hover:bg-transparent data-[resize-handle-state=hover]:bg-transparent data-[resize-handle-state=drag]:bg-transparent before:absolute before:rounded-full before:bg-transparent hover:before:bg-accented focus-visible:outline-none focus-visible:before:bg-primary data-[resize-handle-state=drag]:before:bg-accented before:inset-y-1 before:left-1/2 before:w-grip before:-translate-x-1/2',
-};
+const handleUi = computed(() => ({
+    handle: [
+        'relative w-group bg-transparent hover:bg-transparent data-[resize-handle-state=hover]:bg-transparent data-[resize-handle-state=drag]:bg-transparent before:absolute before:rounded-full before:bg-transparent hover:before:bg-accented focus-visible:outline-none focus-visible:before:bg-primary data-[resize-handle-state=drag]:before:bg-accented before:inset-y-1 before:left-1/2 before:w-grip before:-translate-x-1/2',
+        !isExplorerOpen.value && 'hidden',
+    ],
+}));
 
 const mainItems = computed(() => [
     {
@@ -62,7 +65,7 @@ const mainItems = computed(() => [
     },
     {
         minSize: 60,
-        defaultSize: !routesStore.hasAnyError && !errorStore.hasGlobalError ? 80 : 85,
+        defaultSize: 80,
         class: 'block',
     },
 ]);
@@ -82,11 +85,20 @@ const toggleExplorerPanel = (open: boolean) => {
 
 watch(isExplorerOpen, toggleExplorerPanel);
 
-onMounted(() => {
-    if (!isCompact.value && !isExplorerOpen.value) {
+// The panels have no layout until the first layout event, so a collapse before it throws.
+let isLayoutInitialized = false;
+
+const onLayout = () => {
+    if (isLayoutInitialized) {
+        return;
+    }
+
+    isLayoutInitialized = true;
+
+    if (!isExplorerOpen.value) {
         toggleExplorerPanel(false);
     }
-});
+};
 </script>
 
 <template>
@@ -115,7 +127,7 @@ onMounted(() => {
             orientation="horizontal"
             :items="mainItems"
             :ui="handleUi"
-            :class="{ '-ms-group w-group': !isExplorerOpen }"
+            @layout="onLayout"
             @collapse="isExplorerOpen = false"
             @expand="isExplorerOpen = true"
         >
