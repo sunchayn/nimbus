@@ -23,14 +23,16 @@ const props = defineProps<RouteExtractionErrorProps>();
 
 <template>
     <div
-        class="px-panel from-error/5 flex items-center justify-between border-b bg-gradient-to-tr to-transparent to-50% py-1"
+        class="px-panel from-error/5 py-tight flex items-center justify-between border-b bg-gradient-to-tr to-transparent to-50%"
     >
-        <div class="flex items-center gap-2 text-xs">
-            <div class="px-1 py-2">
+        <div class="gap-base flex items-center text-xs">
+            <div class="px-tight py-base">
                 <AppIcon name="i-hugeicons-alert-02" class="text-error size-icon-md" />
             </div>
-            <div class="leading-3.5">
-                <span class="flex items-center gap-1 font-bold">Extraction Error</span>
+            <div class="leading-compact">
+                <span class="gap-tight flex items-center font-bold">
+                    Extraction Error
+                </span>
                 <p class="text-muted mb-0">
                     It wasn't possible to fully extract the shape of this route, there was
                     an error.

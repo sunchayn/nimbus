@@ -1,7 +1,6 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
 @import './themes/base.css';
-@import './variables/layout.css';
 @import './vendor.css';
 
 @layer base {
@@ -139,8 +138,8 @@
  */
 @utility pane-surface {
     background: var(--ui-bg);
-    border: var(--border-w) solid var(--ui-border);
-    border-radius: var(--pane-radius);
+    border: var(--spacing-line) solid var(--ui-border);
+    border-radius: var(--radius-pane);
     overflow: hidden;
 }
 
@@ -156,8 +155,8 @@
     /* Select labels have no icon slot, so the icon is a mask drawn before the label text. */
     .label-icon-sparkles::before {
         content: '';
-        width: var(--control-icon-xs);
-        height: var(--control-icon-xs);
+        width: var(--spacing-icon-xs);
+        height: var(--spacing-icon-xs);
         background-color: currentColor;
         mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='black' stroke-linejoin='round' stroke-width='1.75' d='m15 2l.539 2.392a5.39 5.39 0 0 0 4.07 4.07L22 9l-2.392.539a5.39 5.39 0 0 0-4.07 4.07L15 16l-.539-2.392a5.39 5.39 0 0 0-4.07-4.07L8 9l2.392-.539a5.39 5.39 0 0 0 4.07-4.07zM7 12l.385 1.708a3.85 3.85 0 0 0 2.907 2.907L12 17l-1.708.385a3.85 3.85 0 0 0-2.907 2.907L7 22l-.385-1.708a3.85 3.85 0 0 0-2.907-2.907L2 17l1.708-.385a3.85 3.85 0 0 0 2.907-2.907z'/%3E%3C/svg%3E") center / contain no-repeat;
     }
@@ -173,8 +172,8 @@
         mask-image: linear-gradient(
             to right,
             var(--tabs-fade-start),
-            #000 var(--tabs-mask-width),
-            #000 calc(100% - var(--tabs-mask-width)),
+            #000 var(--spacing-fade),
+            #000 calc(100% - var(--spacing-fade)),
             var(--tabs-fade-end)
         );
     }
@@ -195,17 +194,17 @@
     outline-width: var(--focus-ring-w);
 
     /* Inset, so a parent with hidden overflow never crops the ring. */
-    outline-offset: -2px;
+    outline-offset: calc(var(--focus-ring-w) * -1);
 }
 
 @utility mask-fade-start {
     --fade-start: transparent;
-    mask-image: linear-gradient(to right, var(--fade-start), #000 1.5rem, #000 calc(100% - 1.5rem), var(--fade-end, #000));
+    mask-image: linear-gradient(to right, var(--fade-start), #000 var(--spacing-mask), #000 calc(100% - var(--spacing-mask)), var(--fade-end, #000));
 }
 
 @utility mask-fade-end {
     --fade-end: transparent;
-    mask-image: linear-gradient(to right, var(--fade-start, #000), #000 1.5rem, #000 calc(100% - 1.5rem), var(--fade-end));
+    mask-image: linear-gradient(to right, var(--fade-start, #000), #000 var(--spacing-mask), #000 calc(100% - var(--spacing-mask)), var(--fade-end));
 }
 
 /*
@@ -260,7 +259,7 @@
         }
 
         to {
-            max-width: 14rem;
+            max-width: var(--max-width-tab);
             opacity: 1;
             overflow: hidden;
         }
@@ -268,7 +267,7 @@
 
     @keyframes tab-out {
         from {
-            max-width: 14rem;
+            max-width: var(--max-width-tab);
             opacity: 1;
             overflow: hidden;
         }

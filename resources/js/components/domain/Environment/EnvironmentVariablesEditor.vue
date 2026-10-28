@@ -32,7 +32,7 @@ const handleVariablesUpdate = (variables: ParameterContract[]) => {
 
         <slot name="header" />
 
-        <PanelSubHeader class="border-y py-1">
+        <PanelSubHeader class="py-tight border-y">
             Variables defined below can be referenced with
             <span v-pre class="text-info whitespace-nowrap">
                 {{ variable_key }}

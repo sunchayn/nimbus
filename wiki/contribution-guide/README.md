@@ -1001,17 +1001,16 @@ Nimbus uses Nuxt UI v4 behind thin `App*` wrappers.
 
 ### Structure
 
-1. `resources/css/themes/base.css` holds the default theme on `:root`, with a `.dark` block after each layer for the values that differ in dark mode.
-2. `resources/css/variables/layout.css` holds the layout sizes, such as the toolbar height and the sidebar width.
-3. `tools/ui/theme.js` holds the Nuxt UI component preset. It has shared class strings at the top and one section per component in alphabetical order. It is passed to the Nuxt UI plugin in `vite.config.js`.
-4. `resources/js/components/base` holds the wrappers. A wrapper keeps the `App` name, exposes the Nuxt UI props, and passes attributes through. It holds no sizes, colors or classes.
+1. `resources/css/themes/base.css` holds the default theme. The tokens that do not change between modes sit in one `@theme static` block. The colors, shadows and motion sit on `:root`, with a `.dark` block for the values that differ in dark mode. The layout sizes, such as the toolbar height and the sidebar width, are in the `@theme static` block too.
+2. `tools/ui/theme.js` holds the Nuxt UI component preset. It has shared class strings at the top and one section per component in alphabetical order. It is passed to the Nuxt UI plugin in `vite.config.js`.
+3. `resources/js/components/base` holds the wrappers. A wrapper keeps the `App` name, exposes the Nuxt UI props, and passes attributes through. It holds no sizes, colors or classes.
 
 Only files in `components/base` import from `@nuxt/ui`. The exceptions are `app.ts`, `App.vue`, the test setup and the Vite config.
 
 ### Token Layers
 
-1. Primitives are raw scales, such as the type scale, the control scale and the item rows.
-2. Semantic tokens are roles, such as the `--ui-*` colors, `--border-w`, `--elevation-control`, `--elevation-overlay`, `--press-translate`, gaps, layers and durations. Components read these.
+1. Utility tokens sit in the `@theme static` block. Each one has a single name, the one its utility uses, such as `--spacing-card` for `p-card`. A theme overrides that name directly. This covers the spacing scale and roles, icon and row sizes, widths, control text, border width, layers and the disabled opacity.
+2. Primitives and semantic tokens stay as runtime variables when they change between modes or feed a lookup. These are the `--ui-*` colors, the surface colors, `--elevation-*`, the durations, and the control scale (`--control-h-*`, `--control-px-*`, `--control-gap-*`). Components read these through an alias in the `@theme inline` block.
 3. Component tokens are narrow knobs, such as `--tab-active-bg`, `--tab-active-shadow`, `--tab-active-border`, `--sidebar-item-active-bg` and `--overlay-separator`. Each one defaults to a semantic token.
 
 A theme can override any layer. Most themes only touch primitives and semantic tokens.
@@ -1021,39 +1020,46 @@ Component tokens let a theme change one component without touching the others.
 
 1. `tools/ui/theme.js` holds no theme name, no raw palette class, and no arbitrary px, rem or hex value.
 2. Every visual difference between themes is a token. If a difference cannot be expressed with an existing token, add a token to `base.css` with the current value first, then read it in the preset.
-3. Run `npm run check:theme` after you edit the preset. It fails on a raw palette class, a theme name, a variable class such as `p-(--card-padding)`, or an arbitrary value.
+3. Run `npm run check:theme` after you edit the preset. It fails on a raw palette class, a theme name, a variable class such as `p-(--spacing-card)`, an arbitrary value, a `calc()` or `var()` inside an arbitrary class, numeric spacing with a role such as `gap-2`, or a numeric `duration-*` or `ring-*`. It also scans `app.css` and `vendor.css` for raw px and rem values.
 
 ### Token Utilities
 
-Classes never read a token with the variable syntax, such as `gap-(--gap-base)`.
-Each token has a named utility instead.
-Most are registered in the `@theme inline` block of `base.css`, so Tailwind builds them from its namespaces.
-The control scale has no Tailwind namespace, so `app.css` defines it with `@utility`.
-Every utility reads the runtime variable, so a theme that overrides the variable also changes the utility.
+Classes never read a token with the variable syntax, such as `gap-(--spacing-base)`, and never put a `calc()` in a class such as `h-[calc(var(--toolbar-height)+2*var(--spacing-line))]`.
+Each token has a named utility instead, and a `calc()` goes inside the token, such as `--spacing-pane-header`.
+Most tokens are registered in the `@theme static` block of `base.css`, so Tailwind builds the utilities from its namespaces.
+The colors, shadows and motion are registered in the `@theme inline` block and read a runtime variable.
+The control scale and the toolbar heights have no Tailwind namespace for their utilities, so `app.css` defines them with `@utility`.
+Every utility reads a variable, so a theme that overrides the variable also changes the utility.
+Plain CSS reads the same names, such as `var(--spacing-line)` and `var(--text-xs)`.
 
 | Family | Utilities | Token |
 | --- | --- | --- |
-| Gaps and spacing | `gap-tight`, `gap-base`, `gap-loose`, also with `p`, `m` and the other spacing prefixes | `--gap-*` |
-| Surface padding | `p-card`, `p-dialog`, `p-popover`, `p-menu`, `p-toast`, `p-panel`, `p-tabs` | `--*-padding` |
-| Role gaps | `gap-dialog-gap`, `gap-tabs-gap`, `gap-nav-gap` | `--dialog-gap`, `--tabs-gap`, `--nav-gap` |
+| Gaps and spacing | `gap-tight`, `gap-base`, `gap-loose`, also with `p`, `m` and the other spacing prefixes | `--spacing-tight`, `--spacing-base`, `--spacing-loose` |
+| Surface padding | `p-card`, `p-dialog`, `p-popover`, `p-menu`, `p-toast`, `p-panel`, `p-tabs` | `--spacing-card` and the matching `--spacing-*` |
+| Role gaps | `gap-dialog-gap`, `gap-tabs-gap`, `gap-nav-gap` | `--spacing-dialog-gap`, `--spacing-tabs-gap`, `--spacing-nav-gap` |
+| Pane | `gap-pane`, `gap-group`, `h-pane-header`, `size-pane-header`, `rounded-pane`, `-ms-bleed`, `w-bleed` | `--spacing-pane`, `--spacing-group`, `--spacing-pane-header`, `--radius-pane`, `--spacing-bleed` |
+| Small boxes | `size-dot-xs`, `size-dot-sm`, `size-dot-md`, `h-chip-sm`, `min-w-chip-sm`, `after:w-hit-sm`, `after:w-hit-lg` | `--spacing-dot-*`, `--spacing-chip-sm`, `--spacing-hit-*` |
 | Control height | `h-control-*`, `min-h-control-*`, `w-control-*`, `min-w-control-*` | `--control-h-*` |
 | Control padding | `px-control-*`, `ps-control-*`, `pe-control-*` | `--control-px-*` |
 | Control gap | `gap-control-*` | `--control-gap-*` |
-| Control text | `text-control-*`, which also sets the line height | `--control-text-*`, `--control-leading-*` |
-| Icons and rows | `size-icon-*`, `size-nav-icon`, `h-item-sm`, `h-item-md` | `--control-icon-*`, `--nav-icon-size`, `--item-h-*` |
-| Text | `text-xxs`, `text-menu-label` | `--text-xxs`, `--menu-label-text` |
-| Border width | `ring-line`, `border-b-line`, `border-s-line`, `border-e-line`, `w-line`, `h-line` | `--border-w` |
+| Control text | `text-control-*`, which also sets the line height | `--text-control-*` |
+| Icons and rows | `size-icon-*`, `size-nav-icon`, `h-item-sm`, `h-item-md` | `--spacing-icon-*`, `--spacing-nav-icon`, `--spacing-item-*` |
+| Text | `text-xxs`, `text-menu-label`, `leading-compact` | `--text-xxs`, `--text-menu-label`, `--leading-compact` |
+| Border width | `ring-line`, `border-b-line`, `border-s-line`, `border-e-line`, `w-line`, `h-line` | `--spacing-line`, `--ring-width-line` |
+| Focus ring | `ring-focus` | `--ring-width-focus` |
 | Elevation | `shadow-control`, `shadow-overlay`, `shadow-modal`, `shadow-tab-active` | `--elevation-*`, `--tab-active-shadow` |
-| Layers | `z-sticky`, `z-raised`, `z-overlay`, `z-toast` | `--z-*` |
-| Motion | `duration-fast`, `duration-base`, `animate-fade-in-fast`, `animate-fade-out-base`, `animate-collapsible-down` | `--duration-*` |
-| States | `opacity-disabled`, `translate-y-press`, `translate-y-tooltip-nudge` | `--disabled-opacity`, `--press-translate`, `--tooltip-nudge` |
-| Overlay sizes | `min-w-overlay`, `max-w-popover`, `max-w-dialog`, `max-w-dialog-lg`, `max-h-dialog` | `--overlay-min-w`, `--popover-max-w`, `--dialog-max-w`, `--dialog-lg-max-w`, `--dialog-max-h` |
+| Layers | `z-sticky`, `z-raised`, `z-overlay`, `z-toast` | `--z-index-*` |
+| Motion | `duration-fast`, `duration-base`, `duration-slow`, `animate-fade-in-fast`, `animate-fade-out-base`, `animate-collapsible-down` | `--duration-*`, `--ease-emphasized` |
+| States | `opacity-disabled`, `translate-y-press`, `translate-y-tooltip-nudge` | `--opacity-disabled`, `--spacing-press`, `--spacing-tooltip-nudge` |
+| Overlay sizes | `min-w-overlay`, `max-w-popover`, `max-w-dialog`, `max-w-dialog-lg`, `max-w-tab`, `max-h-dialog` | `--min-width-overlay`, `--max-width-popover`, `--max-width-dialog`, `--max-width-dialog-lg`, `--max-width-tab`, `--max-height-dialog` |
 | Component colors | `bg-separator`, `bg-tab-active-bg`, `text-tab-active-text`, `ring-tab-active-border`, `bg-sidebar-item-active`, `caret-default` | the matching component token |
-| Layout | `h-toolbar`, `min-h-toolbar`, `h-sub-toolbar`, `min-h-sub-toolbar` | `--toolbar-height`, `--sub-toolbar-height` |
+| Layout | `h-toolbar`, `min-h-toolbar`, `h-sub-toolbar`, `min-h-sub-toolbar` | `--toolbar-height`, `--sub-toolbar-height`, also `--sidebar-expanded-width` and `--sidebar-collapsed-width` |
 
 The control sizes are `xs`, `sm`, `md` and `lg`.
-To add a utility, register the token in `base.css` or `app.css`, then add its name to `twMergeConfig` in `tools/ui/theme.js`.
-Tailwind merge needs the name to replace a Nuxt UI default class, such as `shadow-overlay` over `shadow-lg`.
+To add a utility, register the token in `base.css` or `app.css`.
+`createTwMergeConfig` in `tools/ui/theme.js` reads the token names from `base.css`, so nothing is listed twice.
+Tailwind merge needs the names to replace a Nuxt UI default class, such as `shadow-overlay` over `shadow-lg`.
+Only the control sizes are added by hand, because they come from `@utility` rules.
 Variables that Reka sets, such as `--reka-select-trigger-width`, keep the variable syntax.
 
 ### Adding a Theme
@@ -1084,18 +1090,18 @@ Wrappers and call sites never pick their own value.
 
 | Token | Value | Used for |
 | --- | --- | --- |
-| `--gap-tight` | 4px | Gaps inside rows, label to field, title to description |
-| `--gap-base` | 8px | Gaps between controls, dialog footer buttons, panel padding |
-| `--gap-loose` | 12px | Gaps between groups of content |
-| `--menu-padding` | 4px | Inset of dropdown, select and command groups, and their separators |
-| `--popover-padding` | 8px | Popover content |
-| `--card-padding` | 12px | Cards and panels inside pages |
-| `--toast-padding` | 12px | Toasts |
-| `--dialog-padding` | 12px | Modal and slideover surface |
-| `--dialog-gap` | 12px | Space between the dialog header, body and footer |
-| `--dialog-max-w` | 480px | Default dialog width |
-| `--dialog-lg-max-w` | 560px | Dialogs that show a code block, set with `max-w-dialog-lg` on the content slot |
-| `--dialog-max-h` | 70dvh | Dialog height limit, the body scrolls inside it |
+| `--spacing-tight` | 4px | Gaps inside rows, label to field, title to description |
+| `--spacing-base` | 8px | Gaps between controls, dialog footer buttons, panel padding |
+| `--spacing-loose` | 12px | Gaps between groups of content |
+| `--spacing-menu` | 4px | Inset of dropdown, select and command groups, and their separators |
+| `--spacing-popover` | 8px | Popover content |
+| `--spacing-card` | 12px | Cards and panels inside pages |
+| `--spacing-toast` | 12px | Toasts |
+| `--spacing-dialog` | 12px | Modal and slideover surface |
+| `--spacing-dialog-gap` | 12px | Space between the dialog header, body and footer |
+| `--max-width-dialog` | 480px | Default dialog width |
+| `--max-width-dialog-lg` | 560px | Dialogs that show a code block, set with `max-w-dialog-lg` on the content slot |
+| `--max-height-dialog` | 70dvh | Dialog height limit, the body scrolls inside it |
 
 The control scale (`--control-px-*` and `--control-gap-*`) sets the inside of buttons, fields, tabs and menu rows.
 Dialogs pad the surface once and use no dividers, so the header, body and footer slots add no padding.

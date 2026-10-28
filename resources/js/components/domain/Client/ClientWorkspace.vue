@@ -35,8 +35,8 @@ const handleUi = (direction: 'horizontal' | 'vertical') => ({
     handle: [
         'relative z-sticky bg-transparent hover:bg-transparent data-[resize-handle-state=hover]:bg-transparent data-[resize-handle-state=drag]:bg-transparent before:absolute before:rounded-full before:bg-transparent hover:before:bg-accented focus-visible:outline-none focus-visible:before:bg-primary data-[resize-handle-state=drag]:before:bg-accented',
         direction === 'horizontal'
-            ? 'w-pane after:w-5 before:inset-y-1 before:left-1/2 before:w-grip before:-translate-x-1/2'
-            : 'h-pane after:h-5 before:inset-x-1 before:top-1/2 before:h-grip before:-translate-y-1/2',
+            ? 'w-pane after:w-hit-lg before:inset-y-tight before:left-1/2 before:w-grip before:-translate-x-1/2'
+            : 'h-pane after:h-hit-lg before:inset-x-tight before:top-1/2 before:h-grip before:-translate-y-1/2',
     ].join(' '),
 });
 

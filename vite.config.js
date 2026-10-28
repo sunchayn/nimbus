@@ -1,9 +1,14 @@
 import ui from '@nuxt/ui/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { defineConfig } from 'vite';
-import preset, { twMergeConfig } from './tools/ui/theme.js';
+import preset, { createTwMergeConfig } from './tools/ui/theme.js';
+
+const twMergeConfig = createTwMergeConfig(
+    readFileSync('resources/css/themes/base.css', 'utf8'),
+);
 
 /*
  * Component theme preset for Nuxt UI, defined in tools/ui/theme.js.

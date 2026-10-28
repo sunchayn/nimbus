@@ -129,7 +129,7 @@ watch(isOpen, async open => {
         </AppButton>
 
         <template #content>
-            <div class="border-default flex items-center gap-1 border-b p-1">
+            <div class="border-default gap-tight p-tight flex items-center border-b">
                 <GeneratorInput
                     ref="searchInputRef"
                     v-model="searchQuery"

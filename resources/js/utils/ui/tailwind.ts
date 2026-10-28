@@ -2,10 +2,11 @@ import { type ClassValue, clsx } from 'clsx';
 import { extendTailwindMerge } from 'tailwind-merge';
 // The theme preset lives outside resources/js, so the alias cannot reach it.
 // eslint-disable-next-line import/no-relative-parent-imports
-import { twMergeConfig } from '../../../../tools/ui/theme.js';
+import { createTwMergeConfig } from '../../../../tools/ui/theme.js';
+import baseCss from '../../../css/themes/base.css?raw';
 
 // Knows the token utilities, so gap-base replaces gap-2 like the Nuxt UI components do.
-const twMerge = extendTailwindMerge(twMergeConfig);
+const twMerge = extendTailwindMerge(createTwMergeConfig(baseCss));
 
 /**
  * Combines and merges Tailwind CSS classes intelligently.

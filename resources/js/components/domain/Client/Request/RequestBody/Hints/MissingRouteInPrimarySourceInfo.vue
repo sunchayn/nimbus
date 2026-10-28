@@ -14,18 +14,18 @@ const configStore = useConfigStore();
 
 <template>
     <div
-        class="px-panel from-info/5 flex items-center justify-between border-b bg-gradient-to-tr to-transparent to-50% py-1"
+        class="px-panel from-info/5 py-tight flex items-center justify-between border-b bg-gradient-to-tr to-transparent to-50%"
     >
-        <div class="flex items-center gap-2 text-xs">
-            <div class="px-1 py-2">
+        <div class="gap-base flex items-center text-xs">
+            <div class="px-tight py-base">
                 <AppIcon
                     name="i-hugeicons-information-circle"
                     class="text-info size-icon-md"
                 />
             </div>
 
-            <div class="leading-3.5">
-                <span class="mb-0 flex items-center gap-1 font-bold">
+            <div class="leading-compact">
+                <span class="gap-tight mb-0 flex items-center font-bold">
                     Route is auto-detected
                 </span>
                 <p class="text-muted mb-0">

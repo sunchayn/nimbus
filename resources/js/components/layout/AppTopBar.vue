@@ -111,20 +111,20 @@ const settings = computed(() =>
 
 <template>
     <header
-        class="h-toolbar px-base bg-default grid grid-cols-[1fr_auto_1fr] items-center gap-2 border-b"
+        class="h-toolbar px-base bg-default gap-base grid grid-cols-[1fr_auto_1fr] items-center border-b"
         data-testid="app-top-bar"
     >
-        <div class="flex min-w-0 items-center gap-2">
-            <div class="flex items-center gap-2">
+        <div class="gap-base flex min-w-0 items-center">
+            <div class="gap-base flex items-center">
                 <AppBrandIcon class="size-icon-lg" />
                 <span class="text-highlighted text-sm font-semibold max-sm:hidden">
                     Nimbus
                 </span>
             </div>
 
-            <div class="border-default h-4 border-l" aria-hidden="true" />
+            <div class="border-default h-chip-sm border-l" aria-hidden="true" />
 
-            <div class="flex items-center gap-1">
+            <div class="gap-tight flex items-center">
                 <AppTooltip
                     v-for="action in pages"
                     :key="action.label"
@@ -153,8 +153,8 @@ const settings = computed(() =>
             />
         </AppDropdownMenu>
 
-        <div class="flex items-center justify-end gap-2">
-            <div class="max-xs:hidden flex items-center gap-1">
+        <div class="gap-base flex items-center justify-end">
+            <div class="max-xs:hidden gap-tight flex items-center">
                 <AppTooltip
                     v-for="action in links"
                     :key="action.label"
@@ -171,7 +171,10 @@ const settings = computed(() =>
                 </AppTooltip>
             </div>
 
-            <div class="border-default max-xs:hidden h-4 border-l" aria-hidden="true" />
+            <div
+                class="border-default max-xs:hidden h-chip-sm border-l"
+                aria-hidden="true"
+            />
 
             <AppTooltip :text="settings.label">
                 <AppButton

@@ -41,11 +41,11 @@ withDefaults(defineProps<Props>(), {
             <div
                 :class="{
                     'p-panel': status !== EnvVariableCheckStatus.Resolved,
-                    'from-info/5 dark:from-info/30 bg-gradient-to-tr to-transparent to-50% p-1':
+                    'from-info/5 dark:from-info/30 p-tight bg-gradient-to-tr to-transparent to-50%':
                         status === EnvVariableCheckStatus.Resolved,
-                    'from-warning/5 dark:from-warning/30 bg-gradient-to-tr to-transparent to-50% py-1':
+                    'from-warning/5 dark:from-warning/30 py-tight bg-gradient-to-tr to-transparent to-50%':
                         status === EnvVariableCheckStatus.Empty,
-                    'from-error/5 dark:from-error/30 bg-gradient-to-tr to-transparent to-50% py-1':
+                    'from-error/5 dark:from-error/30 py-tight bg-gradient-to-tr to-transparent to-50%':
                         status === EnvVariableCheckStatus.Missing,
                 }"
             >

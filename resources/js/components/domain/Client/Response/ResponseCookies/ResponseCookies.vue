@@ -121,7 +121,7 @@ const copyAll = () => {
                 <span>
                     <small
                         v-if="!item.isDecryptable"
-                        class="text-success mb-1 flex items-center gap-1"
+                        class="text-success mb-tight gap-tight flex items-center"
                     >
                         <AppIcon
                             name="i-hugeicons-square-unlock-01"

@@ -258,7 +258,7 @@ const handleDeleteParameter = (index: number) => {
                 </div>
 
                 <!-- Enable/Disable Toggle -->
-                <div class="flex items-center justify-center border-r px-2">
+                <div class="px-base flex items-center justify-center border-r">
                     <AppTooltip text="Enable/Disable">
                         <AppSwitch
                             v-model="parameter.enabled"
@@ -278,7 +278,7 @@ const handleDeleteParameter = (index: number) => {
                         type="button"
                         aria-label="Generate value"
                         aria-keyshortcuts="Control+Space"
-                        class="flex cursor-pointer items-center justify-center p-2"
+                        class="p-base flex cursor-pointer items-center justify-center"
                         title="Generate value (Ctrl+Space)"
                         data-testid="generator-button"
                         @mousedown.prevent="handleGeneratorClick"
@@ -291,7 +291,7 @@ const handleDeleteParameter = (index: number) => {
 
                     <div
                         v-else
-                        class="flex items-center justify-center px-1"
+                        class="px-tight flex items-center justify-center"
                         data-testid="delete-button"
                     >
                         <AppTooltip text="Delete">
@@ -302,7 +302,7 @@ const handleDeleteParameter = (index: number) => {
                                         ? 'Confirm delete'
                                         : 'Delete'
                                 "
-                                class="p-1"
+                                class="p-tight"
                                 @click="handleDeleteParameter(index)"
                             >
                                 <AppSwapIcon

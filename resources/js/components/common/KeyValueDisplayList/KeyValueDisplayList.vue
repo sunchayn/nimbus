@@ -64,7 +64,7 @@ const copyValue = (index: number, value: unknown) => {
         :columns="columns"
         :ui="{
             thead: 'collapse',
-            td: 'px-panel py-2',
+            td: 'px-panel py-base',
         }"
     >
         <template #value-cell="{ row }">

@@ -158,7 +158,7 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
                         <button
                             type="button"
                             aria-label="About transaction mode"
-                            class="-m-1 rounded-sm p-1"
+                            class="-m-tight p-tight rounded-sm"
                             @click.stop.prevent
                         >
                             <AppIcon

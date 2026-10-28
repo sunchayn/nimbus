@@ -23,7 +23,7 @@ const props = defineProps<AppPanelStateContainerProps>();
 </script>
 
 <template>
-    <div :class="cn('relative h-full flex-1 overflow-hidden p-2', props.class)">
+    <div :class="cn('p-base relative h-full flex-1 overflow-hidden', props.class)">
         <div class="max-w-md">
             <slot />
         </div>

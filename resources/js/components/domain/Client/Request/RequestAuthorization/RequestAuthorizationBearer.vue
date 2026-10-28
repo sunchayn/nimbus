@@ -17,7 +17,7 @@ const model = defineModel<string>({
 <template>
     <div class="h-control-lg grid grid-cols-3 border-b">
         <label
-            class="px-panel h-control-lg flex items-center border-r py-1 text-xs"
+            class="px-panel h-control-lg py-tight flex items-center border-r text-xs"
             for="bearer"
         >
             Bearer Token

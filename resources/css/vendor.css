@@ -4,7 +4,7 @@
     }
 
     .cm-tooltip {
-        background-color: var(--surface-overlay) !important;
+        background-color: var(--color-overlay) !important;
         border-color: var(--ui-border) !important;
         @apply flex flex-col;
     }
@@ -36,9 +36,9 @@
 
     /* Environment placeholders drawn as chips. */
     .cm-line .cm-env-chip {
-        border: 1px solid var(--ui-border);
+        border: var(--spacing-line) solid var(--ui-border);
         border-radius: var(--radius-sm);
-        padding: 0 2px;
+        padding: 0 var(--spacing-hair);
         background-color: var(--ui-bg-elevated);
         color: var(--ui-text) !important;
     }
@@ -67,13 +67,13 @@
 
     .cm-tooltip-autocomplete > ul {
         font-family: var(--font-mono) !important;
-        font-size: 0.75rem;
-        padding: var(--gap-tight);
+        font-size: var(--text-xs);
+        padding: var(--spacing-tight);
     }
 
     .cm-tooltip-autocomplete > ul > li {
         border-radius: var(--radius-sm);
-        padding: 2px var(--gap-base) !important;
+        padding: var(--spacing-hair) var(--spacing-base) !important;
         color: var(--ui-text);
     }
 
@@ -88,12 +88,12 @@
     }
 
     .cm-completionInfo {
-        background-color: var(--surface-overlay);
-        border: 1px solid var(--ui-border);
+        background-color: var(--color-overlay);
+        border: var(--spacing-line) solid var(--ui-border);
         border-radius: var(--radius-md);
         box-shadow: var(--elevation-overlay);
-        padding: var(--gap-tight) var(--gap-base) !important;
-        font-size: 0.75rem;
+        padding: var(--spacing-tight) var(--spacing-base) !important;
+        font-size: var(--text-xs);
         color: var(--ui-text);
     }
 
@@ -107,15 +107,15 @@
     }
 
     .cm-tooltip-lint {
-        background-color: var(--surface-overlay) !important;
-        border: 1px solid var(--ui-border) !important;
+        background-color: var(--color-overlay) !important;
+        border: var(--spacing-line) solid var(--ui-border) !important;
         box-shadow: var(--elevation-overlay) !important;
         overflow: hidden !important;
-        transform: translateY(5px);
+        transform: translateY(var(--spacing-tooltip-nudge));
     }
 
     .cm-tooltip-hover {
-        z-index: 999 !important;
+        z-index: var(--z-index-toast) !important;
     }
 
     .cm-diagnosticText {
@@ -131,8 +131,8 @@
     }
 
     .cm-lint-tooltip-item {
-        padding: 4px 8px !important;
-        border-bottom: 1px solid var(--ui-border) !important;
+        padding: var(--spacing-tight) var(--spacing-base) !important;
+        border-bottom: var(--spacing-line) solid var(--ui-border) !important;
     }
 
     .cm-lint-tooltip-item:last-child {
@@ -140,12 +140,12 @@
     }
 
     .cm-diagnostic {
-        font-size: 0.75rem !important;
-        line-height: calc(1 / 0.75) !important;
+        font-size: var(--text-xs) !important;
+        line-height: var(--text-xs--line-height) !important;
         color: var(--ui-text) !important;
         --diagnostic--border-color: var(--ui-border);
-        border-left: 3px solid var(--diagnostic--border-color) !important;
-        border-bottom: 1px solid var(--ui-border);
+        border-left: calc(var(--spacing-line) * 3) solid var(--diagnostic--border-color) !important;
+        border-bottom: var(--spacing-line) solid var(--ui-border);
 
         &:last-child {
             border-bottom: 0;
@@ -185,7 +185,7 @@
 
     .cm-lint-marker-warning {
         color: var(--ui-warning);
-        font-size: 0.75rem !important;
+        font-size: var(--text-xs) !important;
     }
 
     .cm-tooltip {
@@ -205,10 +205,10 @@
     .cm-tooltip-hover {
         @apply p-0;
 
-        font-size: 0.75rem !important;
+        font-size: var(--text-xs) !important;
     }
 
     .cm6-json-schema-hover {
-        padding: 1px 2px !important;
+        padding: var(--spacing-line) var(--spacing-hair) !important;
     }
 }

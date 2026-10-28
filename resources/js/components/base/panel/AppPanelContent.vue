@@ -22,7 +22,7 @@ const props = defineProps<AppPanelContentProps>();
 </script>
 
 <template>
-    <div :class="cn('px-panel py-2', props.class)">
+    <div :class="cn('px-panel py-base', props.class)">
         <slot />
     </div>
 </template>

@@ -62,7 +62,7 @@ defineExpose({ focus });
     >
         <EditablePreview
             ref="preview"
-            class="hover:bg-elevated -ml-1 cursor-text rounded-sm px-1 text-sm font-medium transition-colors"
+            class="hover:bg-elevated -ml-tight px-tight cursor-text rounded-sm text-sm font-medium transition-colors"
         >
             <slot>{{ modelValue }}</slot>
         </EditablePreview>

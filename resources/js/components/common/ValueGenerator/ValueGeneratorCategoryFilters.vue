@@ -74,12 +74,11 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
 
 <template>
     <!-- Category Filters with horizontal scrolling -->
-    <div class="p-2">
+    <div class="p-base">
         <div class="relative">
             <div
                 ref="scrollContainer"
-                class="scrollbar-hide bg-muted flex items-center gap-1 overflow-x-auto rounded-md p-1"
-                style="scrollbar-width: none; -ms-overflow-style: none"
+                class="no-scrollbar bg-muted gap-tight p-tight flex items-center overflow-x-auto rounded-md"
                 @scroll="updateScrollMasks"
                 @keydown="handleCategoryArrowNavigation"
             >
@@ -88,7 +87,7 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
                     :key="category.id"
                     tabindex="0"
                     :class="[
-                        'focus-visible:ring-primary h-control-xs flex shrink-0 items-center justify-center gap-1 rounded-sm px-2 text-xs font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
+                        'focus-visible:ring-primary h-control-xs gap-tight px-base focus-visible:ring-focus flex shrink-0 items-center justify-center rounded-sm text-xs font-medium whitespace-nowrap transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
                         getCategoryButtonClass(category.id),
                     ]"
                     @click="event => handleCategoryClick(event, category.id)"
@@ -105,11 +104,11 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
             <!-- Scroll Gradient Masks -->
             <div
                 v-show="showLeftMask"
-                class="from-muted via-muted/80 w-fade pointer-events-none absolute top-0 bottom-0 left-0 rounded-l-md bg-gradient-to-r to-transparent transition-opacity duration-200"
+                class="from-muted via-muted/80 w-fade duration-base pointer-events-none absolute top-0 bottom-0 left-0 rounded-l-md bg-gradient-to-r to-transparent transition-opacity"
             />
             <div
                 v-show="showRightMask"
-                class="from-muted via-muted/80 w-fade pointer-events-none absolute top-0 right-0 bottom-0 rounded-r-md bg-gradient-to-l to-transparent transition-opacity duration-200"
+                class="from-muted via-muted/80 w-fade duration-base pointer-events-none absolute top-0 right-0 bottom-0 rounded-r-md bg-gradient-to-l to-transparent transition-opacity"
             />
         </div>
     </div>

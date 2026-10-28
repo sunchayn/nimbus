@@ -56,7 +56,7 @@ const showingSearchResults = useShowingSearchResults();
             </ExplorerRow>
             <template #content>
                 <ul
-                    class="border-default ms-3 flex min-w-0 flex-col gap-1 border-s py-1 ps-1"
+                    class="border-default ms-loose gap-tight py-tight ps-tight flex min-w-0 flex-col border-s"
                 >
                     <slot />
                 </ul>

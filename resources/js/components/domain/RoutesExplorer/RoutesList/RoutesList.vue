@@ -87,14 +87,14 @@ const showingSearchResults = useShowingSearchResults();
         </RoutesResource>
     </template>
     <template v-else-if="!showingSearchResults">
-        <div class="px-2">
-            <p class="mb-2 text-xs">
+        <div class="px-base">
+            <p class="mb-base text-xs">
                 No routes have been detected. Make sure to check the Wiki in case of
                 doubts.
             </p>
         </div>
     </template>
     <template v-else>
-        <p class="mb-2 px-2 text-xs">No routes matching your keywords.</p>
+        <p class="mb-base px-base text-xs">No routes matching your keywords.</p>
     </template>
 </template>

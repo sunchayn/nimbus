@@ -23,7 +23,7 @@ const props = defineProps<AppSpinnerProps>();
 
 <template>
     <svg
-        :class="cn('text-default size-4', props.class)"
+        :class="cn('text-default size-icon-md', props.class)"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"

@@ -115,14 +115,7 @@ onMounted(() => {
             orientation="horizontal"
             :items="mainItems"
             :ui="handleUi"
-            :style="
-                isExplorerOpen
-                    ? undefined
-                    : {
-                          marginInlineStart: 'calc(var(--spacing-group) * -0.75)',
-                          width: 'calc(100% + var(--spacing-group) * 0.75)',
-                      }
-            "
+            :class="{ '-ms-group w-group': !isExplorerOpen }"
             @collapse="isExplorerOpen = false"
             @expand="isExplorerOpen = true"
         >

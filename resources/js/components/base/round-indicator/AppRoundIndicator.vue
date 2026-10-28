@@ -26,12 +26,12 @@ const props = defineProps<AppRoundIndicatorProps>();
         :class="
             cn(
                 props.class,
-                'bg-default z-sticky relative flex size-3 items-center justify-center rounded-full',
+                'bg-default z-sticky size-dot-md relative flex items-center justify-center rounded-full',
             )
         "
     >
-        <div class="indicator-core size-2 rounded-full border border-current" />
-        <div class="indicator-glow absolute -z-1 size-1.25 rounded-full opacity-40" />
+        <div class="indicator-core size-dot-sm rounded-full border border-current" />
+        <div class="indicator-glow size-dot-xs absolute -z-1 rounded-full opacity-40" />
     </div>
 </template>
 
@@ -42,7 +42,7 @@ const props = defineProps<AppRoundIndicatorProps>();
 
 .indicator-glow {
     box-shadow:
-        5px 0 5px currentColor,
-        -5px 0 5px currentColor;
+        var(--spacing-dot-xs) 0 var(--spacing-dot-xs) currentColor,
+        -var(--spacing-dot-xs) 0 var(--spacing-dot-xs) currentColor;
 }
 </style>

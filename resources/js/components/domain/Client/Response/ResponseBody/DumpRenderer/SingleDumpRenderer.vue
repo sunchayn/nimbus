@@ -122,7 +122,7 @@ const nestedValues: ComputedRef<
 </script>
 
 <template>
-    <div v-if="!isNestable" class="flex gap-1">
+    <div v-if="!isNestable" class="gap-tight flex">
         <slot name="key">
             <DumpKeyRenderer
                 v-if="keyName !== undefined"
@@ -176,7 +176,7 @@ const nestedValues: ComputedRef<
     >
         <button
             type="button"
-            class="group/collapsible-trigger hover:bg-elevated/50 -mx-1 flex items-center gap-1 rounded-sm px-1 text-sm"
+            class="group/collapsible-trigger hover:bg-elevated/50 -mx-tight gap-tight px-tight flex items-center rounded-sm text-sm"
             data-testid="collapsible-trigger"
             :disabled="nestedValues.length === 0"
         >
@@ -193,18 +193,18 @@ const nestedValues: ComputedRef<
                     name="i-hugeicons-arrow-right-01"
                     class="text-muted size-icon-xs transition-transform group-data-[state=open]/collapsible-trigger:rotate-90"
                 />
-                <span class="text-muted ms-1 text-xs">
+                <span class="text-muted ms-tight text-xs">
                     {{ nestableNodeSummary }}
                 </span>
             </span>
         </button>
 
         <template #content>
-            <div class="border-default ms-2 border-s ps-2">
+            <div class="border-default ms-base ps-base border-s">
                 <div
                     v-for="(nestedValue, key) in nestedValues"
                     :key="`${keyName ?? 'root'}-${key}`"
-                    class="flex items-center gap-1 py-1"
+                    class="gap-tight py-tight flex items-center"
                 >
                     <template v-if="dump.type === DumpValueType.Object">
                         <SingleDumpRenderer

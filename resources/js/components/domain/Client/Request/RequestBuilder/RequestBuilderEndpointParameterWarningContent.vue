@@ -21,7 +21,7 @@ defineProps<Props>();
 </script>
 
 <template>
-    <AppPanel class="flex flex-col gap-2 px-2 py-1 shadow-none">
+    <AppPanel class="gap-base px-base py-tight flex flex-col shadow-none">
         <AppPanelTitle class="px-0">
             Please resolve the missing route parameters
         </AppPanelTitle>
@@ -30,7 +30,7 @@ defineProps<Props>();
             Provide values for the following parameters to proceed with the request
         </AppPanelDescription>
 
-        <ul class="flex list-inside list-decimal flex-col gap-1 text-xs">
+        <ul class="gap-tight flex list-inside list-decimal flex-col text-xs">
             <li
                 v-for="item in parameters"
                 :key="item"

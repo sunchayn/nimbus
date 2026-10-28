@@ -36,9 +36,9 @@ const errorBody = computed({
 
 <template>
     <div
-        class="bg-muted gap-base relative flex h-full min-h-0 flex-1 flex-col overflow-hidden p-2"
+        class="bg-muted gap-base p-base relative flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
-        <div class="flex shrink-0 flex-col gap-px">
+        <div class="gap-line flex shrink-0 flex-col">
             <h2 class="text-base font-medium">
                 {{ props.error.message }}
             </h2>

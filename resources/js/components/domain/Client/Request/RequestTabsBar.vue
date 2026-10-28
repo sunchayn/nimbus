@@ -139,7 +139,7 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
                     <div
                         :ref="(el: unknown) => setTabElement(tab.id, el)"
                         :data-active="tab.id === tabsStore.activeTabId"
-                        class="bg-elevated border-default hover:bg-accented data-[active=true]:bg-default data-[active=true]:border-tab-active-border data-[active=true]:text-highlighted data-[active=true]:shadow-tab-active text-toned h-control-md gap-tight ps-base flex max-w-56 cursor-pointer items-center rounded-md border pe-1 text-sm"
+                        class="bg-elevated border-default hover:bg-accented data-[active=true]:bg-default data-[active=true]:border-tab-active-border data-[active=true]:text-highlighted data-[active=true]:shadow-tab-active text-toned h-control-md gap-tight ps-base max-w-tab pe-tight flex cursor-pointer items-center rounded-md border text-sm"
                         data-testid="sidebar-tab"
                         @click="tabsStore.setActiveTab(tab.id)"
                     >
@@ -149,7 +149,7 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
                                 tab.id === tabsStore.activeTabId ? 'page' : undefined
                             "
                             :title="tab.title"
-                            class="focus-visible:ring-primary gap-tight flex min-w-0 items-center rounded-sm focus-visible:ring-2 focus-visible:outline-none"
+                            class="focus-visible:ring-primary gap-tight focus-visible:ring-focus flex min-w-0 items-center rounded-sm focus-visible:outline-none"
                         >
                             <HttpVerbLabel :method="tab.method" class="min-w-0!" />
                             <span class="truncate">{{ shortTitle(tab.title) }}</span>
@@ -157,7 +157,7 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
                         <button
                             type="button"
                             aria-label="Close tab"
-                            class="hover:bg-accented focus-visible:ring-primary shrink-0 rounded-sm p-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 focus-visible:ring-2 pointer-coarse:opacity-100"
+                            class="hover:bg-accented focus-visible:ring-primary p-tight focus-visible:ring-focus shrink-0 rounded-sm opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100"
                             data-testid="sidebar-tab-close"
                             @click.stop="closeTab(tab.id)"
                         >

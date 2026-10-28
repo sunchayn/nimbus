@@ -42,16 +42,16 @@ const props = defineProps<AppSwapIconProps>();
 .swap-icon-enter-active,
 .swap-icon-leave-active {
     transition:
-        opacity var(--duration-base) cubic-bezier(0.2, 0, 0, 1),
-        scale var(--duration-base) cubic-bezier(0.2, 0, 0, 1),
-        filter var(--duration-base) cubic-bezier(0.2, 0, 0, 1);
+        opacity var(--duration-base) var(--ease-emphasized),
+        scale var(--duration-base) var(--ease-emphasized),
+        filter var(--duration-base) var(--ease-emphasized);
 }
 
 .swap-icon-enter-from,
 .swap-icon-leave-to {
     opacity: 0;
     scale: 0.25;
-    filter: blur(4px);
+    filter: blur(var(--spacing-tight));
 }
 
 /* Reduced motion keeps a plain opacity crossfade. */

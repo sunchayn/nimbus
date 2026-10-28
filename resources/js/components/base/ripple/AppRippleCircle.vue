@@ -37,7 +37,7 @@ const props = withDefaults(defineProps<AppRippleCircleProps>(), {
 <style scoped>
 .animate-ripple-circle {
     animation: ripple-effect var(--duration, 2s) ease-in-out infinite;
-    border-width: 1px;
+    border-width: var(--spacing-line);
     top: 50%;
     left: 50%;
     width: v-bind('props.size + "px"');

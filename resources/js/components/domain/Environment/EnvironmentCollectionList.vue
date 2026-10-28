@@ -32,7 +32,7 @@ const handleCollectionSelect = (collectionId: string) => {
             @click="environmentVariablesStore.addCollection"
         >
             <div
-                class="p-panel h-toolbar flex items-center gap-2"
+                class="p-panel h-toolbar gap-base flex items-center"
                 data-testid="empty-collection-placeholder"
             >
                 <AppIcon name="i-hugeicons-plus-sign" class="size-icon-xs" />
@@ -52,14 +52,14 @@ const handleCollectionSelect = (collectionId: string) => {
             }"
             @click="handleCollectionSelect(collection.id)"
         >
-            <div class="flex items-center gap-2">
-                <div class="flex-1 gap-1 leading-tight">
+            <div class="gap-base flex items-center">
+                <div class="gap-tight flex-1 leading-tight">
                     <div class="mb-0 font-medium">{{ collection.name }}</div>
                     <span class="text-xs">
                         {{ collection.variables.length }} variables
                     </span>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="gap-base flex items-center">
                     <AppBadge
                         v-if="
                             environmentVariablesStore.activeCollectionId === collection.id

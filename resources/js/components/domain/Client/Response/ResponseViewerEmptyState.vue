@@ -22,7 +22,7 @@ defineProps<ResponseViewerEmptyStateProps>();
 <template>
     <AppPanelStateContainer>
         <h2 class="text-base font-medium">No requests yet</h2>
-        <p class="mb-2 text-sm">
+        <p class="mb-base text-sm">
             Send a request and the response appears here. Check the user guide for more
             information.
         </p>

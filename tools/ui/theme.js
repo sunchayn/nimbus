@@ -5,69 +5,49 @@
  */
 
 /*
- * Token utility names from resources/css, taught to Tailwind merge.
+ * Token utility names read from resources/css/themes/base.css, taught to Tailwind merge.
  * Without them it reads an unknown name such as shadow-overlay as a color and keeps the default class.
+ * A new token in the CSS is picked up here, so nothing is listed twice.
+ * The caller passes the CSS text, so this file runs in Node and in the browser bundle.
  */
-const sizes = ["xs", "sm", "md", "lg"];
+const tokens = (css, ...prefixes) => [
+    ...new Set(
+        prefixes.flatMap((prefix) =>
+            [
+                ...css.matchAll(
+                    new RegExp(`^\\s*--${prefix}-([a-z0-9-]+):`, "gm"),
+                ),
+            ]
+                .map((match) => match[1])
+                .filter((name) => !name.includes("--")),
+        ),
+    ),
+];
 
-export const twMergeConfig = {
+export const createTwMergeConfig = (css) => ({
     extend: {
         theme: {
+            // The control sizes come from the utilities in app.css, not from a theme variable.
             spacing: [
-                "tight",
-                "base",
-                "loose",
-                "card",
-                "dialog",
-                "dialog-gap",
-                "popover",
-                "menu",
-                "toast",
-                "panel",
-                "tabs",
-                "tabs-gap",
-                "nav-gap",
-                "tooltip-nudge",
-                "press",
-                "pane",
-                "group",
-                "line",
-                "grip",
-                "fade",
-                "verb",
-                "nav-icon",
-                "item-sm",
-                "item-md",
-                ...sizes.map((size) => `icon-${size}`),
-                ...sizes.map((size) => `control-${size}`),
+                ...tokens(css, "spacing"),
+                ...["xs", "sm", "md", "lg"].map((size) => `control-${size}`),
             ],
-            container: ["overlay", "dialog", "dialog-lg"],
-            text: [
-                "xxs",
-                "menu-label",
-                ...sizes.map((size) => `control-${size}`),
-            ],
-            shadow: ["control", "overlay", "modal", "tab-active"],
-            animate: [
-                "fade-in-fast",
-                "fade-out-fast",
-                "fade-in-base",
-                "fade-out-base",
-                "collapsible-down",
-                "collapsible-up",
-            ],
+            container: tokens(css, "min-width", "max-width"),
+            text: tokens(css, "text"),
+            shadow: tokens(css, "shadow"),
+            animate: tokens(css, "animate"),
         },
         classGroups: {
-            z: [{ z: ["sticky", "raised", "overlay", "toast"] }],
-            duration: [{ duration: ["fast", "base"] }],
-            opacity: [{ opacity: ["disabled"] }],
-            "ring-w": [{ ring: ["line"] }],
+            z: [{ z: tokens(css, "z-index") }],
+            duration: [{ duration: tokens(css, "transition-duration") }],
+            opacity: [{ opacity: tokens(css, "opacity") }],
+            "ring-w": [{ ring: tokens(css, "ring-width") }],
             "border-w-b": [{ "border-b": ["line"] }],
             "border-w-s": [{ "border-s": ["line"] }],
             "border-w-e": [{ "border-e": ["line"] }],
         },
     },
-};
+});
 
 /*
  * Shared class strings.
@@ -295,7 +275,7 @@ export default {
             title: "text-xs",
             // Full opacity keeps tinted alerts above 4.5 to 1.
             description: "text-xs opacity-100",
-            icon: `${icon.sm} mt-px`,
+            icon: `${icon.sm} mt-line`,
             actions: "gap-base",
         },
         defaultVariants: {
@@ -308,12 +288,12 @@ export default {
         variants: {
             size: {
                 xs: {
-                    base: "h-4 px-tight py-0 gap-tight text-xxs rounded-sm",
+                    base: "h-chip-sm px-tight py-0 gap-tight text-xxs rounded-sm",
                     leadingIcon: icon.xs,
                     trailingIcon: icon.xs,
                 },
                 sm: {
-                    base: "h-4 px-control-xs py-0 gap-tight text-xxs rounded-sm",
+                    base: "h-chip-sm px-control-xs py-0 gap-tight text-xxs rounded-sm",
                     leadingIcon: icon.xs,
                     trailingIcon: icon.xs,
                 },
@@ -528,7 +508,7 @@ export default {
     kbd: {
         variants: {
             size: {
-                sm: "h-4 min-w-4 text-xxs",
+                sm: "h-chip-sm min-w-chip-sm text-xxs",
                 md: "h-control-xs min-w-control-xs text-xxs",
                 lg: "h-control-sm min-w-control-sm text-xs",
             },
@@ -678,10 +658,10 @@ export default {
         variants: {
             orientation: {
                 horizontal: {
-                    handle: "w-line after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2",
+                    handle: "w-line after:inset-y-0 after:left-1/2 after:w-hit-sm after:-translate-x-1/2",
                 },
                 vertical: {
-                    handle: "h-line after:inset-x-0 after:top-1/2 after:h-1 after:-translate-y-1/2",
+                    handle: "h-line after:inset-x-0 after:top-1/2 after:h-hit-sm after:-translate-y-1/2",
                 },
             },
         },

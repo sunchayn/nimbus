@@ -71,7 +71,7 @@ const configData = computed(() => ({
                     >
                         <div
                             :class="configData.isVersioned ? 'bg-success' : 'bg-accented'"
-                            class="size-2 rounded-full"
+                            class="size-dot-sm rounded-full"
                         ></div>
                         <span>
                             {{ configData.isVersioned ? 'Enabled' : 'Disabled' }}
@@ -143,7 +143,7 @@ const configData = computed(() => ({
                                         ? 'bg-info'
                                         : 'bg-accented'
                                 "
-                                class="size-2 rounded-full"
+                                class="size-dot-sm rounded-full"
                             ></div>
                             <span class="text-muted text-xs">
                                 {{ header.type === 'generator' ? 'Generated' : 'Static' }}

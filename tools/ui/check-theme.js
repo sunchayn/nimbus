@@ -26,7 +26,24 @@ const paletteClass = {
         /\b(?:bg|text|border|ring|from|via|to|fill|stroke|outline|divide|shadow)-(?:zinc|gray|slate|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black)\b/,
 };
 
-const sharedRules = [paletteClass, variableClass];
+const calcClass = {
+    name: 'calc or var inside an arbitrary class, add a token instead',
+    pattern: /-\[[^\]]*(?:calc\(|var\()/,
+};
+
+// Spacing roles exist for these steps, so a theme can change the density.
+const roleSpacingClass = {
+    name: 'numeric spacing with a role, use tight, base or loose',
+    pattern:
+        /(?<![\w.-])-?(?:[a-z]+:)*-?(?:gap(?:-[xy])?|space-[xy]|[mp][xytrblse]?)-[123](?![\w./-])/,
+};
+
+const motionClass = {
+    name: 'numeric duration or ring, use the duration and ring tokens',
+    pattern: /(?<![\w.-])(?:[a-z]+:)*(?:duration-\d+|ring-\d+)(?![\w./-])/,
+};
+
+const sharedRules = [paletteClass, variableClass, calcClass];
 
 const themeRules = [
     ...sharedRules,
@@ -47,6 +64,8 @@ const vueRules = [
         name: 'arbitrary px, rem or hex value',
         pattern: /[\w\]]-\[[^\]]*?(?:\d(?:px|rem)(?![a-z\d])|#[0-9a-f]{3,8}(?![\w]))/i,
     },
+    roleSpacingClass,
+    motionClass,
     {
         name: 'half step spacing, use the 4px grid or a spacing token',
         pattern:
@@ -78,8 +97,21 @@ const vueFiles = walk(jsRoot).filter(
     file => !vueAllowlist.includes(relative(root, file).split(sep).join('/')),
 );
 
+// Plain CSS reads tokens too. Data urls cannot read a variable, so those lines are skipped.
+const cssRules = [
+    {
+        name: 'raw px or rem value, use a token from themes/base.css',
+        pattern: /^(?!.*data:image).*\d(?:px|rem)\b/,
+    },
+];
+
+const cssFiles = ['resources/css/app.css', 'resources/css/vendor.css'].map(file =>
+    join(root, file),
+);
+
 const problems = [
     ...scan(themeFile, themeRules),
+    ...cssFiles.flatMap(file => scan(file, cssRules)),
     ...vueFiles.flatMap(file => scan(file, vueRules)),
 ];
 

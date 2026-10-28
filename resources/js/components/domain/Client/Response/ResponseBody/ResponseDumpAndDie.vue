@@ -171,8 +171,8 @@ watch(
             </span>
         </div>
         <template #toolbox>
-            <div class="flex items-center gap-2">
-                <div v-if="hasMultipleDumps" class="flex items-center gap-1">
+            <div class="gap-base flex items-center">
+                <div v-if="hasMultipleDumps" class="gap-tight flex items-center">
                     <AppButton
                         variant="ghost"
                         size="xs"
@@ -271,8 +271,8 @@ watch(
                 class="border-muted bg-default rounded-md border"
                 :data-testid="`dump-value-${index}`"
             >
-                <div class="px-panel z-sticky relative flex gap-2 border-b py-1">
-                    <AppRoundIndicator class="text-muted pt-1" />
+                <div class="px-panel z-sticky gap-base py-tight relative flex border-b">
+                    <AppRoundIndicator class="text-muted pt-tight" />
                     <span class="inline-flex flex-col" data-testid="dump-value-title">
                         <span class="text-xs">Dump #{{ index + 1 }}</span>
                     </span>

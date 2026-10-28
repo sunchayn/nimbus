@@ -128,7 +128,7 @@ provide(showingSearchResultsKey, showingSearchResults);
 
 <template>
     <div class="text-default flex h-full max-h-screen w-full flex-col">
-        <div class="pb-tight flex shrink-0 items-center gap-1">
+        <div class="pb-tight gap-tight flex shrink-0 items-center">
             <GeneratorInput
                 v-model="search"
                 size="md"
@@ -139,7 +139,7 @@ provide(showingSearchResultsKey, showingSearchResults);
                 class="min-w-0 flex-1"
             />
         </div>
-        <div class="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+        <div class="gap-base flex min-h-0 flex-1 flex-col overflow-hidden">
             <div
                 data-testid="routes-panel"
                 class="relative flex h-full w-full min-w-0 flex-col"
@@ -152,17 +152,17 @@ provide(showingSearchResultsKey, showingSearchResults);
                 >
                     <div
                         v-show="showRoutesTopMask"
-                        class="from-muted z-sticky h-fade pointer-events-none absolute top-0 right-0 left-0 bg-gradient-to-b from-20% to-transparent transition-opacity duration-300"
+                        class="from-muted z-sticky h-fade duration-slow pointer-events-none absolute top-0 right-0 left-0 bg-gradient-to-b from-20% to-transparent transition-opacity"
                     />
                     <AppScrollArea
                         ref="scrollAreaRef"
                         class="h-full"
                         @scroll="updateRoutesScrollMasks"
                     >
-                        <ul class="flex w-full min-w-0 flex-col gap-1">
+                        <ul class="gap-tight flex w-full min-w-0 flex-col">
                             <RoutesList v-if="routes !== null" :routes="filteredRoutes" />
-                            <div v-else class="px-2">
-                                <p class="mb-2 text-xs">
+                            <div v-else class="px-base">
+                                <p class="mb-base text-xs">
                                     Routes extraction was Interrupted, check the error on
                                     the page.
                                 </p>
@@ -171,14 +171,14 @@ provide(showingSearchResultsKey, showingSearchResults);
                     </AppScrollArea>
                     <div
                         v-show="showRoutesBottomMask"
-                        class="from-muted z-sticky h-fade pointer-events-none absolute right-0 bottom-0 left-0 bg-gradient-to-t from-20% to-transparent transition-opacity duration-300"
+                        class="from-muted z-sticky h-fade duration-slow pointer-events-none absolute right-0 bottom-0 left-0 bg-gradient-to-t from-20% to-transparent transition-opacity"
                     />
                 </div>
             </div>
         </div>
         <div
             v-if="hasMultipleApplications || (configStore.isVersioned && versions.length)"
-            class="flex shrink-0 items-center gap-1 pt-2"
+            class="gap-tight pt-base flex shrink-0 items-center"
         >
             <ApplicationSwitcher v-if="hasMultipleApplications" class="min-w-0 flex-1" />
             <div

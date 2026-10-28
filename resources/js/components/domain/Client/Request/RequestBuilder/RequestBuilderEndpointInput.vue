@@ -91,7 +91,7 @@ const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
             @keydown="executeCurrentRequestWhenEnterIsPressed"
         />
 
-        <div class="flex items-center gap-1 pe-1">
+        <div class="gap-tight pe-tight flex items-center">
             <AppPopover v-model:open="showParameterWarning" :content="{ align: 'start' }">
                 <template #anchor>
                     <AppTooltip text="Send (Enter)">
@@ -117,7 +117,7 @@ const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
                 </template>
 
                 <template #content>
-                    <div class="w-80 p-1">
+                    <div class="p-tight w-80">
                         <RequestBuilderEndpointParameterWarningContent
                             :parameters="parameters"
                         />

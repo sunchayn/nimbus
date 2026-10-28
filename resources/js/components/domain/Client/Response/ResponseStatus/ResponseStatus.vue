@@ -101,7 +101,7 @@ const isImportedFromShare = computed(() => lastLog.value?.importedFromShare === 
     <div
         :class="
             cn(
-                'pane-surface pr-panel @container flex h-[calc(var(--toolbar-height)+2*var(--border-w))] shrink-0 items-center justify-between gap-3',
+                'pane-surface pr-panel h-pane-header gap-loose @container flex shrink-0 items-center justify-between',
                 props.class,
             )
         "
@@ -129,7 +129,7 @@ const isImportedFromShare = computed(() => lastLog.value?.importedFromShare === 
             </span>
         </div>
 
-        <div class="flex shrink-0 items-center gap-1">
+        <div class="gap-tight flex shrink-0 items-center">
             <AppTooltip
                 v-if="isImportedFromShare"
                 text="This response was imported from a shareable link"

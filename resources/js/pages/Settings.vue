@@ -116,7 +116,7 @@ const copyPublishCommand = async () => {
                                         These values are read from your Laravel
                                         application's
                                         <code
-                                            class="bg-elevated inline-block rounded-sm px-1"
+                                            class="bg-elevated px-tight inline-block rounded-sm"
                                         >
                                             config/nimbus.php
                                         </code>
@@ -161,7 +161,7 @@ const copyPublishCommand = async () => {
                                                     <p class="text-muted text-xs">
                                                         This will create
                                                         <code
-                                                            class="bg-elevated inline-block rounded-sm px-1"
+                                                            class="bg-elevated px-tight inline-block rounded-sm"
                                                         >
                                                             config/nimbus.php
                                                         </code>
@@ -174,7 +174,7 @@ const copyPublishCommand = async () => {
                                     </p>
                                     <div class="text-xs">
                                         <div
-                                            class="bg-muted gap-base inline-flex items-center rounded-sm p-1 pl-2 font-mono"
+                                            class="bg-muted gap-base p-tight pl-base inline-flex items-center rounded-sm font-mono"
                                         >
                                             <span>{{ VERSION }}</span>
                                             <CopyButton

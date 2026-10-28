@@ -60,7 +60,7 @@ const environmentVariablesStore = useEnvironmentVariablesStore();
                         </div>
                     </div>
 
-                    <div class="flex flex-col items-start gap-2 md:flex-row">
+                    <div class="gap-base flex flex-col items-start md:flex-row">
                         <!-- Sidebar with the collection list -->
                         <EnvironmentCollectionList />
 

@@ -23,7 +23,7 @@ defineProps<DumpNoticeProps>();
 
 <template>
     <div class="border-muted bg-default rounded-md border text-sm">
-        <div class="px-panel flex items-center gap-2 border-b py-1">
+        <div class="px-panel gap-base py-tight flex items-center border-b">
             <AppRoundIndicator :class="indicatorClass" />
             {{ label }}
         </div>

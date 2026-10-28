@@ -104,7 +104,7 @@ watch(
 
 <template>
     <div
-        class="h-toolbar bg-muted px-panel relative flex w-full items-center justify-between gap-1"
+        class="h-toolbar bg-muted px-panel gap-tight relative flex w-full items-center justify-between"
     >
         <div class="flex min-w-0 flex-1 items-center">
             <AppEditable
@@ -121,7 +121,7 @@ watch(
         </div>
 
         <!-- Management Actions -->
-        <div class="flex items-center gap-1">
+        <div class="gap-tight flex items-center">
             <AppTooltip text="Rename">
                 <AppButton
                     size="xs"

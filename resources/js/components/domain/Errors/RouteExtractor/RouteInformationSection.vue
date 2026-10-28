@@ -30,7 +30,7 @@ defineProps<RouteInformationSectionProps>();
             <template v-if="routeContext.uri">
                 <dt class="text-muted">URI</dt>
                 <dd>
-                    <code class="bg-default rounded-sm border px-1">
+                    <code class="bg-default px-tight rounded-sm border">
                         {{ routeContext.uri }}
                     </code>
                 </dd>
@@ -50,7 +50,7 @@ defineProps<RouteInformationSectionProps>();
             <template v-if="routeContext.controllerClass">
                 <dt class="text-muted">Controller</dt>
                 <dd>
-                    <code class="bg-default rounded-sm border px-1 break-all">
+                    <code class="bg-default px-tight rounded-sm border break-all">
                         {{ routeContext.controllerClass }}
                     </code>
                 </dd>
@@ -59,7 +59,7 @@ defineProps<RouteInformationSectionProps>();
             <template v-if="routeContext.controllerMethod">
                 <dt class="text-muted">Method</dt>
                 <dd>
-                    <code class="bg-default rounded-sm border px-1">
+                    <code class="bg-default px-tight rounded-sm border">
                         {{ routeContext.controllerMethod }}
                     </code>
                 </dd>

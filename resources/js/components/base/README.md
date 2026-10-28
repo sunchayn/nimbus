@@ -24,11 +24,12 @@ The rest of the app imports the `App*` wrappers and never imports `@nuxt/ui`.
 
 1. Every padding and gap comes from one scale of tokens in `resources/css/themes/base.css`.
    The preset reads them, so wrappers never set spacing.
-2. Use `--gap-tight` (4px), `--gap-base` (8px), and `--gap-loose` (12px) for gaps.
+2. Use `gap-tight` (4px), `gap-base` (8px), and `gap-loose` (12px) for gaps, and the same names with `p`, `m`, and the other spacing prefixes.
+   Never write `gap-1`, `gap-2`, or `gap-3`, because a denser theme cannot change them.
 3. Surfaces have their own padding token.
-   Menus use `--menu-padding` (4px), popovers `--popover-padding` (8px), cards `--card-padding` (12px), and toasts `--toast-padding` (12px).
+   Menus use `p-menu` (4px), popovers `p-popover` (8px), cards `p-card` (12px), and toasts `p-toast` (12px).
    Alerts pad 8px by 10px with `text-xs` text.
-   Dialogs use `--dialog-padding` (12px) around the surface and `--dialog-gap` (12px) between header, body, and footer.
+   Dialogs use `p-dialog` (12px) around the surface and `gap-dialog-gap` (12px) between header, body, and footer.
    Dialogs are `max-w-dialog` (480px) wide, or `max-w-dialog-lg` (560px) for code blocks, and stop at `max-h-dialog` (70dvh).
 4. Content passed into a popover or dialog slot adds no outer padding of its own, because the surface already has it.
 5. The full table is in the Design System section of `wiki/contribution-guide/README.md`.

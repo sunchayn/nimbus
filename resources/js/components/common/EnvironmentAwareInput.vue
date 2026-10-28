@@ -248,11 +248,11 @@ defineExpose({
         <!-- Scroll Gradient Masks -->
         <div
             v-show="showLeftMask"
-            class="from-default z-raised w-fade pointer-events-none absolute top-0 bottom-0 left-0 bg-gradient-to-r to-transparent transition-opacity duration-200"
+            class="from-default z-raised w-fade duration-base pointer-events-none absolute top-0 bottom-0 left-0 bg-gradient-to-r to-transparent transition-opacity"
         />
         <div
             v-show="showRightMask"
-            class="from-default z-raised w-fade pointer-events-none absolute top-0 right-0 bottom-0 bg-gradient-to-l to-transparent transition-opacity duration-200"
+            class="from-default z-raised w-fade duration-base pointer-events-none absolute top-0 right-0 bottom-0 bg-gradient-to-l to-transparent transition-opacity"
         />
     </div>
 </template>

@@ -23,12 +23,12 @@ const store = useValueGeneratorStore();
 
 <template>
     <div
-        class="border-default bg-muted text-muted gap-base flex flex-col border-t p-2 text-center text-xs"
+        class="border-default bg-muted text-muted gap-base p-base flex flex-col border-t text-center text-xs"
     >
         <!-- Shift-Shift Shortcut Hint -->
         <div
             v-if="!store.wasOpenedViaShiftShift"
-            class="flex items-center justify-center gap-2 text-xs"
+            class="gap-base flex items-center justify-center text-xs"
         >
             <span>Press</span>
 

@@ -63,10 +63,10 @@ const updatePreference = <K extends keyof typeof preferences.value>(
 <template>
     <div class="gap-loose flex flex-col">
         <!-- Application Behavior -->
-        <!--        <div class="grid gap-2 sm:grid-cols-12 sm:gap-8">-->
+        <!--        <div class="grid gap-base sm:grid-cols-12 sm:gap-8">-->
         <!--            <div class="col-span-4">-->
-        <!--                <div class="space-y-2">-->
-        <!--                    <div class="flex items-center space-x-2">-->
+        <!--                <div class="space-y-base">-->
+        <!--                    <div class="flex items-center space-x-base">-->
         <!--                        <SettingsIcon class="h-4 w-4" />-->
         <!--                        <h3 class="text-sm font-medium">Application Behavior</h3>-->
         <!--                    </div>-->
@@ -79,7 +79,7 @@ const updatePreference = <K extends keyof typeof preferences.value>(
         <!--                <div class="rounded-lg border p-4">-->
         <!--                    <div class="space-y-4">-->
         <!--                        <div class="flex items-center justify-between">-->
-        <!--                            <div class="space-y-1">-->
+        <!--                            <div class="space-y-tight">-->
         <!--                                <AppLabel class="text-sm">Auto-refresh routes</AppLabel>-->
         <!--                                <p class="text-muted text-xs">-->
         <!--                                    Automatically refresh routes when the application-->
@@ -94,9 +94,9 @@ const updatePreference = <K extends keyof typeof preferences.value>(
         <!--                            />-->
         <!--                        </div>-->
 
-        <!--                        <div class="space-y-1">-->
+        <!--                        <div class="space-y-tight">-->
         <!--                            <AppLabel class="text-sm">Maximum history logs</AppLabel>-->
-        <!--                            <p class="text-muted mb-2 text-xs">-->
+        <!--                            <p class="text-muted mb-base text-xs">-->
         <!--                                Maximum number of request logs to keep in history-->
         <!--                            </p>-->
         <!--                            <AppInput-->
