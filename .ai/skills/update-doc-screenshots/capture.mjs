@@ -150,6 +150,17 @@ const layout = async (browser) => {
         await openGroup(page, 'responses');
         await shot(page, 'routes', [0, 0, 300, 900]);
     });
+
+    await step('nested-routes', async () => {
+        const nested = await open(browser);
+
+        for (const name of ['segments', 'workspaces', 'projects', 'billing', 'invoices']) {
+            await openGroup(nested, name);
+        }
+
+        await nested.mouse.move(700, 700);
+        await shot(nested, 'nested-routes', [0, 0, 300, 900]);
+    });
 };
 
 const schema = async (browser) => {

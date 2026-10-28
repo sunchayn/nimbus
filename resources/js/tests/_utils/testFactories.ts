@@ -7,7 +7,7 @@ import type { PendingRequest, Request } from '@/interfaces/http/request';
 import { RequestBodyTypeEnum } from '@/interfaces/http/request';
 import type { ErrorPlainResponse, Response } from '@/interfaces/http/response';
 import { STATUS } from '@/interfaces/http/status';
-import type { RouteDefinition, RoutesGroup } from '@/interfaces/routes/routes';
+import type { RouteDefinition, RoutesFolder } from '@/interfaces/routes/routes';
 import { type Mock, vi } from 'vitest';
 
 /*
@@ -52,11 +52,13 @@ export const createMockRouteDefinition = (
     ...overrides,
 });
 
-export const createMockRoutesGroup = (
-    overrides: Partial<RoutesGroup> = {},
-): RoutesGroup => ({
-    resource: 'users',
+export const createMockRoutesFolder = (
+    overrides: Partial<RoutesFolder> = {},
+): RoutesFolder => ({
+    name: 'users',
+    path: 'users',
     routes: [createMockRouteDefinition()],
+    children: [],
     ...overrides,
 });
 

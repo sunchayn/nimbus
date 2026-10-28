@@ -43,6 +43,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Nested Folders
+    |--------------------------------------------------------------------------
+    |
+    | Controls how the sidebar groups routes into folders. When enabled, the
+    | URI segments before the action become nested folders. When disabled,
+    | every route is listed in a single folder named after the root resource.
+    |
+    | Examples for the endpoint /api/admin/billing/invoices/list:
+    |   - true:  the route is listed in admin > billing > invoices.
+    |   - false: the route is listed in admin.
+    |
+    */
+
+    'nested_folders' => false,
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Configurations
     |--------------------------------------------------------------------------
     |

@@ -318,4 +318,61 @@ class EndpointUnitTest extends TestCase
             'expectedMessage' => 'Invalid ValueObject. The `resource` MUST exist in the URI.',
         ];
     }
+
+    /**
+     * @param  string[]  $expectedFolders
+     */
+    #[DataProvider('foldersProvider')]
+    public function test_it_returns_folders(
+        string $uri,
+        bool $isVersioned,
+        array $expectedFolders,
+    ): void {
+        // Arrange
+
+        $endpoint = Endpoint::fromRaw(uri: $uri, routesPrefix: 'api', isVersioned: $isVersioned);
+
+        // Act & Assert
+
+        $this->assertSame($expectedFolders, $endpoint->getFolders());
+    }
+
+    public static function foldersProvider(): Generator
+    {
+        yield 'single segment lives in its resource' => [
+            'uri' => '/api/users',
+            'isVersioned' => false,
+            'expectedFolders' => ['users'],
+        ];
+
+        yield 'the last segment is the action' => [
+            'uri' => '/api/v1/users/list',
+            'isVersioned' => true,
+            'expectedFolders' => ['users'],
+        ];
+
+        yield 'nested segments become nested folders' => [
+            'uri' => '/api/v1/creator/auth/password/reset',
+            'isVersioned' => true,
+            'expectedFolders' => ['creator', 'auth', 'password'],
+        ];
+
+        yield 'route parameters stop the folders' => [
+            'uri' => '/api/users/{user}/posts/list',
+            'isVersioned' => false,
+            'expectedFolders' => ['users'],
+        ];
+
+        yield 'route parameter as first segment falls back to the resource' => [
+            'uri' => '/api/{type}/show',
+            'isVersioned' => false,
+            'expectedFolders' => ['{type}'],
+        ];
+
+        yield 'root endpoint' => [
+            'uri' => '/',
+            'isVersioned' => false,
+            'expectedFolders' => ['<root>'],
+        ];
+    }
 }

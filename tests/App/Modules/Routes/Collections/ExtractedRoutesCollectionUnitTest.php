@@ -31,7 +31,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
 
         // Act
 
-        $output = $collection->toFrontendArray();
+        $output = $collection->toFrontendArray(shouldNestFolders: true);
 
         // Assert
 
@@ -40,6 +40,38 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
         $this->assertSame(
             $expected,
             $output,
+        );
+    }
+
+    public function test_it_keeps_one_folder_per_resource_when_folders_are_not_nested(): void
+    {
+        // Arrange
+
+        $collection = new ExtractedRoutesCollection([
+            new ExtractedRoute(
+                uri: new Endpoint(version: 'v1', resource: 'admin', value: '/api/admin/billing/invoices/list'),
+                methods: ['GET'],
+                schema: Schema::empty(),
+            ),
+            new ExtractedRoute(
+                uri: new Endpoint(version: 'v1', resource: 'admin', value: '/api/admin/dashboard'),
+                methods: ['GET'],
+                schema: Schema::empty(),
+            ),
+        ]);
+
+        // Act
+
+        $output = $collection->toFrontendArray(shouldNestFolders: false);
+
+        // Assert
+
+        $this->assertCount(1, $output['v1']);
+        $this->assertSame('admin', $output['v1'][0]['name']);
+        $this->assertSame([], $output['v1'][0]['children']);
+        $this->assertSame(
+            ['admin/billing/invoices/list', 'admin/dashboard'],
+            array_column($output['v1'][0]['routes'], 'shortUri'),
         );
     }
 
@@ -91,58 +123,68 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
             ],
             'expected' => [
                 'v1' => [
-                    'posts' => [
-                        [
-                            'uri' => '/api/posts',
-                            'shortUri' => 'posts',
-                            'methods' => ['POST'],
-                            'schema' => [
-                                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
-                                'type' => 'object',
-                                'properties' => [
-                                    'type' => [
-                                        'type' => 'string',
+                    [
+                        'name' => 'posts',
+                        'path' => 'posts',
+                        'routes' => [
+                            [
+                                'uri' => '/api/posts',
+                                'shortUri' => 'posts',
+                                'methods' => ['POST'],
+                                'schema' => [
+                                    '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'type' => [
+                                            'type' => 'string',
+                                        ],
                                     ],
+                                    'required' => [],
+                                    'additionalProperties' => false,
                                 ],
-                                'required' => [],
-                                'additionalProperties' => false,
+                                'extractionError' => null,
+                                'metadata' => [],
+                                'keywords' => ['/api/posts', '/posts'],
                             ],
-                            'extractionError' => null,
-                            'metadata' => [],
-                            'keywords' => ['/api/posts', '/posts'],
                         ],
+                        'children' => [],
                     ],
-                    'users' => [
-                        [
-                            'uri' => '/api/users',
-                            'shortUri' => 'users',
-                            'methods' => ['GET'],
-                            'schema' => [
-                                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
-                                'type' => 'object',
-                                'properties' => [],
-                                'required' => [],
-                                'additionalProperties' => false,
+                    [
+                        'name' => 'users',
+                        'path' => 'users',
+                        'routes' => [
+                            [
+                                'uri' => '/api/users',
+                                'shortUri' => 'users',
+                                'methods' => ['GET'],
+                                'schema' => [
+                                    '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                    'type' => 'object',
+                                    'properties' => [],
+                                    'required' => [],
+                                    'additionalProperties' => false,
+                                ],
+                                'extractionError' => null,
+                                'metadata' => [],
+                                'keywords' => ['/api/users', '/users'],
                             ],
-                            'extractionError' => null,
-                            'metadata' => [],
-                            'keywords' => ['/api/users', '/users'],
-                        ],
-                        [
-                            'uri' => '/api/users',
-                            'shortUri' => 'users',
-                            'methods' => ['POST'],
-                            'schema' => [
-                                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
-                                'type' => 'object',
-                                'properties' => [],
-                                'required' => [],
-                                'additionalProperties' => false,
+                            [
+                                'uri' => '/api/users',
+                                'shortUri' => 'users',
+                                'methods' => ['POST'],
+                                'schema' => [
+                                    '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                    'type' => 'object',
+                                    'properties' => [],
+                                    'required' => [],
+                                    'additionalProperties' => false,
+                                ],
+                                'extractionError' => null,
+                                'metadata' => [],
+                                'keywords' => ['/api/users', '/users'],
                             ],
-                            'extractionError' => null,
-                            'metadata' => [],
-                            'keywords' => ['/api/users', '/users'],
                         ],
+                        'children' => [],
                     ],
                 ],
             ],
@@ -178,39 +220,44 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
             ],
             'expected' => [
                 'v1' => [
-                    'users' => [
-                        [
-                            'uri' => '/api/users',
-                            'shortUri' => 'users',
-                            'methods' => ['GET'],
-                            'schema' => [
-                                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
-                                'type' => 'object',
-                                'properties' => [],
-                                'required' => [],
-                                'additionalProperties' => false,
+                    [
+                        'name' => 'users',
+                        'path' => 'users',
+                        'routes' => [
+                            [
+                                'uri' => '/api/users',
+                                'shortUri' => 'users',
+                                'methods' => ['GET'],
+                                'schema' => [
+                                    '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                    'type' => 'object',
+                                    'properties' => [],
+                                    'required' => [],
+                                    'additionalProperties' => false,
+                                ],
+                                'extractionError' => null,
+                                'metadata' => [],
+                                'keywords' => ['/api/users', '/users'],
                             ],
-                            'extractionError' => null,
-                            'metadata' => [],
-                            'keywords' => ['/api/users', '/users'],
-                        ],
-                        [
-                            'uri' => '/api/users',
-                            'shortUri' => 'users',
-                            'methods' => ['POST'],
-                            'schema' => [
-                                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
-                                'type' => 'object',
-                                'properties' => [],
-                                'required' => [],
-                                'additionalProperties' => false,
-                            ],
-                            'extractionError' => '<b>[no error message]</b><br />
-<small>'.__FILE__.'::173</small>
+                            [
+                                'uri' => '/api/users',
+                                'shortUri' => 'users',
+                                'methods' => ['POST'],
+                                'schema' => [
+                                    '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                    'type' => 'object',
+                                    'properties' => [],
+                                    'required' => [],
+                                    'additionalProperties' => false,
+                                ],
+                                'extractionError' => '<b>[no error message]</b><br />
+<small>'.__FILE__.'::215</small>
 <p class="text-xs">[trace]</p>',
-                            'metadata' => [],
-                            'keywords' => ['/api/users', '/users'],
+                                'metadata' => [],
+                                'keywords' => ['/api/users', '/users'],
+                            ],
                         ],
+                        'children' => [],
                     ],
                 ],
             ],
@@ -251,55 +298,151 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
             ],
             'expected' => [
                 'v1' => [
-                    '<root>' => [
-                        [
-                            'uri' => '/',
-                            'shortUri' => '',
-                            'methods' => ['GET'],
-                            'schema' => [
-                                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
-                                'type' => 'object',
-                                'properties' => [],
-                                'required' => [],
-                                'additionalProperties' => false,
+                    [
+                        'name' => '<root>',
+                        'path' => '<root>',
+                        'routes' => [
+                            [
+                                'uri' => '/',
+                                'shortUri' => '',
+                                'methods' => ['GET'],
+                                'schema' => [
+                                    '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                    'type' => 'object',
+                                    'properties' => [],
+                                    'required' => [],
+                                    'additionalProperties' => false,
+                                ],
+                                'extractionError' => null,
+                                'metadata' => [],
+                                'keywords' => ['/'],
                             ],
-                            'extractionError' => null,
-                            'metadata' => [],
-                            'keywords' => ['/'],
                         ],
+                        'children' => [],
                     ],
-                    '/' => [ // <- This is just to test the order is preferring <root> over anything else.
-                        [
-                            'uri' => '/_shouldnt_be_first',
-                            'shortUri' => '_shouldnt_be_first',
-                            'methods' => ['GET'],
-                            'schema' => [
-                                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
-                                'type' => 'object',
-                                'properties' => [],
-                                'required' => [],
-                                'additionalProperties' => false,
+                    [
+                        'name' => '/',
+                        'path' => '/',
+                        'routes' => [ // <- This is just to test the order is preferring <root> over anything else.
+                            [
+                                'uri' => '/_shouldnt_be_first',
+                                'shortUri' => '_shouldnt_be_first',
+                                'methods' => ['GET'],
+                                'schema' => [
+                                    '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                    'type' => 'object',
+                                    'properties' => [],
+                                    'required' => [],
+                                    'additionalProperties' => false,
+                                ],
+                                'extractionError' => null,
+                                'metadata' => [],
+                                'keywords' => ['::fake::'],
                             ],
-                            'extractionError' => null,
-                            'metadata' => [],
-                            'keywords' => ['::fake::'],
                         ],
+                        'children' => [],
                     ],
-                    'users' => [
-                        [
-                            'uri' => '/users',
-                            'shortUri' => 'users',
-                            'methods' => ['GET'],
-                            'schema' => [
-                                '$schema' => 'https://json-schema.org/draft/2020-12/schema',
-                                'type' => 'object',
-                                'properties' => [],
-                                'required' => [],
-                                'additionalProperties' => false,
+                    [
+                        'name' => 'users',
+                        'path' => 'users',
+                        'routes' => [
+                            [
+                                'uri' => '/users',
+                                'shortUri' => 'users',
+                                'methods' => ['GET'],
+                                'schema' => [
+                                    '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                    'type' => 'object',
+                                    'properties' => [],
+                                    'required' => [],
+                                    'additionalProperties' => false,
+                                ],
+                                'extractionError' => null,
+                                'metadata' => [],
+                                'keywords' => ['/users'],
                             ],
-                            'extractionError' => null,
-                            'metadata' => [],
-                            'keywords' => ['/users'],
+                        ],
+                        'children' => [],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'Nested endpoints' => [
+            'items' => [
+                new ExtractedRoute(
+                    uri: new Endpoint(
+                        version: 'v1',
+                        resource: 'creator',
+                        value: '/api/creator/auth/password/reset',
+                    ),
+                    methods: ['POST'],
+                    schema: Schema::empty(),
+                    keywords: [],
+                ),
+                new ExtractedRoute(
+                    uri: new Endpoint(
+                        version: 'v1',
+                        resource: 'creator',
+                        value: '/api/creator/profile',
+                    ),
+                    methods: ['GET'],
+                    schema: Schema::empty(),
+                    keywords: [],
+                ),
+            ],
+            'expected' => [
+                'v1' => [
+                    [
+                        'name' => 'creator',
+                        'path' => 'creator',
+                        'routes' => [
+                            [
+                                'uri' => '/api/creator/profile',
+                                'shortUri' => 'creator/profile',
+                                'methods' => ['GET'],
+                                'schema' => [
+                                    '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                    'type' => 'object',
+                                    'properties' => [],
+                                    'required' => [],
+                                    'additionalProperties' => false,
+                                ],
+                                'extractionError' => null,
+                                'metadata' => [],
+                                'keywords' => [],
+                            ],
+                        ],
+                        'children' => [
+                            [
+                                'name' => 'auth',
+                                'path' => 'creator/auth',
+                                'routes' => [],
+                                'children' => [
+                                    [
+                                        'name' => 'password',
+                                        'path' => 'creator/auth/password',
+                                        'routes' => [
+                                            [
+                                                'uri' => '/api/creator/auth/password/reset',
+                                                'shortUri' => 'creator/auth/password/reset',
+                                                'methods' => ['POST'],
+                                                'schema' => [
+                                                    '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+                                                    'type' => 'object',
+                                                    'properties' => [],
+                                                    'required' => [],
+                                                    'additionalProperties' => false,
+                                                ],
+                                                'extractionError' => null,
+                                                'metadata' => [],
+                                                'keywords' => [],
+                                            ],
+                                        ],
+                                        'children' => [],
+                                    ],
+                                ],
+                            ],
                         ],
                     ],
                 ],
@@ -317,19 +460,25 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
             $output,
             fn (array $routesInVersion) => Arr::map(
                 $routesInVersion,
-                fn (array $resourceRoutes) => Arr::map(
-                    $resourceRoutes,
-                    function (array $route) {
-                        if ($route['extractionError'] === null) {
-                            return $route;
-                        }
-
-                        $route['extractionError'] = preg_replace('#(<p\b[^>]*>).*?(</p>)#si', '$1[trace]$2', $route['extractionError']);
-
-                        return $route;
-                    },
-                )
+                fn (array $folder) => $this->replaceTraceInFolder($folder),
             )
         );
+    }
+
+    private function replaceTraceInFolder(array $folder): array
+    {
+        $folder['routes'] = Arr::map($folder['routes'], function (array $route) {
+            if ($route['extractionError'] === null) {
+                return $route;
+            }
+
+            $route['extractionError'] = preg_replace('#(<p\b[^>]*>).*?(</p>)#si', '$1[trace]$2', $route['extractionError']);
+
+            return $route;
+        });
+
+        $folder['children'] = Arr::map($folder['children'], fn (array $child) => $this->replaceTraceInFolder($child));
+
+        return $folder;
     }
 }

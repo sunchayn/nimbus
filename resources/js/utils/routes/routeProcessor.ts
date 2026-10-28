@@ -1,5 +1,5 @@
 import type { RouteExtractorException } from '@/interfaces';
-import type { RouteDefinition, RoutesGroup } from '@/interfaces/routes/routes';
+import type { RouteDefinition, RoutesFolder } from '@/interfaces/routes/routes';
 import type { JSONSchema7 } from 'json-schema';
 
 /**
@@ -16,58 +16,65 @@ export interface SourceRouteConfig {
     keywords: string[];
 }
 
+/**
+ * A folder as sent by the backend, with its routes and nested folders.
+ */
+export interface SourceFolder {
+    name: string;
+    path: string;
+    routes: SourceRouteConfig[];
+    children: SourceFolder[];
+}
+
 export type SourceRouteConfigArray = {
-    [key: string]: {
-        // <- key = version
-        [key: string]: SourceRouteConfig[]; // <- key = routes group api `resource`
-    };
+    [key: string]: SourceFolder[]; // <- key = version
 };
 
+const processFolder = (folder: SourceFolder): RoutesFolder => ({
+    name: folder.name,
+    path: folder.path,
+    routes: folder.routes
+        .flatMap((route: SourceRouteConfig) => {
+            return route.methods.map(
+                // <- Each method becomes its own individual route.
+                (method: string): RouteDefinition => ({
+                    method: method,
+                    endpoint: route.uri,
+                    shortEndpoint: route.shortUri,
+                    schema: {
+                        shape: route.schema,
+                        extractionErrors: route.extractionError,
+                    },
+                    metadata: route.metadata,
+                    keywords: route.keywords,
+                }),
+            );
+        })
+        // Sort routes (inside a given folder) by endpoint.
+        .sort((a, b) => a.shortEndpoint.localeCompare(b.shortEndpoint)),
+    children: folder.children.map(processFolder),
+});
+
 /**
- * Processes raw route data from window.Nimbus into structured route groups.
+ * Lists a folder tree as a flat list, parents before their children.
+ */
+const flattenFolders = (folders: RoutesFolder[]): RoutesFolder[] =>
+    folders.flatMap(folder => [folder, ...flattenFolders(folder.children)]);
+
+/**
+ * Processes raw route data from window.Nimbus into structured route folders.
  *
- * Transforms the nested source route configuration into a clean structure
- * organized by version and resource, with proper sorting and error handling.
+ * Transforms the source route configuration into a clean structure
+ * organized by version and folder, with proper sorting and error handling.
  */
 export async function processRoutesData(sourceRoutes: SourceRouteConfigArray): Promise<{
-    [key: string]: RoutesGroup[];
+    [key: string]: RoutesFolder[];
 }> {
-    const processedRoutes: { [key: string]: RoutesGroup[] } = {};
+    const processedRoutes: { [key: string]: RoutesFolder[] } = {};
 
     Object.keys(sourceRoutes).forEach((version: string) => {
-        const sourceRoutesInVersion = sourceRoutes[version];
-
-        const routesInVersion: RoutesGroup[] = [];
-
-        Object.keys(sourceRoutesInVersion).forEach((resource: string) => {
-            const resourceRoutes = sourceRoutesInVersion[resource];
-
-            routesInVersion.push({
-                resource: resource,
-                routes: resourceRoutes
-                    .flatMap((route: SourceRouteConfig) => {
-                        return route.methods.map(
-                            // <- Each method becomes its own individual route.
-                            (method: string): RouteDefinition => ({
-                                method: method,
-                                endpoint: route.uri,
-                                shortEndpoint: route.shortUri,
-                                schema: {
-                                    shape: route.schema,
-                                    extractionErrors: route.extractionError,
-                                },
-                                metadata: route.metadata,
-                                keywords: route.keywords,
-                            }),
-                        );
-                    })
-                    // Sort routes (inside a given `resource`) by endpoint.
-                    .sort((a, b) => a.shortEndpoint.localeCompare(b.shortEndpoint)),
-            });
-        });
-
-        // Routes within a version will pertain the original order from the controller (resource-based).
-        processedRoutes[version] = routesInVersion;
+        // Folders within a version pertain the order sent by the backend.
+        processedRoutes[version] = sourceRoutes[version].map(processFolder);
     });
 
     return processedRoutes;
@@ -100,7 +107,7 @@ export function parseRouteExtractionException(
  * returning structured results with version and resource context.
  */
 export function searchRoutes(
-    routes: { [key: string]: RoutesGroup[] } | null,
+    routes: { [key: string]: RoutesFolder[] } | null,
     query: string,
 ): Array<{
     version: string;
@@ -120,17 +127,17 @@ export function searchRoutes(
     const searchTerm = query.toLowerCase();
 
     Object.entries(routes).forEach(([version, versionRoutes]) => {
-        versionRoutes.forEach(group => {
-            group.routes.forEach(route => {
+        flattenFolders(versionRoutes).forEach(folder => {
+            folder.routes.forEach(route => {
                 if (
                     route.endpoint.toLowerCase().includes(searchTerm) ||
                     route.shortEndpoint.toLowerCase().includes(searchTerm) ||
                     route.method.toLowerCase().includes(searchTerm) ||
-                    group.resource.toLowerCase().includes(searchTerm)
+                    folder.path.toLowerCase().includes(searchTerm)
                 ) {
                     results.push({
                         version,
-                        resource: group.resource,
+                        resource: folder.path,
                         route,
                     });
                 }
@@ -142,13 +149,11 @@ export function searchRoutes(
 }
 
 /**
- * Calculates total route count across all versions and resources.
- *
- * Provides efficient counting without creating intermediate arrays,
+ * Calculates total route count across all versions and folders,
  * useful for statistics and UI indicators.
  */
 export function calculateTotalRouteCount(
-    routes: { [key: string]: RoutesGroup[] } | null,
+    routes: { [key: string]: RoutesFolder[] } | null,
 ): number {
     if (!routes) {
         return 0;
@@ -157,9 +162,10 @@ export function calculateTotalRouteCount(
     return Object.values(routes).reduce((total, versionRoutes) => {
         return (
             total +
-            versionRoutes.reduce((versionTotal, group) => {
-                return versionTotal + group.routes.length;
-            }, 0)
+            flattenFolders(versionRoutes).reduce(
+                (versionTotal, folder) => versionTotal + folder.routes.length,
+                0,
+            )
         );
     }, 0);
 }

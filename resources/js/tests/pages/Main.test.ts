@@ -1,4 +1,8 @@
-import type { GlobalException, RouteExtractorException, RoutesGroup } from '@/interfaces';
+import type {
+    GlobalException,
+    RouteExtractorException,
+    RoutesFolder,
+} from '@/interfaces';
 import MainPage from '@/pages/Main.vue';
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
@@ -14,7 +18,9 @@ const mockRoutesStore = reactive({
     routes: {
         v1: [
             {
-                resource: 'users',
+                name: 'users',
+                path: 'users',
+                children: [],
                 routes: [
                     {
                         method: 'GET',
@@ -25,7 +31,7 @@ const mockRoutesStore = reactive({
                 ],
             },
         ],
-    } as { [key: string]: RoutesGroup[] } | null,
+    } as { [key: string]: RoutesFolder[] } | null,
     hasExtractionError: false,
     hasAnyError: false,
     routeExtractorException: null as RouteExtractorException | null,
@@ -91,7 +97,9 @@ describe('MainPage', () => {
         mockRoutesStore.routes = {
             v1: [
                 {
-                    resource: 'users',
+                    name: 'users',
+                    path: 'users',
+                    children: [],
                     routes: [
                         {
                             method: 'GET',

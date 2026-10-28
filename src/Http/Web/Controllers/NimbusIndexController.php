@@ -2,6 +2,7 @@
 
 namespace Sunchayn\Nimbus\Http\Web\Controllers;
 
+use Illuminate\Config\Repository;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Vite;
@@ -23,6 +24,7 @@ class NimbusIndexController
         Actions\DisableThirdPartyUiAction $disableThirdPartyUiAction,
         ActiveApplicationResolver $activeApplicationResolver,
         ShareableLinkProcessorService $shareableLinkProcessorService,
+        Repository $config,
     ): Renderable|RedirectResponse {
         $incomingShareableLinkPayload = $this->processShareableLink($shareableLinkProcessorService, $activeApplicationResolver);
 
@@ -43,7 +45,9 @@ class NimbusIndexController
             $routes = $routesProcessorContract->process();
 
             $viewData = [
-                'routes' => $routes->toFrontendArray(),
+                'routes' => $routes->toFrontendArray(
+                    shouldNestFolders: (bool) $config->get('nimbus.nested_folders', false),
+                ),
                 'headers' => $buildGlobalHeadersAction->execute(),
                 'currentUser' => $buildCurrentUserAction->execute(),
                 'primaryProcessorName' => $routesProcessorContract->getName()->value,

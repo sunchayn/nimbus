@@ -10,7 +10,7 @@ import RouteExplorerVersionSelector from '@/components/domain/RoutesExplorer/Rou
 import RoutesList from '@/components/domain/RoutesExplorer/RoutesList/RoutesList.vue';
 import { showingSearchResultsKey } from '@/components/domain/RoutesExplorer/showingSearchResults';
 import { useTabVerticalScroll } from '@/composables/ui/useTabVerticalScroll';
-import { type RouteDefinition, type RoutesGroup } from '@/interfaces/routes/routes';
+import { type RouteDefinition, type RoutesFolder } from '@/interfaces/routes/routes';
 import { useConfigStore } from '@/stores';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
@@ -21,7 +21,7 @@ import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue';
  */
 
 export interface RouteExplorerProps {
-    routes: { [_key in string]?: RoutesGroup[] } | null;
+    routes: { [_key in string]?: RoutesFolder[] } | null;
 }
 
 /*
@@ -81,6 +81,23 @@ const routesInVersion = computed(() => {
     return props.routes[currentVersion.value] ?? [];
 });
 
+// Keeps the matching routes and drops the folders left with nothing to show.
+const filterFolder = (folder: RoutesFolder, searchTerm: string): RoutesFolder | null => {
+    const routes = folder.routes.filter((route: RouteDefinition) =>
+        route.keywords?.some((keyword: string) =>
+            keyword.toLowerCase().includes(searchTerm),
+        ),
+    );
+
+    const children = folder.children
+        .map(child => filterFolder(child, searchTerm))
+        .filter((child): child is RoutesFolder => child !== null);
+
+    return routes.length > 0 || children.length > 0
+        ? { ...folder, routes, children }
+        : null;
+};
+
 const filteredRoutes = computed(() => {
     if (props.routes === null) {
         return [];
@@ -92,19 +109,9 @@ const filteredRoutes = computed(() => {
 
     const searchTerm = search.value.toLowerCase();
 
-    return (
-        routesInVersion.value
-            .map((group: RoutesGroup) => {
-                const filtered = group.routes.filter((route: RouteDefinition) => {
-                    return route.keywords?.some((keyword: string) =>
-                        keyword.toLowerCase().includes(searchTerm),
-                    );
-                });
-
-                return filtered.length > 0 ? { ...group, routes: filtered } : null;
-            })
-            .filter((group): group is RoutesGroup => group !== null) || []
-    );
+    return routesInVersion.value
+        .map(folder => filterFolder(folder, searchTerm))
+        .filter((folder): folder is RoutesFolder => folder !== null);
 });
 
 const hasMultipleApplications = computed(

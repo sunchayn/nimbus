@@ -25,7 +25,7 @@ export type {
     GlobalException,
     RouteDefinition,
     RouteExtractorException,
-    RoutesGroup,
+    RoutesFolder,
 } from './routes';
 
 export type { JSONSchema7 } from './schema';

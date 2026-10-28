@@ -65,4 +65,35 @@ readonly class Endpoint
         // @example / -> /
         return Str::start(substr($this->value, $resourcePos), '/');
     }
+
+    /**
+     * The folder path the endpoint belongs to in the sidebar, one item per level.
+     * The last segment is the action and route parameters never become folders.
+     *
+     * @return non-empty-list<string>
+     *
+     * @example /users/{user}/posts/list -> ['users']
+     * @example /creator/auth/password/reset -> ['creator', 'auth', 'password']
+     */
+    public function getFolders(): array
+    {
+        if ($this->resource === self::ROOT_RESOURCE) {
+            return [self::ROOT_RESOURCE];
+        }
+
+        $segments = explode('/', trim($this->getShortUri(), '/'));
+
+        $folders = array_slice($segments, 0, -1);
+
+        foreach ($folders as $index => $segment) {
+            if (str_starts_with($segment, '{')) {
+                $folders = array_slice($folders, 0, $index);
+
+                break;
+            }
+        }
+
+        // A single segment endpoint has no parent folder, so it lives in its resource.
+        return $folders === [] ? [$this->resource] : $folders;
+    }
 }

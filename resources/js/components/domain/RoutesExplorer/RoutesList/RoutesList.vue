@@ -1,22 +1,19 @@
 <script setup lang="ts">
 /**
  * @component RoutesList
- * @description A list of grouped route resources and their endpoints.
+ * @description A list of route folders and their endpoints.
+ *              Folders render recursively through RoutesResourceGroup.
  */
-import RoutesListItem from '@/components/domain/RoutesExplorer/RoutesList/RoutesListItem.vue';
-import RoutesResource from '@/components/domain/RoutesExplorer/RoutesResourceGroup.vue';
+import RoutesResourceGroup from '@/components/domain/RoutesExplorer/RoutesResourceGroup.vue';
 import { useShowingSearchResults } from '@/components/domain/RoutesExplorer/showingSearchResults';
-import { useExplorerVisibility } from '@/composables/ui/useExplorerVisibility';
-import { type RouteDefinition, type RoutesGroup } from '@/interfaces/routes/routes';
-import { useRequestStore } from '@/stores';
-import { computed } from 'vue';
+import { type RoutesFolder } from '@/interfaces/routes/routes';
 
 /*
  * Types & Interfaces.
  */
 
 export interface RoutesListProps {
-    routes: RoutesGroup[];
+    routes: RoutesFolder[];
 }
 
 /*
@@ -26,65 +23,19 @@ export interface RoutesListProps {
 defineProps<RoutesListProps>();
 
 /*
- * Stores & Dependencies.
+ * State.
  */
-
-const requestStore = useRequestStore();
-const { isExplorerDrawerOpen } = useExplorerVisibility();
-
-/*
- * Computed & Methods.
- */
-
-const pendingRequestData = computed(() => requestStore.pendingRequestData);
-
-const isRouteActive = (route: RouteDefinition) => {
-    if (!route) {
-        return false;
-    }
-    if (!pendingRequestData.value) {
-        return false;
-    }
-
-    return (
-        route.endpoint === pendingRequestData.value.endpoint &&
-        route.method === pendingRequestData.value.method
-    );
-};
-
-const setPendingRequest = (route: RouteDefinition, resourceGroup: RoutesGroup) => {
-    if (!route || !resourceGroup) {
-        return;
-    }
-
-    // Get all routes with the same endpoint (different HTTP methods)
-    const availableRoutesForEndpoint = resourceGroup.routes.filter(
-        (routeInGroup: RouteDefinition) => routeInGroup.endpoint === route.endpoint,
-    );
-
-    requestStore.initializeRequest(route, availableRoutesForEndpoint);
-    isExplorerDrawerOpen.value = false;
-};
 
 const showingSearchResults = useShowingSearchResults();
 </script>
 
 <template>
     <template v-if="routes && routes.length">
-        <RoutesResource
-            v-for="resourceGroup in routes"
-            :key="resourceGroup.resource"
-            :resource="resourceGroup.resource"
-        >
-            <RoutesListItem
-                v-for="route in resourceGroup.routes"
-                :key="route.endpoint + '-' + route.method"
-                :route="route"
-                :resource="resourceGroup.resource"
-                :on-click="() => setPendingRequest(route, resourceGroup)"
-                :is-active="isRouteActive(route)"
-            />
-        </RoutesResource>
+        <RoutesResourceGroup
+            v-for="folder in routes"
+            :key="folder.path"
+            :folder="folder"
+        />
     </template>
     <template v-else-if="!showingSearchResults">
         <div class="px-base">

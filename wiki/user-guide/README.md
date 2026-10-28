@@ -109,8 +109,23 @@ The Route Explorer automatically discovers your Laravel API routes and organizes
 - **Application Switcher**: Switch between multiple API applications (e.g., Rest API, CMS API) if configured. It sits at the bottom of the sidebar.
 - **Version Selector**: If the active application is versioned, a version picker appears next to the application switcher.
 - **Resource Groups**: Routes are automatically grouped by resource (e.g., `users`, `products`).
+- **Nested Folders**: Optionally, routes are grouped in nested folders that follow the URI. See [Nested Folders](#nested-folders).
 - **HTTP Methods**: Each route explicitly shows its supported methods.
 - **Quick Load**: Click any route to immediately load it into the Request Builder. Each route opens in its own request tab.
+
+#### Nested Folders
+
+By default, each resource is one folder named after the first URI segment.
+Set `nested_folders` to `true` in `config/nimbus.php` to follow the full URI instead.
+The URI segments before the action become nested folders.
+
+![Nested folders](./assets/nested-routes.png)
+
+For example, `POST /billing/invoices/{invoice}/payments/refund` is listed in `billing` > `invoices`.
+
+- The last URI segment is the action, so it never becomes a folder.
+- A route parameter such as `{invoice}` ends the folder path. The segments after it stay in the route label.
+- The setting applies to all applications.
 
 ### Request Builder
 
@@ -519,6 +534,8 @@ return [
 
     'allowed_envs' => ['local', 'staging'],
 
+    'nested_folders' => false,
+
     'default_application' => 'main',
 
     'applications' => [
@@ -560,6 +577,7 @@ return [
 | **`prefix`** | The URI segment under which Nimbus is accessible.                                                                                                                                                     | `'nimbus'` | `'api-client'` |
 | **`allowed_envs`** | Environments where Nimbus is enabled. Avoid production for security reasons.                                                                                                                          | `['local', 'staging']` | `['testing', 'local']` |
 | **`default_application`** | The base default application to load when no other application is specified.                                                                                                                          | `'main'` | `'rest-api'` |
+| **`nested_folders`** | Groups routes in nested folders that follow the URI, instead of one folder per resource. Applies to all applications.<br /><br />See [Nested Folders](#nested-folders). | `false` | `true` |
 | **`applications.*.routes.prefix`** | The base path used to detect application routes. Only routes starting with this prefix are analyzed.                                                                                                  | `'api'` | `'api/v1'` |
 | **`applications.*.routes.versioned`** | Enables version parsing for routes like `/api/v1/...`.                                                                                                                                                | `false` | `true` |
 | **`applications.*.routes.api_base_url`** | The base URL used when Nimbus relays API requests from the UI. Useful when the API runs on a different domain or port. If set to null, Nimbus defaults to the host and scheme of the incoming request. | `null` | `'http://127.0.0.1:8001'` |

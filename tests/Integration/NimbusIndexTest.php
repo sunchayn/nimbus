@@ -70,7 +70,7 @@ class NimbusIndexTest extends TestCase
         {
             public function __construct(private string $key) {}
 
-            public function toFrontendArray(): array
+            public function toFrontendArray(bool $shouldNestFolders = false): array
             {
                 return ["routes for $this->key"];
             }
@@ -103,6 +103,51 @@ class NimbusIndexTest extends TestCase
         $disableThirdPartyUiActionSpy->shouldHaveReceived('execute')->once();
 
         $ignoreRoutesServiceSpy->shouldNotHaveReceived('execute');
+    }
+
+    #[DataProvider('nestedFoldersProvider')]
+    public function test_it_passes_the_nested_folders_setting_to_the_routes(?bool $configured, bool $expected): void
+    {
+        // Arrange
+
+        if ($configured !== null) {
+            config(['nimbus.nested_folders' => $configured]);
+        }
+
+        $extractRoutesActionMock = $this->mock(ExtractApplicationRoutesAction::class);
+
+        // Anticipate
+
+        $extractedRoutesCollectionStub = new class extends ExtractedRoutesCollection
+        {
+            public function __construct() {}
+
+            public function toFrontendArray(bool $shouldNestFolders = false): array
+            {
+                return ['nestedFolders' => $shouldNestFolders];
+            }
+        };
+
+        $extractRoutesActionMock->shouldReceive('execute')->andReturn($extractedRoutesCollectionStub);
+
+        // Act
+
+        $response = $this->get(route('nimbus.index'));
+
+        // Assert
+
+        $response->assertStatus(200);
+
+        $response->assertViewHas('routes', ['nestedFolders' => $expected]);
+    }
+
+    public static function nestedFoldersProvider(): Generator
+    {
+        yield 'enabled' => ['configured' => true, 'expected' => true];
+
+        yield 'disabled' => ['configured' => false, 'expected' => false];
+
+        yield 'not configured defaults to disabled' => ['configured' => null, 'expected' => false];
     }
 
     public static function indexRouteProvider(): Generator

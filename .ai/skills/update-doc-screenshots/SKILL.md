@@ -32,7 +32,7 @@ Screenshots in `wiki/user-guide/assets` are produced by `capture.mjs`, which sit
 
 | Feature | Images | Source folders that affect it |
 |---|---|---|
-| `layout` | `empty-client-sections`, `request-builder`, `applications-switcher`, `routes` | `components/layout`, `components/domain/RoutesExplorer`, `components/domain/Client/ClientWorkspace.vue` |
+| `layout` | `empty-client-sections`, `request-builder`, `applications-switcher`, `routes`, `nested-routes` | `components/layout`, `components/domain/RoutesExplorer`, `components/domain/Client/ClientWorkspace.vue` |
 | `schema` | `schema-validation`, `auto-fill`, `auth-options` | `Client/Request/RequestBody`, `Client/Request/RequestAuthorization` |
 | `generator` | `value-generator` | `components/common/ValueGenerator`, `GeneratorInput.vue` |
 | `response` | `response`, `cookies`, `decrypted-cookies`, `response-download` | `Client/Response` |

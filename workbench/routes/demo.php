@@ -55,7 +55,20 @@ Route::prefix('verbs')->group(function () {
 
 Route::prefix('segments')->group(function () {
     Route::get('/{segment}', [VerbsController::class, 'get']);
-    Route::post('/example2/{segment}/create', [VerbsController::class, 'post']);
+
+    Route::prefix('workspaces')->group(function () {
+        Route::get('/members/list', [VerbsController::class, 'get']);
+        Route::post('/members/invite', [VerbsController::class, 'post']);
+        Route::get('/projects/list', [VerbsController::class, 'get']);
+        Route::post('/projects/create', [VerbsController::class, 'post']);
+        Route::patch('/{workspace}/projects/{project}/archive', [VerbsController::class, 'patch']);
+    });
+
+    Route::prefix('billing')->group(function () {
+        Route::get('/invoices/list', [VerbsController::class, 'get']);
+        Route::post('/invoices/{invoice}/payments/refund', [VerbsController::class, 'post']);
+        Route::get('/plans/list', [VerbsController::class, 'get']);
+    });
 });
 
 Route::prefix('dd')->group(function () {

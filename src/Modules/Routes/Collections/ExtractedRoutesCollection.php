@@ -21,50 +21,70 @@ use Sunchayn\Nimbus\Modules\Routes\ValueObjects\Endpoint;
 class ExtractedRoutesCollection extends Collection
 {
     /**
-     * @return array<string, array<string, RouteDefinitionShape[]>>
+     * Routes are grouped by version, then into folders.
+     * A folder is the route resource, or a path of URI segments when nested folders are enabled.
+     *
+     * @return array<string, array<int, array<string, mixed>>>
      */
-    public function toFrontendArray(): array
+    public function toFrontendArray(bool $shouldNestFolders = false): array
     {
         /** @var Collection<string, self> $groupedByVersion */
         $groupedByVersion = $this->groupBy(static fn (ExtractedRoute $extractedRoute): string => $extractedRoute->uri->version);
 
         return $groupedByVersion
-            ->map(
-                static function (self $group): Collection {
-                    /** @var Collection<string, self> $groupedByResource */
-                    $groupedByResource = $group
-                        ->groupBy(static fn (ExtractedRoute $extractedRoute): string => $extractedRoute->uri->resource)
-                        ->sortKeysUsing(function (string $keyA, string $keyB): int {
-                            // If keyA is the root, it should come first (move it "up")
-                            if ($keyA === Endpoint::ROOT_RESOURCE) {
-                                return -1;
-                            }
-
-                            // If keyB is the root, it should come first (move keyA "down")
-                            if ($keyB === Endpoint::ROOT_RESOURCE) {
-                                return 1;
-                            }
-
-                            // Otherwise, sort alphabetically
-                            return strcmp($keyA, $keyB);
-                        });
-
-                    return $groupedByResource
-                        ->map(
-                            static fn (self $group): Collection => $group->map(
-                                static fn (ExtractedRoute $extractedRoute): array => [
-                                    'uri' => $extractedRoute->uri->value,
-                                    'shortUri' => Str::replaceStart('/', '', $extractedRoute->uri->getShortUri()),
-                                    'methods' => $extractedRoute->methods,
-                                    'schema' => $extractedRoute->schema->toJsonSchema(),
-                                    'extractionError' => $extractedRoute->schema->extractionError?->toHtml(),
-                                    'metadata' => $extractedRoute->metadata,
-                                    'keywords' => $extractedRoute->keywords,
-                                ],
-                            ),
-                        );
-                },
-            )
+            ->map(static fn (self $routesInVersion): array => $routesInVersion->toFolders($shouldNestFolders))
             ->toArray();
+    }
+
+    /**
+     * @param  string[]  $parentPath
+     * @return array<int, array<string, mixed>>
+     */
+    private function toFolders(bool $shouldNestFolders, array $parentPath = []): array
+    {
+        $foldersOf = static fn (ExtractedRoute $extractedRoute): array => $shouldNestFolders
+            ? $extractedRoute->uri->getFolders()
+            : [$extractedRoute->uri->resource];
+
+        /** @var Collection<string, self> $groupedByFolder */
+        $groupedByFolder = $this->groupBy(
+            static fn (ExtractedRoute $extractedRoute): string => $foldersOf($extractedRoute)[count($parentPath)],
+        );
+
+        return $groupedByFolder
+            ->sortKeysUsing(function (string $keyA, string $keyB): int {
+                // The root always comes first, everything else is sorted alphabetically.
+                return match (true) {
+                    $keyA === Endpoint::ROOT_RESOURCE => -1,
+                    $keyB === Endpoint::ROOT_RESOURCE => 1,
+                    default => strcmp($keyA, $keyB),
+                };
+            })
+            ->toBase()
+            ->map(function (self $routesInFolder, string $name) use ($parentPath, $foldersOf, $shouldNestFolders): array {
+                $path = [...$parentPath, $name];
+
+                // Routes ending at this folder stay here and the deeper ones go to the children.
+                $isOwnRoute = static fn (ExtractedRoute $extractedRoute): bool => count($foldersOf($extractedRoute)) === count($path);
+
+                return [
+                    'name' => $name,
+                    'path' => implode('/', $path),
+                    'routes' => $routesInFolder->filter($isOwnRoute)->toBase()->map(
+                        static fn (ExtractedRoute $extractedRoute): array => [
+                            'uri' => $extractedRoute->uri->value,
+                            'shortUri' => Str::replaceStart('/', '', $extractedRoute->uri->getShortUri()),
+                            'methods' => $extractedRoute->methods,
+                            'schema' => $extractedRoute->schema->toJsonSchema(),
+                            'extractionError' => $extractedRoute->schema->extractionError?->toHtml(),
+                            'metadata' => $extractedRoute->metadata,
+                            'keywords' => $extractedRoute->keywords,
+                        ],
+                    )->values()->all(),
+                    'children' => $routesInFolder->reject($isOwnRoute)->toFolders($shouldNestFolders, $path),
+                ];
+            })
+            ->values()
+            ->all();
     }
 }

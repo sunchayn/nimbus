@@ -28,10 +28,16 @@ export interface RouteDetectionMetadata {
     isRouteMissingFromPrimarySource: boolean;
 }
 
-export interface RoutesGroup {
-    /** The resource name that groups these routes */
-    resource: string;
+export interface RoutesFolder {
+    /** The folder label (e.g. "password"). */
+    name: string;
 
-    /** Array of route definitions belonging to this group */
+    /** The full folder path (e.g. "creator/auth/password"). */
+    path: string;
+
+    /** Route definitions directly in this folder. */
     routes: Array<RouteDefinition>;
+
+    /** Nested folders. */
+    children: Array<RoutesFolder>;
 }

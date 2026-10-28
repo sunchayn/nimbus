@@ -4,6 +4,7 @@ return [
     'prefix' => 'demo',
     'default_application' => 'main',
     'allowed_envs' => ['testing', 'local', 'staging', 'production'],
+    'nested_folders' => true,
 
     'applications' => [
         'main' => [

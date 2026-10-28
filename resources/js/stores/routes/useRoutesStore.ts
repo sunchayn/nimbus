@@ -1,5 +1,5 @@
 import type { RouteExtractorException } from '@/interfaces';
-import type { RouteDefinition, RoutesGroup } from '@/interfaces/routes/routes';
+import type { RouteDefinition, RoutesFolder } from '@/interfaces/routes/routes';
 import {
     calculateTotalRouteCount,
     parseRouteExtractionException,
@@ -14,7 +14,7 @@ export const useRoutesStore = defineStore('routes', () => {
      * State.
      */
 
-    const routes = ref<{ [key: string]: RoutesGroup[] } | null>(null);
+    const routes = ref<{ [key: string]: RoutesFolder[] } | null>(null);
     const routeExtractorException = ref<RouteExtractorException | null>(null);
     const isLoading = shallowRef(false);
     const error = shallowRef<string | null>(null);

@@ -9,4 +9,4 @@ export type {
     RouteExtractorException,
 } from './exceptions';
 
-export type { RouteDefinition, RoutesGroup } from './routes';
+export type { RouteDefinition, RoutesFolder } from './routes';
