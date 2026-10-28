@@ -74,6 +74,7 @@ const items = computed(() => {
             variant="ghost"
             size="sm"
             placeholder="Select a Method"
+            :disabled="!requestStore.pendingRequestData"
             class="h-full w-14 rounded-none font-mono"
             :trailing="false"
             :ui="{

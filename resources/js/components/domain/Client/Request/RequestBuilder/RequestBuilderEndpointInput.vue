@@ -85,6 +85,7 @@ const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
             size="sm"
             class="h-full flex-1"
             placeholder="<endpoint>"
+            :disabled="!pendingRequestData"
             data-testid="endpoint-input"
             @click="autoSelectRouteVariableSegmentWhenApplicable"
             @keydown="executeCurrentRequestWhenEnterIsPressed"
@@ -96,9 +97,17 @@ const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
                     <AppTooltip text="Send (Enter)">
                         <AppButton
                             size="sm"
-                            :label="pendingRequestData?.isProcessing ? 'Sending' : 'Send'"
-                            :loading="pendingRequestData?.isProcessing"
-                            trailing-icon="i-hugeicons-arrow-turn-backward"
+                            label="Send"
+                            :trailing-icon="
+                                pendingRequestData?.isProcessing
+                                    ? 'i-hugeicons-loading-03'
+                                    : 'i-hugeicons-arrow-turn-backward'
+                            "
+                            :ui="{
+                                trailingIcon: pendingRequestData?.isProcessing
+                                    ? 'animate-spin'
+                                    : '',
+                            }"
                             :disabled="
                                 !pendingRequestData || pendingRequestData?.isProcessing
                             "

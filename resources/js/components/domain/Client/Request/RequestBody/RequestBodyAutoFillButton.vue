@@ -21,8 +21,8 @@ defineProps<RequestBodyAutoFillButtonProps>();
 <template>
     <AppGlowingButton
         size="sm"
-        icon="i-hugeicons-magic-wand-01"
+        icon="i-hugeicons-magic-wand-04"
         label="Auto Fill"
-        :ui="{ leadingIcon: 'transition-transform group-hover:rotate-12' }"
+        :ui="{ leadingIcon: 'transition-transform group-enabled:group-hover:rotate-12' }"
     />
 </template>

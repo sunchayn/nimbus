@@ -9,10 +9,10 @@ import { AppPopover } from '@/components/base/popover';
 import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import HistoryItem from '@/components/domain/Client/Response/ResponseStatus/History/HistoryItem.vue';
 import { useConfirmationAction } from '@/composables/ui/useConfirmationAction';
+import { useShortTimeAgo } from '@/composables/ui/useShortTimeAgo';
 import { type RequestLog } from '@/interfaces/history/logs';
 import { type Response } from '@/interfaces/http';
 import { useRequestsHistoryStore, useRequestStore } from '@/stores';
-import { useTimeAgo } from '@vueuse/core';
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue';
 
 /*
@@ -48,7 +48,7 @@ const lastTimestamp = computed(() => {
     return timestamp === undefined ? null : new Date(timestamp * 1000);
 });
 
-const timeAgo = useTimeAgo(computed(() => lastTimestamp.value ?? new Date()));
+const timeAgo = useShortTimeAgo(computed(() => lastTimestamp.value ?? new Date()));
 
 const absoluteTime = computed(() =>
     lastTimestamp.value?.toLocaleString('en-US', {
@@ -108,7 +108,7 @@ watch(isOpen, async open => {
     <AppPopover
         v-if="logs.length"
         v-model:open="isOpen"
-        :content="{ align: 'end', collisionPadding: 8 }"
+        :content="{ align: 'end', sideOffset: 12, collisionPadding: 8 }"
         :ui="{
             content:
                 'flex w-screen max-h-(--reka-popover-content-available-height) max-w-popover flex-col p-0',

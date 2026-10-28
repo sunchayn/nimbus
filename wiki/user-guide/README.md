@@ -244,7 +244,7 @@ Nimbus keeps a log of every request you send, allowing you to quickly "rewind" t
 - **Persistent Session**: Your history is preserved across page refreshes.
 
 **How to use:**
-1. Click on the relative timestamp (e.g., "5 minutes ago") in the response status bar.
+1. Click on the relative timestamp (e.g., "5m ago") in the response status bar.
 2. Browse or filter your previous requests by endpoint.
 3. Click a log entry to restore its state into the Request Builder.
 4. Use the "Clear" button to purge your session logs.

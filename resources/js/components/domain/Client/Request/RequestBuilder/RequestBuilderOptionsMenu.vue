@@ -139,7 +139,7 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
             :disabled="!pendingRequestData"
             data-testid="request-options-button"
             aria-label="Request options"
-            icon="i-hugeicons-sparkles"
+            icon="i-hugeicons-command"
             square
         />
 

@@ -4,7 +4,6 @@
  * @description Displays internal errors that occurred during the request (e.g., proxy failures).
  */
 import AppPanelRipple from '@/components/base/AppPanelRipple.vue';
-import { AppBadge } from '@/components/base/badge';
 import CodeEditor from '@/components/domain/CodeEditor/CodeEditor.vue';
 import { type ErrorPlainResponse } from '@/interfaces/http';
 import { computed } from 'vue';
@@ -37,33 +36,33 @@ const errorBody = computed({
 
 <template>
     <div
-        class="via-default from-error/10 p-panel relative max-h-full flex-1 overflow-hidden bg-gradient-to-br from-10%"
+        class="bg-muted gap-base relative flex h-full min-h-0 flex-1 flex-col overflow-hidden p-2"
     >
-        <div class="z-sticky relative flex max-h-full flex-col p-2">
-            <div>
-                <AppBadge variant="outline" color="neutral" size="xs">
-                    Internal Error
-                </AppBadge>
-                <h2 class="text-error text-lg font-medium">
-                    {{ props.error.message }}
-                </h2>
-            </div>
-            <p class="text-sm">
-                Unable to relay the request through the internal proxy.
-                <span v-if="props.error.message">
+        <div class="flex shrink-0 flex-col gap-px">
+            <h2 class="text-base font-medium">
+                {{ props.error.message }}
+            </h2>
+            <p class="text-muted text-sm">
+                Unable to relay the request.
+                <span v-if="props.error.body">
                     Check the details below, then send the request again.
                 </span>
                 <span v-else>
                     Check the console for details, then send the request again.
                 </span>
             </p>
+        </div>
 
-            <div
-                v-if="props.error.body"
-                class="bg-default mt-2 overflow-scroll rounded-md p-2 text-sm"
-            >
-                <CodeEditor v-model="errorBody" language="json" :readonly="true" />
-            </div>
+        <div
+            v-if="props.error.body"
+            class="border-muted bg-default z-sticky relative min-h-0 flex-1 overflow-hidden rounded-md border text-sm"
+        >
+            <CodeEditor
+                v-model="errorBody"
+                language="json"
+                :readonly="true"
+                :auto-height="false"
+            />
         </div>
         <AppPanelRipple />
     </div>

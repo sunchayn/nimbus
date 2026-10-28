@@ -73,7 +73,6 @@
     --spacing-line: var(--border-w);
     --spacing-grip: var(--grip-line);
     --spacing-fade: var(--fade-size);
-    --spacing-verb: var(--verb-col-w);
 
     /* Icon and row sizes. They give size-icon-md, size-nav-icon and h-item-md. */
     --spacing-icon-xs: var(--control-icon-xs);
@@ -344,9 +343,6 @@
 
     /* Size of the gradient that fades the edge of a scrolling area. */
     --fade-size: 32px;
-
-    /* Width of the HTTP method column in the request history list. */
-    --verb-col-w: 3.25rem;
 
     /* Thickness of the line shown on a resize handle. */
     --grip-line: 2px;

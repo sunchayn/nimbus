@@ -70,7 +70,7 @@ describe('HistoryItem', () => {
 
             // Assert relative timestamp
             const timestamp = wrapper.find('small');
-            expect(timestamp.text()).toMatch(/1 minute ago|1 min ago/);
+            expect(timestamp.text()).toBe('1m ago');
         });
     });
 });

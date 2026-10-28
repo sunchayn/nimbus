@@ -8,4 +8,5 @@ export enum STATUS {
     PENDING = 'Pending',
     OTHER = 'Other',
     DUMP_AND_DIE = 'Dump & Die',
+    INTERNAL_ERROR = 'Internal Error',
 }

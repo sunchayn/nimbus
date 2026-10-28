@@ -31,7 +31,7 @@ const { isResolvingShape, isJsonResponse, downloadRawResponse, downloadResponseS
 
 const items = computed<AppDropdownMenuItem[][]>(() => [
     [
-        { label: 'Download options', type: 'label' },
+        { label: 'Options', type: 'label' },
         {
             label: 'Raw response',
             testId: 'download-raw-option',

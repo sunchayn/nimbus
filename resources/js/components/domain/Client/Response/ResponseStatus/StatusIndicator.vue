@@ -35,6 +35,7 @@ const variants = {
     [STATUS.OTHER]: 'text-muted',
     [STATUS.EMPTY]: 'text-highlighted',
     [STATUS.DUMP_AND_DIE]: 'text-secondary',
+    [STATUS.INTERNAL_ERROR]: 'text-error',
     [STATUS.PENDING]: '',
 };
 

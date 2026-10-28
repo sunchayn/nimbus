@@ -3,7 +3,7 @@
  * @component HttpVerbLabel
  * @description A visual indicator for HTTP methods (GET, POST, etc.) with color coding.
  */
-import { getHttpVerbColorClass } from '@/utils/http';
+import { getHttpVerbColorClass, getHttpVerbShortLabel } from '@/utils/http';
 import { cn } from '@/utils/ui';
 import { computed } from 'vue';
 
@@ -13,6 +13,7 @@ import { computed } from 'vue';
 
 export interface HttpVerbLabelProps {
     method: string;
+    class?: string;
     size?: 'sm' | 'md' | 'lg';
     variant?: 'solid' | 'outline' | 'soft' | 'subtle';
 }
@@ -22,6 +23,7 @@ export interface HttpVerbLabelProps {
  */
 
 const props = withDefaults(defineProps<HttpVerbLabelProps>(), {
+    class: '',
     size: 'sm',
     variant: 'outline',
 });
@@ -43,9 +45,16 @@ const sizeClasses = computed(() => {
 
 <template>
     <span
-        :class="cn('inline-block font-mono font-medium', sizeClasses, indicatorColor)"
+        :class="
+            cn(
+                'inline-block font-mono font-medium',
+                sizeClasses,
+                indicatorColor,
+                props.class,
+            )
+        "
         data-testid="http-verb-label"
     >
-        {{ method }}
+        {{ getHttpVerbShortLabel(method) }}
     </span>
 </template>

@@ -52,6 +52,10 @@ const status = computed(() => {
         return STATUS.PENDING;
     }
 
+    if (lastLog.value?.error) {
+        return STATUS.INTERNAL_ERROR;
+    }
+
     if (!lastLog.value || !lastLog.value.response) {
         return STATUS.EMPTY;
     }
@@ -59,10 +63,12 @@ const status = computed(() => {
     return lastLog.value.response.status ?? STATUS.EMPTY;
 });
 
-const size = computed(() => prettyBytes(lastLog.value?.response?.sizeInBytes ?? 0));
+const size = computed(() =>
+    prettyBytes(lastLog.value?.response?.sizeInBytes ?? 0, { space: false }),
+);
 
 const duration = computed(() => {
-    const text = prettyMs(
+    return prettyMs(
         // If there's a pending request that's processing, use its duration
         // Otherwise, use the provided response's duration
         pendingRequestData.value?.isProcessing
@@ -74,9 +80,6 @@ const duration = computed(() => {
             keepDecimalsOnWholeSeconds: true,
         },
     );
-
-    // Put a space between the number and its unit.
-    return text.replace(/(\d)([a-zµ]+)/gi, '$1 $2');
 });
 
 const cancelRequest = () => {
@@ -119,7 +122,7 @@ const isImportedFromShare = computed(() => lastLog.value?.importedFromShare === 
                 <span class="tabular-nums" data-testid="response-status-duration">
                     {{ duration }}
                 </span>
-                <template v-if="!pendingRequestData?.isProcessing">
+                <template v-if="!pendingRequestData?.isProcessing && !lastLog?.error">
                     <span class="text-muted" aria-hidden="true">•</span>
                     <span data-testid="response-status-size">{{ size }}</span>
                 </template>
