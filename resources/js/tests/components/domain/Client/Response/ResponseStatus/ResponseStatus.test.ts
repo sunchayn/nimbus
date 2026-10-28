@@ -167,10 +167,10 @@ describe('ResponseStatus', () => {
                 wrapper.find('[data-testid="response-status-badge"]').text(),
             ).toContain('201 - Created');
             expect(wrapper.find('[data-testid="response-status-size"]').text()).toBe(
-                '4.1 kB',
+                '4.1kB',
             );
             expect(wrapper.find('[data-testid="response-status-duration"]').text()).toBe(
-                '3.00 s',
+                '3.00s',
             );
         });
     });
