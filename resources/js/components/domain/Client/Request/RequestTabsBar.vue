@@ -151,7 +151,10 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
                             :title="tab.title"
                             class="focus-visible:ring-primary gap-tight focus-visible:ring-focus flex min-w-0 items-baseline rounded-sm focus-visible:outline-none"
                         >
-                            <HttpVerbLabel :method="tab.method" class="min-w-0! shrink-0" />
+                            <HttpVerbLabel
+                                :method="tab.method"
+                                class="min-w-0! shrink-0"
+                            />
                             <span class="truncate">{{ shortTitle(tab.title) }}</span>
                         </button>
                         <button
