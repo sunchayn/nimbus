@@ -5,11 +5,14 @@
  */
 import { AppIcon } from '@/components/base/icons';
 import { AppLabel } from '@/components/base/label';
+import { AppRadioCardGroup } from '@/components/base/radio-card';
 import { AppSelect } from '@/components/base/select';
 import { useAppToast } from '@/components/base/toast';
+import ThemePreview from '@/components/domain/Settings/ThemePreview.vue';
 import { AuthorizationType } from '@/interfaces/generated'; // eslint-disable-line @typescript-eslint/consistent-type-imports
 import { RequestBodyTypeEnum } from '@/interfaces/http'; // eslint-disable-line @typescript-eslint/consistent-type-imports
 import { useSettingsStore } from '@/stores';
+import type { UserPreferences } from '@/stores/core/useSettingsStore';
 import { computed } from 'vue';
 
 /*
@@ -26,9 +29,24 @@ const toast = useAppToast();
 const preferences = computed(() => settingsStore.preferences);
 
 const themeItems = [
-    { label: 'Light', value: 'light' },
-    { label: 'Dark', value: 'dark' },
-    { label: 'System', value: 'system' },
+    {
+        label: 'System',
+        value: 'system',
+        description:
+            'Follows your device setting and switches between the light and dark themes automatically.',
+    },
+    {
+        label: 'Light',
+        value: 'light',
+        description:
+            'The standard Nimbus light theme with full color contrast and brightness.',
+    },
+    {
+        label: 'Dark',
+        value: 'dark',
+        description:
+            'The standard Nimbus dark theme with full color contrast and brightness on a dark background.',
+    },
 ];
 
 const requestBodyTypeItems = [
@@ -137,18 +155,23 @@ const updatePreference = <K extends keyof typeof preferences.value>(
             >
                 <AppLabel>Theme</AppLabel>
                 <p class="text-muted text-xs">Choose your preferred color scheme</p>
-                <AppSelect
-                    :model-value="preferences.theme"
+                <AppRadioCardGroup
+                    label="Theme"
+                    class="mt-base"
                     :items="themeItems"
-                    class="w-32"
+                    :model-value="preferences.theme"
                     @update:model-value="
                         value =>
-                            updatePreference(
+                            settingsStore.updatePreference(
                                 'theme',
-                                value as 'light' | 'dark' | 'system',
+                                value as UserPreferences['theme'],
                             )
                     "
-                />
+                >
+                    <template #preview="{ item }">
+                        <ThemePreview :theme="item.value as UserPreferences['theme']" />
+                    </template>
+                </AppRadioCardGroup>
             </div>
         </div>
 

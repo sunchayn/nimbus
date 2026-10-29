@@ -14,15 +14,21 @@
 
     <script>
         (function () {
-            const appearance = '{{ $appearance ?? "system" }}';
+            let theme = 'system';
 
-            if (appearance === 'system') {
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            try {
+                const stored = JSON.parse(localStorage.getItem('nimbus-user-preferences'))?.theme;
 
-                if (prefersDark) {
-                    document.documentElement.classList.add('dark');
+                if (['light', 'dark', 'system'].includes(stored)) {
+                    theme = stored;
                 }
-            }
+            } catch (e) {}
+
+            const dark = theme === 'system'
+                ? window.matchMedia('(prefers-color-scheme: dark)').matches
+                : theme === 'dark';
+
+            document.documentElement.classList.toggle('dark', dark);
         })();
     </script>
     @php
