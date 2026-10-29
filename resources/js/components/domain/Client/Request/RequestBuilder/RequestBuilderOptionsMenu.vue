@@ -9,15 +9,9 @@ import { AppDropdownMenu } from '@/components/base/dropdown-menu';
 import { AppIcon } from '@/components/base/icons';
 import { AppPopover } from '@/components/base/popover';
 import { AppSwitch } from '@/components/base/switch';
-import { useAppToast } from '@/components/base/toast';
-import {
-    useConfigStore,
-    useEnvironmentVariablesStore,
-    useRequestsHistoryStore,
-    useRequestStore,
-} from '@/stores';
+import { useShareableLink } from '@/composables/request/useShareableLink';
+import { useConfigStore, useEnvironmentVariablesStore, useRequestStore } from '@/stores';
 import { generateCurlCommand } from '@/utils/request';
-import { buildShareableUrl, encodeShareablePayload } from '@/utils/shareableLinks';
 import { computed, shallowRef } from 'vue';
 import CurlExportDialog from './CurlExportDialog.vue';
 import ShareableLinkDialog from './ShareableLinkDialog.vue';
@@ -26,10 +20,10 @@ import ShareableLinkDialog from './ShareableLinkDialog.vue';
  * Stores.
  */
 
-const toast = useAppToast();
+const { showShareableLinkDialog, shareableLink, openShareableLinkDialog } =
+    useShareableLink();
 const requestStore = useRequestStore();
 const configStore = useConfigStore();
-const historyStore = useRequestsHistoryStore();
 const environmentVariablesStore = useEnvironmentVariablesStore();
 
 /*
@@ -39,8 +33,6 @@ const environmentVariablesStore = useEnvironmentVariablesStore();
 const showCurlDialog = shallowRef(false);
 const curlCommand = shallowRef('');
 const hasSpecialAuth = shallowRef(false);
-const showShareableLinkDialog = shallowRef(false);
-const shareableLink = shallowRef('');
 
 /*
  * Computed & Methods.
@@ -70,37 +62,6 @@ const populateCurlCommandExporterDialog = () => {
     curlCommand.value = result.command;
     hasSpecialAuth.value = result.hasSpecialAuth;
     showCurlDialog.value = true;
-};
-
-/**
- * Generates and shows shareable link dialog for the current request state.
- */
-const openShareableLinkDialog = () => {
-    if (!requestStore.pendingRequestData) {
-        return;
-    }
-
-    try {
-        const lastLog = historyStore.lastLog;
-        const response = lastLog?.response;
-        const applicationKey = configStore.activeApplication ?? undefined;
-
-        const encodedPayload = encodeShareablePayload(
-            requestStore.pendingRequestData,
-            environmentVariablesStore.resolve,
-            response,
-            lastLog ?? undefined,
-            applicationKey,
-        );
-
-        shareableLink.value = buildShareableUrl(configStore.appBasePath, encodedPayload);
-
-        showShareableLinkDialog.value = true;
-    } catch {
-        toast.error('Failed to generate shareable link', {
-            description: 'An unexpected error occurred.',
-        });
-    }
 };
 
 const items = computed<AppDropdownMenuItem[][]>(() => [

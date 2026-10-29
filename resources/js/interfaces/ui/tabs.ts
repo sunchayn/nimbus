@@ -4,6 +4,8 @@ import type { PendingRequest } from '@/interfaces/http/request';
 export interface Tab {
     id: string;
     title: string;
+    customTitle?: string;
+    pinned?: boolean;
     method: string;
     request: PendingRequest;
     response: RequestLog | null;
