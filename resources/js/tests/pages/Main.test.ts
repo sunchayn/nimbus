@@ -198,18 +198,6 @@ describe('MainPage', () => {
      */
 
     describe('Behavior', () => {
-        it('calls initializeRoutes on mount', async () => {
-            // Arrange & Act
-
-            createWrapper();
-            await nextTick();
-
-            // Assert
-
-            expect(mockErrorStore.initializeGlobalErrors).toHaveBeenCalled();
-            expect(mockRoutesStore.initializeRoutes).toHaveBeenCalled();
-        });
-
         it('reactively updates UI when extraction error state changes', async () => {
             // Arrange
 

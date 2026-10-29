@@ -2,14 +2,12 @@
 
 namespace Sunchayn\Nimbus\Http\Web\Controllers;
 
-use Illuminate\Config\Repository;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Vite;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Export\Services\ShareableLinkProcessorService;
 use Sunchayn\Nimbus\Modules\Routes\Actions;
-use Sunchayn\Nimbus\Modules\Routes\Exceptions\RoutesProcessingException;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\RoutesProcessorContract;
 
 class NimbusIndexController
@@ -24,7 +22,6 @@ class NimbusIndexController
         Actions\DisableThirdPartyUiAction $disableThirdPartyUiAction,
         ActiveApplicationResolver $activeApplicationResolver,
         ShareableLinkProcessorService $shareableLinkProcessorService,
-        Repository $config,
     ): Renderable|RedirectResponse {
         $incomingShareableLinkPayload = $this->processShareableLink($shareableLinkProcessorService, $activeApplicationResolver);
 
@@ -36,30 +33,14 @@ class NimbusIndexController
 
         $disableThirdPartyUiAction->execute();
 
-        $baseViewData = [
+        return view(self::VIEW_NAME, [ // @phpstan-ignore-line it cannot find the view.
             'activeApplicationResolver' => $activeApplicationResolver,
             'sharedState' => $incomingShareableLinkPayload,
-        ];
-
-        try {
-            $routes = $routesProcessorContract->process();
-
-            $viewData = [
-                'routes' => $routes->toFrontendArray(
-                    shouldNestFolders: (bool) $config->get('nimbus.nested_folders', false),
-                ),
-                'headers' => $buildGlobalHeadersAction->execute(),
-                'currentUser' => $buildCurrentUserAction->execute(),
-                'primaryProcessorName' => $routesProcessorContract->getName()->value,
-                'showOperationId' => $activeApplicationResolver->showOperationId(),
-            ];
-
-            return view(self::VIEW_NAME, array_merge($baseViewData, $viewData)); // @phpstan-ignore-line it cannot find the view.
-        } catch (RoutesProcessingException $routesProcessingException) {
-            return view(self::VIEW_NAME, array_merge($baseViewData, [  // @phpstan-ignore-line it cannot find the view.
-                $routesProcessingException->getFrontEndIdentifier() => $routesProcessingException->toArray(),
-            ]));
-        }
+            'headers' => $buildGlobalHeadersAction->execute(),
+            'currentUser' => $buildCurrentUserAction->execute(),
+            'primaryProcessorName' => $routesProcessorContract->getName()->value,
+            'showOperationId' => $activeApplicationResolver->showOperationId(),
+        ]);
     }
 
     /**

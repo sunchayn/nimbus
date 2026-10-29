@@ -1,8 +1,14 @@
 import { useAppToast } from '@/components/base/toast';
 import type { RequestLog } from '@/interfaces/history/logs';
 import type { ShareableLinkPayload, SharedState } from '@/interfaces/share';
-import { useRequestsHistoryStore, useSharedStateStore, useTabsStore } from '@/stores';
+import {
+    useRequestsHistoryStore,
+    useRoutesStore,
+    useSharedStateStore,
+    useTabsStore,
+} from '@/stores';
 import { createSynthesizedLog } from '@/utils/shareableRestore';
+import { whenever } from '@vueuse/core';
 import { onMounted } from 'vue';
 
 export interface UseSharedStateRestorationResult {
@@ -23,6 +29,7 @@ export const useSharedStateRestoration = (): UseSharedStateRestorationResult => 
     const sharedStateStore = useSharedStateStore();
     const tabsStore = useTabsStore();
     const historyStore = useRequestsHistoryStore();
+    const routesStore = useRoutesStore();
 
     /*
      * Helpers.
@@ -117,8 +124,12 @@ export const useSharedStateRestoration = (): UseSharedStateRestorationResult => 
      * Lifecycle.
      */
 
+    // The restored request is matched against the routes, so it waits for them to load.
     onMounted(() => {
-        restoreSharedState();
+        whenever(() => !routesStore.isLoading, restoreSharedState, {
+            immediate: true,
+            once: true,
+        });
     });
 
     return {

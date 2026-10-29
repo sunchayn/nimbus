@@ -25,6 +25,7 @@ import { createApp } from 'vue';
  * Application Components & Configuration.
  */
 
+import { useErrorStore, useRoutesStore } from '@/stores';
 import { createPersistedState } from 'pinia-plugin-persistedstate';
 import App from './App.vue';
 import router from './router';
@@ -48,5 +49,12 @@ pinia.use(
 );
 app.use(router);
 app.use(ui);
+
+/*
+ * The routes load in a separate request. Starting it here lets it run
+ * in parallel with the lazy page chunk instead of after it.
+ */
+useErrorStore(pinia).initializeGlobalErrors();
+useRoutesStore(pinia).initializeRoutes();
 
 app.mount('#app');

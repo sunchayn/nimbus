@@ -2,11 +2,9 @@ import { SharedState } from '../js/interfaces/share';
 
 interface NimbusConfig {
     basePath: string;
-    routes: string | null;
     headers: string | null;
     apiBaseUrl: string;
     isVersioned: boolean;
-    routeExtractorException: string | null;
     currentUser: string | null;
     applications: string | null;
     activeApplication: string | null;

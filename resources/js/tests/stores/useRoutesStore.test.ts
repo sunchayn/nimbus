@@ -1,42 +1,28 @@
+import { useErrorStore } from '@/stores/core/useErrorStore';
 import { useRoutesStore } from '@/stores/routes/useRoutesStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { NimbusConfig } from '../../../types/global';
 
 /*
  * Fixtures.
  */
 
-vi.mock('@/utils/routes', async () => {
-    const original = (await vi.importActual('@/utils/routes')) as Record<string, unknown>;
+const fetchMock = vi.fn();
 
-    return {
-        ...original,
-        parseRouteExtractionException: vi.fn(exception => {
-            return exception ? { message: exception, type: 'extraction_error' } : null;
-        }),
-        processRoutesData: vi.fn(data => data),
-        searchRoutes: vi.fn(() => []),
-    };
-});
-
-const mockWindowNimbus: Pick<NimbusConfig, 'routes' | 'routeExtractorException'> = {
-    routes: null,
-    routeExtractorException: null,
-};
+vi.stubGlobal('fetch', fetchMock);
 
 Object.defineProperty(window, 'Nimbus', {
-    value: mockWindowNimbus,
+    value: { basePath: '/nimbus' },
     writable: true,
 });
+
+const jsonResponse = (body: unknown, status = 200) =>
+    ({ ok: status < 400, status, json: async () => body }) as Response;
 
 describe('useRoutesStore', () => {
     beforeEach(() => {
         setActivePinia(createPinia());
         vi.clearAllMocks();
-
-        mockWindowNimbus.routes = null;
-        mockWindowNimbus.routeExtractorException = null;
     });
 
     /*
@@ -52,7 +38,7 @@ describe('useRoutesStore', () => {
             // Assert
 
             expect(store.routes).toBeNull();
-            expect(store.isLoading).toBe(false);
+            expect(store.isLoading).toBe(true);
             expect(store.error).toBeNull();
         });
 
@@ -65,6 +51,109 @@ describe('useRoutesStore', () => {
 
             expect(store.hasRoutes).toBe(false);
             expect(store.hasExtractionError).toBe(false);
+        });
+    });
+
+    /*
+     * Loading tests.
+     */
+
+    describe('initializeRoutes', () => {
+        it('fetches the routes from the endpoint and stops loading', async () => {
+            // Arrange
+
+            const store = useRoutesStore();
+
+            fetchMock.mockResolvedValue(jsonResponse({ v1: [] }));
+
+            // Act
+
+            const loading = store.initializeRoutes();
+
+            expect(store.isLoading).toBe(true);
+
+            await loading;
+
+            // Assert
+
+            expect(fetchMock).toHaveBeenCalledWith(
+                '/nimbus/api/routes',
+                expect.objectContaining({ credentials: 'same-origin' }),
+            );
+            expect(store.routes).toEqual({ v1: [] });
+            expect(store.isLoading).toBe(false);
+            expect(store.error).toBeNull();
+        });
+
+        it('keeps the extraction exception sent by the endpoint', async () => {
+            // Arrange
+
+            const store = useRoutesStore();
+            const exception = { exception: { message: 'Broken route' } };
+
+            fetchMock.mockResolvedValue(
+                jsonResponse({ routeExtractorException: exception }, 500),
+            );
+
+            // Act
+
+            await store.initializeRoutes();
+
+            // Assert
+
+            expect(store.routes).toBeNull();
+            expect(store.routeExtractorException).toEqual(exception);
+            expect(store.hasExtractionError).toBe(true);
+            expect(store.isLoading).toBe(false);
+        });
+
+        it('hands a global exception to the error store', async () => {
+            // Arrange
+
+            const store = useRoutesStore();
+            const exception = { exception: { message: 'Missing package' } };
+
+            fetchMock.mockResolvedValue(
+                jsonResponse({ globalException: exception }, 500),
+            );
+
+            // Act
+
+            await store.initializeRoutes();
+
+            // Assert
+
+            expect(useErrorStore().globalError).toEqual(exception);
+            expect(store.isLoading).toBe(false);
+        });
+
+        it('reports a network failure and can retry', async () => {
+            // Arrange
+
+            const store = useRoutesStore();
+
+            fetchMock.mockRejectedValueOnce(new Error('Network down'));
+
+            // Act
+
+            await store.initializeRoutes();
+
+            // Assert
+
+            expect(store.error).toBe('Network down');
+            expect(store.routes).toBeNull();
+            expect(store.isLoading).toBe(false);
+
+            // Act
+
+            fetchMock.mockResolvedValue(jsonResponse({ v1: [] }));
+
+            await store.initializeRoutes();
+
+            // Assert
+
+            expect(store.error).toBeNull();
+            expect(store.routes).toEqual({ v1: [] });
         });
     });
 

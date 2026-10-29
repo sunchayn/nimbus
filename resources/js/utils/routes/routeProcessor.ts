@@ -1,9 +1,8 @@
-import type { RouteExtractorException } from '@/interfaces';
 import type { RouteDefinition, RoutesFolder } from '@/interfaces/routes/routes';
 import type { JSONSchema7 } from 'json-schema';
 
 /**
- * Source route configuration from window.Nimbus.routes
+ * Source route configuration from the routes endpoint
  * TODO [Refactor] move these to interfaces.
  */
 export interface SourceRouteConfig {
@@ -62,7 +61,7 @@ const flattenFolders = (folders: RoutesFolder[]): RoutesFolder[] =>
     folders.flatMap(folder => [folder, ...flattenFolders(folder.children)]);
 
 /**
- * Processes raw route data from window.Nimbus into structured route folders.
+ * Processes raw route data from the routes endpoint into structured route folders.
  *
  * Transforms the source route configuration into a clean structure
  * organized by version and folder, with proper sorting and error handling.
@@ -78,26 +77,6 @@ export async function processRoutesData(sourceRoutes: SourceRouteConfigArray): P
     });
 
     return processedRoutes;
-}
-
-/**
- * Parses route extraction exception from window.Nimbus.
- *
- * Safely parses the route extraction exception JSON string,
- * returning null if parsing fails or data is invalid.
- */
-export function parseRouteExtractionException(
-    exceptionData: string | null,
-): RouteExtractorException | null {
-    if (typeof exceptionData !== 'string') {
-        return null;
-    }
-
-    try {
-        return JSON.parse(exceptionData);
-    } catch {
-        return null;
-    }
 }
 
 /**

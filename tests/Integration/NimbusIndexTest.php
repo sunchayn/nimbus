@@ -13,9 +13,6 @@ use Sunchayn\Nimbus\Modules\Export\Services\ShareableLinkProcessorService;
 use Sunchayn\Nimbus\Modules\Routes\Actions\BuildCurrentUserAction;
 use Sunchayn\Nimbus\Modules\Routes\Actions\BuildGlobalHeadersAction;
 use Sunchayn\Nimbus\Modules\Routes\Actions\DisableThirdPartyUiAction;
-use Sunchayn\Nimbus\Modules\Routes\Actions\ExtractApplicationRoutesAction;
-use Sunchayn\Nimbus\Modules\Routes\Collections\ExtractedRoutesCollection;
-use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionException;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\RoutesProcessorContract;
 use Sunchayn\Nimbus\Tests\TestCase;
@@ -53,10 +50,12 @@ class NimbusIndexTest extends TestCase
         $ignoreRoutesServiceSpy = $this->spy(IgnoredRoutesService::class);
         $buildGlobalHeadersActionMock = $this->mock(BuildGlobalHeadersAction::class);
         $buildCurrentUserActionMock = $this->mock(BuildCurrentUserAction::class);
-        $extractRoutesActionMock = $this->mock(ExtractApplicationRoutesAction::class);
+        $routesProcessorSpy = $this->spy(RoutesProcessorContract::class);
         $shareableLinkProcessorMock = $this->mock(ShareableLinkProcessorService::class);
 
         // Anticipate
+
+        $routesProcessorSpy->shouldReceive('getName')->andReturn(RoutesProcessingStrategyEnum::AutoDetect);
 
         $buildGlobalHeadersActionMock->shouldReceive('execute')->andReturn(['::global-headers::']);
 
@@ -65,18 +64,6 @@ class NimbusIndexTest extends TestCase
         $shareableLinkProcessorMock->shouldReceive('process')->andReturnSelf();
         $shareableLinkProcessorMock->shouldReceive('getTargetApplication')->andReturnNull();
         $shareableLinkProcessorMock->shouldReceive('toFrontendState')->andReturnNull();
-
-        $extractedRoutesCollectionStub = new class($expectedApplicationKey) extends ExtractedRoutesCollection
-        {
-            public function __construct(private string $key) {}
-
-            public function toFrontendArray(bool $shouldNestFolders = false): array
-            {
-                return ["routes for $this->key"];
-            }
-        };
-
-        $extractRoutesActionMock->shouldReceive('execute')->andReturn($extractedRoutesCollectionStub);
 
         // Act
 
@@ -88,7 +75,9 @@ class NimbusIndexTest extends TestCase
 
         $response->assertViewIs('nimbus::app');
 
-        $response->assertViewHas('routes', ["routes for $expectedApplicationKey"]);
+        $response->assertViewMissing('routes');
+
+        $response->assertViewHas('primaryProcessorName', RoutesProcessingStrategyEnum::AutoDetect->value);
 
         $response->assertViewHas('headers', ['::global-headers::']);
 
@@ -103,51 +92,8 @@ class NimbusIndexTest extends TestCase
         $disableThirdPartyUiActionSpy->shouldHaveReceived('execute')->once();
 
         $ignoreRoutesServiceSpy->shouldNotHaveReceived('execute');
-    }
 
-    #[DataProvider('nestedFoldersProvider')]
-    public function test_it_passes_the_nested_folders_setting_to_the_routes(?bool $configured, bool $expected): void
-    {
-        // Arrange
-
-        if ($configured !== null) {
-            config(['nimbus.nested_folders' => $configured]);
-        }
-
-        $extractRoutesActionMock = $this->mock(ExtractApplicationRoutesAction::class);
-
-        // Anticipate
-
-        $extractedRoutesCollectionStub = new class extends ExtractedRoutesCollection
-        {
-            public function __construct() {}
-
-            public function toFrontendArray(bool $shouldNestFolders = false): array
-            {
-                return ['nestedFolders' => $shouldNestFolders];
-            }
-        };
-
-        $extractRoutesActionMock->shouldReceive('execute')->andReturn($extractedRoutesCollectionStub);
-
-        // Act
-
-        $response = $this->get(route('nimbus.index'));
-
-        // Assert
-
-        $response->assertStatus(200);
-
-        $response->assertViewHas('routes', ['nestedFolders' => $expected]);
-    }
-
-    public static function nestedFoldersProvider(): Generator
-    {
-        yield 'enabled' => ['configured' => true, 'expected' => true];
-
-        yield 'disabled' => ['configured' => false, 'expected' => false];
-
-        yield 'not configured defaults to disabled' => ['configured' => null, 'expected' => false];
+        $routesProcessorSpy->shouldNotHaveReceived('process');
     }
 
     public static function indexRouteProvider(): Generator
@@ -194,61 +140,6 @@ class NimbusIndexTest extends TestCase
             ->assertRedirect('/nimbus');
     }
 
-    public function test_it_catches_extraction_errors(): void
-    {
-        // Arrange
-
-        $disableThirdPartyUiActionSpy = $this->spy(DisableThirdPartyUiAction::class);
-        $ignoreRoutesServiceSpy = $this->spy(IgnoredRoutesService::class);
-        $buildGlobalHeadersActionSpy = $this->spy(BuildGlobalHeadersAction::class);
-        $buildCurrentUserActionSpy = $this->spy(BuildCurrentUserAction::class);
-        $shareableLinkProcessorMock = $this->mock(ShareableLinkProcessorService::class);
-
-        $extractionRoutesActionMock = $this->mock(ExtractApplicationRoutesAction::class);
-
-        $exception = new class(message: fake()->words(asText: true), routeUri: fake()->url(), routeMethods: fake()->words(2), controllerClass: fake()->word(), controllerMethod: fake()->word(), suggestedSolution: fake()->words(asText: true)) extends RouteExtractionException {};
-
-        // Anticipate
-
-        $shareableLinkProcessorMock->shouldReceive('process')->andReturnSelf();
-        $shareableLinkProcessorMock->shouldReceive('getTargetApplication')->andReturnNull();
-        $shareableLinkProcessorMock->shouldReceive('toFrontendState')->andReturnNull();
-
-        $extractionRoutesActionMock->shouldReceive('execute')->andThrow($exception);
-
-        // Act
-
-        $response = $this->get(route('nimbus.index'));
-
-        // Assert
-
-        $response->assertStatus(200);
-
-        $response->assertViewIs('nimbus::app');
-
-        $response->assertViewHas(
-            'routeExtractorException',
-            [
-                'exception' => [
-                    'message' => $exception->getMessage(),
-                    'previous' => $exception->getPrevious() ? [
-                        'message' => $exception->getPrevious()->getMessage(),
-                        'file' => $exception->getPrevious()->getFile(),
-                        'line' => $exception->getPrevious()->getLine(),
-                    ] : null,
-                ],
-                'routeContext' => $exception->getRouteContext(),
-                'suggestedSolution' => $exception->getSuggestedSolution(),
-                'ignoreData' => $exception->getIgnoreData(),
-            ],
-        );
-
-        $disableThirdPartyUiActionSpy->shouldHaveReceived('execute')->once();
-        $ignoreRoutesServiceSpy->shouldNotHaveReceived('execute');
-        $buildGlobalHeadersActionSpy->shouldNotHaveReceived('execute');
-        $buildCurrentUserActionSpy->shouldNotHaveReceived('execute');
-    }
-
     public function test_it_integrates(): void
     {
         // Act
@@ -261,7 +152,7 @@ class NimbusIndexTest extends TestCase
 
         $response->assertViewIs('nimbus::app');
 
-        $response->assertViewHas(['routes', 'headers', 'currentUser']);
+        $response->assertViewHas(['headers', 'currentUser', 'primaryProcessorName']);
     }
 
     public function test_it_redirects_to_new_application(): void
@@ -484,7 +375,6 @@ class NimbusIndexTest extends TestCase
             ]);
 
         $routesProviderMock->shouldReceive('getName')->andReturn(RoutesProcessingStrategyEnum::AutoDetect);
-        $routesProviderMock->shouldReceive('process')->andReturn($this->mock(ExtractedRoutesCollection::class)->shouldReceive('toFrontendArray')->andReturn([])->getMock());
 
         // Act
 
