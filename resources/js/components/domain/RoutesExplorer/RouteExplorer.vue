@@ -3,12 +3,14 @@
  * @component RouteExplorer
  * @description The main sidebar component for exploring and searching available API routes.
  */
+import { AppButton } from '@/components/base/button';
 import { AppScrollArea } from '@/components/base/scroll-area';
 import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import ApplicationSwitcher from '@/components/domain/RoutesExplorer/ApplicationSwitcher.vue';
 import RouteExplorerVersionSelector from '@/components/domain/RoutesExplorer/RouteExplorerVersionSelector.vue';
 import RoutesList from '@/components/domain/RoutesExplorer/RoutesList/RoutesList.vue';
 import { showingSearchResultsKey } from '@/components/domain/RoutesExplorer/showingSearchResults';
+import RoutesListSkeleton from '@/components/layout/skeleton/RoutesListSkeleton.vue';
 import { useTabVerticalScroll } from '@/composables/ui/useTabVerticalScroll';
 import { type RouteDefinition, type RoutesFolder } from '@/interfaces/routes/routes';
 import { useConfigStore } from '@/stores';
@@ -22,13 +24,22 @@ import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue';
 
 export interface RouteExplorerProps {
     routes: { [_key in string]?: RoutesFolder[] } | null;
+    loading?: boolean;
+    error?: string | null;
 }
 
 /*
  * Component Setup.
  */
 
-const props = defineProps<RouteExplorerProps>();
+const props = withDefaults(defineProps<RouteExplorerProps>(), {
+    loading: false,
+    error: null,
+});
+
+defineEmits<{
+    retry: [];
+}>();
 
 const configStore = useConfigStore();
 
@@ -167,7 +178,28 @@ provide(showingSearchResultsKey, showingSearchResults);
                         @scroll="updateRoutesScrollMasks"
                     >
                         <ul class="gap-tight flex w-full min-w-0 flex-col">
-                            <RoutesList v-if="routes !== null" :routes="filteredRoutes" />
+                            <RoutesListSkeleton v-if="loading" />
+                            <RoutesList
+                                v-else-if="routes !== null"
+                                :routes="filteredRoutes"
+                            />
+                            <div
+                                v-else-if="error"
+                                class="px-base"
+                                data-testid="routes-error"
+                            >
+                                <p class="mb-base text-xs">
+                                    The routes could not be loaded.
+                                </p>
+                                <AppButton
+                                    label="Retry"
+                                    color="neutral"
+                                    variant="outline"
+                                    size="sm"
+                                    data-testid="routes-retry"
+                                    @click="$emit('retry')"
+                                />
+                            </div>
                             <div v-else class="px-base">
                                 <p class="mb-base text-xs">
                                     Routes extraction was Interrupted, check the error on

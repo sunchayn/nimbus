@@ -1,8 +1,8 @@
 import type { RouteExtractorException } from '@/interfaces';
 import type { RouteDefinition, RoutesFolder } from '@/interfaces/routes/routes';
+import { useErrorStore } from '@/stores/core/useErrorStore';
 import {
     calculateTotalRouteCount,
-    parseRouteExtractionException,
     processRoutesData,
     searchRoutes,
 } from '@/utils/routes';
@@ -16,29 +16,49 @@ export const useRoutesStore = defineStore('routes', () => {
 
     const routes = ref<{ [key: string]: RoutesFolder[] } | null>(null);
     const routeExtractorException = ref<RouteExtractorException | null>(null);
-    const isLoading = shallowRef(false);
+    // The routes load in a separate request, so the store starts out loading.
+    const isLoading = shallowRef(true);
     const error = shallowRef<string | null>(null);
 
     /*
      * Actions.
      */
 
-    const fetchAvailableRoutes = async () => {
+    /**
+     * Fetches the routes of the active application.
+     * Extraction errors from the backend land in the error stores, other failures in `error`.
+     */
+    const initializeRoutes = async () => {
         isLoading.value = true;
         error.value = null;
+        routeExtractorException.value = null;
 
         try {
-            const source = window.Nimbus?.routes ?? '[]';
+            const response = await fetch(`${window.Nimbus?.basePath ?? ''}/api/routes`, {
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+            });
 
-            if (typeof source !== 'string') {
-                routes.value = null;
+            const body = await response.json();
+
+            if (response.ok) {
+                routes.value = await processRoutesData(body);
 
                 return;
             }
 
-            const sourceRoutes = JSON.parse(source);
+            routes.value = null;
 
-            routes.value = await processRoutesData(sourceRoutes);
+            if (body.routeExtractorException) {
+                routeExtractorException.value = body.routeExtractorException;
+            } else if (body.globalException) {
+                useErrorStore().globalError = body.globalException;
+            } else {
+                error.value = `Failed to load routes (${response.status})`;
+            }
         } catch (err) {
             error.value = err instanceof Error ? err.message : 'Failed to load routes';
 
@@ -46,14 +66,6 @@ export const useRoutesStore = defineStore('routes', () => {
         } finally {
             isLoading.value = false;
         }
-    };
-
-    const initializeRoutes = async () => {
-        routeExtractorException.value = parseRouteExtractionException(
-            (window.Nimbus?.routeExtractorException as string) ?? null,
-        );
-
-        await fetchAvailableRoutes();
     };
 
     const isMissingImplementation = (route: RouteDefinition) => {
@@ -104,7 +116,6 @@ export const useRoutesStore = defineStore('routes', () => {
         error,
 
         // Actions
-        fetchAvailableRoutes,
         initializeRoutes,
         resetRoutesState,
         isMissingImplementation,

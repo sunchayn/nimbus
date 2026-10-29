@@ -83,6 +83,9 @@ jobs:
 
       - name: Install dependencies
         if: needs.changes.outputs.php == 'true'
+        # Laravel 10 and 11 are end of life, and their advisories have no patched release.
+        env:
+          COMPOSER_NO_SECURITY_BLOCKING: 1
         run: |
           composer switch:l${{ matrix.laravel }} -- -- --no-interaction --no-progress --ansi
           composer dump-autoload --optimize

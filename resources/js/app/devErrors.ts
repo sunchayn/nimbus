@@ -37,6 +37,17 @@ if (import.meta.env.DEV) {
     if (kind === 'global') {
         window.Nimbus.globalException = JSON.stringify(globalException);
     } else if (kind === 'route') {
-        window.Nimbus.routeExtractorException = JSON.stringify(routeException);
+        // The routes come from an endpoint, so the answer of that endpoint is replaced.
+        const realFetch = window.fetch.bind(window);
+
+        window.fetch = (input, init) =>
+            String(input).endsWith('/api/routes')
+                ? Promise.resolve(
+                      Response.json(
+                          { routeExtractorException: routeException },
+                          { status: 500 },
+                      ),
+                  )
+                : realFetch(input, init);
     }
 }

@@ -4,7 +4,6 @@
 
 export {
     calculateTotalRouteCount,
-    parseRouteExtractionException,
     processRoutesData,
     searchRoutes,
 } from './routeProcessor';

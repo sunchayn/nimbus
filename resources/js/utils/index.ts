@@ -15,12 +15,7 @@ export {
     getDefaultPayloadTypeForRoute,
 } from './request';
 
-export {
-    calculateTotalRouteCount,
-    parseRouteExtractionException,
-    processRoutesData,
-    searchRoutes,
-} from './routes';
+export { calculateTotalRouteCount, processRoutesData, searchRoutes } from './routes';
 
 export { calculateScrollToElement, getScrollBounds } from './scroll';
 

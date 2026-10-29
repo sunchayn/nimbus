@@ -7,11 +7,12 @@ import { AppSplitter } from '@/components/base/resizable';
 import { AppSlideover } from '@/components/base/slideover';
 import ClientWorkspace from '@/components/domain/Client/ClientWorkspace.vue';
 import RouteExplorer from '@/components/domain/RoutesExplorer/RouteExplorer.vue';
+import WorkspaceSkeleton from '@/components/layout/skeleton/WorkspaceSkeleton.vue';
 import { useSharedStateRestoration } from '@/composables/request/useSharedStateRestoration';
 import { useExplorerVisibility } from '@/composables/ui/useExplorerVisibility';
-import { useErrorStore, useRoutesStore } from '@/stores';
+import { useRoutesStore } from '@/stores';
 import type { TemplateRef } from 'vue';
-import { computed, onBeforeMount, useTemplateRef, watch } from 'vue';
+import { computed, useTemplateRef, watch } from 'vue';
 
 defineOptions({
     name: 'MainPage',
@@ -22,22 +23,12 @@ defineOptions({
  */
 
 const routesStore = useRoutesStore();
-const errorStore = useErrorStore();
 
 /*
  * Shared state restoration (from shareable links).
  */
 
 useSharedStateRestoration();
-
-/*
- * Lifecycle.
- */
-
-onBeforeMount(() => {
-    errorStore.initializeGlobalErrors();
-    routesStore.initializeRoutes();
-});
 
 const panelsGroupElement: TemplateRef = useTemplateRef('panels-group');
 
@@ -104,7 +95,8 @@ const onLayout = () => {
 <template>
     <div class="p-base flex h-full overflow-hidden">
         <div v-if="isCompact" class="min-w-0 flex-1">
-            <ClientWorkspace />
+            <WorkspaceSkeleton v-if="routesStore.isLoading" />
+            <ClientWorkspace v-else />
             <AppSlideover
                 v-model:open="isExplorerDrawerOpen"
                 side="left"
@@ -116,7 +108,13 @@ const onLayout = () => {
                 }"
             >
                 <template #body>
-                    <RouteExplorer class="min-h-0 flex-1" :routes="routesStore.routes" />
+                    <RouteExplorer
+                        class="min-h-0 flex-1"
+                        :routes="routesStore.routes"
+                        :loading="routesStore.isLoading"
+                        :error="routesStore.error"
+                        @retry="routesStore.initializeRoutes()"
+                    />
                 </template>
             </AppSlideover>
         </div>
@@ -132,10 +130,16 @@ const onLayout = () => {
             @expand="isExplorerOpen = true"
         >
             <template #panel-0>
-                <RouteExplorer :routes="routesStore.routes" />
+                <RouteExplorer
+                    :routes="routesStore.routes"
+                    :loading="routesStore.isLoading"
+                    :error="routesStore.error"
+                    @retry="routesStore.initializeRoutes()"
+                />
             </template>
             <template #panel-1>
-                <ClientWorkspace />
+                <WorkspaceSkeleton v-if="routesStore.isLoading" />
+                <ClientWorkspace v-else />
             </template>
         </AppSplitter>
     </div>

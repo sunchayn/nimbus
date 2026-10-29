@@ -14,15 +14,7 @@ import { useShareableLink } from '@/composables/request/useShareableLink';
 import type { Tab } from '@/interfaces/ui/tabs';
 import { useTabsStore } from '@/stores';
 import { useScroll, useTimeoutFn } from '@vueuse/core';
-import {
-    computed,
-    nextTick,
-    onMounted,
-    ref,
-    shallowRef,
-    useTemplateRef,
-    watch,
-} from 'vue';
+import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import draggable from 'vuedraggable';
 import ShareableLinkDialog from './RequestBuilder/ShareableLinkDialog.vue';
 
@@ -153,8 +145,7 @@ const menuItems = (tab: Tab, index: number): AppContextMenuItem[][] => {
  */
 
 // Tabs restored on load appear instantly, and only tabs added later grow in.
-const motionReady = shallowRef(false);
-onMounted(() => nextTick(() => (motionReady.value = true)));
+const restoredTabIds = new Set(tabsStore.tabs.map(tab => tab.id));
 
 const closingTabId = shallowRef<string | null>(null);
 
@@ -228,7 +219,7 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
                     :key="tab.id"
                     class="group shrink-0"
                     :class="{
-                        'tab-in': motionReady,
+                        'tab-in': !restoredTabIds.has(tab.id),
                         'tab-closing': closingTabId === tab.id,
                     }"
                 >

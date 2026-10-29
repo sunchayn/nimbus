@@ -648,7 +648,7 @@ export default {
     },
 
     skeleton: {
-        base: "bg-accented/50",
+        base: "bg-accented/50 motion-reduce:animate-none",
     },
 
     slideover: {

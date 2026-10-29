@@ -29,6 +29,32 @@
                 : theme === 'dark';
 
             document.documentElement.classList.toggle('dark', dark);
+
+            // The loading shell reads the saved explorer layout, so a collapsed sidebar stays collapsed.
+            try {
+                const open = localStorage.getItem('nimbus:explorer-open') !== 'false';
+                const savedSize = key => {
+                    const saved = Object.values(JSON.parse(localStorage.getItem(key)) ?? {})[0];
+                    const value = saved?.layout?.[0];
+
+                    return typeof value === 'number' && value > 0 && value < 100 ? value : null;
+                };
+                const size = savedSize('reka:main-splitter-group');
+                const requestSize = savedSize('reka:client-splitter-group');
+                const style = document.documentElement.style;
+
+                if (!open) {
+                    style.setProperty('--shell-explorer-width', '0px');
+                    style.setProperty('--shell-handle-width', '0px');
+                } else if (size !== null) {
+                    style.setProperty('--shell-explorer-width', size + '%');
+                }
+
+                if (requestSize !== null) {
+                    style.setProperty('--shell-request-size', requestSize);
+                    style.setProperty('--shell-response-size', 100 - requestSize);
+                }
+            } catch (e) {}
         })();
     </script>
     @php
@@ -43,9 +69,7 @@
 
         $config = \Illuminate\Support\Js::from([
             'basePath' => $appBasePath . '/' . ltrim(config('nimbus.prefix'), '/'),
-            'routes' => isset($routes) ? json_encode($routes) : null,
             'headers' => isset($headers) ? json_encode($headers) : null,
-            'routeExtractorException' => isset($routeExtractorException) ? json_encode($routeExtractorException) : null,
             'globalException' => isset($globalException) ? json_encode($globalException) : null,
             'isVersioned' => $activeApplicationResolver->isVersioned(),
             'apiBaseUrl' => $activeApplicationResolver->getApiBaseUrl(),
@@ -69,6 +93,23 @@
     @vite(['resources/css/app.css', 'resources/js/app/app.ts'])
 </head>
 <body class="font-sans antialiased">
-<div id="app" class="isolate"></div>
+<div id="app" class="isolate">
+    @include('nimbus::partials.loading-shell')
+</div>
+<noscript>
+    <style>#nimbus-loading-shell { display: none; }</style>
+    <p style="padding: 1rem; font-family: sans-serif;">Nimbus needs JavaScript to run. Enable it and reload the page.</p>
+</noscript>
+<script>
+    // The shell is replaced when the app mounts. If it is still here, the app did not load.
+    setTimeout(function () {
+        const shell = document.getElementById('nimbus-loading-shell');
+
+        if (shell) {
+            shell.setAttribute('aria-busy', 'false');
+            shell.querySelector('[data-shell-timeout]').hidden = false;
+        }
+    }, 15000);
+</script>
 </body>
 </html>

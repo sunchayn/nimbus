@@ -40,8 +40,6 @@ describe('useConfigStore', () => {
                     { header: 'X-Test', type: 'raw', value: '123' },
                 ]),
                 currentUser: JSON.stringify({ id: 99 }),
-                routes: '',
-                routeExtractorException: null,
                 applications: JSON.stringify({ main: 'Main API' }),
                 activeApplication: 'main',
                 sharedState: null,
