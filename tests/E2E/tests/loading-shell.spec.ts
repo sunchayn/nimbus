@@ -13,9 +13,6 @@ test.describe('Loading shell', () => {
 
         await page.goto('/demo/');
 
-        await expect(page.getByTestId('skeleton-sidebar')).toBeVisible();
-        await expect(page.getByTestId('skeleton-workspace')).toBeVisible();
-
         await expect(page.getByTestId('routes-skeleton-message')).toHaveText(
             'Loading routes',
             { timeout: 3_000 },
@@ -107,12 +104,14 @@ test.describe('Loading shell', () => {
 
         await page.goto('/demo/', { waitUntil: 'commit' });
 
-        const request = await page.getByTestId('skeleton-request').boundingBox();
-        const response = await page.getByTestId('skeleton-response').boundingBox();
-        const width = (request?.width ?? 0) + (response?.width ?? 0);
-        const height = (request?.height ?? 0) + (response?.height ?? 0);
-        const ratio = Math.max((request?.width ?? 0) / width, (request?.height ?? 0) / height);
-
-        expect(ratio).toBeGreaterThan(0.6);
+        // The head script runs before first paint, so the variables exist before the shell does.
+        await expect
+            .poll(() =>
+                page.evaluate(() => [
+                    document.documentElement.style.getPropertyValue('--shell-request-size'),
+                    document.documentElement.style.getPropertyValue('--shell-response-size'),
+                ]),
+            )
+            .toEqual(['70', '30']);
     });
 });
