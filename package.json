@@ -1,6 +1,6 @@
 {
     "private": true,
-    "version": "0.8.0-alpha",
+    "version": "0.9.0-alpha",
     "type": "module",
     "scripts": {
         "check:theme": "node tools/ui/check-theme.js",

@@ -1,32 +1,64 @@
 {
-  "_AppPopoverContent.vue_vue_type_script_setup_true_lang-Cx9MIydi.js": {
-    "file": "assets/AppPopoverContent.vue_vue_type_script_setup_true_lang-Cx9MIydi.js",
-    "name": "AppPopoverContent.vue_vue_type_script_setup_true_lang",
-    "imports": [
-      "resources/js/app/app.ts"
-    ]
-  },
-  "_AppRoundIndicator.vue_vue_type_script_setup_true_lang-DwkzJF6g.js": {
-    "file": "assets/AppRoundIndicator.vue_vue_type_script_setup_true_lang-DwkzJF6g.js",
-    "name": "AppRoundIndicator.vue_vue_type_script_setup_true_lang",
+  "_AppLabel.vue_vue_type_script_setup_true_lang-D0SRWO8A.js": {
+    "file": "assets/AppLabel.vue_vue_type_script_setup_true_lang-D0SRWO8A.js",
+    "name": "AppLabel.vue_vue_type_script_setup_true_lang",
     "imports": [
       "resources/js/app/app.ts",
-      "_AppPopoverContent.vue_vue_type_script_setup_true_lang-Cx9MIydi.js"
+      "_AppPopover.vue_vue_type_script_setup_true_lang-BnFMSoqB.js"
     ]
   },
-  "_CopyButton.vue_vue_type_script_setup_true_lang-X8cnWaFg.js": {
-    "file": "assets/CopyButton.vue_vue_type_script_setup_true_lang-X8cnWaFg.js",
-    "name": "CopyButton.vue_vue_type_script_setup_true_lang",
+  "_AppPopover-C_sM6EZC.css": {
+    "file": "assets/AppPopover-C_sM6EZC.css",
+    "src": "_AppPopover-C_sM6EZC.css"
+  },
+  "_AppPopover.vue_vue_type_script_setup_true_lang-BnFMSoqB.js": {
+    "file": "assets/AppPopover.vue_vue_type_script_setup_true_lang-BnFMSoqB.js",
+    "name": "AppPopover.vue_vue_type_script_setup_true_lang",
     "imports": [
       "resources/js/app/app.ts",
-      "_AppPopoverContent.vue_vue_type_script_setup_true_lang-Cx9MIydi.js"
+      "_nullish-CHIgUVhi.js"
+    ],
+    "css": [
+      "assets/AppPopover-C_sM6EZC.css"
     ]
   },
-  "_PageLayout.vue_vue_type_script_setup_true_lang-CgvPZXHH.js": {
-    "file": "assets/PageLayout.vue_vue_type_script_setup_true_lang-CgvPZXHH.js",
+  "_AppRoundIndicator-DIU9QQnf.js": {
+    "file": "assets/AppRoundIndicator-DIU9QQnf.js",
+    "name": "AppRoundIndicator",
+    "imports": [
+      "resources/js/app/app.ts",
+      "_AppPopover.vue_vue_type_script_setup_true_lang-BnFMSoqB.js"
+    ],
+    "css": [
+      "assets/AppRoundIndicator-DPAMhPjo.css"
+    ]
+  },
+  "_AppRoundIndicator-DPAMhPjo.css": {
+    "file": "assets/AppRoundIndicator-DPAMhPjo.css",
+    "src": "_AppRoundIndicator-DPAMhPjo.css"
+  },
+  "_PageLayout.vue_vue_type_script_setup_true_lang-CfmnWRWm.js": {
+    "file": "assets/PageLayout.vue_vue_type_script_setup_true_lang-CfmnWRWm.js",
     "name": "PageLayout.vue_vue_type_script_setup_true_lang",
     "imports": [
       "resources/js/app/app.ts"
+    ]
+  },
+  "_nullish-CHIgUVhi.js": {
+    "file": "assets/nullish-CHIgUVhi.js",
+    "name": "nullish"
+  },
+  "node_modules/@nuxt/ui/dist/runtime/components/Toast.vue": {
+    "file": "assets/Toast-HZN3U-2j.js",
+    "name": "Toast",
+    "src": "node_modules/@nuxt/ui/dist/runtime/components/Toast.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app/app.ts",
+      "_nullish-CHIgUVhi.js"
+    ],
+    "css": [
+      "assets/app-cGf5MrQ8.css"
     ]
   },
   "node_modules/shiki/dist/langs/javascript.mjs": {
@@ -48,49 +80,52 @@
     "isDynamicEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-JHUrrxHY.css",
+    "file": "assets/app-cGf5MrQ8.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app/app.ts": {
-    "file": "assets/app-UVHXoCGB.js",
+    "file": "assets/app-JsNRlTmY.js",
     "name": "app",
     "src": "resources/js/app/app.ts",
     "isEntry": true,
     "dynamicImports": [
+      "node_modules/@nuxt/ui/dist/runtime/components/Toast.vue",
       "resources/js/pages/Main.vue",
       "resources/js/pages/Settings.vue",
       "resources/js/pages/Environment.vue"
     ],
     "css": [
-      "assets/app-JHUrrxHY.css"
+      "assets/app-cGf5MrQ8.css"
     ]
   },
   "resources/js/pages/Environment.vue": {
-    "file": "assets/Environment-IeDXXfpm.js",
+    "file": "assets/Environment-DTEYaPN7.js",
     "name": "Environment",
     "src": "resources/js/pages/Environment.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_AppPopoverContent.vue_vue_type_script_setup_true_lang-Cx9MIydi.js",
       "resources/js/app/app.ts",
-      "_AppRoundIndicator.vue_vue_type_script_setup_true_lang-DwkzJF6g.js",
-      "_PageLayout.vue_vue_type_script_setup_true_lang-CgvPZXHH.js"
+      "_AppPopover.vue_vue_type_script_setup_true_lang-BnFMSoqB.js",
+      "_AppRoundIndicator-DIU9QQnf.js",
+      "_PageLayout.vue_vue_type_script_setup_true_lang-CfmnWRWm.js",
+      "_nullish-CHIgUVhi.js"
     ],
     "css": [
-      "assets/app-JHUrrxHY.css"
+      "assets/app-cGf5MrQ8.css"
     ]
   },
   "resources/js/pages/Main.vue": {
-    "file": "assets/Main-R1JQFEGE.js",
+    "file": "assets/Main-CRraec_e.js",
     "name": "Main",
     "src": "resources/js/pages/Main.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app/app.ts",
-      "_AppPopoverContent.vue_vue_type_script_setup_true_lang-Cx9MIydi.js",
-      "_AppRoundIndicator.vue_vue_type_script_setup_true_lang-DwkzJF6g.js",
-      "_CopyButton.vue_vue_type_script_setup_true_lang-X8cnWaFg.js"
+      "_AppPopover.vue_vue_type_script_setup_true_lang-BnFMSoqB.js",
+      "_AppLabel.vue_vue_type_script_setup_true_lang-D0SRWO8A.js",
+      "_AppRoundIndicator-DIU9QQnf.js",
+      "_nullish-CHIgUVhi.js"
     ],
     "dynamicImports": [
       "node_modules/shiki/dist/themes/vitesse-light.mjs",
@@ -98,23 +133,24 @@
       "node_modules/shiki/dist/langs/javascript.mjs"
     ],
     "css": [
-      "assets/Main-Cy4bOnkL.css",
-      "assets/app-JHUrrxHY.css"
+      "assets/Main-CYpPTwRv.css",
+      "assets/app-cGf5MrQ8.css"
     ]
   },
   "resources/js/pages/Settings.vue": {
-    "file": "assets/Settings-DAfTle1P.js",
+    "file": "assets/Settings-DsTl_ILq.js",
     "name": "Settings",
     "src": "resources/js/pages/Settings.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_AppPopoverContent.vue_vue_type_script_setup_true_lang-Cx9MIydi.js",
       "resources/js/app/app.ts",
-      "_CopyButton.vue_vue_type_script_setup_true_lang-X8cnWaFg.js",
-      "_PageLayout.vue_vue_type_script_setup_true_lang-CgvPZXHH.js"
+      "_AppLabel.vue_vue_type_script_setup_true_lang-D0SRWO8A.js",
+      "_AppPopover.vue_vue_type_script_setup_true_lang-BnFMSoqB.js",
+      "_PageLayout.vue_vue_type_script_setup_true_lang-CfmnWRWm.js",
+      "_nullish-CHIgUVhi.js"
     ],
     "css": [
-      "assets/app-JHUrrxHY.css"
+      "assets/app-cGf5MrQ8.css"
     ]
   }
 }
