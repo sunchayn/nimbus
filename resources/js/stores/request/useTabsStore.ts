@@ -231,6 +231,82 @@ export const useTabsStore = defineStore(
         }
 
         /**
+         * Closes every unpinned tab except the given one, and activates it.
+         */
+        function closeOtherTabs(id: string) {
+            if (!tabs.value.some(tab => tab.id === id)) {
+                return;
+            }
+
+            tabs.value = tabs.value.filter(tab => tab.id === id || tab.pinned);
+            activeTabId.value = id;
+        }
+
+        /**
+         * Closes the unpinned tabs on the left of the given one.
+         * The given tab is activated when the active tab was closed.
+         */
+        function closeTabsToLeft(id: string) {
+            const index = tabs.value.findIndex(tab => tab.id === id);
+
+            if (index === -1) {
+                return;
+            }
+
+            tabs.value = tabs.value.filter((tab, i) => i >= index || tab.pinned);
+
+            if (!tabs.value.some(tab => tab.id === activeTabId.value)) {
+                activeTabId.value = id;
+            }
+        }
+
+        /**
+         * Closes the unpinned tabs on the right of the given one.
+         * The given tab is activated when the active tab was closed.
+         */
+        function closeTabsToRight(id: string) {
+            const index = tabs.value.findIndex(tab => tab.id === id);
+
+            if (index === -1) {
+                return;
+            }
+
+            tabs.value = tabs.value.filter((tab, i) => i <= index || tab.pinned);
+
+            if (!tabs.value.some(tab => tab.id === activeTabId.value)) {
+                activeTabId.value = id;
+            }
+        }
+
+        /**
+         * Sets a custom title for a tab. A blank name restores the route title.
+         */
+        function renameTab(id: string, name: string) {
+            const tab = tabs.value.find(tab => tab.id === id);
+
+            if (tab) {
+                tab.customTitle = name.trim() || undefined;
+            }
+        }
+
+        /**
+         * Pins or unpins a tab. Pinned tabs always sit at the start of the list.
+         */
+        function togglePinTab(id: string) {
+            const tab = tabs.value.find(tab => tab.id === id);
+
+            if (!tab) {
+                return;
+            }
+
+            tab.pinned = !tab.pinned;
+            tabs.value = [
+                ...tabs.value.filter(item => item.pinned),
+                ...tabs.value.filter(item => !item.pinned),
+            ];
+        }
+
+        /**
          * Activates a tab by its ID.
          */
         function setActiveTab(id: string) {
@@ -471,6 +547,11 @@ export const useTabsStore = defineStore(
             // Actions
             openTab,
             closeTab,
+            closeOtherTabs,
+            closeTabsToLeft,
+            closeTabsToRight,
+            renameTab,
+            togglePinTab,
             setActiveTab,
             moveTab,
             updateActiveTabResponse,

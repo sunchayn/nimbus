@@ -175,6 +175,140 @@ describe('useTabsStoreUnitTest', () => {
      * Response Management.
      */
 
+    describe('Tab Context Actions', () => {
+        const openThree = () => {
+            const store = useTabsStore();
+            const thirdRoute = { ...secondRoute, endpoint: 'api/posts' };
+            store.openTab(baseRoute, [baseRoute]);
+            store.openTab(secondRoute, [secondRoute]);
+            store.openTab(thirdRoute, [thirdRoute]);
+
+            return store;
+        };
+
+        it('closes the other tabs and keeps pinned ones', () => {
+            // Arrange
+
+            const store = openThree();
+            const [first, second, third] = store.tabs.map(tab => tab.id);
+            store.togglePinTab(first);
+
+            // Act
+
+            store.closeOtherTabs(third);
+
+            // Assert
+
+            expect(store.tabs.map(tab => tab.id)).toEqual([first, third]);
+            expect(store.activeTabId).toBe(third);
+            expect(store.tabs.some(tab => tab.id === second)).toBe(false);
+        });
+
+        it('closes the tabs to the left and activates the target when needed', () => {
+            // Arrange
+
+            const store = openThree();
+            const [, second, third] = store.tabs.map(tab => tab.id);
+            store.setActiveTab(store.tabs[0].id);
+
+            // Act
+
+            store.closeTabsToLeft(third);
+
+            // Assert
+
+            expect(store.tabs.map(tab => tab.id)).toEqual([third]);
+            expect(store.activeTabId).toBe(third);
+            expect(store.tabs.some(tab => tab.id === second)).toBe(false);
+        });
+
+        it('keeps pinned tabs when closing to the left and right', () => {
+            // Arrange
+
+            const store = openThree();
+            const [first, second, third] = store.tabs.map(tab => tab.id);
+            store.togglePinTab(first);
+
+            // Act & Assert
+
+            store.closeTabsToLeft(third);
+            expect(store.tabs.map(tab => tab.id)).toEqual([first, third]);
+
+            store.togglePinTab(third);
+            store.closeTabsToRight(first);
+            expect(store.tabs.map(tab => tab.id)).toEqual([first, third]);
+            expect(store.tabs.some(tab => tab.id === second)).toBe(false);
+        });
+
+        it('ignores unknown tab ids', () => {
+            // Arrange
+
+            const store = openThree();
+            const before = store.tabs.map(tab => tab.id);
+
+            // Act
+
+            store.closeOtherTabs('missing');
+            store.closeTabsToLeft('missing');
+            store.closeTabsToRight('missing');
+            store.renameTab('missing', 'x');
+            store.togglePinTab('missing');
+
+            // Assert
+
+            expect(store.tabs.map(tab => tab.id)).toEqual(before);
+        });
+
+        it('closes the tabs to the right', () => {
+            // Arrange
+
+            const store = openThree();
+            const [first, second] = store.tabs.map(tab => tab.id);
+
+            // Act
+
+            store.closeTabsToRight(second);
+
+            // Assert
+
+            expect(store.tabs.map(tab => tab.id)).toEqual([first, second]);
+        });
+
+        it('renames a tab and restores the route title on a blank name', () => {
+            // Arrange
+
+            const store = openThree();
+            const id = store.tabs[0].id;
+
+            // Act & Assert
+
+            store.renameTab(id, '  My tab ');
+            expect(store.tabs[0].customTitle).toBe('My tab');
+
+            store.renameTab(id, '   ');
+            expect(store.tabs[0].customTitle).toBeUndefined();
+        });
+
+        it('keeps pinned tabs at the start of the list', () => {
+            // Arrange
+
+            const store = openThree();
+            const third = store.tabs[2].id;
+
+            // Act
+
+            store.togglePinTab(third);
+
+            // Assert
+
+            expect(store.tabs[0].id).toBe(third);
+            expect(store.tabs[0].pinned).toBe(true);
+
+            store.togglePinTab(third);
+            expect(store.tabs[0].pinned).toBe(false);
+        });
+    });
+
     describe('Response Management', () => {
         it('updates active tab response', () => {
             // Arrange

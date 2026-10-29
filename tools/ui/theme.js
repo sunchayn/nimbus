@@ -448,6 +448,28 @@ export default {
         },
     },
 
+    contextMenu: {
+        slots: {
+            content: `min-w-overlay ${overlaySurface} ${fadeOverlay}`,
+            viewport: overlayDivide,
+            group: "p-menu",
+            separator: overlaySeparator,
+            item: `${itemBase} items-center`,
+        },
+        variants: {
+            active: {
+                true: { item: "before:bg-overlay-hover" },
+                false: {
+                    item: "data-highlighted:not-data-disabled:before:bg-overlay-hover",
+                },
+            },
+            size: menuSizes,
+        },
+        defaultVariants: {
+            size: "md",
+        },
+    },
+
     dropdownMenu: {
         slots: {
             content: `min-w-overlay ${overlaySurface} ${fadeOverlay}`,
