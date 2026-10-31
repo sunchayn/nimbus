@@ -146,6 +146,49 @@ flowchart TD
 4. **Schema Generation** - Convert validation rules to JSON schema.
 5. **Output** - Produce `ExtractedRoute` objects with complete metadata.
 
+### Routes Snapshot
+
+The snapshot is opt-in and lives outside the routes processors.
+`ExtractRoutesAction` serves the stored routes while the manifest is fresh, and otherwise runs the bound `RoutesProcessorContract` and saves a new manifest.
+It skips the manifest entirely when `nimbus.snapshot` is `false`.
+
+```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor': '#ffffff', 'primaryTextColor': '#18181b', 'primaryBorderColor': '#d4d4d8', 'lineColor': '#71717a', 'secondaryColor': '#f4f4f5', 'tertiaryColor': '#e4e4e7'}}}%%
+flowchart TD
+    Load[Routes request] --> Read[Read the stored manifest]
+    Read --> Config{Config fingerprint matches?}
+    Config -->|no| Extract[Extract through the wrapped processor]
+    Config -->|yes| Routes{Routes fingerprint matches?}
+    Routes -->|no| Extract
+    Routes -->|yes| Files{Every file stat matches?}
+    Files -->|no| Extract
+    Files -->|yes| Serve[Return the stored routes]
+    Extract --> Save[Save a new manifest]
+    Save --> Return[Return the routes]
+```
+
+**Parts:**
+
+- **`ManifestManager`** (`Modules/Routes/Services/Snapshot`) owns the manifest, which is the snapshot of the routes and of everything they depend on. A manifest holds a config fingerprint, a routes fingerprint, the `size` and `mtime` of every tracked file, the creation time, and the extracted routes. The files are the ones an extraction touched, plus `composer.lock` and the OpenAPI files. It also reads, writes and clears manifests, one serialized file per application in `vendor/sunchayn/nimbus/storage`. Writes use a temporary file and a rename, and a missing, corrupt or unwritable file behaves like an empty store.
+- **`ClassFileResolved`** (`Modules/Ast/Events`) is the event the AST module dispatches with a file path. `ManifestManager` listens to it, so the AST module never depends on the Routes module.
+- **`ResolveClassFileAction`** (`Modules/Ast`) is the single choke point. Every extraction step that needs the file of a class goes through it, and it dispatches `ClassFileResolved`. `LoadClassAstAction` and `ExtractableRouteFactory` use it, so a new extractor needs no extra code.
+
+**How verification stays fast:**
+
+1. `isStale()` checks the cheapest parts first, which are the config fingerprint, then the routes fingerprint, then the files. It returns `true` at the first mismatch.
+2. The config and routes fingerprints are `xxh3` hashes of in-memory data.
+3. Each file costs one `stat` call and is compared by size and `mtime`. File contents are never read or hashed.
+4. A file modified within 2 seconds of the manifest creation time is never trusted, because two edits in the same second can keep the same size and time. An edit right before a save costs at most one extra extraction.
+5. A deleted file fails the check.
+
+**Rules:**
+
+- A failed extraction throws before anything is saved.
+- The routes are stored with `serialize`. `RulesExtractionError` renders its HTML in the constructor because a `Throwable` cannot be serialized.
+- `GET /api/routes?refresh=1` clears the snapshot of the active application before extracting. The response carries `X-Nimbus-Snapshot-At` while the snapshot is enabled.
+- `IgnoreRouteErrorAction` and `php artisan nimbus:snapshot:clear` clear all snapshots.
+- The ignored routes list is shared by all applications, so adding to it clears every snapshot.
+
 ### Schema Building Process
 
 The schema builder converts Laravel validation rules into JSON Schema format with support for nested structures.

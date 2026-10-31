@@ -85,6 +85,29 @@ describe('useRoutesStore', () => {
             expect(store.error).toBeNull();
         });
 
+        it('asks for a refresh and keeps the snapshot time', async () => {
+            // Arrange
+
+            const store = useRoutesStore();
+
+            fetchMock.mockResolvedValue({
+                ...jsonResponse({ v1: [] }),
+                headers: new Headers({ 'X-Nimbus-Snapshot-At': '1700000000' }),
+            });
+
+            // Act
+
+            await store.initializeRoutes(true);
+
+            // Assert
+
+            expect(fetchMock).toHaveBeenCalledWith(
+                '/nimbus/api/routes?refresh=1',
+                expect.anything(),
+            );
+            expect(store.snapshotAt).toBe(1700000000);
+        });
+
         it('keeps the extraction exception sent by the endpoint', async () => {
             // Arrange
 

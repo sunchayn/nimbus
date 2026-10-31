@@ -8,7 +8,6 @@ use PhpParser\Node;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\ParserFactory;
-use ReflectionClass;
 
 /**
  * Parses a class file into a fully qualified PhpParser AST.
@@ -19,6 +18,10 @@ use ReflectionClass;
  */
 class LoadClassAstAction
 {
+    public function __construct(
+        private readonly ResolveClassFileAction $resolveClassFileAction,
+    ) {}
+
     /**
      * @param  class-string  $className
      * @return Node[]|null
@@ -29,9 +32,9 @@ class LoadClassAstAction
             return null;
         }
 
-        $fileName = (new ReflectionClass($className))->getFileName();
+        $fileName = $this->resolveClassFileAction->execute($className);
 
-        if (! $fileName) {
+        if ($fileName === null) {
             return null;
         }
 

@@ -55,6 +55,8 @@ app.use(ui);
  * in parallel with the lazy page chunk instead of after it.
  */
 useErrorStore(pinia).initializeGlobalErrors();
-useRoutesStore(pinia).initializeRoutes();
+useRoutesStore(pinia).initializeRoutes(
+    new URLSearchParams(window.location.search).has('refresh'),
+);
 
 app.mount('#app');

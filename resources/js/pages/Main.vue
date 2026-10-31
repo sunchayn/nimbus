@@ -113,7 +113,9 @@ const onLayout = () => {
                         :routes="routesStore.routes"
                         :loading="routesStore.isLoading"
                         :error="routesStore.error"
+                        :snapshot-at="routesStore.snapshotAt"
                         @retry="routesStore.initializeRoutes()"
+                        @refresh="routesStore.initializeRoutes(true)"
                     />
                 </template>
             </AppSlideover>
@@ -134,7 +136,9 @@ const onLayout = () => {
                     :routes="routesStore.routes"
                     :loading="routesStore.isLoading"
                     :error="routesStore.error"
+                    :snapshot-at="routesStore.snapshotAt"
                     @retry="routesStore.initializeRoutes()"
+                    @refresh="routesStore.initializeRoutes(true)"
                 />
             </template>
             <template #panel-1>

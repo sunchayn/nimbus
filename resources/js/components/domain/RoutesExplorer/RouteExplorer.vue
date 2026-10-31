@@ -26,6 +26,8 @@ export interface RouteExplorerProps {
     routes: { [_key in string]?: RoutesFolder[] } | null;
     loading?: boolean;
     error?: string | null;
+    // Unix seconds of the routes snapshot, the refresh button is hidden without it.
+    snapshotAt?: number | null;
 }
 
 /*
@@ -35,10 +37,12 @@ export interface RouteExplorerProps {
 const props = withDefaults(defineProps<RouteExplorerProps>(), {
     loading: false,
     error: null,
+    snapshotAt: null,
 });
 
 defineEmits<{
     retry: [];
+    refresh: [];
 }>();
 
 const configStore = useConfigStore();
@@ -129,6 +133,12 @@ const hasMultipleApplications = computed(
     () => Object.keys(configStore.applications).length > 1,
 );
 
+const snapshotTitle = computed(() =>
+    props.snapshotAt
+        ? `Refresh routes. Last updated ${new Date(props.snapshotAt * 1000).toLocaleString()}.`
+        : 'Refresh routes',
+);
+
 const showingSearchResults = computed(() => search.value.trim().length > 0);
 
 watch(
@@ -155,6 +165,18 @@ provide(showingSearchResultsKey, showingSearchResults);
                 placeholder="Type to search..."
                 :disabled="routesInVersion.length === 0"
                 class="min-w-0 flex-1"
+            />
+            <AppButton
+                v-if="snapshotAt"
+                icon="i-hugeicons-reload"
+                color="neutral"
+                variant="outline"
+                size="md"
+                :loading="loading"
+                :title="snapshotTitle"
+                aria-label="Refresh routes"
+                data-testid="routes-refresh"
+                @click="$emit('refresh')"
             />
         </div>
         <div class="gap-base flex min-h-0 flex-1 flex-col overflow-hidden">

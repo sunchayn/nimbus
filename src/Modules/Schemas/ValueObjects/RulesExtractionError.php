@@ -9,22 +9,26 @@ use Throwable;
 
 class RulesExtractionError
 {
-    public function __construct(
-        private readonly Throwable $throwable,
-    ) {}
+    // The HTML is rendered once because a throwable cannot be serialized into a routes snapshot.
+    private readonly string $html;
+
+    public function __construct(Throwable $throwable)
+    {
+        $errorMessage = filled($throwable->getMessage())
+            ? $throwable->getMessage()
+            : '[no error message]';
+
+        $trace = Str::replace("\n", '<br >', $throwable->getTraceAsString());
+
+        $this->html = <<<ERROR_HTML
+<b>{$errorMessage}</b><br />
+<small>{$throwable->getFile()}::{$throwable->getLine()}</small>
+<p class="text-xs">{$trace}</p>
+ERROR_HTML;
+    }
 
     public function toHtml(): string
     {
-        $errorMessage = filled($this->throwable->getMessage())
-            ? $this->throwable->getMessage()
-            : '[no error message]';
-
-        $trace = Str::replace("\n", '<br >', $this->throwable->getTraceAsString());
-
-        return <<<ERROR_HTML
-<b>{$errorMessage}</b><br />
-<small>{$this->throwable->getFile()}::{$this->throwable->getLine()}</small>
-<p class="text-xs">{$trace}</p>
-ERROR_HTML;
+        return $this->html;
     }
 }

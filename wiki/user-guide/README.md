@@ -33,6 +33,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
     - [Export to cURL](#export-to-curl)
     - [Shareable Links](#shareable-links)
     - [OpenAPI Support](#openapi-support)
+    - [Routes Snapshot](#routes-snapshot)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
     - [Making Nimbus work with single-threaded servers](#making-nimbus-work-with-single-threaded-servers)
@@ -523,6 +524,61 @@ To enable OpenAPI support, update your `config/nimbus.php`:
 
 ---
 
+### Routes Snapshot
+
+Nimbus reads your controllers, form requests and resources to build the routes you see.
+On a large application this takes a noticeable time on every page load.
+The routes snapshot saves the result to disk and reuses it while nothing it was built from has changed.
+
+The snapshot is off by default. Turn it on in `config/nimbus.php`:
+
+```php
+'snapshot' => true,
+```
+
+When it is on, the first load extracts the routes and saves them.
+The next loads read the saved file and skip extraction.
+Nimbus extracts again by itself when any of these change:
+
+- A route definition, such as its URI, methods, name, action or middleware.
+- A source file that the last extraction read, such as a form request, resource or data object.
+- The Nimbus configuration of the active application.
+- `composer.lock`.
+- An OpenAPI specification file, when you use the OpenAPI strategy.
+
+Nimbus compares the size and modification time of each file and never reads its content. Touching a file triggers one extra extraction.
+
+**Refresh routes:**
+
+When the snapshot is on, a refresh button appears next to the search field.
+Hover it to see when the routes were last updated.
+Click it to extract again and replace the snapshot.
+
+![Routes snapshot](./assets/routes-snapshot.png)
+
+You can also open `/nimbus/?refresh` to force extraction on page load.
+
+**Clear snapshots:**
+
+Run this command to delete the snapshots of all applications, for example in a deploy script:
+
+```bash
+php artisan nimbus:snapshot:clear
+```
+
+Adding a route to the ignored routes list also clears the snapshots.
+
+**What it does not detect:**
+
+- A class that did not exist when the snapshot was made, such as a form request you created later. The route definition usually changes with it. Use the refresh button if it does not.
+- Database changes, including migrations. Use the refresh button.
+
+**Where snapshots are stored:**
+
+Snapshots live in `vendor/sunchayn/nimbus/storage`, one file per application.
+They contain schema data only and are not served over HTTP.
+If the folder is not writable, Nimbus still works and extracts on every load.
+
 ## Configuration
 
 The `config/nimbus.php` file provides customization options:
@@ -535,6 +591,8 @@ return [
     'allowed_envs' => ['local', 'staging'],
 
     'nested_folders' => false,
+
+    'snapshot' => false,
 
     'default_application' => 'main',
 
@@ -578,6 +636,7 @@ return [
 | **`allowed_envs`** | Environments where Nimbus is enabled. Avoid production for security reasons.                                                                                                                          | `['local', 'staging']` | `['testing', 'local']` |
 | **`default_application`** | The base default application to load when no other application is specified.                                                                                                                          | `'main'` | `'rest-api'` |
 | **`nested_folders`** | Groups routes in nested folders that follow the URI, instead of one folder per resource. Applies to all applications.<br /><br />See [Nested Folders](#nested-folders). | `false` | `true` |
+| **`snapshot`** | Saves the extracted routes and reuses them while their source files are unchanged. Applies to all applications.<br /><br />See [Routes Snapshot](#routes-snapshot). | `false` | `true` |
 | **`applications.*.routes.prefix`** | The base path used to detect application routes. Only routes starting with this prefix are analyzed.                                                                                                  | `'api'` | `'api/v1'` |
 | **`applications.*.routes.versioned`** | Enables version parsing for routes like `/api/v1/...`.                                                                                                                                                | `false` | `true` |
 | **`applications.*.routes.api_base_url`** | The base URL used when Nimbus relays API requests from the UI. Useful when the API runs on a different domain or port. If set to null, Nimbus defaults to the host and scheme of the incoming request. | `null` | `'http://127.0.0.1:8001'` |
@@ -716,6 +775,11 @@ Now when you send requests through Nimbus:
 3. **Verify route registration**
     - Ensure routes are in `routes/api.php`.
     - Check `RouteServiceProvider` (Laravel 10-11) or `bootstrap/app.php` (Laravel 12+).
+
+4. **Refresh the routes snapshot**
+    - If `snapshot` is `true`, click the refresh button next to the search field.
+    - Or run `php artisan nimbus:snapshot:clear`.
+    - See [Routes Snapshot](#routes-snapshot).
 
 ### Interface Not Loading
 

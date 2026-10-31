@@ -7,9 +7,11 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Routes\Factories;
 use Generator;
 use Illuminate\Routing\Route;
 use Mockery;
+use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Sunchayn\Nimbus\Modules\Ast\Actions\ResolveClassFileAction;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\InvalidRouteDefinitionException;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionException;
 use Sunchayn\Nimbus\Modules\Routes\Factories\ExtractableRouteFactory;
@@ -22,11 +24,19 @@ class ExtractableRouteFactoryUnitTest extends TestCase
 {
     private ExtractableRouteFactory $factory;
 
+    private MockInterface $resolveClassFileAction;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->factory = new ExtractableRouteFactory;
+        $this->resolveClassFileAction = Mockery::mock(ResolveClassFileAction::class);
+
+        $this->resolveClassFileAction
+            ->shouldReceive('execute')
+            ->andReturn('/app/Http/Controllers/StubController.php');
+
+        $this->factory = new ExtractableRouteFactory($this->resolveClassFileAction);
     }
 
     protected function tearDown(): void

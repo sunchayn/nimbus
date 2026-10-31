@@ -60,6 +60,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Routes Snapshot
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, Nimbus saves the extracted routes to disk and serves them
+    | on the next load while none of the files they were built from changed.
+    | A change is detected automatically and the routes are extracted again.
+    | This is off by default. Turn it on for large applications where
+    | extraction takes a noticeable time.
+    |
+    */
+
+    'snapshot' => false,
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Configurations
     |--------------------------------------------------------------------------
     |

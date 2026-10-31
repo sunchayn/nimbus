@@ -10,7 +10,6 @@ use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 use Sunchayn\Nimbus\Modules\Ast\Actions\GetConcreteValueFromAstExprAction;
 use Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery;
@@ -18,9 +17,10 @@ use Sunchayn\Nimbus\Modules\Ast\ValueObjects\ArrayAstContextValue;
 use Sunchayn\Nimbus\Modules\Ast\ValueObjects\ObjectAstContextValue;
 use Sunchayn\Nimbus\Modules\Ast\ValueObjects\ScalarAstContextValue;
 use Sunchayn\Nimbus\Modules\Ast\ValueObjects\VariablesContext;
+use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(GetConcreteValueFromAstExprAction::class)]
-class GetConcreteValueFromAstExprActionUnitTest extends TestCase
+class GetConcreteValueFromAstExprActionFunctionalTest extends TestCase
 {
     #[DataProvider('astExprValueProvider')]
     public function test_it_resolves_concrete_value_from_ast_expression(
