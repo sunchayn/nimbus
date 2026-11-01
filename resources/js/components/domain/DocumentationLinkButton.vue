@@ -4,6 +4,7 @@
  * @description A consistent external link button pointing to the application documentation.
  */
 import { AppButton } from '@/components/base/button';
+import { USER_GUIDE_LINK } from '@/config';
 import { type HTMLAttributes } from 'vue';
 
 /*
@@ -25,7 +26,7 @@ defineProps<DocumentationLinkButtonProps>();
     <AppButton
         size="xs"
         as="a"
-        href="https://github.com/sunchayn/nimbus/tree/base/wiki/user-guide"
+        :href="USER_GUIDE_LINK"
         target="_blank"
         icon="i-hugeicons-link-square-02"
         label="Documentation"

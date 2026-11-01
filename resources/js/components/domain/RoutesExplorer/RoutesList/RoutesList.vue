@@ -6,6 +6,7 @@
  */
 import RoutesResourceGroup from '@/components/domain/RoutesExplorer/RoutesResourceGroup.vue';
 import { useShowingSearchResults } from '@/components/domain/RoutesExplorer/showingSearchResults';
+import { USER_GUIDE_LINK } from '@/config';
 import { type RoutesFolder } from '@/interfaces/routes/routes';
 
 /*
@@ -39,13 +40,15 @@ const showingSearchResults = useShowingSearchResults();
     </template>
     <template v-else-if="!showingSearchResults">
         <div class="px-base">
-            <p class="mb-base text-xs">
-                No routes have been detected. Make sure to check the Wiki in case of
-                doubts.
+            <p class="text-sm">
+                No routes have been detected.
+            </p>
+            <p class="text-xs">
+                Check the <a :href="USER_GUIDE_LINK" class="underline" target="_blank">documentation</a> for more insights.
             </p>
         </div>
     </template>
     <template v-else>
-        <p class="mb-base px-base text-xs">No routes matching your keywords.</p>
+        <p class="px-base text-xs">No routes matching your keywords.</p>
     </template>
 </template>
