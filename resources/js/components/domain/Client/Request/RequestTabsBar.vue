@@ -68,6 +68,22 @@ const startRename = (tab: Tab) => {
     renamingTabId.value = tab.id;
 };
 
+// The context menu returns focus to the tab when it closes, which would dismiss the popover.
+// So the rename starts once the menu is closed, and the focus return is skipped.
+const pendingRenameTab = shallowRef<Tab | null>(null);
+
+const handleMenuOpen = async (open: boolean) => {
+    if (open || !pendingRenameTab.value) {
+        return;
+    }
+
+    const tab = pendingRenameTab.value;
+    pendingRenameTab.value = null;
+
+    await nextTick();
+    startRename(tab);
+};
+
 const submitRename = () => {
     if (renamingTabId.value) {
         tabsStore.renameTab(renamingTabId.value, renameDraft.value);
@@ -124,7 +140,9 @@ const menuItems = (tab: Tab, index: number): AppContextMenuItem[][] => {
             {
                 label: 'Rename tab',
                 icon: 'i-hugeicons-pencil-edit-02',
-                onSelect: () => startRename(tab),
+                onSelect: () => {
+                    pendingRenameTab.value = tab;
+                },
             },
             {
                 label: tab.pinned ? 'Unpin tab' : 'Pin tab',
@@ -223,7 +241,11 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
                         'tab-closing': closingTabId === tab.id,
                     }"
                 >
-                    <AppContextMenu :items="menuItems(tab, index)">
+                    <AppContextMenu
+                        :items="menuItems(tab, index)"
+                        :content="{ onCloseAutoFocus: (e: Event) => e.preventDefault() }"
+                        @update:open="handleMenuOpen"
+                    >
                         <div
                             :ref="(el: unknown) => setTabElement(tab.id, el)"
                             :data-active="tab.id === tabsStore.activeTabId"

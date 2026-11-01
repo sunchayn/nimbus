@@ -245,6 +245,19 @@ describe('RequestTabsBar', () => {
             ).toBeNull();
         });
 
+        it('opens the input after the context menu closes', async () => {
+            const wrapper = createWrapper();
+
+            await openMenu(wrapper, 0);
+            menuItem('Rename tab')?.click();
+            await new Promise(resolve => setTimeout(resolve, 50));
+            await nextTick();
+
+            expect(
+                document.body.querySelector('[data-testid="tab-rename-input"]'),
+            ).not.toBeNull();
+        });
+
         it('saves the name when enter is pressed', async () => {
             const tabsStore = useTabsStore();
             const wrapper = createWrapper();
