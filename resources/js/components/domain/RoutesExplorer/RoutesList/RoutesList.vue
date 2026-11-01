@@ -40,11 +40,13 @@ const showingSearchResults = useShowingSearchResults();
     </template>
     <template v-else-if="!showingSearchResults">
         <div class="px-base">
-            <p class="text-sm">
-                No routes have been detected.
-            </p>
+            <p class="text-sm">No routes have been detected.</p>
             <p class="text-xs">
-                Check the <a :href="USER_GUIDE_LINK" class="underline" target="_blank">documentation</a> for more insights.
+                Check the
+                <a :href="USER_GUIDE_LINK" class="underline" target="_blank">
+                    documentation
+                </a>
+                for more insights.
             </p>
         </div>
     </template>
