@@ -15,6 +15,7 @@ use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
 use Sunchayn\Nimbus\Modules\Relay\Responses\DumpAndDieResponse;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\AuthorizationHandlerFactory;
+use Sunchayn\Nimbus\Modules\Relay\ValueObjects\DownloadResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
@@ -52,14 +53,20 @@ class RequestRelayAction
 
         $durationInMs = $this->calculateDuration($start);
 
+        $download = DownloadResponseBody::tryFromResponse($response, $requestRelayData->endpoint);
+
         return new RelayedRequestResponseData(
             statusCode: $response->status(),
             statusText: $this->getStatusTextFromCode($response->status()),
-            body: PrintableResponseBody::fromResponse($response),
+            // The raw bytes of a download are forwarded separately and never printed.
+            body: $download instanceof DownloadResponseBody
+                ? new PrintableResponseBody('')
+                : PrintableResponseBody::fromResponse($response),
             headers: $response->headers(),
             durationMs: $durationInMs,
             timestamp: CarbonImmutable::now()->getTimestamp(),
             cookies: $this->processCookies($response->toPsrResponse()->getHeader('Set-Cookie')),
+            download: $download,
         );
     }
 

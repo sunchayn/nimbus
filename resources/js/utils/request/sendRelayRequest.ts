@@ -5,6 +5,7 @@ import {
     transformRelayResponse,
     type ResolveEnvironmentVariables,
 } from '@/utils/request/relayRequest';
+import { base64ToBlob, triggerDownload } from '@/utils/ui/download';
 import type { AxiosError, AxiosResponse } from 'axios';
 import axios from 'axios';
 
@@ -54,6 +55,17 @@ export const sendRelayRequest = (
                 const relayResponse = JSON.parse(
                     axiosResponse.data,
                 ) as RelayProxyResponse;
+
+                // Only fresh responses reach this point, so history rewinds never re-download.
+                if (relayResponse.download) {
+                    triggerDownload(
+                        base64ToBlob(
+                            relayResponse.download.content,
+                            relayResponse.download.mimeType,
+                        ),
+                        relayResponse.download.filename,
+                    );
+                }
 
                 resolveResult({
                     response: transformRelayResponse(relayResponse),

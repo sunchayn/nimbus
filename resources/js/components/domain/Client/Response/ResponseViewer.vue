@@ -47,7 +47,7 @@ const lastLog = computed(() => tabsStore.activeResponse);
         <div class="gap-pane flex shrink-0">
             <ResponseStatus class="min-w-0 flex-1" :response="lastLog" />
             <div
-                v-if="lastLog?.response"
+                v-if="lastLog?.response && !lastLog.response.download"
                 class="pane-surface size-pane-header flex shrink-0 items-center justify-center"
             >
                 <ResponseDownloadDropdown :response="lastLog" />

@@ -644,6 +644,44 @@ class RequestRelayActionFunctionalTest extends TestCase
         $this->assertEquals(200, $response->statusCode);
     }
 
+    public function test_it_forwards_download_responses(): void
+    {
+        // Arrange
+
+        $binary = "PK\x03\x04\xff\xfe\x00binary";
+
+        $requestData = new RequestRelayData(
+            method: 'GET',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: [],
+            cookies: new ParameterBag,
+        );
+
+        Http::fake(fn () => Http::response($binary, 200, [
+            'Content-Type' => 'application/zip',
+            'Content-Disposition' => 'attachment; filename="archive.zip"',
+        ]));
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertSame(200, $response->statusCode);
+        $this->assertSame('', $response->body->body);
+        $this->assertSame('archive.zip', $response->download?->filename);
+        $this->assertSame('application/zip', $response->download?->mimeType);
+        $this->assertSame(strlen($binary), $response->download?->sizeInBytes);
+        $this->assertSame(base64_encode($binary), $response->download?->content);
+    }
+
     /*
      * Helpers.
      */

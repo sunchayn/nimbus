@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * @component DumpNotice
- * @description A bordered card with a labeled status indicator and a body slot, used for dump empty and error states.
+ * @component ResponseNotice
+ * @description A bordered card with a labeled status indicator and a body slot, used for response info, empty and error states.
  */
 import AppRoundIndicator from '@/components/base/round-indicator/AppRoundIndicator.vue';
 
@@ -9,7 +9,7 @@ import AppRoundIndicator from '@/components/base/round-indicator/AppRoundIndicat
  * Types & Interfaces.
  */
 
-export interface DumpNoticeProps {
+export interface ResponseNoticeProps {
     label: string;
     indicatorClass: string;
 }
@@ -18,7 +18,7 @@ export interface DumpNoticeProps {
  * Component Setup.
  */
 
-defineProps<DumpNoticeProps>();
+defineProps<ResponseNoticeProps>();
 </script>
 
 <template>
