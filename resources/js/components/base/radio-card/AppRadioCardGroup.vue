@@ -44,7 +44,7 @@ defineSlots<{
             :key="item.value"
             :value="item.value"
             :data-testid="`radio-card-${item.value}`"
-            class="border-default focus-visible:ring-focus focus-visible:ring-accented data-[state=checked]:border-inverted flex cursor-pointer flex-col overflow-hidden rounded-md border text-left outline-none"
+            class="group border-default focus-visible:ring-focus focus-visible:ring-accented data-[state=checked]:border-inverted flex cursor-pointer flex-col overflow-hidden rounded-md border text-left outline-none"
             @keydown.enter="modelValue = item.value"
         >
             <div aria-hidden="true" class="border-default w-full border-b">
@@ -54,13 +54,9 @@ defineSlots<{
                 <div class="gap-base flex items-center">
                     <span
                         aria-hidden="true"
-                        class="border-accented flex size-4 shrink-0 items-center justify-center rounded-full border"
+                        class="border-accented group-data-[state=checked]:border-inverted flex size-4 shrink-0 items-center justify-center rounded-full border"
                     >
-                        <RadioGroupIndicator
-                            class="bg-inverted text-inverted flex size-full items-center justify-center rounded-full"
-                        >
-                            <span class="i-hugeicons-tick-02 size-icon-xs" />
-                        </RadioGroupIndicator>
+                        <RadioGroupIndicator class="bg-inverted size-2 rounded-full" />
                     </span>
                     <span class="text-sm font-medium">{{ item.label }}</span>
                 </div>
