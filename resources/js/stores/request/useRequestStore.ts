@@ -38,13 +38,6 @@ export const useRequestStore = defineStore('request', () => {
         route: Parameters<typeof tabsStore.openTab>[0],
         supportedRoutes: Parameters<typeof tabsStore.openTab>[1],
     ) => {
-        if (
-            route.endpoint === pendingRequestData.value?.endpoint &&
-            route.method === pendingRequestData.value?.method
-        ) {
-            return;
-        }
-
         executorStore.cancelCurrentRequest();
 
         tabsStore.openTab(route, supportedRoutes);

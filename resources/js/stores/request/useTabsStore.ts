@@ -177,20 +177,21 @@ export const useTabsStore = defineStore(
 
         /**
          * Opens a tab for the specified route.
-         * If the tab already exists, it is activated.
+         * A tab for the same route that has not sent a request yet is activated instead.
          */
         function openTab(
             route: RouteDefinition,
             availableRoutesForEndpoint: RouteDefinition[],
         ) {
-            const existingTab = tabs.value.find(
+            const unusedTab = tabs.value.find(
                 tab =>
+                    !tab.request.wasExecuted &&
                     tab.method.toUpperCase() === route.method.toUpperCase() &&
                     tab.request.endpoint === route.endpoint,
             );
 
-            if (existingTab) {
-                activeTabId.value = existingTab.id;
+            if (unusedTab) {
+                activeTabId.value = unusedTab.id;
 
                 return;
             }
