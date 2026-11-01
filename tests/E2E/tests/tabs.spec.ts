@@ -64,3 +64,34 @@ test('Multiple tabs support and isolated responses', async ({ page, basePage }) 
     await expect(tabs.filter({ hasText: /GET\s*verbs$/ })).not.toBeVisible();
     await expect(tabs.filter({ hasText: /PATCH\s*verbs$/ })).toBeVisible();
 });
+
+test('Selecting an open route reuses the tab until a request is sent', async ({
+    page,
+    basePage,
+}) => {
+    // Arrange
+
+    await basePage.goto();
+    await page.getByRole('button', { name: 'verbs' }).click();
+    const tabs = page
+        .getByTestId('sidebar-tab')
+        .filter({ hasText: /GET\s*verbs$/ });
+
+    // Act - Select the same route twice before sending anything
+
+    await page.getByRole('button', { name: 'GET /verbs' }).click();
+    await page.getByRole('button', { name: 'GET /verbs' }).click();
+
+    // Assert
+
+    await expect(tabs).toHaveCount(1);
+
+    // Act - Send the request, then select the route again
+
+    await basePage.executeRequest();
+    await page.getByRole('button', { name: 'GET /verbs' }).click();
+
+    // Assert
+
+    await expect(tabs).toHaveCount(2);
+});

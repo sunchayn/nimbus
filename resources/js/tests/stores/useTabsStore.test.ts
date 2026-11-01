@@ -100,36 +100,38 @@ describe('useTabsStoreUnitTest', () => {
             expect(store.activeTab?.title).toBe('users');
         });
 
-        it('does not create duplicate tabs for the same route', () => {
-            // Arrange
-
-            const store = useTabsStore();
-            store.openTab(baseRoute, [baseRoute]);
-
-            // Act
-
-            store.openTab(baseRoute, [baseRoute]);
-
-            // Assert
-
-            expect(store.tabs).toHaveLength(1);
-        });
-
-        it('activates an existing tab when opened', () => {
+        it('activates the existing tab when its request was not sent yet', () => {
             // Arrange
 
             const store = useTabsStore();
             store.openTab(baseRoute, [baseRoute]);
             const firstTabId = store.tabs[0].id;
             store.openTab(secondRoute, [secondRoute]);
-            store.setActiveTab(firstTabId);
 
             // Act
 
-            store.openTab(secondRoute, [secondRoute]);
+            store.openTab(baseRoute, [baseRoute]);
 
             // Assert
 
+            expect(store.tabs).toHaveLength(2);
+            expect(store.activeTabId).toBe(firstTabId);
+        });
+
+        it('opens a new tab when the existing tab already sent its request', () => {
+            // Arrange
+
+            const store = useTabsStore();
+            store.openTab(baseRoute, [baseRoute]);
+            store.tabs[0].request.wasExecuted = true;
+
+            // Act
+
+            store.openTab(baseRoute, [baseRoute]);
+
+            // Assert
+
+            expect(store.tabs).toHaveLength(2);
             expect(store.activeTabId).toBe(store.tabs[1].id);
         });
 
