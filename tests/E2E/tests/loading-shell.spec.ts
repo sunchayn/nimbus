@@ -80,8 +80,10 @@ test.describe('Loading shell', () => {
             localStorage.setItem('nimbus:explorer-open', 'false');
         });
 
-        // The app never gets the routes, so the first paint stays on the skeleton.
-        await delayRoutes(page, 3_000);
+        // Blocking the scripts keeps the static shell in place, since the app would replace it on mount.
+        await page.route('**/*', route =>
+            route.request().resourceType() === 'script' ? route.abort() : route.continue(),
+        );
 
         await page.goto('/demo/', { waitUntil: 'commit' });
 
