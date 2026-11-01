@@ -148,3 +148,20 @@ export function calculateTotalRouteCount(
         );
     }, 0);
 }
+
+/**
+ * Finds every route (one per HTTP method) defined for an endpoint.
+ */
+export function findRoutesByEndpoint(
+    routes: { [key: string]: RoutesFolder[] } | null,
+    endpoint: string,
+): RouteDefinition[] {
+    if (!routes) {
+        return [];
+    }
+
+    return Object.values(routes)
+        .flatMap(versionRoutes => flattenFolders(versionRoutes))
+        .flatMap(folder => folder.routes)
+        .filter(route => route.endpoint === endpoint);
+}

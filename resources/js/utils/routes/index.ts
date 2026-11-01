@@ -4,6 +4,7 @@
 
 export {
     calculateTotalRouteCount,
+    findRoutesByEndpoint,
     processRoutesData,
     searchRoutes,
 } from './routeProcessor';
