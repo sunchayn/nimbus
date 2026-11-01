@@ -5,6 +5,7 @@ namespace Sunchayn\Nimbus\Modules\Relay\DataTransferObjects;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayRequest;
+use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\DataTransferObjects\AuthorizationCredentials;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -25,6 +26,8 @@ readonly class RequestRelayData
         public ParameterBag $cookies,
         public array $queryParameters = [],
         public bool $transactionMode = false,
+        public string $environment = EnvironmentIdEnum::Current->value,
+        public bool $isCurrentHost = true,
     ) {}
 
     public static function fromRelayApiRequest(NimbusRelayRequest $nimbusRelayRequest): self
@@ -75,6 +78,8 @@ readonly class RequestRelayData
             cookies: $nimbusRelayRequest->cookies,
             queryParameters: $queryParameters,
             transactionMode: $transactionMode,
+            environment: $nimbusRelayRequest->environmentId(),
+            isCurrentHost: $nimbusRelayRequest->isCurrentHost(),
         );
     }
 

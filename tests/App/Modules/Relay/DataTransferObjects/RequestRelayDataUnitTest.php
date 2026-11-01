@@ -58,6 +58,8 @@ class RequestRelayDataUnitTest extends TestCase
 
         $mockRequest->shouldReceive('getBody')->andReturn($body);
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturnNull();
+        $mockRequest->shouldReceive('environmentId')->andReturn('current');
+        $mockRequest->shouldReceive('isCurrentHost')->andReturnTrue();
 
         // Act
 
@@ -124,6 +126,8 @@ class RequestRelayDataUnitTest extends TestCase
 
         $mockRequest->shouldReceive('getBody')->andReturn([]);
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturn('1');
+        $mockRequest->shouldReceive('environmentId')->andReturn('staging');
+        $mockRequest->shouldReceive('isCurrentHost')->andReturnFalse();
 
         // Act
 

@@ -3,62 +3,226 @@ import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariab
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+const setServerEnvironments = () => {
+    window.Nimbus = {
+        apiBaseUrl: 'http://app.test',
+        environments: JSON.stringify([
+            {
+                id: 'current',
+                name: 'Current host',
+                baseUrl: 'http://app.test',
+                enabled: true,
+                source: 'current',
+                detected: null,
+            },
+            {
+                id: 'staging',
+                name: 'Staging',
+                baseUrl: 'https://staging.example.com',
+                enabled: false,
+                source: 'config',
+            },
+        ]),
+    } as unknown as typeof window.Nimbus;
+};
+
+/** Adds a custom environment and makes it the active one. */
+const addActive = (store: ReturnType<typeof useEnvironmentVariablesStore>) => {
+    store.addEnvironment();
+    store.select(store.editingEnvironment.id);
+};
+
 describe('useEnvironmentVariablesStore', () => {
     beforeEach(() => {
+        setServerEnvironments();
         setActivePinia(createPinia());
     });
 
-    it('creates a collection with one empty variable and sets it active', () => {
-        const store = useEnvironmentVariablesStore();
+    describe('environments', () => {
+        it('lists the current host first and keeps config environments disabled by default', () => {
+            const store = useEnvironmentVariablesStore();
 
-        store.addCollection();
+            expect(store.environments.map(env => env.id)).toEqual(['current', 'staging']);
+            expect(store.enabledEnvironments.map(env => env.id)).toEqual(['current']);
+            expect(store.activeEnvironment.id).toBe('current');
+            expect(store.isCurrentHost).toBe(true);
+            expect(store.baseUrl).toBe('http://app.test');
+        });
 
-        expect(store.collections).toHaveLength(1);
-        expect(store.activeCollectionId).toBe(store.collections[0].id);
-        expect(store.collections[0].variables).toHaveLength(1);
-        expect(store.collections[0].variables[0]).toMatchObject({
-            type: ParameterType.Text,
-            key: '',
-            value: '',
-            enabled: true,
+        it('enables a config environment and switches to it', () => {
+            const store = useEnvironmentVariablesStore();
+
+            store.select('staging');
+            expect(store.activeEnvironment.id).toBe('current');
+
+            store.setEnabled('staging', true);
+            store.select('staging');
+
+            expect(store.activeEnvironment.id).toBe('staging');
+            expect(store.isCurrentHost).toBe(false);
+            expect(store.baseUrl).toBe('https://staging.example.com');
+        });
+
+        it('falls back to the current host when the active environment gets disabled', () => {
+            const store = useEnvironmentVariablesStore();
+            store.setEnabled('staging', true);
+            store.select('staging');
+
+            store.setEnabled('staging', false);
+
+            expect(store.activeEnvironment.id).toBe('current');
+        });
+
+        it('never disables the current host', () => {
+            const store = useEnvironmentVariablesStore();
+
+            store.setEnabled('current', false);
+
+            expect(store.environments[0].enabled).toBe(true);
+        });
+
+        it('stores variables of config environments as user overrides', () => {
+            const store = useEnvironmentVariablesStore();
+            store.edit('staging');
+
+            store.updateVariables([
+                {
+                    id: 1,
+                    type: ParameterType.Text,
+                    key: 'a',
+                    value: '1',
+                    enabled: true,
+                },
+            ]);
+
+            expect(store.environments[1].variables).toHaveLength(1);
+            expect(store.environments[1].baseUrl).toBe('https://staging.example.com');
+        });
+
+        it('creates a custom environment with the current host base URL', () => {
+            const store = useEnvironmentVariablesStore();
+
+            store.addEnvironment();
+
+            expect(store.customEnvironments).toHaveLength(1);
+            expect(store.editingEnvironment.baseUrl).toBe('http://app.test');
+            expect(store.editingEnvironment.source).toBe('custom');
+            expect(store.editingEnvironment.variables).toHaveLength(1);
+        });
+
+        it('renames custom environments only', () => {
+            const store = useEnvironmentVariablesStore();
+            store.addEnvironment();
+            store.renameEditing('Mine');
+            expect(store.editingEnvironment.name).toBe('Mine');
+
+            store.edit('staging');
+            store.renameEditing('Hacked');
+            expect(store.editingEnvironment.name).toBe('Staging');
+        });
+
+        it('validates the base URL of custom environments', () => {
+            const store = useEnvironmentVariablesStore();
+            store.addEnvironment();
+            const id = store.editingEnvironment.id;
+
+            expect(store.setBaseUrl(id, 'ftp://example.com')).toBe(false);
+            expect(store.setBaseUrl(id, 'example.com')).toBe(false);
+            expect(store.setBaseUrl(id, 'https://example.com/')).toBe(true);
+            expect(store.editingEnvironment.baseUrl).toBe('https://example.com');
+        });
+
+        it('removes a custom environment and falls back to the current host', () => {
+            const store = useEnvironmentVariablesStore();
+            addActive(store);
+            const id = store.activeEnvironment.id;
+
+            store.removeEnvironment(id);
+
+            expect(store.customEnvironments).toHaveLength(0);
+            expect(store.activeEnvironment.id).toBe('current');
+        });
+
+        it('keeps at least one variable when the edited environment receives none', () => {
+            const store = useEnvironmentVariablesStore();
+            store.addEnvironment();
+
+            store.updateVariables([]);
+
+            expect(store.editingEnvironment.variables).toHaveLength(1);
+            expect(store.editingEnvironment.variables[0].type).toBe(ParameterType.Text);
+        });
+
+        it('does not expose the base URL as a variable', () => {
+            const store = useEnvironmentVariablesStore();
+
+            expect(store.resolve('{{base_url}}/x')).toBe('{{base_url}}/x');
         });
     });
 
-    it('updates active collection name through action', () => {
-        const store = useEnvironmentVariablesStore();
-        store.addCollection();
+    describe('legacy migration', () => {
+        const legacy = () => {
+            const store = useEnvironmentVariablesStore();
+            store.collections = [
+                {
+                    id: 'c1',
+                    name: 'Old',
+                    variables: [
+                        {
+                            id: 1,
+                            type: ParameterType.Text,
+                            key: 'k',
+                            value: 'v',
+                            enabled: true,
+                        },
+                    ],
+                },
+            ];
+            store.activeCollectionId = 'c1';
 
-        store.renameActive('Local API');
+            return store;
+        };
 
-        expect(store.activeCollection?.name).toBe('Local API');
-    });
+        it('turns collections into custom environments and keeps the active one', () => {
+            const store = legacy();
 
-    it('keeps at least one variable when active collection receives empty variables', () => {
-        const store = useEnvironmentVariablesStore();
-        store.addCollection();
+            store.migrateLegacyCollections();
 
-        store.updateVariables([]);
+            expect(store.customEnvironments).toHaveLength(1);
+            expect(store.customEnvironments[0]).toMatchObject({
+                id: 'c1',
+                name: 'Old',
+                baseUrl: 'http://app.test',
+                source: 'custom',
+            });
+            expect(store.activeEnvironment.id).toBe('c1');
+            expect(store.resolve('{{k}}')).toBe('v');
+            expect(store.collections).toHaveLength(0);
+        });
 
-        expect(store.activeCollection?.variables.length).toBe(1);
-        expect(store.activeCollection?.variables[0].type).toBe(ParameterType.Text);
-    });
+        it('is safe to run twice', () => {
+            const store = legacy();
 
-    it('clears active collection when all collections are removed', () => {
-        const store = useEnvironmentVariablesStore();
-        store.addCollection();
-        const id = store.collections[0].id;
+            store.migrateLegacyCollections();
+            store.migrateLegacyCollections();
 
-        store.removeCollection(id);
+            expect(store.customEnvironments).toHaveLength(1);
+        });
 
-        expect(store.collections).toHaveLength(0);
-        expect(store.activeCollection).toBeNull();
-        expect(store.activeCollectionId).toBeNull();
+        it('keeps the current host active when no collection was active', () => {
+            const store = legacy();
+            store.activeCollectionId = null;
+
+            store.migrateLegacyCollections();
+
+            expect(store.activeEnvironment.id).toBe('current');
+        });
     });
 
     describe('resolution', () => {
         it('resolves multiple environment variables in a single string', () => {
             const store = useEnvironmentVariablesStore();
-            store.addCollection();
+            addActive(store);
             store.updateVariables([
                 {
                     id: 1,
@@ -81,7 +245,7 @@ describe('useEnvironmentVariablesStore', () => {
 
         it('ignores disabled variables during resolution', () => {
             const store = useEnvironmentVariablesStore();
-            store.addCollection();
+            addActive(store);
             store.updateVariables([
                 {
                     id: 1,
@@ -98,7 +262,7 @@ describe('useEnvironmentVariablesStore', () => {
 
         it('reactively updates resolution when variables change', () => {
             const store = useEnvironmentVariablesStore();
-            store.addCollection();
+            addActive(store);
             const variables = [
                 {
                     id: 1,
@@ -125,7 +289,7 @@ describe('useEnvironmentVariablesStore', () => {
 
         it('handles whitespace within placeholders', () => {
             const store = useEnvironmentVariablesStore();
-            store.addCollection();
+            addActive(store);
             store.updateVariables([
                 {
                     id: 1,
@@ -142,7 +306,7 @@ describe('useEnvironmentVariablesStore', () => {
 
         it('updates resolution status when a variable becomes empty', () => {
             const store = useEnvironmentVariablesStore();
-            store.addCollection();
+            addActive(store);
             const variables = [
                 {
                     id: 1,
@@ -166,48 +330,40 @@ describe('useEnvironmentVariablesStore', () => {
             expect(store.check('token ')).toBe('empty'); // Testing trim
         });
 
-        it('resolves based on the active collection', () => {
+        it('resolves based on the active environment', () => {
             const store = useEnvironmentVariablesStore();
+            const set = (value: string) =>
+                store.updateVariables([
+                    {
+                        id: 1,
+                        type: ParameterType.Text,
+                        key: 'v',
+                        value,
+                        enabled: true,
+                    },
+                ]);
 
-            // Collection 1
-            store.addCollection();
-            const col1 = store.collections[0].id;
-            store.updateVariables([
-                {
-                    id: 1,
-                    type: ParameterType.Text,
-                    key: 'v',
-                    value: 'one',
-                    enabled: true,
-                },
-            ]);
+            addActive(store);
+            const first = store.activeEnvironment.id;
+            set('one');
 
-            // Collection 2
-            store.addCollection();
-            const col2 = store.collections[1].id;
-            store.updateVariables([
-                {
-                    id: 2,
-                    type: ParameterType.Text,
-                    key: 'v',
-                    value: 'two',
-                    enabled: true,
-                },
-            ]);
+            addActive(store);
+            const second = store.activeEnvironment.id;
+            set('two');
 
-            store.select(col1);
+            store.select(first);
             expect(store.resolve('{{v}}')).toBe('one');
 
-            store.select(col2);
+            store.select(second);
             expect(store.resolve('{{v}}')).toBe('two');
 
-            store.select(null);
+            store.select('current');
             expect(store.resolve('{{v}}')).toBe('{{v}}');
         });
 
         it('provides atomic enriched segments for mixed resolution states', () => {
             const store = useEnvironmentVariablesStore();
-            store.addCollection();
+            addActive(store);
             store.updateVariables([
                 {
                     id: 1,
@@ -274,7 +430,7 @@ describe('useEnvironmentVariablesStore', () => {
 
             it('returns empty string if variable is present but its value is empty', () => {
                 const store = useEnvironmentVariablesStore();
-                store.addCollection();
+                addActive(store);
                 store.updateVariables([
                     {
                         id: 1,

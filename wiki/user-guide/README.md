@@ -27,7 +27,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
 - [Advanced Features](#advanced-features)
     - [Global Headers](#global-headers)
     - [Value Generators](#value-generators)
-    - [Environment Variables](#environment-variables)
+    - [Environments](#environments)
     - [Auto-Fill Payloads](#auto-fill-payloads)
     - [Transaction Mode](#transaction-mode)
     - [Export to cURL](#export-to-curl)
@@ -91,7 +91,7 @@ The Nimbus interface consists of three main panels:
 2. **Request Builder** (center) - Configure and send requests.
 3. **Response Viewer** (right) - View responses and details.
 
-The top bar gives you access to the **HTTP Client**, the **environment menu** (see [Environment Variables](#environment-variables)), the documentation, the GitHub repository, and the settings page.
+The top bar gives you access to the **HTTP Client**, the **environment menu** (see [Environments](#environments)), the documentation, the GitHub repository, and the settings page.
 
 Every route you open gets its own request tab above the Request Builder. Use **New request** to start from a blank tab, and the sidebar toggle next to the tabs to hide or show the Route Explorer.
 
@@ -378,19 +378,74 @@ Generate realistic values for headers and parameters on-demand.
 - URLs.
 - And more...
 
-### Environment Variables
+### Environments
 
-Although Nimbus provides a lot of convenience out of the box like user impersonation and making requests as currently logged in users, support for environment variables is provided as an additional power feature. They allow you to manage sets of variables for different environments (e.g., Development, Staging, Production). Use them to switch between API keys, tokens, or any other dynamic configuration without manually editing each request.
+An environment is a target that requests are sent to, such as the current host, staging, or production. Each environment has a name, a base URL, and its own list of variables. Use them to switch between servers, API keys, tokens, or any other dynamic configuration without editing each request.
+
+There are three kinds of environments:
+
+- **Current host**: The default environment, shown as **Local** when Nimbus runs locally. It is the host Nimbus runs on, so it can be local, staging, or production. It always exists, uses the base URL of the application (see `base_url` in the [configuration](#configuration)), and cannot be disabled or deleted. It is the only environment that supports all Nimbus features.
+- **Pre-configured**: Environments defined in `config/nimbus.php` under `environments`, such as Staging and Production. They are disabled until you enable them. Their name and base URL are read only in the UI.
+- **Custom**: Environments you add from the Environments page. You can rename them, change their base URL, and delete them.
+
+Non-custom environments are shared by all applications. The active application keeps its own route prefix, so only the host changes when you switch environments.
+
+#### Host Detection
+
+Nimbus can run on any host, so the Current host entry is not always a local machine. Nimbus compares the host with the configured environments. It checks `app.url` first and uses `app.env` as a fallback.
+
+When a configured environment matches, it is merged into the Current host entry and removed from the list. The entry is then named after it, for example **Production (current host)**.
+
+When nothing matches and the host is local (`app.env` is `local` or `app.url` points to localhost), the entry is named **Local**. Otherwise, it is named **Current host**.
 
 #### Managing Environments
 
-You can manage your environment variables from the **Environments** page. Open the environment menu in the top bar (it shows the active collection, or "No environment") and select **Manage environments**.
+Open the environment menu in the top bar and select **Manage environments**.
 
 ![Environment Management](./assets/env-page.png)
 
-1. **Collections**: Group related variables into named collections (e.g., "Development", "Production").
-2. **Active Collection**: Select a collection from the environment menu in the top bar to activate its variables across the whole application. The active collection is marked with an **Active** badge on the Environments page.
-3. **Variable Editor**: Each variable consists of a key, a value, and an enabled toggle.
+1. **Environment List**: Every environment is listed, including disabled ones. Use the toggle to enable or disable a pre-configured or custom environment. The active environment is marked with an **Active** badge.
+2. **Base URL**: Shown for the selected environment. It is editable only for custom environments. For the others, it comes from the config file.
+3. **Variable Editor**: Each variable consists of a key, a value, and an enabled toggle. Pre-configured environments and the Current host can have variables too.
+4. **Add environment**: Creates a custom environment. The base URL must be an absolute `http` or `https` URL.
+
+Custom environments, variables, and the enabled state are saved in your browser. They are not shared between Nimbus installations.
+
+#### Switching Environments
+
+Select an environment from the menu in the top bar. Only enabled environments are listed.
+
+![Environment Switcher](./assets/env-switcher.png)
+
+When the active environment is not the current host, the menu button shows a cloud icon and a warning color, and Production is shown in red. The current host uses a neutral color, unless it was detected as Production (red) or Staging (warning color). Requests are sent to the base URL of the active environment. The URL preview and the exported cURL command use it too. Open tabs keep their path and use the new base URL when you send them.
+
+#### Current Host Only Features
+
+Some features depend on the application Nimbus runs on, so they are not available on other environments:
+
+- Impersonate user and logged in user authorization. Tabs that use them fall back to **No auth** when you switch away from the current host.
+- Cookie decryption. Cookies are shown raw and the **Decrypt** button is disabled.
+- The special authentication injector. No host session or remember me cookie is sent to a base URL other than the current host.
+
+Bearer, basic auth, and manual headers work on every environment.
+
+#### Configuring Environments
+
+Add pre-configured environments under the global `environments` key in `config/nimbus.php`:
+
+```php
+'environments' => [
+    'staging' => [
+        'name' => 'Staging',
+        'base_url' => 'https://staging.example.com',
+        'enabled' => false,
+    ],
+],
+```
+
+Do not list the local environment, the current host is always added for you. If Nimbus runs on one of the listed environments, Nimbus detects it as described in [Host Detection](#host-detection).
+
+The key is the environment id. `base_url` is required and must be an absolute `http` or `https` URL. A `current` key is ignored. This option is unrelated to `allowed_envs`, which controls where Nimbus itself is accessible.
 
 #### Using Variables
 
@@ -414,9 +469,9 @@ Environment variables are supported in nearly all input fields where dynamic val
 
 Nimbus provides immediate visual feedback on the status of your environment variables:
 
-- **Grey**: The variable exists in the active collection and is successfully resolved.
+- **Grey**: The variable exists in the active environment and is successfully resolved.
 - **Orange**: The variable is found, but its value is currently empty.
-- **Red**: The variable cannot be found in the currently selected collection.
+- **Red**: The variable cannot be found in the currently selected environment.
 
 ![Variable Resolution States](./assets/env-variables-client-different-states.png)
 
@@ -592,6 +647,16 @@ return [
 
     'nested_folders' => false,
 
+    'base_url' => null,
+
+    'environments' => [
+        'staging' => [
+            'name' => 'Staging',
+            'base_url' => 'https://staging.example.com',
+            'enabled' => false,
+        ],
+    ],
+
     'snapshot' => false,
 
     'default_application' => 'main',
@@ -610,7 +675,6 @@ return [
 
                 'prefix' => 'api',
                 'versioned' => false,
-                'api_base_url' => null,
             ],
 
             'auth' => [
@@ -636,10 +700,11 @@ return [
 | **`allowed_envs`** | Environments where Nimbus is enabled. Avoid production for security reasons.                                                                                                                          | `['local', 'staging']` | `['testing', 'local']` |
 | **`default_application`** | The base default application to load when no other application is specified.                                                                                                                          | `'main'` | `'rest-api'` |
 | **`nested_folders`** | Groups routes in nested folders that follow the URI, instead of one folder per resource. Applies to all applications.<br /><br />See [Nested Folders](#nested-folders). | `false` | `true` |
+| **`base_url`** | The base URL of the current host, used when Nimbus relays API requests from the UI. Useful when the API runs on a different domain or port. Applies to all applications. If set to null, Nimbus defaults to the host and scheme of the incoming request. | `null` | `'http://127.0.0.1:8001'` |
+| **`environments`** | Pre-configured environments that requests can be sent to. Each key is the environment id and each entry needs a `name`, an absolute `base_url`, and an `enabled` flag. The current host always exists and cannot be listed. See [Environments](#environments). | `[]` | `['staging' => ['name' => 'Staging', 'base_url' => 'https://staging.example.com', 'enabled' => false]]` |
 | **`snapshot`** | Saves the extracted routes and reuses them while their source files are unchanged. Applies to all applications.<br /><br />See [Routes Snapshot](#routes-snapshot). | `false` | `true` |
 | **`applications.*.routes.prefix`** | The base path used to detect application routes. Only routes starting with this prefix are analyzed.                                                                                                  | `'api'` | `'api/v1'` |
 | **`applications.*.routes.versioned`** | Enables version parsing for routes like `/api/v1/...`.                                                                                                                                                | `false` | `true` |
-| **`applications.*.routes.api_base_url`** | The base URL used when Nimbus relays API requests from the UI. Useful when the API runs on a different domain or port. If set to null, Nimbus defaults to the host and scheme of the incoming request. | `null` | `'http://127.0.0.1:8001'` |
 | **`applications.*.routes.strategy`** | The strategy used to discover routes.<br /><br />Supported values: `'auto_detect'` or `'openapi'`.                                                                                                    | `'auto_detect'` | `'openapi'` |
 | **`applications.*.routes.openapi.files`** | Map of versions to OpenAPI file paths.<br /><br />Required when strategy is `'openapi'`.                                                                                                                         | `[]` | `['v1' => base_path('docs/v1.yaml')]` |
 | **`applications.*.routes.openapi.show_operation_id`** | Defines whether to show the Operation ID in the sidebar.                                                                                                                                              | `false` | `true` |
@@ -735,18 +800,10 @@ You can work around this limitation by running two separate server instances on 
 
 3. **Configure the relay endpoint** to use the second server:
 
-   Edit `config/nimbus.php` and set the `api_base_url` for your application:
+   Edit `config/nimbus.php` and set the global `base_url`:
 
    ```php
-   'applications' => [
-       'main' => [
-           'name' => 'Main API',
-           'routes' => [
-               'prefix' => 'api',
-               'api_base_url' => 'http://127.0.0.1:8001',
-           ],
-       ],
-   ],
+   'base_url' => 'http://127.0.0.1:8001',
    ```
 
 4. **Access Nimbus** at `http://127.0.0.1:8000/nimbus`

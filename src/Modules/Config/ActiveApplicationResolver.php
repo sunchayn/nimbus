@@ -5,6 +5,9 @@ namespace Sunchayn\Nimbus\Modules\Config;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Sunchayn\Nimbus\Modules\Config\DataTransferObjects\EnvironmentData;
+use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
+use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentSourceEnum;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Contracts\SpecialAuthenticationInjectorContract;
@@ -49,7 +52,102 @@ class ActiveApplicationResolver
 
     public function getApiBaseUrl(): string
     {
-        return $this->activeApplicationConfig['routes']['api_base_url'] ?? $this->request->getSchemeAndHttpHost();
+        return $this->config->get('nimbus.base_url') ?? $this->request->getSchemeAndHttpHost();
+    }
+
+    /**
+     * The current host comes first, then the environments declared in the config.
+     * A config environment that matches the current host is merged into it.
+     *
+     * @return list<EnvironmentData>
+     *
+     * @throws MisconfiguredValueException
+     */
+    public function getEnvironments(): array
+    {
+        $configured = [];
+
+        foreach ($this->config->get('nimbus.environments', []) as $key => $environment) {
+            $key = (string) $key;
+
+            if ($key === EnvironmentIdEnum::Current->value) {
+                continue;
+            }
+
+            $baseUrl = $environment['base_url'] ?? null;
+
+            if (! is_string($baseUrl) || ! in_array(parse_url($baseUrl, PHP_URL_SCHEME), ['http', 'https'], true) || ! parse_url($baseUrl, PHP_URL_HOST)) {
+                throw MisconfiguredValueException::becauseEnvironmentIsInvalid($key);
+            }
+
+            $configured[$key] = new EnvironmentData(
+                id: $key,
+                name: (string) ($environment['name'] ?? $key),
+                baseUrl: rtrim($baseUrl, '/'),
+                enabled: (bool) ($environment['enabled'] ?? false),
+                source: EnvironmentSourceEnum::Config,
+            );
+        }
+
+        $detected = $this->detectCurrentHostEnvironment($configured);
+
+        $environmentData = new EnvironmentData(
+            id: EnvironmentIdEnum::Current->value,
+            name: $detected === null ? $this->undetectedHostName() : $configured[$detected]->name.' (current host)',
+            baseUrl: $this->getApiBaseUrl(),
+            enabled: true,
+            source: EnvironmentSourceEnum::Current,
+            detected: $detected,
+        );
+
+        if ($detected !== null) {
+            unset($configured[$detected]);
+        }
+
+        return [$environmentData, ...array_values($configured)];
+    }
+
+    /**
+     * Names the host Local when it runs locally, since it matches no configured environment.
+     */
+    private function undetectedHostName(): string
+    {
+        $host = strtolower((string) parse_url((string) $this->config->get('app.url'), PHP_URL_HOST));
+        $isLoopback = in_array($host, ['localhost', '127.0.0.1', '::1', '[::1]'], true);
+
+        return $isLoopback || strtolower((string) $this->config->get('app.env')) === 'local'
+            ? 'Local'
+            : 'Current host';
+    }
+
+    /**
+     * Matches the app URL host and port first, then falls back to the app environment name.
+     *
+     * @param  array<string, EnvironmentData>  $configured
+     */
+    private function detectCurrentHostEnvironment(array $configured): ?string
+    {
+        $hostAndPort = fn (string $url): string => strtolower(parse_url($url, PHP_URL_HOST).':'.(parse_url($url, PHP_URL_PORT) ?? ''));
+
+        $appUrl = $this->config->get('app.url');
+
+        if (is_string($appUrl) && $appUrl !== '') {
+            foreach ($configured as $key => $environment) {
+                if ($hostAndPort($environment->baseUrl) === $hostAndPort($appUrl)) {
+                    return (string) $key;
+                }
+            }
+        }
+
+        $appEnv = strtolower((string) $this->config->get('app.env'));
+
+        foreach (array_keys($configured) as $key) {
+            if ($appEnv !== '' && strtolower((string) $key) === $appEnv) {
+                return (string) $key;
+            }
+        }
+
+        return null;
     }
 
     public function getRoutesPrefix(): string

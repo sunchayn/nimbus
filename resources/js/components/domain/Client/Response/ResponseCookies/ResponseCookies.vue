@@ -5,11 +5,18 @@
  */
 import AppGlowingButton from '@/components/base/button/AppGlowingButton.vue';
 import { AppIcon } from '@/components/base/icons';
+import {
+    AppPanel,
+    AppPanelDescription,
+    AppPanelHeader,
+    AppPanelTitle,
+} from '@/components/base/panel';
+import { AppTooltip } from '@/components/base/tooltip';
 import CopyButton from '@/components/common/CopyButton.vue';
 import KeyValueDisplayList from '@/components/common/KeyValueDisplayList/KeyValueDisplayList.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import { type ResponseCookie } from '@/interfaces/http';
-import { useTabsStore } from '@/stores';
+import { useEnvironmentVariablesStore, useTabsStore } from '@/stores';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useClipboard, useStorage } from '@vueuse/core';
 import { computed } from 'vue';
@@ -39,10 +46,13 @@ defineSlots<{
 }>();
 
 const tabsStore = useTabsStore();
+const environmentStore = useEnvironmentVariablesStore();
 
 /*
  * State.
  */
+
+const isCurrentHost = computed(() => environmentStore.isCurrentHost);
 
 const decryptedCookies = useStorage(
     singletonPersistenceKey(
@@ -59,11 +69,12 @@ const { copy, copied } = useClipboard();
 
 const normalizedCookies = computed<AppNormalizeCookieShape[]>(() => {
     return props.cookies.map((cookie: ResponseCookie): AppNormalizeCookieShape => {
-        const isDecryptable = cookie.value.decrypted !== null;
+        const isDecryptable = isCurrentHost.value && cookie.value.decrypted !== null;
 
-        const value: string = decryptedCookies.value
-            ? (cookie.value.decrypted ?? cookie.value.raw)
-            : cookie.value.raw;
+        const value: string =
+            isCurrentHost.value && decryptedCookies.value
+                ? (cookie.value.decrypted ?? cookie.value.raw)
+                : cookie.value.raw;
 
         return {
             key: cookie.key,
@@ -92,16 +103,25 @@ const copyAll = () => {
         Cookies ({{ normalizedCookies.length }})
         <template #toolbox>
             <div class="gap-base flex translate-x-2 items-center">
-                <AppGlowingButton
-                    :disabled="!hasCookies"
-                    :icon="
-                        decryptedCookies
-                            ? 'i-hugeicons-square-lock-02'
-                            : 'i-hugeicons-square-unlock-01'
-                    "
-                    :label="decryptedCookies ? 'Encrypt' : 'Decrypt'"
-                    @click="() => (decryptedCookies = !decryptedCookies)"
-                />
+                <AppTooltip
+                    text="Only available on the current host"
+                    :disabled="isCurrentHost"
+                >
+                    <span class="inline-flex" data-testid="cookies-decrypt-wrapper">
+                        <AppGlowingButton
+                            :disabled="!isCurrentHost || !hasCookies"
+                            :icon="
+                                decryptedCookies && isCurrentHost
+                                    ? 'i-hugeicons-square-lock-02'
+                                    : 'i-hugeicons-square-unlock-01'
+                            "
+                            :label="
+                                decryptedCookies && isCurrentHost ? 'Encrypt' : 'Decrypt'
+                            "
+                            @click="() => (decryptedCookies = !decryptedCookies)"
+                        />
+                    </span>
+                </AppTooltip>
                 <div class="px-panel flex-start flex w-10 items-center">
                     <CopyButton
                         :disabled="!hasCookies"
@@ -112,7 +132,18 @@ const copyAll = () => {
             </div>
         </template>
     </PanelSubHeader>
-    <div class="min-h-0 flex-1 overflow-y-auto">
+    <AppPanel v-if="!hasCookies" class="border-b shadow-none" data-testid="cookies-empty">
+        <AppPanelHeader class="items-start">
+            <AppIcon name="i-hugeicons-cookie" class="size-icon-lg shrink-0" />
+            <div class="flex flex-col">
+                <AppPanelTitle>No Cookies</AppPanelTitle>
+                <AppPanelDescription>
+                    The response did not set any cookies.
+                </AppPanelDescription>
+            </div>
+        </AppPanelHeader>
+    </AppPanel>
+    <div v-else class="min-h-0 flex-1 overflow-y-auto">
         <component
             :is="KeyValueDisplayList<AppNormalizeCookieShape>"
             :items="normalizedCookies"
@@ -120,7 +151,7 @@ const copyAll = () => {
             <template #value="{ item }">
                 <span>
                     <small
-                        v-if="!item.isDecryptable"
+                        v-if="isCurrentHost && !item.isDecryptable"
                         class="text-success mb-tight gap-tight flex items-center"
                     >
                         <AppIcon

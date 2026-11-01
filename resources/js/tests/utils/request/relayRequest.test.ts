@@ -104,6 +104,20 @@ describe('relayRequest', () => {
     });
 
     describe('createRelayPayload', () => {
+        it('builds the endpoint from the given base URL and sends the environment id', () => {
+            const request = createMockPendingRequest({ endpoint: 'users' });
+
+            const payload = createRelayPayload(
+                request,
+                'https://staging.example.com',
+                resolve,
+                'staging',
+            );
+
+            expect(payload.endpoint).toBe('https://staging.example.com/users');
+            expect(payload.environment).toBe('staging');
+        });
+
         it('drops disabled headers and adds the content type header', () => {
             const request = createMockPendingRequest({
                 method: 'POST',

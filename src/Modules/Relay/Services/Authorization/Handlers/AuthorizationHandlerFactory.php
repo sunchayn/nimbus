@@ -4,6 +4,7 @@ namespace Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers;
 
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\DataTransferObjects\AuthorizationCredentials;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Exceptions\InvalidAuthorizationValueException;
 
 /**
  * Creates authorization handlers based on credential types.
@@ -17,8 +18,19 @@ use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationType
  */
 class AuthorizationHandlerFactory
 {
-    public function create(AuthorizationCredentials $authorizationCredentials): AuthorizationHandler
+    public function create(AuthorizationCredentials $authorizationCredentials, bool $isCurrentHost = true): AuthorizationHandler
     {
+        if (
+            ! $isCurrentHost
+            && in_array(
+                $authorizationCredentials->type,
+                [AuthorizationTypeEnum::CurrentUser, AuthorizationTypeEnum::Impersonate],
+                true,
+            )
+        ) {
+            throw InvalidAuthorizationValueException::becauseTypeIsCurrentHostOnly();
+        }
+
         return match ($authorizationCredentials->type) {
             AuthorizationTypeEnum::CurrentUser => $this->buildCurrentUserHandler(),
             AuthorizationTypeEnum::Impersonate => $this->buildImpersonateHandler($authorizationCredentials->value),

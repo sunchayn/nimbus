@@ -7,6 +7,23 @@ return [
     'nested_folders' => true,
     'snapshot' => false,
 
+    // Base URL of the current host environment.
+    'base_url' => env('NIMBUS_RELAY_ENDPOINT'),
+
+    // Detected by app.url, then app.env, and merged into the current host.
+    'environments' => [
+        'staging' => [
+            'name' => 'Staging',
+            'base_url' => 'https://staging.example.com',
+            'enabled' => false,
+        ],
+        'production' => [
+            'name' => 'Production',
+            'base_url' => 'https://example.com',
+            'enabled' => false,
+        ],
+    ],
+
     'applications' => [
         'main' => [
             'name' => 'Demo API',
@@ -14,7 +31,6 @@ return [
                 'strategy' => 'auto_detect',
                 'prefix' => '_demo',
                 'versioned' => true,
-                'api_base_url' => env('NIMBUS_RELAY_ENDPOINT'),
             ],
             'auth' => [
                 'guard' => 'web',
@@ -33,7 +49,6 @@ return [
                 'strategy' => 'openapi',
                 'prefix' => 'api',
                 'versioned' => false,
-                'api_base_url' => env('NIMBUS_RELAY_ENDPOINT'),
                 'openapi' => [
                     'files' => [
                         'default' => __DIR__.'/../openapi.yaml',

@@ -10,7 +10,7 @@ import { AppIcon } from '@/components/base/icons';
 import { AppPopover } from '@/components/base/popover';
 import { AppSwitch } from '@/components/base/switch';
 import { useShareableLink } from '@/composables/request/useShareableLink';
-import { useConfigStore, useEnvironmentVariablesStore, useRequestStore } from '@/stores';
+import { useEnvironmentVariablesStore, useRequestStore } from '@/stores';
 import { generateCurlCommand } from '@/utils/request';
 import { computed, shallowRef } from 'vue';
 import CurlExportDialog from './CurlExportDialog.vue';
@@ -23,7 +23,6 @@ import ShareableLinkDialog from './ShareableLinkDialog.vue';
 const { showShareableLinkDialog, shareableLink, openShareableLinkDialog } =
     useShareableLink();
 const requestStore = useRequestStore();
-const configStore = useConfigStore();
 const environmentVariablesStore = useEnvironmentVariablesStore();
 
 /*
@@ -55,7 +54,7 @@ const populateCurlCommandExporterDialog = () => {
 
     const result = generateCurlCommand(
         requestStore.pendingRequestData,
-        configStore.apiUrl,
+        environmentVariablesStore.baseUrl,
         environmentVariablesStore.resolve,
     );
 

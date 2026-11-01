@@ -275,16 +275,7 @@ const history = async (browser) => {
 const environments = async (browser) => {
     const page = await open(browser);
 
-    const addCollection = async (name, variables) => {
-        await page.getByTestId('add-collection-btn').click();
-        await wait(page);
-
-        const editor = page.getByTestId('collection-name-editor');
-        await editor.click({ force: true });
-        await editor.locator('input').fill(name);
-        await editor.locator('input').press('Enter');
-        await wait(page, 300);
-
+    const addVariables = async (variables) => {
         for (const [index, [key, value]] of variables.entries()) {
             if (index > 0) {
                 await page.getByTestId('kv-container').getByRole('button', { name: 'Add' }).click();
@@ -299,17 +290,53 @@ const environments = async (browser) => {
         }
     };
 
+    const addEnvironment = async (name, baseUrl) => {
+        await page.getByTestId('add-environment-btn').click();
+        await wait(page);
+
+        const editor = page.getByTestId('environment-name-editor');
+        await editor.click({ force: true });
+        await editor.locator('input').fill(name);
+        await editor.locator('input').press('Enter');
+        await wait(page, 300);
+
+        const input = page.getByTestId('environment-base-url');
+        await input.fill(baseUrl);
+        await input.press('Enter');
+        await wait(page, 300);
+    };
+
     await step('env-page', async () => {
         await page.getByTestId('environment-switcher').click();
         await page.getByRole('menuitem', { name: 'Manage environments' }).click();
         await wait(page, 600);
-        await addCollection('Staging', [['token', 'abc123']]);
-        await addCollection('Local', [['example', 'value'], ['empty', '']]);
+
+        // The current host variables are used by the variable shots below.
+        await page.getByTestId('environment-item').filter({ hasText: 'Local' }).click();
+        await addVariables([['example', 'value'], ['empty', '']]);
+
+        // Staging is pre-configured and disabled, so it needs to be enabled first.
+        await page.getByTestId('environment-enabled-toggle').first().click();
+        await addEnvironment('Sandbox', 'https://sandbox.example.com');
+        await page.getByTestId('environment-item').filter({ hasText: 'Staging' }).click();
         await page.mouse.move(700, 700);
         await wait(page, 500);
-        await shot(page, 'env-page', [0, 0, 1440, 400]);
+        await shot(page, 'env-page', [0, 0, 1440, 460]);
+    });
+
+    await step('env-switcher', async () => {
         await page.getByRole('button', { name: 'HTTP Client' }).click();
         await wait(page, 600);
+        await page.getByTestId('environment-switcher').click();
+        await page.getByRole('menuitemcheckbox', { name: 'Staging' }).click();
+        await wait(page, 500);
+        await page.getByTestId('environment-switcher').click();
+        await wait(page, 400);
+        await shot(page, 'env-switcher', [520, 0, 400, 190]);
+        await page.keyboard.press('Escape');
+        await page.getByTestId('environment-switcher').click();
+        await page.getByRole('menuitemcheckbox', { name: 'Local' }).click();
+        await wait(page, 500);
     });
 
     await step('env-variables-client-different-states', async () => {

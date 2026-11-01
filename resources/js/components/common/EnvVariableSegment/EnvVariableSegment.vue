@@ -53,7 +53,8 @@ withDefaults(defineProps<Props>(), {
                     v-if="status === EnvVariableCheckStatus.Missing"
                     class="text-muted leading-tight"
                 >
-                    The referenced variable cannot be found in the selected collection.
+                    The referenced variable cannot be found in the selected env's
+                    collection.
                 </p>
                 <p
                     v-else-if="status === EnvVariableCheckStatus.Empty"

@@ -2,11 +2,13 @@
 
 namespace Sunchayn\Nimbus\Tests\App\Modules\Config;
 
+use Generator;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Http\Request;
 use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
 use Sunchayn\Nimbus\Tests\TestCase;
@@ -113,6 +115,7 @@ class ActiveApplicationResolverUnitTest extends TestCase
         $this->requestMock->shouldReceive('cookie')->with(ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME)->andReturn(null);
         $this->configMock->shouldReceive('get')->with('nimbus.default_application')->andReturn('main');
         $this->configMock->shouldReceive('get')->with('nimbus.applications.main', [])->andReturn([]);
+        $this->configMock->shouldReceive('get')->with('nimbus.base_url')->andReturn(null);
         $this->requestMock->shouldReceive('getSchemeAndHttpHost')->andReturn('http://localhost');
 
         $resolver = new ActiveApplicationResolver($this->configMock, $this->requestMock);
@@ -134,7 +137,6 @@ class ActiveApplicationResolverUnitTest extends TestCase
         $config = [
             'routes' => [
                 'versioned' => true,
-                'api_base_url' => 'https://api.example.com',
                 'prefix' => 'v1',
             ],
             'auth' => [
@@ -148,6 +150,7 @@ class ActiveApplicationResolverUnitTest extends TestCase
         $this->requestMock->shouldReceive('cookie')->with(ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME)->andReturn(null);
         $this->configMock->shouldReceive('get')->with('nimbus.default_application')->andReturn('main');
         $this->configMock->shouldReceive('get')->with('nimbus.applications.main', [])->andReturn($config);
+        $this->configMock->shouldReceive('get')->with('nimbus.base_url')->andReturn('https://api.example.com');
 
         $resolver = new ActiveApplicationResolver($this->configMock, $this->requestMock);
 
@@ -348,5 +351,171 @@ class ActiveApplicationResolverUnitTest extends TestCase
         // Act & Assert
 
         $this->assertNull($resolver->getSpecialAuthInjector());
+    }
+
+    /**
+     * @param  array<string, mixed>  $environments
+     */
+    private function makeResolverWithEnvironments(array $environments, ?string $appUrl, ?string $appEnv): ActiveApplicationResolver
+    {
+        $this->configMock->shouldReceive('get')->with('nimbus.applications', [])->andReturn(['p1' => []]);
+        $this->requestMock->shouldReceive('cookie')->andReturn('p1');
+        $this->configMock->shouldReceive('get')->with('nimbus.applications.p1', [])->andReturn([]);
+        $this->configMock->shouldReceive('get')->with('nimbus.base_url')->andReturn('http://localhost:8000');
+        $this->configMock->shouldReceive('get')->with('nimbus.environments', [])->andReturn($environments);
+        $this->configMock->shouldReceive('get')->with('app.url')->andReturn($appUrl);
+        $this->configMock->shouldReceive('get')->with('app.env')->andReturn($appEnv);
+
+        return new ActiveApplicationResolver($this->configMock, $this->requestMock);
+    }
+
+    public function test_it_lists_current_host_first_and_ignores_current_key(): void
+    {
+        // Arrange
+
+        $resolver = $this->makeResolverWithEnvironments([
+            'current' => ['name' => 'Fake', 'base_url' => 'https://fake.test', 'enabled' => true],
+            'staging' => ['name' => 'Staging', 'base_url' => 'https://staging.test/', 'enabled' => true],
+            'production' => ['name' => 'Production', 'base_url' => 'https://prod.test'],
+        ], 'http://other.test', 'testing');
+
+        // Act
+
+        $environments = array_map(fn ($environment): array => $environment->toArray(), $resolver->getEnvironments());
+
+        // Assert
+
+        $this->assertSame([
+            ['id' => 'current', 'name' => 'Current host', 'baseUrl' => 'http://localhost:8000', 'enabled' => true, 'source' => 'current', 'detected' => null],
+            ['id' => 'staging', 'name' => 'Staging', 'baseUrl' => 'https://staging.test', 'enabled' => true, 'source' => 'config', 'detected' => null],
+            ['id' => 'production', 'name' => 'Production', 'baseUrl' => 'https://prod.test', 'enabled' => false, 'source' => 'config', 'detected' => null],
+        ], $environments);
+    }
+
+    public function test_it_allows_local_as_a_normal_config_key(): void
+    {
+        // Arrange
+
+        $resolver = $this->makeResolverWithEnvironments([
+            'local' => ['name' => 'Local', 'base_url' => 'https://local.test', 'enabled' => true],
+        ], 'http://other.test', 'testing');
+
+        // Act
+
+        $environments = $resolver->getEnvironments();
+
+        // Assert
+
+        $this->assertSame(['current', 'local'], array_map(fn ($environment): string => $environment->id, $environments));
+    }
+
+    public function test_it_detects_the_current_host_by_app_url_host_and_port(): void
+    {
+        // Arrange
+
+        $resolver = $this->makeResolverWithEnvironments([
+            'staging' => ['name' => 'Staging', 'base_url' => 'https://staging.test', 'enabled' => true],
+            'production' => ['name' => 'Production', 'base_url' => 'https://Prod.test:8443/api/', 'enabled' => true],
+        ], 'http://prod.test:8443/app/', 'staging');
+
+        // Act
+
+        $environments = array_map(fn ($environment): array => $environment->toArray(), $resolver->getEnvironments());
+
+        // Assert
+
+        $this->assertSame(['current', 'staging'], array_column($environments, 'id'));
+        $this->assertSame('Production (current host)', $environments[0]['name']);
+        $this->assertSame('production', $environments[0]['detected']);
+    }
+
+    public function test_it_names_an_undetected_host_local_when_it_runs_locally(): void
+    {
+        // Arrange
+
+        $resolver = $this->makeResolverWithEnvironments([], 'https://nimbus.example.com', 'local');
+
+        // Act
+
+        $environments = $resolver->getEnvironments();
+
+        // Assert
+
+        $this->assertSame('Local', $environments[0]->name);
+        $this->assertNull($environments[0]->detected);
+    }
+
+    public function test_it_names_an_undetected_remote_host_current_host(): void
+    {
+        // Arrange
+
+        $resolver = $this->makeResolverWithEnvironments([], 'https://nimbus.example.com', 'testing');
+
+        // Act
+
+        $environments = $resolver->getEnvironments();
+
+        // Assert
+
+        $this->assertSame('Current host', $environments[0]->name);
+    }
+
+    public function test_it_falls_back_to_app_env_when_no_url_matches(): void
+    {
+        // Arrange
+
+        $resolver = $this->makeResolverWithEnvironments([
+            'staging' => ['name' => 'Staging', 'base_url' => 'https://staging.test', 'enabled' => true],
+            'production' => ['name' => 'Production', 'base_url' => 'https://prod.test', 'enabled' => true],
+        ], 'http://other.test', 'Production');
+
+        // Act
+
+        $environments = array_map(fn ($environment): array => $environment->toArray(), $resolver->getEnvironments());
+
+        // Assert
+
+        $this->assertSame(['current', 'staging'], array_column($environments, 'id'));
+        $this->assertSame('Production (current host)', $environments[0]['name']);
+        $this->assertSame('production', $environments[0]['detected']);
+    }
+
+    #[DataProvider('invalidEnvironmentProvider')]
+    public function test_it_throws_for_invalid_environment_base_url(array $environment): void
+    {
+        // Arrange
+
+        $this->configMock->shouldReceive('get')->with('nimbus.applications', [])->andReturn(['p1' => []]);
+        $this->requestMock->shouldReceive('cookie')->andReturn('p1');
+        $this->configMock->shouldReceive('get')->with('nimbus.applications.p1', [])->andReturn([]);
+        $this->configMock->shouldReceive('get')->with('nimbus.base_url')->andReturn(null);
+        $this->requestMock->shouldReceive('getSchemeAndHttpHost')->andReturn('http://localhost');
+        $this->configMock->shouldReceive('get')->with('nimbus.environments', [])->andReturn(['staging' => $environment]);
+
+        $resolver = new ActiveApplicationResolver($this->configMock, $this->requestMock);
+
+        // Anticipate
+
+        $this->expectException(MisconfiguredValueException::class);
+        $this->expectExceptionCode(MisconfiguredValueException::INVALID_ENVIRONMENT);
+
+        // Act
+
+        $resolver->getEnvironments();
+    }
+
+    public static function invalidEnvironmentProvider(): Generator
+    {
+        yield 'missing base url' => [
+            'environment' => ['name' => 'Staging'],
+        ];
+
+        yield 'relative base url' => [
+            'environment' => ['name' => 'Staging', 'base_url' => '/api'],
+        ];
+
+        yield 'unsupported scheme' => [
+            'environment' => ['name' => 'Staging', 'base_url' => 'ftp://staging.test'],
+        ];
     }
 }

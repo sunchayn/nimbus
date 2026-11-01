@@ -73,6 +73,7 @@
             'globalException' => isset($globalException) ? json_encode($globalException) : null,
             'isVersioned' => $activeApplicationResolver->isVersioned(),
             'apiBaseUrl' => $activeApplicationResolver->getApiBaseUrl(),
+            'environments' => isset($environments) ? json_encode($environments) : '[]',
             'currentUser' => isset($currentUser) ? json_encode($currentUser) : null,
             'applications' => $activeApplicationResolver->getAvailableApplications(),
             'activeApplication' => $activeApplicationResolver->getActiveApplicationKey(),

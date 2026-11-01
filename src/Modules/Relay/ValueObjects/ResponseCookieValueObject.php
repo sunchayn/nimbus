@@ -12,8 +12,9 @@ class ResponseCookieValueObject
         public string $key,
         protected string $rawValue,
         protected string $prefix,
+        bool $decrypt = true,
     ) {
-        $this->decryptedValue = $this->computeDecryptedValue();
+        $this->decryptedValue = $decrypt ? $this->computeDecryptedValue() : null;
     }
 
     /**

@@ -38,7 +38,7 @@ Screenshots in `wiki/user-guide/assets` are produced by `capture.mjs`, which sit
 | `response` | `response`, `cookies`, `decrypted-cookies`, `response-download` | `Client/Response` |
 | `dd` | `dd-viewer`, `dd-viewer-pagination` | `Client/Response/ResponseBody` |
 | `history` | `history-viewer` | `Client/Response` history components |
-| `environments` | `env-page`, `env-variables-client-different-states`, `env-variables-resolved-value` | `EnvironmentAwareInput.vue`, environment page, `AppTopBar.vue` |
+| `environments` | `env-page`, `env-switcher`, `env-variables-client-different-states`, `env-variables-resolved-value` | `EnvironmentAwareInput.vue`, environment page, `AppTopBar.vue` |
 | `request-options` | `transaction-mode`, `export-to-curl`, `shareable-link`, `curl-command-export`, `shareable-link-2` | `Client/Request/RequestBuilder` |
 | `openapi` | `open-api-support` | `components/domain/RoutesExplorer` |
 

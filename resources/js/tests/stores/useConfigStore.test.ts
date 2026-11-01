@@ -46,6 +46,16 @@ describe('useConfigStore', () => {
                 primaryProcessorName: null,
                 showOperationId: null,
                 globalException: null,
+                environments: JSON.stringify([
+                    {
+                        id: 'current',
+                        name: 'Current host',
+                        baseUrl: 'https://example.com',
+                        enabled: true,
+                        source: 'current',
+                        detected: null,
+                    },
+                ]),
             };
 
             // Act
@@ -55,6 +65,8 @@ describe('useConfigStore', () => {
             // Assert
 
             expect(store.apiUrl).toBe('https://example.com');
+            expect(store.environments).toHaveLength(1);
+            expect(store.environments[0].id).toBe('current');
             expect(store.appBasePath).toBe('/nimbus');
             expect(store.headers).toEqual([
                 { header: 'X-Test', type: 'raw', value: '123' },

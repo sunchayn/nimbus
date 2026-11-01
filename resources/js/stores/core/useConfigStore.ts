@@ -1,8 +1,18 @@
+import type { EnvironmentSource } from '@/interfaces/generated';
 import { RoutesProcessingStrategy } from '@/interfaces/generated';
 import { defineStore } from 'pinia';
 
 export interface CurrentUser {
     id: string | number;
+}
+
+export interface ServerEnvironment {
+    id: string;
+    name: string;
+    baseUrl: string;
+    enabled: boolean;
+    source: EnvironmentSource;
+    detected: string | null;
 }
 
 export type GlobalHeadersArray = Array<{
@@ -31,12 +41,17 @@ export const useConfigStore = defineStore('config', () => {
         RoutesProcessingStrategy.AutoDetect;
     const showOperationId = (window.Nimbus?.showOperationId as boolean) || false;
 
+    const environments: ServerEnvironment[] = window.Nimbus?.environments
+        ? JSON.parse(window.Nimbus.environments as string)
+        : [];
+
     // Derived values
     const isLoggedIn = currentUser !== null;
     const userId = currentUser?.id ?? null;
 
     return {
         apiUrl: urlBase,
+        environments,
         appBasePath: basePath,
         headers: globalHeaders,
         isVersioned,

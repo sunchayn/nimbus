@@ -14,6 +14,16 @@ class InvalidAuthorizationValueException extends RuntimeException
 
     public const REMEMBER_ME_COOKIE_IS_CORRUPT = 4;
 
+    public const TYPE_IS_CURRENT_HOST_ONLY = 5;
+
+    public static function becauseTypeIsCurrentHostOnly(): self
+    {
+        return new self(
+            message: 'This authorization type is only available for the current host.',
+            code: self::TYPE_IS_CURRENT_HOST_ONLY,
+        );
+    }
+
     public static function becauseBearerTokenValueIsNotString(): self
     {
         return new self(

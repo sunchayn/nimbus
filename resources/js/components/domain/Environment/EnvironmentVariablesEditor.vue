@@ -4,6 +4,7 @@
  * @description A wrapper around KeyValueParameters that synchronizes with the environment variables store.
  */
 import KeyValueParametersBuilder from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
+import EnvironmentFields from '@/components/domain/Environment/EnvironmentFields.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import type { ParameterContract } from '@/interfaces';
 import { useEnvironmentVariablesStore } from '@/stores';
@@ -25,12 +26,9 @@ const handleVariablesUpdate = (variables: ParameterContract[]) => {
 
 <template>
     <div class="relative flex-1 overflow-hidden rounded-md border border-b-0">
-        <div
-            v-if="!environmentVariablesStore.activeCollection"
-            class="bg-overlay/50 z-sticky absolute top-0 left-0 h-full w-full cursor-not-allowed select-none"
-        />
-
         <slot name="header" />
+
+        <EnvironmentFields />
 
         <PanelSubHeader class="py-tight border-y">
             Variables defined below can be referenced with

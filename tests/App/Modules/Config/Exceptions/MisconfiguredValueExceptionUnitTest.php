@@ -46,6 +46,22 @@ class MisconfiguredValueExceptionUnitTest extends TestCase
         $this->assertEquals(MisconfiguredValueException::MISSING_DEPENDENCIES, $exception->getCode());
     }
 
+    public function test_because_environment_is_invalid(): void
+    {
+        // Act
+
+        $exception = MisconfiguredValueException::becauseEnvironmentIsInvalid('staging');
+
+        // Assert
+
+        $this->assertEquals(
+            'The environment `staging` needs a name and an absolute http or https `base_url`.',
+            $exception->getMessage(),
+        );
+
+        $this->assertEquals(MisconfiguredValueException::INVALID_ENVIRONMENT, $exception->getCode());
+    }
+
     public function test_because_of_invalid_guard_injector_combination(): void
     {
         // Arrange
