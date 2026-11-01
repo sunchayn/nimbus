@@ -1,6 +1,7 @@
 import { AuthorizationType } from '@/interfaces/generated';
 import { createMockRelayProxyResponse } from '@/tests/_utils/testFactories';
 import { sendRelayRequest } from '@/utils/request/sendRelayRequest';
+import * as downloadUtils from '@/utils/ui/download';
 import axios from 'axios';
 import type { Mocked } from 'vitest';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -91,6 +92,59 @@ describe('sendRelayRequest', () => {
             expect(result?.response.statusCode).toBe(200);
             expect(result?.response.body).toBe('{"success": true}');
             expect(result?.duration).toBe(120);
+        });
+
+        it('should forward a download once and keep only its metadata', async () => {
+            // Arrange
+
+            const triggerDownload = vi
+                .spyOn(downloadUtils, 'triggerDownload')
+                .mockImplementation(() => undefined);
+
+            mockedAxios.post.mockResolvedValue({
+                data: JSON.stringify(
+                    createMockRelayProxyResponse({
+                        body: '',
+                        download: {
+                            filename: 'report.txt',
+                            mimeType: 'text/plain',
+                            sizeInBytes: 5,
+                            content: 'SGVsbG8=',
+                        },
+                    }),
+                ),
+            });
+
+            // Act
+
+            const result = await sendRelayRequest(createMockPendingRequest(), options);
+
+            // Assert
+
+            expect(triggerDownload).toHaveBeenCalledTimes(1);
+            expect(triggerDownload.mock.calls[0]?.[1]).toBe('report.txt');
+            expect(result?.response.download?.filename).toBe('report.txt');
+            expect(result?.response.download).not.toHaveProperty('content');
+        });
+
+        it('should not trigger a download for a normal response', async () => {
+            // Arrange
+
+            const triggerDownload = vi
+                .spyOn(downloadUtils, 'triggerDownload')
+                .mockImplementation(() => undefined);
+
+            mockedAxios.post.mockResolvedValue({
+                data: JSON.stringify(createMockRelayProxyResponse()),
+            });
+
+            // Act
+
+            await sendRelayRequest(createMockPendingRequest(), options);
+
+            // Assert
+
+            expect(triggerDownload).not.toHaveBeenCalled();
         });
 
         it('should handle request cancellation', async () => {

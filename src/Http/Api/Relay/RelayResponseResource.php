@@ -27,6 +27,7 @@ class RelayResponseResource extends JsonResource
             'cookies' => collect($this->resource->cookies)->map->toArray(),
             'duration' => $this->resource->durationMs,
             'timestamp' => $this->resource->timestamp,
+            'download' => $this->resource->download?->toArray(),
         ];
     }
 

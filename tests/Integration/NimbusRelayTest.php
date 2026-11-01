@@ -15,6 +15,7 @@ use Sunchayn\Nimbus\Http\Api\Relay\RelayResponseResource;
 use Sunchayn\Nimbus\Modules\Relay\Actions\RequestRelayAction;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
+use Sunchayn\Nimbus\Modules\Relay\ValueObjects\DownloadResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
 use Sunchayn\Nimbus\NimbusServiceProvider;
@@ -69,6 +70,53 @@ class NimbusRelayTest extends TestCase
             'cookies' => collect($relayResponseStub->cookies)->map(fn ($cookie) => $cookie->toArray())->all(),
             'duration' => $relayResponseStub->durationMs,
             'timestamp' => $relayResponseStub->timestamp,
+        ]);
+    }
+
+    public function test_it_serializes_download_responses(): void
+    {
+        // Arrange
+
+        $binary = "\xff\xfe\x00binary";
+
+        $relayResponseStub = new RelayedRequestResponseData(
+            statusCode: 200,
+            statusText: 'OK',
+            body: new PrintableResponseBody(''),
+            headers: [],
+            durationMs: 1.5,
+            timestamp: 1_700_000_000,
+            cookies: [],
+            download: new DownloadResponseBody(
+                filename: 'file.bin',
+                mimeType: 'application/octet-stream',
+                sizeInBytes: strlen($binary),
+                content: base64_encode($binary),
+            ),
+        );
+
+        $this->mock(RequestRelayAction::class)
+            ->shouldReceive('execute')
+            ->andReturn($relayResponseStub);
+
+        // Act
+
+        $response = $this->postJson(route('nimbus.api.relay'), [
+            'method' => 'GET',
+            'endpoint' => '/file',
+        ]);
+
+        // Assert
+
+        $response->assertOk();
+
+        $response->assertJsonPath('body', '');
+
+        $response->assertJsonPath('download', [
+            'filename' => 'file.bin',
+            'mimeType' => 'application/octet-stream',
+            'sizeInBytes' => strlen($binary),
+            'content' => base64_encode($binary),
         ]);
     }
 

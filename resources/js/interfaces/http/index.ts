@@ -16,9 +16,11 @@ export { RequestBodyTypeEnum } from './request';
 
 export type {
     ErrorPlainResponse,
+    RelayProxyDownload,
     RelayProxyResponse,
     Response,
     ResponseBody,
+    ResponseDownload,
 } from './response';
 
 export { STATUS } from './status';

@@ -7,11 +7,11 @@ import { AppButton } from '@/components/base/button';
 import AppSwapIcon from '@/components/base/icons/AppSwapIcon.vue';
 import AppRoundIndicator from '@/components/base/round-indicator/AppRoundIndicator.vue';
 import { useAppToast } from '@/components/base/toast';
-import DumpNotice from '@/components/domain/Client/Response/ResponseBody/DumpNotice.vue';
 import {
     type DumpValue,
     SingleDumpRenderer,
 } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer';
+import ResponseNotice from '@/components/domain/Client/Response/ResponseBody/ResponseNotice.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import { useConfirmationAction } from '@/composables/ui/useConfirmationAction';
 import { withOccurrenceKeys } from '@/utils/ui';
@@ -238,15 +238,15 @@ watch(
             {{ selectedDumpsLog?.timestamp ?? '' }}
         </div>
 
-        <DumpNotice
+        <ResponseNotice
             v-if="selectedDumpsLog === undefined || selectedDumpsLog === null"
             label="Info"
             indicator-class="text-muted"
         >
             Please make sure one dump snapshot is selected.
-        </DumpNotice>
+        </ResponseNotice>
 
-        <DumpNotice
+        <ResponseNotice
             v-else-if="selectedDumpsLog.dumps.length === 0"
             label="Error"
             indicator-class="text-error"
@@ -262,7 +262,7 @@ watch(
                 </a>
                 card.
             </small>
-        </DumpNotice>
+        </ResponseNotice>
 
         <div v-else :key="selectedDumpsLog.id" class="gap-base flex flex-col">
             <div

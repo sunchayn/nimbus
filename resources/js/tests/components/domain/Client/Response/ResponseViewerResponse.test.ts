@@ -1,3 +1,5 @@
+import ResponseBody from '@/components/domain/Client/Response/ResponseBody/ResponseBody.vue';
+import ResponseDownload from '@/components/domain/Client/Response/ResponseBody/ResponseDownload.vue';
 import ResponseViewerResponse from '@/components/domain/Client/Response/ResponseViewerResponse.vue';
 import type { RequestLog } from '@/interfaces';
 import { STATUS } from '@/interfaces/http';
@@ -71,7 +73,7 @@ const createWrapper = (props = {}): VueWrapper => {
                 ResponseDumpAndDie: true,
                 ResponseCookies: true,
                 ResponseHeaders: true,
-                AppScrollArea: true,
+                AppScrollArea: { template: '<div><slot /></div>' },
                 ResponseDownloadDropdown: true,
             },
         },
@@ -84,6 +86,34 @@ describe('ResponseViewerResponse', () => {
         vi.clearAllMocks();
         global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
         global.URL.revokeObjectURL = vi.fn();
+    });
+
+    it('renders the body viewer for a regular response', () => {
+        const wrapper = createWrapper();
+
+        expect(wrapper.findComponent(ResponseBody).exists()).toBe(true);
+        expect(wrapper.findComponent(ResponseDownload).exists()).toBe(false);
+    });
+
+    it('renders the download viewer instead of the body for a download response', () => {
+        const response = (createWrapper().props() as { response: RequestLog }).response;
+
+        const wrapper = createWrapper({
+            response: {
+                ...response,
+                response: {
+                    ...response.response,
+                    download: {
+                        filename: 'report.pdf',
+                        mimeType: 'application/pdf',
+                        sizeInBytes: 10,
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.findComponent(ResponseDownload).exists()).toBe(true);
+        expect(wrapper.findComponent(ResponseBody).exists()).toBe(false);
     });
 
     it('leaves the download action to the status row', () => {

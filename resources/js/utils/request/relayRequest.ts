@@ -128,6 +128,15 @@ export const transformRelayResponse = (relayResponse: RelayProxyResponse): Respo
     const headers = relayResponse.headers;
     const statusCode = relayResponse.statusCode;
 
+    // The file content is forwarded once and never kept in the store or history.
+    const download = relayResponse.download
+        ? {
+              filename: relayResponse.download.filename,
+              mimeType: relayResponse.download.mimeType,
+              sizeInBytes: relayResponse.download.sizeInBytes,
+          }
+        : null;
+
     const contentLengthHeader = relayResponse.headers.find(
         (header: HttpHeaders) => header.key.toLowerCase() === 'content-length',
     );
@@ -150,5 +159,6 @@ export const transformRelayResponse = (relayResponse: RelayProxyResponse): Respo
             },
         })),
         timestamp: relayResponse.timestamp,
+        download,
     };
 };

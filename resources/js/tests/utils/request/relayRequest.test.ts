@@ -151,5 +151,32 @@ describe('relayRequest', () => {
 
             expect(result.sizeInBytes).toBe(4);
         });
+
+        it('keeps the download metadata and drops the file content', () => {
+            const result = transformRelayResponse(
+                createMockRelayProxyResponse({
+                    body: '',
+                    download: {
+                        filename: 'report.pdf',
+                        mimeType: 'application/pdf',
+                        sizeInBytes: 12,
+                        content: 'SGVsbG8=',
+                    },
+                }),
+            );
+
+            expect(result.download).toEqual({
+                filename: 'report.pdf',
+                mimeType: 'application/pdf',
+                sizeInBytes: 12,
+            });
+            expect(JSON.stringify(result)).not.toContain('SGVsbG8=');
+        });
+
+        it('sets no download for a normal response', () => {
+            const result = transformRelayResponse(createMockRelayProxyResponse());
+
+            expect(result.download).toBeNull();
+        });
     });
 });

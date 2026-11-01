@@ -2,6 +2,16 @@ import type { HttpHeadersArray, ResponseCookie } from '@/interfaces/http';
 import type { ResponseHeader } from '@/interfaces/http/headers';
 import type { STATUS } from '@/interfaces/http/status';
 
+export interface ResponseDownload {
+    filename: string;
+    mimeType: string;
+    sizeInBytes: number;
+}
+
+export interface RelayProxyDownload extends ResponseDownload {
+    content: string;
+}
+
 export interface Response {
     status: STATUS;
     statusCode: number;
@@ -11,6 +21,7 @@ export interface Response {
     headers: ResponseHeader[];
     cookies: ResponseCookie[];
     timestamp: number;
+    download?: ResponseDownload | null;
 }
 
 export interface ErrorPlainResponse {
@@ -27,6 +38,7 @@ export interface RelayProxyResponse {
     cookies: ResponseCookie[];
     duration: number;
     timestamp: number;
+    download?: RelayProxyDownload | null;
 }
 
 export interface ResponseBody {

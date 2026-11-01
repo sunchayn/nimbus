@@ -8,6 +8,7 @@ import { AppScrollArea } from '@/components/base/scroll-area';
 import { AppTabs } from '@/components/base/tabs';
 import { AppTooltip } from '@/components/base/tooltip';
 import ResponseBody from '@/components/domain/Client/Response/ResponseBody/ResponseBody.vue';
+import ResponseDownload from '@/components/domain/Client/Response/ResponseBody/ResponseDownload.vue';
 import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDumpAndDie.vue';
 import ResponseCookies from '@/components/domain/Client/Response/ResponseCookies/ResponseCookies.vue';
 import ResponseHeaders from '@/components/domain/Client/Response/ResponseHeaders/ResponseHeaders.vue';
@@ -122,8 +123,13 @@ const pendingRequestData = computed(() => requestStore.pendingRequestData);
                 </div>
             </template>
             <template #response>
+                <ResponseDownload
+                    v-if="lastLog?.response?.download"
+                    :download="lastLog.response.download"
+                />
+
                 <AppScrollArea
-                    v-if="lastLog?.response?.status !== STATUS.DUMP_AND_DIE"
+                    v-else-if="lastLog?.response?.status !== STATUS.DUMP_AND_DIE"
                     class="min-h-0 flex-1"
                 >
                     <ResponseBody
