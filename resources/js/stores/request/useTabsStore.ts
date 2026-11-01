@@ -28,6 +28,7 @@ import {
     restoreResponseBody,
 } from '@/utils/request/pendingRequestBuilders';
 import { findRoutesByEndpoint } from '@/utils/routes';
+import { formDataSerializer } from '@/utils/stores/formDataSerializer';
 import { generateValueFromType } from '@/utils/value-generator/generateValueFromType';
 import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
@@ -585,6 +586,7 @@ export const useTabsStore = defineStore(
     },
     {
         persist: {
+            serializer: formDataSerializer,
             pick: ['tabs', 'activeTabId', 'activeApplication', 'lastSyncedGlobalHeaders'],
             afterHydrate: context => {
                 context.store.syncGlobalHeadersWhenApplicable();
