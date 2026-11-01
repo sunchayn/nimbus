@@ -82,7 +82,7 @@ const handleClick = () => {
 
 <template>
     <ExplorerRow :is-active="isActive" @click="handleClick">
-        <HttpVerbLabel :method="route.method" />
+        <HttpVerbLabel class="min-w-8" :method="route.method" />
         <span class="flex-1 whitespace-nowrap">
             <template v-if="showOperationId">
                 {{ route.metadata?.operationId }}
