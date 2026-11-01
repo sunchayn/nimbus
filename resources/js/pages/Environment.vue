@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /**
  * @component EnvironmentPage
- * @description Page for managing global environment collections and their variables.
+ * @description Page for managing environments, their base URLs and their variables.
  */
 import { AppButton } from '@/components/base/button';
 import {
-    EnvironmentCollectionHeader,
-    EnvironmentCollectionList,
+    EnvironmentHeader,
+    EnvironmentList,
     EnvironmentVariablesEditor,
 } from '@/components/domain/Environment';
 import PageLayout from '@/components/layout/PageLayout.vue';
@@ -27,7 +27,7 @@ const environmentVariablesStore = useEnvironmentVariablesStore();
     >
         <template #subheader-left>
             <div>
-                <span class="text-sm">Global application variables</span>
+                <span class="text-sm">Targets and global variables</span>
             </div>
         </template>
 
@@ -36,9 +36,9 @@ const environmentVariablesStore = useEnvironmentVariablesStore();
                 variant="ghost"
                 size="xs"
                 icon="i-hugeicons-plus-sign"
-                label="New Collection"
-                data-testid="add-collection-btn"
-                @click="environmentVariablesStore.addCollection"
+                label="Add environment"
+                data-testid="add-environment-btn"
+                @click="environmentVariablesStore.addEnvironment"
             />
         </template>
 
@@ -47,27 +47,28 @@ const environmentVariablesStore = useEnvironmentVariablesStore();
                 <div class="gap-loose flex max-w-6xl flex-col">
                     <!-- Screen Header -->
                     <div>
-                        <h2 class="text-base font-semibold">Collections</h2>
+                        <h2 class="text-base font-semibold">Environments</h2>
                         <div class="gap-tight flex flex-col">
                             <p class="text-muted text-sm leading-tight">
-                                These are namespaces and group of global variables that
-                                can be re-used across the application.
+                                An environment is a target that requests are sent to. Each
+                                one has a base URL and its own variables. The current host
+                                is always available by default.
                             </p>
                             <p class="text-muted text-xs leading-tight italic">
-                                Note: environment configuration is not shared between
-                                nimbus installations.
+                                Note: environment variables and custom environments are
+                                not shared between nimbus installations.
                             </p>
                         </div>
                     </div>
 
                     <div class="gap-base flex flex-col items-start md:flex-row">
-                        <!-- Sidebar with the collection list -->
-                        <EnvironmentCollectionList />
+                        <!-- Sidebar with the envs list -->
+                        <EnvironmentList />
 
                         <!-- Detail with the variable editor -->
                         <EnvironmentVariablesEditor>
                             <template #header>
-                                <EnvironmentCollectionHeader />
+                                <EnvironmentHeader />
                             </template>
                         </EnvironmentVariablesEditor>
                     </div>

@@ -19,6 +19,8 @@ class MisconfiguredValueException extends Exception
 
     public const INVALID_ROUTE_PROCESSING_STRATEGY = 6;
 
+    public const INVALID_ENVIRONMENT = 7;
+
     public static function becauseRouteProcessingStrategyIsInvalid(mixed $strategy): self
     {
         $value = is_scalar($strategy) ? (string) $strategy : gettype($strategy);
@@ -61,6 +63,14 @@ class MisconfiguredValueException extends Exception
         return new self(
             message: sprintf("The default application `%s` doesn't have a matching configuration.", $key),
             code: self::INVALID_DEFAULT_APPLICATION,
+        );
+    }
+
+    public static function becauseEnvironmentIsInvalid(string $key): self
+    {
+        return new self(
+            message: sprintf('The environment `%s` needs a name and an absolute http or https `base_url`.', $key),
+            code: self::INVALID_ENVIRONMENT,
         );
     }
 

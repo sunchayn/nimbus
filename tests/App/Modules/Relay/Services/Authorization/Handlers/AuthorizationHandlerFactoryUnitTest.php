@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\DataTransferObjects\AuthorizationCredentials;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Exceptions\InvalidAuthorizationValueException;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\AuthorizationHandlerFactory;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\BasicAuthAuthorizationHandler;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\BearerAuthorizationHandler;
@@ -140,5 +141,29 @@ class AuthorizationHandlerFactoryUnitTest extends TestCase
             ),
             'expectedError' => 'Basic auth credentials must be an array',
         ];
+    }
+
+    #[DataProvider('currentHostOnlyTypesProvider')]
+    public function test_it_rejects_current_host_only_types_for_other_environments(AuthorizationTypeEnum $type): void
+    {
+        // Arrange
+
+        $factory = resolve(AuthorizationHandlerFactory::class);
+
+        // Anticipate
+
+        $this->expectException(InvalidAuthorizationValueException::class);
+        $this->expectExceptionCode(InvalidAuthorizationValueException::TYPE_IS_CURRENT_HOST_ONLY);
+
+        // Act
+
+        $factory->create(new AuthorizationCredentials(type: $type, value: '1'), isCurrentHost: false);
+    }
+
+    public static function currentHostOnlyTypesProvider(): Generator
+    {
+        yield 'current user' => ['type' => AuthorizationTypeEnum::CurrentUser];
+
+        yield 'impersonate' => ['type' => AuthorizationTypeEnum::Impersonate];
     }
 }

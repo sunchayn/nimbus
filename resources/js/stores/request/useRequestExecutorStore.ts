@@ -79,7 +79,8 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
 
             return await Promise.race([
                 sendRelayRequest(request, {
-                    apiUrl: configStore.apiUrl,
+                    apiUrl: environmentVariablesStore.baseUrl,
+                    environment: environmentVariablesStore.activeEnvironment.id,
                     appBasePath: configStore.appBasePath,
                     resolve: environmentVariablesStore.resolve,
                     signal: abortController.signal,

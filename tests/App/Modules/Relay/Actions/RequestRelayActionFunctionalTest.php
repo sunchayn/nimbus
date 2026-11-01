@@ -104,7 +104,7 @@ class RequestRelayActionFunctionalTest extends TestCase
             AuthorizationHandlerFactory::class,
             fn (MockInterface $mock) => $mock
                 ->shouldReceive('create')
-                ->with($authorizationCredentials)
+                ->with($authorizationCredentials, true)
                 ->andReturn($dummyAuthorizationHandler),
         );
 
@@ -750,5 +750,127 @@ class RequestRelayActionFunctionalTest extends TestCase
                 $actualCookies[$index]->toArray(),
             );
         }
+    }
+
+    public function test_it_skips_host_credentials_and_cookie_decryption_for_other_environments(): void
+    {
+        // Arrange
+
+        $this->app['session']->start();
+
+        $requestData = new RequestRelayData(
+            method: 'get',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: [],
+            cookies: new ParameterBag,
+            environment: 'staging',
+            isCurrentHost: false,
+        );
+
+        $encryptedCookieValue = $this->getEncryptedCookieValue('sessionIdEncrypted', 'secret');
+
+        // Anticipate
+
+        Http::fake(fn (Request $request) => Http::response(
+            body: ['requestHeaders' => $request->headers()],
+            headers: ['Set-Cookie' => ["sessionIdEncrypted={$encryptedCookieValue}; Path=/"]],
+        ));
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertArrayNotHasKey('X-CSRF-TOKEN', $response->body->body['requestHeaders']);
+
+        $this->assertRelayResponseCookies(
+            expectedCookies: [
+                ['name' => 'sessionIdEncrypted', 'raw' => $encryptedCookieValue, 'decrypted' => null],
+            ],
+            actualCookies: $response->cookies,
+        );
+    }
+
+    #[TestWith(['production', true])]
+    #[TestWith(['staging', false])]
+    #[TestWith(['current', false])]
+    public function test_it_verifies_ssl_only_for_production(string $environment, bool $expectedVerify): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'get',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: [],
+            cookies: new ParameterBag,
+            environment: $environment,
+            isCurrentHost: $environment === 'current',
+        );
+
+        $capturedVerify = null;
+
+        // Anticipate
+
+        Http::fake(function (Request $request, array $options) use (&$capturedVerify) {
+            $capturedVerify = $options['verify'] ?? null;
+
+            return Http::response([]);
+        });
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertSame($expectedVerify, $capturedVerify);
+    }
+
+    public function test_it_verifies_ssl_for_current_host_detected_as_production(): void
+    {
+        // Arrange
+
+        config()->set('nimbus.environments', [
+            'production' => ['name' => 'Production', 'base_url' => 'https://prod.test', 'enabled' => true],
+        ]);
+        config()->set('app.url', 'https://prod.test');
+
+        $requestData = new RequestRelayData(
+            method: 'get',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: [],
+            cookies: new ParameterBag,
+            environment: 'current',
+            isCurrentHost: true,
+        );
+
+        $capturedVerify = null;
+
+        // Anticipate
+
+        Http::fake(function (Request $request, array $options) use (&$capturedVerify) {
+            $capturedVerify = $options['verify'] ?? null;
+
+            return Http::response([]);
+        });
+
+        // Act
+
+        resolve(RequestRelayAction::class)->execute($requestData);
+
+        // Assert
+
+        $this->assertTrue($capturedVerify);
     }
 }

@@ -1,4 +1,5 @@
 import type { AuthorizationContract } from '@/interfaces/auth/authorization';
+import { AuthorizationType } from '@/interfaces/generated';
 import type { RequestLog } from '@/interfaces/history/logs';
 import {
     RequestBodyTypeEnum,
@@ -18,6 +19,7 @@ import {
     useSettingsStore,
     useValueGeneratorStore,
 } from '@/stores';
+import { HOST_ONLY_AUTHORIZATION_TYPES } from '@/utils/environment';
 import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
 import {
     cloneParameters,
@@ -119,11 +121,19 @@ export const useTabsStore = defineStore(
             lastSyncedGlobalHeaders.value = newGlobalHeaders;
         }
 
-        const getAuthorizationForNewRequest = (): AuthorizationContract =>
-            activeRequest.value?.authorization ??
-            createDefaultAuthorization(
-                settingsStore.preferences.defaultAuthorizationType,
-            );
+        const getAuthorizationForNewRequest = (): AuthorizationContract => {
+            const authorization =
+                activeRequest.value?.authorization ??
+                createDefaultAuthorization(
+                    settingsStore.preferences.defaultAuthorizationType,
+                );
+
+            // Host only authorization cannot work on other environments.
+            return !environmentVariablesStore.isCurrentHost &&
+                HOST_ONLY_AUTHORIZATION_TYPES.includes(authorization.type)
+                ? { type: AuthorizationType.None }
+                : authorization;
+        };
 
         const getDefaultPayload = (route: RouteDefinition): RequestBodyTypeEnum => {
             if (settingsStore.preferences.defaultRequestBodyType === -1) {
@@ -524,7 +534,7 @@ export const useTabsStore = defineStore(
          */
         const getRequestUrl = (request: PendingRequest): string => {
             return buildRequestUrl(
-                configStore.apiUrl,
+                environmentVariablesStore.baseUrl,
                 environmentVariablesStore.resolve(request.endpoint),
                 request.queryParameters.filter(
                     (parameter: ParameterContract) => parameter.enabled,

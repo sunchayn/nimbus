@@ -85,6 +85,11 @@ class NimbusIndexTest extends TestCase
 
         $response->assertViewHas('sharedState', null);
 
+        $response->assertViewHas('environments', fn (array $environments): bool => $environments[0]['id'] === 'current'
+            && $environments[0]['source'] === 'current');
+
+        $response->assertSee('window.Nimbus', escape: false);
+
         $response->assertViewHas('activeApplicationResolver', function ($resolver) use ($expectedApplicationKey) {
             return $resolver->getActiveApplicationKey() === $expectedApplicationKey;
         });
@@ -353,6 +358,7 @@ class NimbusIndexTest extends TestCase
         $activeApplicationResolverMock->shouldReceive('getApiBaseUrl')->andReturn('http://localhost');
         $activeApplicationResolverMock->shouldReceive('getAvailableApplications')->andReturn('{}');
         $activeApplicationResolverMock->shouldReceive('showOperationId')->andReturn(false);
+        $activeApplicationResolverMock->shouldReceive('getEnvironments')->andReturn([]);
 
         $buildGlobalHeadersActionMock->shouldReceive('execute')->andReturn(['::global-headers::']);
         $buildCurrentUserActionMock->shouldReceive('execute')->andReturn(['::current-user::']);

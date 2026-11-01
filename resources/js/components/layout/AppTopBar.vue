@@ -7,8 +7,10 @@ import { AppButton } from '@/components/base/button';
 import { AppDropdownMenu } from '@/components/base/dropdown-menu';
 import AppBrandIcon from '@/components/base/icons/AppBrandIcon.vue';
 import { AppTooltip } from '@/components/base/tooltip';
+import { useEnvironmentSwitch } from '@/composables/environment/useEnvironmentSwitch';
 import { useExplorerVisibility } from '@/composables/ui/useExplorerVisibility';
 import { useEnvironmentVariablesStore } from '@/stores';
+import { isProductionEnvironment } from '@/utils/environment';
 import { useEventListener } from '@vueuse/core';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -52,17 +54,15 @@ useEventListener(window, 'keydown', event => {
     }
 });
 
+const switchEnvironment = useEnvironmentSwitch();
+
 const environmentItems = computed(() => [
-    ...(environmentStore.collections.length
-        ? [
-              environmentStore.collections.map(collection => ({
-                  label: collection.name,
-                  type: 'checkbox' as const,
-                  checked: collection.id === environmentStore.activeCollectionId,
-                  onSelect: () => environmentStore.select(collection.id),
-              })),
-          ]
-        : []),
+    environmentStore.enabledEnvironments.map(environment => ({
+        label: environment.name,
+        type: 'checkbox' as const,
+        checked: environment.id === environmentStore.activeEnvironment.id,
+        onSelect: () => switchEnvironment(environment.id),
+    })),
     [
         {
             label: 'Manage environments',
@@ -71,6 +71,24 @@ const environmentItems = computed(() => [
         },
     ],
 ]);
+
+const isProduction = computed(() =>
+    isProductionEnvironment(environmentStore.activeEnvironment),
+);
+
+const switcherColor = computed(() => {
+    if (isProduction.value) {
+        return 'error';
+    }
+
+    const { isCurrentHost, activeEnvironment } = environmentStore;
+
+    if (!isCurrentHost) {
+        return 'warning';
+    }
+
+    return activeEnvironment.detected === 'staging' ? 'warning' : 'neutral';
+});
 
 const links = [
     {
@@ -144,12 +162,14 @@ const settings = computed(() =>
 
         <AppDropdownMenu :items="environmentItems" :content="{ align: 'center' }">
             <AppButton
-                color="neutral"
-                variant="ghost"
+                :color="switcherColor"
+                :variant="switcherColor === 'neutral' ? 'ghost' : 'soft'"
                 size="sm"
+                :icon="environmentStore.isCurrentHost ? undefined : 'i-hugeicons-cloud'"
                 trailing-icon="i-hugeicons-arrow-down-01"
-                :label="environmentStore.activeCollection?.name ?? 'No environment'"
+                :label="environmentStore.activeEnvironment.name"
                 data-testid="environment-switcher"
+                :data-environment-current-host="environmentStore.isCurrentHost"
             />
         </AppDropdownMenu>
 

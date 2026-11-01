@@ -19,6 +19,7 @@ export interface RelayPayload {
     headers: HttpHeaders[];
     authorization: AuthorizationContract;
     body: FormData | string | null;
+    environment?: string;
 }
 
 /**
@@ -97,6 +98,7 @@ export const createRelayPayload = (
     request: PendingRequest,
     apiUrl: string,
     resolve: ResolveEnvironmentVariables,
+    environment?: string,
 ): RelayPayload => {
     // Generate Content-Type header just before making the request
     // This ensures the correct header is sent without persisting it in the store
@@ -121,6 +123,7 @@ export const createRelayPayload = (
         headers: headersWithContentType,
         authorization: buildRelayAuthorization(request.authorization, resolve),
         body: getMemoizedBody(request, resolve),
+        ...(environment ? { environment } : {}),
     };
 };
 

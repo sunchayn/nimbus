@@ -11,6 +11,8 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
+use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
 use Sunchayn\Nimbus\Modules\Relay\Responses\DumpAndDieResponse;
@@ -35,6 +37,7 @@ class RequestRelayAction
     public function __construct(
         private readonly Container $container,
         private readonly AuthorizationHandlerFactory $authorizationHandlerFactory,
+        private readonly ActiveApplicationResolver $activeApplicationResolver,
     ) {}
 
     public function execute(RequestRelayData $requestRelayData): RelayedRequestResponseData
@@ -43,7 +46,7 @@ class RequestRelayAction
 
         $authorizationHandler = $this
             ->authorizationHandlerFactory
-            ->create($requestRelayData->authorization);
+            ->create($requestRelayData->authorization, $requestRelayData->isCurrentHost);
 
         $pendingRequest = $authorizationHandler->authorize($pendingRequest);
 
@@ -65,7 +68,7 @@ class RequestRelayAction
             headers: $response->headers(),
             durationMs: $durationInMs,
             timestamp: CarbonImmutable::now()->getTimestamp(),
-            cookies: $this->processCookies($response->toPsrResponse()->getHeader('Set-Cookie')),
+            cookies: $this->processCookies($response->toPsrResponse()->getHeader('Set-Cookie'), $requestRelayData->isCurrentHost),
             download: $download,
         );
     }
@@ -91,7 +94,7 @@ class RequestRelayAction
         // Auto-inject CSRF token header if not explicitly provided
         $hasCsrfHeader = array_key_exists('X-CSRF-TOKEN', $headers) || array_key_exists('X-XSRF-TOKEN', $headers);
 
-        if (! $hasCsrfHeader) {
+        if (! $hasCsrfHeader && $requestRelayData->isCurrentHost) {
             $csrfToken = $this->resolveCsrfToken();
 
             if ($csrfToken !== null) {
@@ -104,8 +107,9 @@ class RequestRelayAction
             $headers['x-nimbus-transaction-mode'] = '1';
         }
 
-        // SSL verification is disabled to support development environments with self-signed certificates.
-        return Http::withoutVerifying()
+        // SSL verification is skipped to support self-signed certificates on non production targets.
+        // It stays on for production, including when the current host is detected as production.
+        return Http::withOptions(['verify' => $this->shouldVerifySsl($requestRelayData)])
             ->withHeaders($headers)
             ->withQueryParameters($queryParameters)
             ->when(
@@ -139,6 +143,21 @@ class RequestRelayAction
         );
     }
 
+    private function shouldVerifySsl(RequestRelayData $requestRelayData): bool
+    {
+        if ($requestRelayData->environment === EnvironmentIdEnum::Production->value) {
+            return true;
+        }
+
+        if ($requestRelayData->environment !== EnvironmentIdEnum::Current->value) {
+            return false;
+        }
+
+        $current = $this->activeApplicationResolver->getEnvironments()[0];
+
+        return $current->detected === EnvironmentIdEnum::Production->value;
+    }
+
     /**
      * Processes Set-Cookie headers into structured cookie objects.
      *
@@ -146,13 +165,14 @@ class RequestRelayAction
      * to match the application's cookie handling behavior.
      *
      * @param  string[]  $setCookieHeaders
+     * @param  bool  $decrypt  Decryption relies on the host app key, so it only applies to the current host.
      * @return ResponseCookieValueObject[]
      */
-    private function processCookies(array $setCookieHeaders): array
+    private function processCookies(array $setCookieHeaders, bool $decrypt): array
     {
         return Arr::map(
             $setCookieHeaders,
-            function (string $cookieString): ResponseCookieValueObject {
+            function (string $cookieString) use ($decrypt): ResponseCookieValueObject {
                 $setCookie = SetCookie::fromString($cookieString);
 
                 return new ResponseCookieValueObject(
@@ -162,6 +182,7 @@ class RequestRelayAction
                         $setCookie->getName(),
                         $this->container->get('encrypter')->getKey()
                     ),
+                    decrypt: $decrypt,
                 );
             },
         );

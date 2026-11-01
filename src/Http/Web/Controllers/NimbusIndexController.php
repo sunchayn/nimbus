@@ -6,6 +6,7 @@ use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Vite;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
+use Sunchayn\Nimbus\Modules\Config\DataTransferObjects\EnvironmentData;
 use Sunchayn\Nimbus\Modules\Export\Services\ShareableLinkProcessorService;
 use Sunchayn\Nimbus\Modules\Routes\Actions;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\RoutesProcessorContract;
@@ -38,6 +39,10 @@ class NimbusIndexController
             'sharedState' => $incomingShareableLinkPayload,
             'headers' => $buildGlobalHeadersAction->execute(),
             'currentUser' => $buildCurrentUserAction->execute(),
+            'environments' => array_map(
+                fn (EnvironmentData $environment): array => $environment->toArray(),
+                $activeApplicationResolver->getEnvironments(),
+            ),
             'primaryProcessorName' => $routesProcessorContract->getName()->value,
             'showOperationId' => $activeApplicationResolver->showOperationId(),
         ]);

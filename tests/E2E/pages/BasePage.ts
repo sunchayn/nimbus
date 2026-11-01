@@ -139,13 +139,13 @@ export class BasePage {
         await expect(this.page.getByTestId('environment-page')).toBeVisible();
     }
 
-    async addCollection() {
-        await this.page.getByTestId('add-collection-btn').click();
+    async addEnvironment() {
+        await this.page.getByTestId('add-environment-btn').click();
     }
 
-    async renameActiveCollection(name: string) {
+    async renameEditingEnvironment(name: string) {
         // AppEditable wraps the Reka Editable, so we need to click the preview to edit.
-        const editor = this.page.getByTestId('collection-name-editor');
+        const editor = this.page.getByTestId('environment-name-editor');
         await editor.click({ force: true });
         
         const input = editor.locator('input');
@@ -162,8 +162,13 @@ export class BasePage {
         await valueInput.fill(value);
     }
 
-    async selectCollection(name: string) {
-        await this.page.getByTestId('collection-item').filter({ hasText: name }).click();
+    async selectEnvironmentForEditing(name: string) {
+        await this.page.getByTestId('environment-item').filter({ hasText: name }).click();
+    }
+
+    async switchEnvironment(name: string) {
+        await this.page.getByTestId('environment-switcher').click();
+        await this.page.getByRole('menuitemcheckbox', { name }).click();
     }
 
     async goToHttpClient() {

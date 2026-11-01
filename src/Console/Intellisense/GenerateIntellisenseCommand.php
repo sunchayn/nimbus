@@ -22,6 +22,8 @@ class GenerateIntellisenseCommand extends SymfonyCommand
         \Sunchayn\Nimbus\Modules\Intellisense\RandomValueGeneratorIntellisense::class,
         \Sunchayn\Nimbus\Modules\Intellisense\DumpValueTypeIntellisense::class,
         \Sunchayn\Nimbus\Modules\Intellisense\RoutesProcessingStrategyIntellisense::class,
+        \Sunchayn\Nimbus\Modules\Intellisense\EnvironmentIdIntellisense::class,
+        \Sunchayn\Nimbus\Modules\Intellisense\EnvironmentSourceIntellisense::class,
     ];
 
     const TARGET_BASE_PATH = '/resources/js/interfaces/generated/';

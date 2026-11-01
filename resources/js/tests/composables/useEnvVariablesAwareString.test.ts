@@ -14,7 +14,6 @@ describe('useEnvVariablesAwareString', () => {
         // Arrange
 
         const environmentVariablesStore = useEnvironmentVariablesStore();
-        environmentVariablesStore.addCollection();
         environmentVariablesStore.updateVariables([
             {
                 id: 1,
@@ -60,7 +59,6 @@ describe('useEnvVariablesAwareString', () => {
         // Arrange
 
         const environmentVariablesStore = useEnvironmentVariablesStore();
-        environmentVariablesStore.addCollection();
         environmentVariablesStore.updateVariables([
             {
                 id: 1,

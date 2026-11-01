@@ -5,9 +5,14 @@
  */
 import { AppSelect } from '@/components/base/select';
 import { AuthorizationType, type AuthorizationTypeItem } from '@/interfaces/generated';
-import { useRequestStore, useSettingsStore } from '@/stores';
+import {
+    useEnvironmentVariablesStore,
+    useRequestStore,
+    useSettingsStore,
+} from '@/stores';
+import { HOST_ONLY_AUTHORIZATION_TYPES } from '@/utils/environment';
 import { watchOnce } from '@vueuse/core';
-import { computed, type ModelRef } from 'vue';
+import { computed, type ModelRef, watch } from 'vue';
 
 /*
  * Types & Interfaces.
@@ -36,6 +41,7 @@ const model: ModelRef<AuthorizationType> = defineModel<AuthorizationType>({
 
 const requestStore = useRequestStore();
 const settingsStore = useSettingsStore();
+const environmentStore = useEnvironmentVariablesStore();
 
 /*
  * Computed & Watchers.
@@ -46,17 +52,23 @@ const specialIcons: Partial<Record<AuthorizationType, string>> = {
     [AuthorizationType.Impersonate]: 'i-hugeicons-user-switch',
 };
 
+const isDisabled = (type: AuthorizationType) =>
+    !environmentStore.isCurrentHost && HOST_ONLY_AUTHORIZATION_TYPES.includes(type);
+
 const items = computed(() => [
     [
         {
             type: 'label' as const,
-            label: 'Special',
+            label: environmentStore.isCurrentHost
+                ? 'Special'
+                : 'Special (current host only)',
             class: 'label-icon-sparkles flex items-center gap-tight',
         },
         ...props.types.special.map(type => ({
             label: type.label,
             value: type.id,
             icon: specialIcons[type.id] ?? 'i-hugeicons-user',
+            disabled: isDisabled(type.id),
         })),
     ],
     [
@@ -78,6 +90,17 @@ watchOnce(
             settingsStore.preferences.defaultAuthorizationType;
     },
     { deep: true },
+);
+
+// Covers tabs and defaults that still hold a host only type while on another environment.
+watch(
+    [model, () => environmentStore.isCurrentHost],
+    () => {
+        if (isDisabled(model.value)) {
+            model.value = AuthorizationType.None;
+        }
+    },
+    { immediate: true },
 );
 </script>
 

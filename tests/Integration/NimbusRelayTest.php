@@ -14,6 +14,7 @@ use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayRequest;
 use Sunchayn\Nimbus\Http\Api\Relay\RelayResponseResource;
 use Sunchayn\Nimbus\Modules\Relay\Actions\RequestRelayAction;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\DownloadResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;
@@ -250,6 +251,34 @@ class NimbusRelayTest extends TestCase
             'expectedErrors' => ['endpoint'],
         ];
 
+        yield 'current user authorization on a non current host environment' => [
+            'payload' => [
+                'method' => 'GET',
+                'endpoint' => '/test-endpoint',
+                'environment' => 'staging',
+                'authorization' => ['type' => 'current-user'],
+            ],
+            'expectedErrors' => ['authorization.type'],
+        ];
+
+        yield 'impersonate authorization on a non current host environment' => [
+            'payload' => [
+                'method' => 'GET',
+                'endpoint' => '/test-endpoint',
+                'environment' => 'production',
+                'authorization' => ['type' => 'impersonate', 'value' => '1'],
+            ],
+            'expectedErrors' => ['authorization.type'],
+        ];
+
+        yield 'unsupported endpoint scheme' => [
+            'payload' => [
+                'method' => 'GET',
+                'endpoint' => 'file:///etc/passwd',
+            ],
+            'expectedErrors' => ['endpoint'],
+        ];
+
         yield 'invalid authorization type' => [
             'payload' => [
                 'method' => 'GET',
@@ -336,5 +365,41 @@ class NimbusRelayTest extends TestCase
         // Cleanup
 
         app('db')->statement('DROP TABLE IF EXISTS test_users');
+    }
+
+    public function test_it_accepts_bearer_authorization_on_a_other_environment(): void
+    {
+        // Arrange
+
+        $this->mock(RequestRelayAction::class)
+            ->shouldReceive('execute')
+            ->withArgs(function (RequestRelayData $data): bool {
+                $this->assertSame('staging', $data->environment);
+                $this->assertFalse($data->isCurrentHost);
+
+                return true;
+            })
+            ->andReturn(new RelayedRequestResponseData(
+                statusCode: 200,
+                statusText: 'OK',
+                body: new PrintableResponseBody('Hey!'),
+                headers: [],
+                durationMs: 1.0,
+                timestamp: 1_700_000_000,
+                cookies: [],
+            ));
+
+        // Act
+
+        $response = $this->postJson(route('nimbus.api.relay'), [
+            'method' => 'GET',
+            'endpoint' => 'https://staging.example.com/api/users',
+            'environment' => 'staging',
+            'authorization' => ['type' => 'bearer', 'value' => 'token'],
+        ]);
+
+        // Assert
+
+        $response->assertOk();
     }
 }

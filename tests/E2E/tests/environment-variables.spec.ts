@@ -6,12 +6,12 @@ test.describe('Environment Variables', () => {
         // 1. Arrange - Start on the demo page
         await basePage.goto();
 
-        // 2. Act - Navigate to Environments and create a collection
+        // 2. Act - Navigate to Environments and create an environment
         await basePage.goToEnvironments();
-        await basePage.addCollection();
+        await basePage.addEnvironment();
 
-        // 3. Act - Rename collection and add variables
-        await basePage.renameActiveCollection('Staging Environment');
+        // 3. Act - Rename environment and add variables
+        await basePage.renameEditingEnvironment('Staging Environment');
 
         // Add first variable
         await basePage.setVariable(0, 'user_id', '12345');
@@ -20,9 +20,10 @@ test.describe('Environment Variables', () => {
         await page.getByTestId('kv-container').getByRole('button', { name: 'Add' }).click();
         await basePage.setVariable(1, 'api_token', 'staging-secret-token');
 
-        // 4. Assert - Verify collection is active
-        await expect(page.getByTestId('collection-item').filter({ hasText: 'Staging Environment' })).toBeVisible();
-        await expect(page.getByTestId('collection-active-badge')).toBeVisible();
+        // 4. Assert - Verify the environment exists, then make it the active one
+        await expect(page.getByTestId('environment-item').filter({ hasText: 'Staging Environment' })).toBeVisible();
+        await basePage.switchEnvironment('Staging Environment');
+        await expect(page.getByTestId('environment-active-badge')).toBeVisible();
 
         // 5. Act - Go back to HTTP Client and use variables
         await basePage.goToHttpClient();
@@ -64,10 +65,11 @@ test.describe('Environment Variables', () => {
         await expect(headerResolvedSegment).toBeVisible();
         await expect(headerResolvedSegment).toHaveText('{{api_token}}');
 
-        // 6. Act - Switch collection and verify resolution changes
+        // 6. Act - Switch environment and verify resolution changes
         await basePage.goToEnvironments();
-        await basePage.addCollection();
-        await basePage.renameActiveCollection('Production Environment');
+        await basePage.addEnvironment();
+        await basePage.renameEditingEnvironment('Production Environment');
+        await basePage.switchEnvironment('Production Environment');
 
         // Set different values
         await basePage.setVariable(0, 'user_id', '67890');
@@ -88,8 +90,9 @@ test.describe('Environment Variables', () => {
     test('shows warning for empty variables and error for missing ones', async ({ page, basePage }) => {
         await basePage.goto();
         await basePage.goToEnvironments();
-        await basePage.addCollection();
-        await basePage.renameActiveCollection('Test Env');
+        await basePage.addEnvironment();
+        await basePage.renameEditingEnvironment('Test Env');
+        await basePage.switchEnvironment('Test Env');
 
         // Variable with empty value
         await basePage.setVariable(0, 'empty_var', '');
@@ -117,5 +120,19 @@ test.describe('Environment Variables', () => {
 
         // await missingSegment.hover();
         // await expect(page.locator('[role="tooltip"]')).toContainText('Variable cannot be found');
+    });
+
+    test('switching to a non-current-host environment is reflected in the switcher', async ({ page, basePage }) => {
+        await basePage.goto();
+        await basePage.goToEnvironments();
+        await basePage.addEnvironment();
+        await basePage.renameEditingEnvironment('Remote');
+        await basePage.switchEnvironment('Remote');
+
+        await expect(page.getByTestId('environment-switcher')).toHaveText(/Remote/);
+        await expect(page.getByTestId('environment-switcher')).toHaveAttribute('data-environment-current-host', 'false');
+
+        await basePage.switchEnvironment('Local');
+        await expect(page.getByTestId('environment-switcher')).toHaveAttribute('data-environment-current-host', 'true');
     });
 });

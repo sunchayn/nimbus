@@ -12,6 +12,7 @@ interface NimbusConfig {
     primaryProcessorName: string | null;
     showOperationId: boolean | null;
     globalException: string | null;
+    environments?: string | null;
 }
 
 declare global {

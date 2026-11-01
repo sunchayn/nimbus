@@ -16,6 +16,7 @@ export interface RequestResult {
 
 export interface SendRelayRequestOptions {
     apiUrl: string;
+    environment?: string;
     appBasePath: string;
     resolve: ResolveEnvironmentVariables;
     signal?: AbortSignal;
@@ -29,11 +30,11 @@ export interface SendRelayRequestOptions {
  */
 export const sendRelayRequest = (
     request: PendingRequest,
-    { apiUrl, appBasePath, resolve, signal }: SendRelayRequestOptions,
+    { apiUrl, environment, appBasePath, resolve, signal }: SendRelayRequestOptions,
 ): Promise<RequestResult | null> => {
     return new Promise<RequestResult | null>((resolveResult, reject) => {
         const url = appBasePath + '/api/relay';
-        const payload = createRelayPayload(request, apiUrl, resolve);
+        const payload = createRelayPayload(request, apiUrl, resolve, environment);
         const formData = convertPayloadToFormData(payload);
 
         const headers: Record<string, string> = {

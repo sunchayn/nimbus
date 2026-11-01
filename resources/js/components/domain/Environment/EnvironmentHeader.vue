@@ -1,15 +1,16 @@
 <script setup lang="ts">
 /**
- * @component EnvironmentCollectionHeader
- * @description Header for the active environment collection, featuring inline renaming and management actions.
+ * @component EnvironmentHeader
+ * @description Header for the environment being edited, featuring inline renaming and management actions.
  */
 import { AppButton } from '@/components/base/button';
 import { AppEditable } from '@/components/base/editable';
 import AppSwapIcon from '@/components/base/icons/AppSwapIcon.vue';
 import { AppTooltip } from '@/components/base/tooltip';
 import { useConfirmationAction } from '@/composables/ui/useConfirmationAction';
+import { EnvironmentSource } from '@/interfaces/generated';
 import { useEnvironmentVariablesStore } from '@/stores';
-import { nextTick, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue';
 
 /*
  * Stores & Dependencies.
@@ -21,10 +22,11 @@ const environmentVariablesStore = useEnvironmentVariablesStore();
  * State.
  */
 
-const editingCollectionName = shallowRef('');
+const editingEnvironmentName = shallowRef('');
 
-const collectionNameEditor =
-    useTemplateRef<InstanceType<typeof AppEditable>>('collectionNameEditor');
+const environmentNameEditor = useTemplateRef<InstanceType<typeof AppEditable>>(
+    'environmentNameEditor',
+);
 
 /*
  * Composables.
@@ -42,39 +44,42 @@ const {
  * Computed & Methods.
  */
 
-const triggerCollectionNameEdit = async () => {
-    if (!environmentVariablesStore.activeCollection) {
+const isCustom = computed(
+    () =>
+        environmentVariablesStore.editingEnvironment.source === EnvironmentSource.Custom,
+);
+
+const triggerNameEdit = async () => {
+    if (!isCustom.value) {
         return;
     }
 
-    editingCollectionName.value = environmentVariablesStore.isRenamingActiveCollection
+    editingEnvironmentName.value = environmentVariablesStore.isRenamingEditingEnvironment
         ? ''
-        : environmentVariablesStore.activeCollection.name;
+        : environmentVariablesStore.editingEnvironment.name;
 
     nextTick(() => {
-        collectionNameEditor.value?.focus();
+        environmentNameEditor.value?.focus();
     });
 };
 
-const submitCollectionName = () => {
-    if (editingCollectionName.value.trim()) {
-        environmentVariablesStore.renameActive(editingCollectionName.value);
+const submitName = () => {
+    if (editingEnvironmentName.value.trim()) {
+        environmentVariablesStore.renameEditing(editingEnvironmentName.value);
     }
 
     environmentVariablesStore.completeRenaming();
 };
 
-const handleCollectionRemoval = () => {
-    if (!environmentVariablesStore.activeCollectionId) {
+const handleRemoval = () => {
+    if (!isCustom.value) {
         return;
     }
 
     triggerRemovalConfirmation(() => {
-        const collectionId = environmentVariablesStore.activeCollectionId;
-
-        if (collectionId) {
-            environmentVariablesStore.removeCollection(collectionId);
-        }
+        environmentVariablesStore.removeEnvironment(
+            environmentVariablesStore.editingEnvironment.id,
+        );
     });
 };
 
@@ -84,18 +89,18 @@ const handleCollectionRemoval = () => {
 
 watch(
     [
-        () => environmentVariablesStore.activeCollectionId,
-        () => environmentVariablesStore.isRenamingActiveCollection,
+        () => environmentVariablesStore.editingEnvironment.id,
+        () => environmentVariablesStore.isRenamingEditingEnvironment,
     ],
     ([newId, picking], [oldId]) => {
         if (newId !== oldId) {
-            editingCollectionName.value =
-                environmentVariablesStore.activeCollection?.name ?? '';
+            editingEnvironmentName.value =
+                environmentVariablesStore.editingEnvironment.name;
             cancelRemovalConfirmation();
         }
 
         if (picking) {
-            nextTick(() => triggerCollectionNameEdit());
+            nextTick(() => triggerNameEdit());
         }
     },
     { immediate: true },
@@ -108,29 +113,31 @@ watch(
     >
         <div class="flex min-w-0 flex-1 items-center">
             <AppEditable
-                v-if="environmentVariablesStore.activeCollection"
-                ref="collectionNameEditor"
-                v-model="editingCollectionName"
-                placeholder="Collection name..."
-                data-testid="collection-name-editor"
-                @submit="submitCollectionName"
+                v-if="isCustom"
+                ref="environmentNameEditor"
+                v-model="editingEnvironmentName"
+                placeholder="Environment name..."
+                data-testid="environment-name-editor"
+                @submit="submitName"
             >
-                {{ environmentVariablesStore.activeCollection.name }}
+                {{ environmentVariablesStore.editingEnvironment.name }}
             </AppEditable>
-            <span v-else class="text-muted text-xs">[Collection name]</span>
+            <span v-else class="text-xs font-medium" data-testid="environment-name">
+                {{ environmentVariablesStore.editingEnvironment.name }}
+            </span>
         </div>
 
         <!-- Management Actions -->
-        <div class="gap-tight flex items-center">
+        <div v-if="isCustom" class="gap-tight flex items-center">
             <AppTooltip text="Rename">
                 <AppButton
                     size="xs"
                     variant="outline"
                     icon="i-hugeicons-folder-edit"
-                    aria-label="Rename collection"
+                    aria-label="Rename environment"
                     square
-                    :disabled="!environmentVariablesStore.activeCollection"
-                    @click="triggerCollectionNameEdit"
+                    :disabled="!isCustom"
+                    @click="triggerNameEdit"
                 />
             </AppTooltip>
 
@@ -140,13 +147,13 @@ watch(
                     variant="outline"
                     :aria-label="
                         isConfirmingRemoval()
-                            ? 'Confirm delete collection'
-                            : 'Delete collection'
+                            ? 'Confirm delete environment'
+                            : 'Delete environment'
                     "
                     square
                     :color="isConfirmingRemoval() ? 'error' : undefined"
-                    :disabled="!environmentVariablesStore.activeCollection"
-                    @click="handleCollectionRemoval"
+                    :disabled="!isCustom"
+                    @click="handleRemoval"
                 >
                     <template #leading>
                         <AppSwapIcon
