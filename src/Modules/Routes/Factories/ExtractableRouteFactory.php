@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Sunchayn\Nimbus\Modules\Routes\Factories;
 
 use Illuminate\Routing\Route;
-use ReflectionClass;
+use Sunchayn\Nimbus\Modules\Ast\Actions\ResolveClassFileAction;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\InvalidRouteDefinitionException;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionException;
 
@@ -14,6 +14,10 @@ use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionException;
  */
 class ExtractableRouteFactory
 {
+    public function __construct(
+        private readonly ResolveClassFileAction $resolveClassFileAction,
+    ) {}
+
     /**
      * Prepares a Laravel Route for schema extraction.
      *
@@ -54,9 +58,9 @@ class ExtractableRouteFactory
             );
         }
 
-        $fileName = (new ReflectionClass($controllerClassName))->getFileName();
+        $fileName = $this->resolveClassFileAction->execute($controllerClassName);
 
-        if ($fileName === false) {
+        if ($fileName === null) {
             throw InvalidRouteDefinitionException::forRoute(
                 routeUri: $route->uri(),
                 routeMethods: $route->methods(),

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestWith;
 use Sunchayn\Nimbus\Modules\Routes\Actions\IgnoreRouteErrorAction;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
+use Sunchayn\Nimbus\Modules\Routes\Services\Snapshot\ManifestManager;
 use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(IgnoreRouteErrorAction::class)]
@@ -47,6 +48,25 @@ class IgnoreRouteErrorActionFunctionalTest extends TestCase
                     return true;
                 },
             );
+    }
+
+    public function test_it_clears_the_routes_snapshots_when_a_route_is_ignored(): void
+    {
+        // Arrange
+
+        $this->spy(IgnoredRoutesService::class);
+
+        $manifestManagerSpy = $this->spy(ManifestManager::class);
+
+        $ignoredRouteErrorAction = resolve(IgnoreRouteErrorAction::class);
+
+        // Act
+
+        $ignoredRouteErrorAction->execute('api/users|["GET"]');
+
+        // Assert
+
+        $manifestManagerSpy->shouldHaveReceived('clearAll')->once();
     }
 
     public function test_it_gracefully_workaround_invalid_methods_structure(): void

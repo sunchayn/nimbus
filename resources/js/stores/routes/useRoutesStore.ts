@@ -19,6 +19,8 @@ export const useRoutesStore = defineStore('routes', () => {
     // The routes load in a separate request, so the store starts out loading.
     const isLoading = shallowRef(true);
     const error = shallowRef<string | null>(null);
+    // Unix seconds of the routes snapshot, or null when the backend has no snapshot.
+    const snapshotAt = shallowRef<number | null>(null);
 
     /*
      * Actions.
@@ -27,24 +29,31 @@ export const useRoutesStore = defineStore('routes', () => {
     /**
      * Fetches the routes of the active application.
      * Extraction errors from the backend land in the error stores, other failures in `error`.
+     * Passing `refresh` makes the backend extract again and replace its snapshot.
      */
-    const initializeRoutes = async () => {
+    const initializeRoutes = async (refresh = false) => {
         isLoading.value = true;
         error.value = null;
         routeExtractorException.value = null;
 
         try {
-            const response = await fetch(`${window.Nimbus?.basePath ?? ''}/api/routes`, {
-                headers: {
-                    Accept: 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
+            const response = await fetch(
+                `${window.Nimbus?.basePath ?? ''}/api/routes${refresh ? '?refresh=1' : ''}`,
+                {
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin',
                 },
-                credentials: 'same-origin',
-            });
+            );
 
             const body = await response.json();
 
             if (response.ok) {
+                const header = response.headers?.get('X-Nimbus-Snapshot-At');
+
+                snapshotAt.value = header ? Number(header) : null;
                 routes.value = await processRoutesData(body);
 
                 return;
@@ -114,6 +123,7 @@ export const useRoutesStore = defineStore('routes', () => {
         routeExtractorException,
         isLoading,
         error,
+        snapshotAt,
 
         // Actions
         initializeRoutes,

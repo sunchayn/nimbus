@@ -35,6 +35,7 @@ const mockRoutesStore = reactive({
     hasExtractionError: false,
     hasAnyError: false,
     routeExtractorException: null as RouteExtractorException | null,
+    snapshotAt: 1700000000 as number | null,
     initializeRoutes: vi.fn(),
     isMissingImplementation: vi.fn().mockReturnValue(false),
     isUndocumented: vi.fn().mockReturnValue(false),
@@ -131,6 +132,35 @@ describe('MainPage', () => {
             const routeExplorer = wrapper.findComponent({ name: 'RouteExplorer' });
             expect(routeExplorer.exists()).toBe(true);
             expect(routeExplorer.props('routes')).toBe(mockRoutesStore.routes);
+        });
+
+        it('shows the refresh button and forces a refresh when the routes come from a snapshot', async () => {
+            // Arrange
+
+            mockRoutesStore.snapshotAt = 1700000000;
+            const wrapper = createWrapper();
+
+            // Act
+
+            await wrapper.find('[data-testid="routes-refresh"]').trigger('click');
+
+            // Assert
+
+            expect(
+                wrapper.findComponent({ name: 'RouteExplorer' }).props('snapshotAt'),
+            ).toBe(1700000000);
+            expect(mockRoutesStore.initializeRoutes).toHaveBeenCalledWith(true);
+        });
+
+        it('hides the refresh button when the routes are not from a snapshot', () => {
+            // Arrange
+
+            mockRoutesStore.snapshotAt = null;
+            const wrapper = createWrapper();
+
+            // Assert
+
+            expect(wrapper.find('[data-testid="routes-refresh"]').exists()).toBe(false);
         });
 
         it('renders RequestBuilder and ResponseViewer when no extraction error', () => {

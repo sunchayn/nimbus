@@ -11,6 +11,7 @@ use Sunchayn\Nimbus\Http\Api\Routes\RoutesController;
 use Sunchayn\Nimbus\Modules\Routes\Actions\ExtractApplicationRoutesAction;
 use Sunchayn\Nimbus\Modules\Routes\Collections\ExtractedRoutesCollection;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionException;
+use Sunchayn\Nimbus\Modules\Routes\Services\Snapshot\ManifestManager;
 use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(RoutesController::class)]
@@ -45,6 +46,95 @@ class RoutesTest extends TestCase
         $response
             ->assertOk()
             ->assertExactJson(['v1' => [['name' => 'users']]]);
+    }
+
+    #[DataProvider('snapshotHeaderProvider')]
+    public function test_it_reports_the_snapshot_time_only_when_the_snapshot_is_enabled(bool $enabled, ?string $expectedHeader): void
+    {
+        // Arrange
+
+        config(['nimbus.snapshot' => $enabled]);
+
+        $extractApplicationRoutesActionMock = $this->mock(ExtractApplicationRoutesAction::class);
+
+        $manifestManagerSpy = $this->spy(ManifestManager::class);
+        $manifestManagerSpy->shouldReceive('isStale')->andReturn(true);
+        $manifestManagerSpy->shouldReceive('createdAt')->andReturn(1700000000);
+
+        // Anticipate
+
+        $extractApplicationRoutesActionMock->shouldReceive('execute')->andReturn(new ExtractedRoutesCollection);
+
+        // Act
+
+        $response = $this->getJson(route('nimbus.api.routes'));
+
+        // Assert
+
+        $expectedHeader === null
+            ? $response->assertHeaderMissing('X-Nimbus-Snapshot-At')
+            : $response->assertHeader('X-Nimbus-Snapshot-At', $expectedHeader);
+    }
+
+    public static function snapshotHeaderProvider(): Generator
+    {
+        yield 'snapshot enabled' => [
+            'enabled' => true,
+            'expectedHeader' => '1700000000',
+        ];
+
+        yield 'snapshot disabled' => [
+            'enabled' => false,
+            'expectedHeader' => null,
+        ];
+    }
+
+    #[DataProvider('refreshProvider')]
+    public function test_it_clears_the_snapshot_only_on_a_refresh_when_enabled(bool $enabled, string $query, bool $expectedCleared): void
+    {
+        // Arrange
+
+        config(['nimbus.snapshot' => $enabled]);
+
+        $extractApplicationRoutesActionMock = $this->mock(ExtractApplicationRoutesAction::class);
+
+        $manifestManagerSpy = $this->spy(ManifestManager::class);
+        $manifestManagerSpy->shouldReceive('isStale')->andReturn(true);
+
+        // Anticipate
+
+        $extractApplicationRoutesActionMock->shouldReceive('execute')->andReturn(new ExtractedRoutesCollection);
+
+        // Act
+
+        $this->getJson(route('nimbus.api.routes').$query)->assertOk();
+
+        // Assert
+
+        $expectedCleared
+            ? $manifestManagerSpy->shouldHaveReceived('clear')->once()
+            : $manifestManagerSpy->shouldNotHaveReceived('clear');
+    }
+
+    public static function refreshProvider(): Generator
+    {
+        yield 'refresh when enabled' => [
+            'enabled' => true,
+            'query' => '?refresh=1',
+            'expectedCleared' => true,
+        ];
+
+        yield 'no refresh when enabled' => [
+            'enabled' => true,
+            'query' => '',
+            'expectedCleared' => false,
+        ];
+
+        yield 'refresh when disabled' => [
+            'enabled' => false,
+            'query' => '?refresh=1',
+            'expectedCleared' => false,
+        ];
     }
 
     #[DataProvider('nestedFoldersProvider')]

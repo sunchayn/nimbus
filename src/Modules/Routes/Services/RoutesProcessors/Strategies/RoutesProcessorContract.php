@@ -6,6 +6,7 @@ namespace Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies;
 
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Routes\Collections\ExtractedRoutesCollection;
+use Sunchayn\Nimbus\Modules\Routes\Exceptions\RoutesProcessingException;
 
 /**
  * Contract for providing extracted routes to Nimbus.
@@ -22,6 +23,8 @@ interface RoutesProcessorContract
 
     /**
      * Provides the collection of extracted routes.
+     *
+     * @throws RoutesProcessingException
      */
     public function process(): ExtractedRoutesCollection;
 }

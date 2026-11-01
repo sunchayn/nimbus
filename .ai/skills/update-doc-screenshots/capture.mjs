@@ -151,6 +151,8 @@ const layout = async (browser) => {
         await shot(page, 'routes', [0, 0, 300, 900]);
     });
 
+    await step('routes-snapshot', () => shot(page, 'routes-snapshot', [0, 0, 300, 120]));
+
     await step('nested-routes', async () => {
         const nested = await open(browser);
 

@@ -251,9 +251,7 @@ class IgnoredRoutesServiceFunctionalTest extends TestCase
 
         $directory = dirname($filePath);
 
-        if (! File::exists($directory)) {
-            File::makeDirectory($directory, 0755, true);
-        }
+        File::ensureDirectoryExists($directory);
 
         File::put($filePath, 'invalid json content');
 
@@ -274,9 +272,7 @@ class IgnoredRoutesServiceFunctionalTest extends TestCase
 
         $directory = dirname($filePath);
 
-        if (! File::exists($directory)) {
-            File::makeDirectory($directory, 0755, true);
-        }
+        File::ensureDirectoryExists($directory);
 
         File::put($filePath, '[]');
 

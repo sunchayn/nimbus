@@ -4,14 +4,18 @@ namespace Sunchayn\Nimbus;
 
 use Illuminate\Container\Container;
 use Illuminate\Routing\Events\RouteMatched;
+use Illuminate\Support\Facades\Event;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Sunchayn\Nimbus\Console\Snapshot\ClearRoutesSnapshotCommand;
+use Sunchayn\Nimbus\Modules\Ast\Events\ClassFileResolved;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\AutoDetectRoutesProcessor;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\OpenAPISchemaRoutesProcessor;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\RoutesProcessorContract;
+use Sunchayn\Nimbus\Modules\Routes\Services\Snapshot\ManifestManager;
 
 class NimbusServiceProvider extends PackageServiceProvider
 {
@@ -34,7 +38,8 @@ class NimbusServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasViews('nimbus')
             ->hasAssets()
-            ->hasRoutes(['api', 'web']);
+            ->hasRoutes(['api', 'web'])
+            ->hasCommand(ClearRoutesSnapshotCommand::class);
     }
 
     public function register(): void
@@ -46,6 +51,10 @@ class NimbusServiceProvider extends PackageServiceProvider
         }
 
         parent::register();
+
+        $this->app->singleton(ManifestManager::class);
+
+        Event::listen(ClassFileResolved::class, [ManifestManager::class, 'trackFile']);
 
         $this->app->singleton(
             IgnoredRoutesService::class,

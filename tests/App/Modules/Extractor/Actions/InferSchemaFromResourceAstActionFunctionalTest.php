@@ -6,7 +6,6 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Extractor\Actions;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\TestCase;
 use Sunchayn\Nimbus\Modules\Ast\Actions\GetPhpTypeFromAstScalarAction;
 use Sunchayn\Nimbus\Modules\Extractor\Actions\InferEloquentModelFromJsonResourceAction;
 use Sunchayn\Nimbus\Modules\Extractor\Actions\InferSchemaFromResourceAstAction;
@@ -14,10 +13,11 @@ use Sunchayn\Nimbus\Modules\Extractor\Actions\InferSchemaPropertyFromDatabaseCol
 use Sunchayn\Nimbus\Modules\Extractor\DataTransferObjects\NestedResourceTarget;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\IntegerSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
+use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(InferSchemaFromResourceAstAction::class)]
 #[CoversClass(NestedResourceTarget::class)]
-class InferSchemaFromResourceAstActionUnitTest extends TestCase
+class InferSchemaFromResourceAstActionFunctionalTest extends TestCase
 {
     public function test_it_transforms_resource_to_schema(): void
     {

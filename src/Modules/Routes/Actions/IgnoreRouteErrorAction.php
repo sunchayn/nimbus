@@ -3,6 +3,7 @@
 namespace Sunchayn\Nimbus\Modules\Routes\Actions;
 
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
+use Sunchayn\Nimbus\Modules\Routes\Services\Snapshot\ManifestManager;
 
 /**
  * Adda the specified route to the ignore list.
@@ -15,6 +16,7 @@ class IgnoreRouteErrorAction
 {
     public function __construct(
         private readonly IgnoredRoutesService $ignoredRoutesService,
+        private readonly ManifestManager $manifestManager,
     ) {}
 
     public function execute(string $ignoreData): void
@@ -34,5 +36,8 @@ class IgnoreRouteErrorAction
         $methods = json_decode($parts[1], true) ?: [];
 
         $this->ignoredRoutesService->add($uri, $methods);
+
+        // The ignored routes are shared by all applications, so every snapshot is outdated.
+        $this->manifestManager->clearAll();
     }
 }
