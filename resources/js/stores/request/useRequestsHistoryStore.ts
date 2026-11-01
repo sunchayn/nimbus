@@ -1,5 +1,6 @@
 import type { RequestLog } from '@/interfaces/history/logs';
 import { useSettingsStore } from '@/stores';
+import { formDataSerializer } from '@/utils/stores/formDataSerializer';
 import { defineStore } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
 
@@ -62,6 +63,6 @@ export const useRequestsHistoryStore = defineStore(
         };
     },
     {
-        persist: true,
+        persist: { serializer: formDataSerializer },
     },
 );
