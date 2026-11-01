@@ -4,6 +4,7 @@ import type { RequestLog } from '@/interfaces/history/logs';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
 import type { RouteDefinition } from '@/interfaces/routes';
 import { useTabsStore } from '@/stores/request/useTabsStore';
+import { useRoutesStore } from '@/stores/routes/useRoutesStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
@@ -423,6 +424,84 @@ describe('useTabsStoreUnitTest', () => {
      */
 
     describe('Restoration', () => {
+        const makeLog = (route: RouteDefinition): RequestLog =>
+            ({
+                durationInMs: 5,
+                isProcessing: false,
+                request: {
+                    method: route.method,
+                    endpoint: route.endpoint,
+                    headers: [],
+                    queryParameters: [],
+                    body: null,
+                    payloadType: RequestBodyTypeEnum.JSON,
+                    authorization: { type: AuthorizationType.None },
+                    routeDefinition: route,
+                },
+                response: { status: 200, headers: [], body: '', timestamp: 1 },
+            }) as unknown as RequestLog;
+
+        it('restores a history log into a new tab and keeps the active tab', () => {
+            // Arrange
+
+            const store = useTabsStore();
+            useRoutesStore().routes = {
+                v1: [{ name: 'f', path: 'f', routes: [baseRoute], children: [] }],
+            };
+            store.openTab(baseRoute, [baseRoute]);
+            store.openTab(secondRoute, [secondRoute]);
+            const activeTabId = store.activeTabId;
+            const log = makeLog(baseRoute);
+
+            // Act
+
+            store.restoreFromHistory(log);
+
+            // Assert
+
+            expect(store.tabs).toHaveLength(3);
+            expect(store.tabs[1].request.endpoint).toBe('posts');
+            expect(store.tabs[1].id).toBe(activeTabId);
+            expect(store.activeTabId).toBe(store.tabs[2].id);
+            expect(store.activeTab?.title).toBe('users');
+            expect(store.activeTab?.method).toBe('GET');
+            expect(store.activeRequest?.routeDefinition).toEqual(baseRoute);
+            expect(store.activeRequest?.wasExecuted).toBe(true);
+            expect(store.activeTab?.response).toEqual(log);
+        });
+
+        it('falls back to the logged route when the route no longer exists', () => {
+            // Arrange
+
+            const store = useTabsStore();
+            useRoutesStore().routes = null;
+
+            // Act
+
+            store.restoreFromHistory(makeLog(baseRoute));
+
+            // Assert
+
+            expect(store.tabs).toHaveLength(1);
+            expect(store.activeRequest?.routeDefinition).toEqual(baseRoute);
+        });
+
+        it('opens a separate tab each time the same log is restored', () => {
+            // Arrange
+
+            const store = useTabsStore();
+            const log = makeLog(baseRoute);
+
+            // Act
+
+            store.restoreFromHistory(log);
+            store.restoreFromHistory(log);
+
+            // Assert
+
+            expect(store.tabs).toHaveLength(2);
+        });
+
         it('restores from a shared payload into a new tab', () => {
             // Arrange
 

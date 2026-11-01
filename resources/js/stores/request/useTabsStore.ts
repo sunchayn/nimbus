@@ -14,6 +14,7 @@ import type { Tab } from '@/interfaces/ui/tabs';
 import {
     useConfigStore,
     useEnvironmentVariablesStore,
+    useRoutesStore,
     useSettingsStore,
     useValueGeneratorStore,
 } from '@/stores';
@@ -24,6 +25,7 @@ import {
     createRequestFromShareableLinkPayload,
     restoreResponseBody,
 } from '@/utils/request/pendingRequestBuilders';
+import { findRoutesByEndpoint } from '@/utils/routes';
 import { generateValueFromType } from '@/utils/value-generator/generateValueFromType';
 import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
@@ -41,6 +43,7 @@ export const useTabsStore = defineStore(
 
         const settingsStore = useSettingsStore();
         const configStore = useConfigStore();
+        const routesStore = useRoutesStore();
         const valueGeneratorStore = useValueGeneratorStore();
         const environmentVariablesStore = useEnvironmentVariablesStore();
 
@@ -420,52 +423,52 @@ export const useTabsStore = defineStore(
             }
         };
 
+        /**
+         * Opens a new tab holding the request and response of a history log.
+         */
         const restoreFromHistory = (historicalRequest: RequestLog) => {
-            const tab = activeTab.value;
-
-            if (!tab || !activeRequest.value) {
-                return;
-            }
-
-            const method = historicalRequest.request.method.toUpperCase();
-            const payloadType = historicalRequest.request.payloadType;
-
-            const matchingRoute = activeRequest.value.supportedRoutes.find(
-                (route: RouteDefinition) =>
-                    route.method.toUpperCase() === method &&
-                    route.endpoint === historicalRequest.request.endpoint,
+            const { request } = historicalRequest;
+            const method = request.method.toUpperCase();
+            const supportedRoutes = findRoutesByEndpoint(
+                routesStore.routes,
+                request.endpoint,
+            );
+            const route =
+                supportedRoutes.find(
+                    (supported: RouteDefinition) =>
+                        supported.method.toUpperCase() === method,
+                ) ?? request.routeDefinition;
+            const pendingRequest = createPendingRequest(
+                route,
+                supportedRoutes.length ? supportedRoutes : [route],
             );
 
-            tab.request = {
-                ...activeRequest.value,
+            const id = uuidv4();
+            const newTab: Tab = {
+                id,
+                title: route.shortEndpoint || route.endpoint,
                 method,
-                endpoint: historicalRequest.request.endpoint,
-                headers: cloneParameters(historicalRequest.request.headers),
-                queryParameters: cloneParameters(
-                    historicalRequest.request.queryParameters,
-                ),
-                payloadType,
-                // Restore body into the correct slot with reactivity in mind
-                body: restoreResponseBody(
-                    activeRequest.value.body,
+                request: {
+                    ...pendingRequest,
                     method,
-                    payloadType,
-                    historicalRequest.request.body,
-                ),
-                authorization: {
-                    ...historicalRequest.request.authorization,
+                    endpoint: request.endpoint,
+                    headers: cloneParameters(request.headers),
+                    queryParameters: cloneParameters(request.queryParameters),
+                    payloadType: request.payloadType,
+                    body: restoreResponseBody(
+                        pendingRequest.body,
+                        method,
+                        request.payloadType,
+                        request.body,
+                    ),
+                    authorization: { ...request.authorization },
+                    wasExecuted: true,
                 },
-                ...(matchingRoute
-                    ? {
-                          routeDefinition: matchingRoute,
-                          schema: matchingRoute.schema,
-                      }
-                    : {}),
-                wasExecuted: true,
-                transactionMode: activeRequest.value.transactionMode ?? false,
+                response: historicalRequest,
             };
 
-            tab.response = historicalRequest;
+            tabs.value.push(newTab);
+            activeTabId.value = id;
         };
 
         const restoreFromSharedPayload = (payload: ShareableLinkPayload) => {

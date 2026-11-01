@@ -290,6 +290,33 @@ test.describe('Rewind Functionality', () => {
         await expect(page.getByTestId('response-status').getByTestId('response-status-badge')).toContainText('200 - OK');
     });
 
+    test('rewinding opens a new tab and keeps the current one', async ({
+        page,
+        basePage,
+    }) => {
+        // Arrange
+        await basePage.goto();
+        await basePage.sendRequest('authentication', 'GET /show-logged-in-user');
+        await basePage.sendRequest('shapes', 'POST /nested-object', { autoFill: true });
+        const tabs = page.getByTestId('sidebar-tab');
+        await expect(tabs).toHaveCount(2);
+
+        // Act
+        await basePage.rewindToHistoryItem('show-logged-in-user');
+
+        // Assert - A third tab holds the rewound request
+        await expect(tabs).toHaveCount(3);
+        await expect(page.getByRole('textbox', { name: '<endpoint>' })).toHaveValue(
+            '_demo/authentication/show-logged-in-user',
+        );
+
+        // Assert - The previous tab is untouched
+        await tabs.filter({ hasText: /POST\s*nested-object$/ }).click();
+        await expect(page.getByRole('textbox', { name: '<endpoint>' })).toHaveValue(
+            '_demo/shapes/nested-object',
+        );
+    });
+
     test('preserves request body when rewinding', async ({ page, basePage }) => {
         // Arrange
         await basePage.goto();
