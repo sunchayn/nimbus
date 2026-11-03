@@ -14,7 +14,7 @@ One operation, one Action, one `execute()`. Add a DTO only when input has severa
 
 1. Name it `VerbNounAction` in `src/Modules/<Domain>/Actions/`.
 2. One public method `execute()` with one parameter. A single scalar stays a scalar, no DTO.
-3. For several inputs, create `<Name>Data` in `DataTransferObjects/` as a `readonly class` with constructor promotion.
+3. For several inputs, create `<Name>Data` in `DataTransferObjects/` as a class with `public readonly` promoted properties. Use `readonly class` only for a DTO that no Action or Service returns, because tests mock those and Mockery cannot subclass a readonly class.
 4. Add a static factory like `fromRequest()` that resolves and casts input, so `execute()` gets ready values.
 5. Return a DTO, value object, or primitive. Do not leak module internals.
 6. Throw a domain exception from `Exceptions/` for expected failures. The controller converts it to a response.

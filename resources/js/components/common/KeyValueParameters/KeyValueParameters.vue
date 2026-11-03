@@ -3,7 +3,6 @@
  * @component KeyValueParameters
  * @description An interactive editor for key-value parameter lists with integrated value generation.
  */
-import { AppBadge } from '@/components/base/badge';
 import { AppButton } from '@/components/base/button';
 import { AppIcon } from '@/components/base/icons';
 import AppSwapIcon from '@/components/base/icons/AppSwapIcon.vue';
@@ -14,6 +13,7 @@ import EnvironmentAwareInput from '@/components/common/EnvironmentAwareInput.vue
 import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import { useKeyValueParameters } from '@/composables/ui/useKeyValueParameters';
 import { type ParameterContract } from '@/interfaces/ui';
+import { ParameterType } from '@/interfaces/ui/key-value-parameters';
 import { useValueGeneratorStore } from '@/stores';
 import { cn } from '@/utils/ui';
 import { useTimeoutFn } from '@vueuse/core';
@@ -55,8 +55,8 @@ const { start: scheduleCloseCommand } = useTimeoutFn(closeCommand, 100, {
  */
 
 const typeItems = [
-    { label: 'Text', value: 'text' },
-    { label: 'File', value: 'file', disabled: true },
+    { label: 'Text', value: ParameterType.Text },
+    { label: 'File', value: ParameterType.File },
 ];
 
 /*
@@ -114,6 +114,36 @@ const handleValueInputBlur = (event: FocusEvent) => {
     // Clicking the generator button fires blur first, which would close the command too early.
     // The short delay lets openCommand finish before closeCommand runs.
     scheduleCloseCommand();
+};
+
+const handleTypeChange = (parameter: ParameterContract, type: ParameterType) => {
+    if (parameter.type === type) {
+        return;
+    }
+
+    // The old value means nothing to the new type, so the row starts clean.
+    parameter.type = type;
+    parameter.value = '';
+    parameter.file = undefined;
+};
+
+const handleFileChange = (parameter: ParameterContract, event: Event) => {
+    const file = (event.target as HTMLInputElement).files?.[0];
+
+    if (!file) {
+        return;
+    }
+
+    parameter.file = file;
+    parameter.value = file.name;
+};
+
+const fileLabel = (parameter: ParameterContract): string => {
+    if (parameter.file) {
+        return parameter.value;
+    }
+
+    return parameter.value ? `${parameter.value} (select the file again)` : 'Choose file';
 };
 
 const handleGeneratorClick = () => {
@@ -208,25 +238,17 @@ const handleDeleteParameter = (index: number) => {
                     <!-- Type Selector (conditional) -->
                     <AppSelect
                         v-if="freeFormTypes"
-                        v-model="parameter.type"
-                        default-value="text"
+                        :model-value="parameter.type"
+                        :default-value="ParameterType.Text"
                         :items="typeItems"
                         variant="ghost"
                         placeholder="Select a Type"
                         class="ps-panel border-default h-full w-20 rounded-none border-r"
                         data-testid="type-selector"
-                    >
-                        <template #item-label="{ item }">
-                            {{ item.label }}
-                            <AppBadge
-                                v-if="item.value === 'file'"
-                                variant="outline"
-                                color="neutral"
-                            >
-                                soon
-                            </AppBadge>
-                        </template>
-                    </AppSelect>
+                        @update:model-value="
+                            handleTypeChange(parameter, $event as ParameterType)
+                        "
+                    />
 
                     <!-- Key Input -->
                     <GeneratorInput
@@ -240,8 +262,28 @@ const handleDeleteParameter = (index: number) => {
                         autocomplete="off"
                     />
 
+                    <!-- File Input -->
+                    <label
+                        v-if="parameter.type === ParameterType.File"
+                        class="text-muted hover:text-highlighted has-focus-visible:outline-primary relative flex h-full min-w-0 flex-1 cursor-pointer items-center border-r text-sm has-focus-visible:outline-2 has-focus-visible:-outline-offset-2"
+                        :class="{ 'opacity-50': !parameter.enabled }"
+                        data-testid="kv-file"
+                    >
+                        <span class="ps-panel min-w-0 truncate">
+                            {{ fileLabel(parameter) }}
+                        </span>
+                        <input
+                            type="file"
+                            class="sr-only outline-none"
+                            name="kv-file"
+                            :disabled="!parameter.enabled"
+                            @change="handleFileChange(parameter, $event)"
+                        />
+                    </label>
+
                     <!-- Value Input -->
                     <EnvironmentAwareInput
+                        v-else
                         v-model="parameter.value"
                         placeholder="Value"
                         variant="none"

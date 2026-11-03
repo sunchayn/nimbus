@@ -8,20 +8,46 @@ import { RequestBodyTypeEnum } from '@/interfaces/http';
 
 import type { RequestLog } from '@/interfaces';
 import type { RouteDefinition } from '@/interfaces/routes';
+import type { JSONSchema7Definition } from 'json-schema';
 
 /**
  * Selects default payload type from route definition.
- *
- * Routes with schema definitions use JSON payload, others use empty payload.
+ * Routes that expect a file upload use form data body type.
+ * Other routes with a schema use JSON, and the rest use an empty payload.
  */
 export function getDefaultPayloadTypeForRoute(
     route: RouteDefinition,
 ): RequestBodyTypeEnum {
+    // A file can only be sent as multipart, so form data is the natural body.
+    if (schemaExpectsFile(route.schema.shape)) {
+        return RequestBodyTypeEnum.FORM_DATA;
+    }
+
     // If a schema exists, then we can switch directly to JSON body.
     // Otherwise, we fall back to an empty (no payload) body.
     return Object.keys(route.schema.shape.properties ?? {}).length > 0
         ? RequestBodyTypeEnum.JSON
         : RequestBodyTypeEnum.EMPTY;
+}
+
+/**
+ * Whether any property of the schema, at any depth, is a file upload.
+ */
+export function schemaExpectsFile(schema: JSONSchema7Definition | undefined): boolean {
+    if (typeof schema !== 'object') {
+        return false;
+    }
+
+    if (schema.format === 'binary') {
+        return true;
+    }
+
+    const children = [
+        ...Object.values(schema.properties ?? {}),
+        ...(Array.isArray(schema.items) ? schema.items : [schema.items]),
+    ];
+
+    return children.some(schemaExpectsFile);
 }
 
 /**

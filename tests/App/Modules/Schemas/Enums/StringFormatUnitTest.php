@@ -45,6 +45,16 @@ class StringFormatUnitTest extends TestCase
             'expected' => StringFormat::URL,
         ];
 
+        yield 'file rule' => [
+            'rule' => 'file',
+            'expected' => StringFormat::BINARY,
+        ];
+
+        yield 'image rule' => [
+            'rule' => 'image',
+            'expected' => StringFormat::BINARY,
+        ];
+
         yield 'invalid rule' => [
             'rule' => 'invalid',
             'expected' => null,

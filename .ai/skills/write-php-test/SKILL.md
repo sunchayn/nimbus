@@ -23,9 +23,12 @@ Every test has the same shape so a reader sees setup, exercise, and assertion at
 6. Use `// Arrange`, `// Act`, `// Assert`, and `// Anticipate` only for mock expectations. One blank line after each marker and between independent statements. `// Act & Assert` only for one-line checks.
 7. Resolve the subject with `resolve()`. Use `new` only in dependency-free Unit tests.
 8. Prefer `$this->spy()` over `$this->mock()`. Create it before resolving the consumer. Assert with `shouldHaveReceived()`, and for arguments use a typed `withArgs()` callback that asserts and returns `true`.
-9. Data providers return `Generator` with string keys and named values, one array item per line.
-10. `Http::preventStrayRequests()` is on. Fake every HTTP call.
-11. Iterate with `composer test -- --filter <name>`, finish with `composer test:parallel`.
+9. Keep every assertion in the `// Assert` block, including the `withArgs()` callback of `shouldHaveReceived()`. Never move assertions into `// Anticipate` or capture arguments to dodge a Mockery failure.
+   - Verifying a call makes Mockery build a default return value of the method's declared return type. That fails with "Non-readonly class cannot extend readonly class" when the method returns a `readonly class`.
+   - Fix the source, not the test. Drop `readonly` from the class and declare `public readonly` on each promoted property.
+10. Data providers return `Generator` with string keys and named values, one array item per line.
+11. `Http::preventStrayRequests()` is on. Fake every HTTP call.
+12. Iterate with `composer test -- --filter <name>`, finish with `composer test:parallel`.
 
 ## Example
 
@@ -63,6 +66,7 @@ public function test_it_ignores_routes_when_applicable(): void
 - Provider without `Generator` or string keys.
 - Deleting or weakening a real test.
 - Real network calls.
+- Assertions inside `// Anticipate`, or a test shaped around a Mockery limit instead of fixing the readonly DTO.
 
 ## Related
 

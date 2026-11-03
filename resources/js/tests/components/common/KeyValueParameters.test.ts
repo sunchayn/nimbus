@@ -17,6 +17,7 @@ const parameters: Ref<
         value: string;
         enabled: boolean;
         type: string;
+        file?: File;
     }>
 > = ref([]);
 
@@ -73,12 +74,20 @@ vi.mock('@/stores/core/useEnvironmentVariablesStore', () => ({
         getSegments: vi.fn(val => {
             if (val === '{{resolvedKey}}') {
                 return [
-                    { isEnvVariable: true, status: 'resolved', text: '{{resolvedKey}}' },
+                    {
+                        isEnvVariable: true,
+                        status: 'resolved',
+                        text: '{{resolvedKey}}',
+                    },
                 ];
             }
             if (val === '{{missingKey}}') {
                 return [
-                    { isEnvVariable: true, status: 'missing', text: '{{missingKey}}' },
+                    {
+                        isEnvVariable: true,
+                        status: 'missing',
+                        text: '{{missingKey}}',
+                    },
                 ];
             }
 
@@ -309,6 +318,130 @@ describe('KeyValueParameters', () => {
             // Assert
 
             expect(closeCommand).not.toHaveBeenCalled();
+        });
+    });
+
+    /*
+     * File rows.
+     */
+
+    describe('File rows', () => {
+        it('shows a file picker instead of the value input for a file row', () => {
+            // Arrange
+
+            parameters.value = [
+                {
+                    id: '1',
+                    key: 'avatar',
+                    value: '',
+                    enabled: true,
+                    type: 'file',
+                },
+                {
+                    id: '2',
+                    key: 'name',
+                    value: 'Jane',
+                    enabled: true,
+                    type: 'text',
+                },
+            ];
+
+            const wrapper = createWrapper();
+            const rows = wrapper.findAll('[data-testid="parameter-row"]');
+
+            // Assert
+
+            expect(rows[0].find('input[type="file"]').exists()).toBe(true);
+            expect(rows[0].find('[data-testid="kv-value"]').exists()).toBe(false);
+            expect(rows[0].text()).toContain('Choose file');
+            expect(rows[1].find('input[type="file"]').exists()).toBe(false);
+        });
+
+        it('asks to select the file again when only the name is known', () => {
+            // Arrange
+
+            parameters.value = [
+                {
+                    id: '1',
+                    key: 'avatar',
+                    value: 'me.png',
+                    enabled: true,
+                    type: 'file',
+                },
+            ];
+
+            const wrapper = createWrapper();
+
+            // Assert
+
+            expect(wrapper.get('[data-testid="kv-file"]').text()).toContain(
+                'me.png (select the file again)',
+            );
+        });
+
+        it('stores the picked file and its name on the row', async () => {
+            // Arrange
+
+            parameters.value = [
+                {
+                    id: '1',
+                    key: 'avatar',
+                    value: '',
+                    enabled: true,
+                    type: 'file',
+                },
+            ];
+
+            const wrapper = createWrapper();
+            const file = new File(['content'], 'me.png', { type: 'image/png' });
+            const input = wrapper.get('input[type="file"]');
+
+            Object.defineProperty(input.element, 'files', { value: [file] });
+
+            // Act
+
+            await input.trigger('change');
+
+            // Assert
+
+            expect(parameters.value[0]).toMatchObject({
+                value: 'me.png',
+                file,
+            });
+        });
+    });
+
+    describe('Changing the type of a row', () => {
+        it('clears the previous value and file so nothing stale is carried over', async () => {
+            // Arrange
+
+            parameters.value = [
+                {
+                    id: '1',
+                    key: 'avatar',
+                    value: 'me.png',
+                    enabled: true,
+                    type: 'file',
+                    file: new File(['content'], 'me.png'),
+                },
+            ];
+
+            const wrapper = createWrapper({ props: { freeFormTypes: true } });
+
+            // Act
+
+            wrapper
+                .findComponent({ name: 'AppSelect' })
+                .vm.$emit('update:modelValue', 'text');
+            await nextTick();
+
+            // Assert
+
+            expect(parameters.value[0]).toMatchObject({
+                type: 'text',
+                value: '',
+                file: undefined,
+            });
         });
     });
 

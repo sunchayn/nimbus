@@ -23,6 +23,8 @@ enum StringFormat: string
 
     case TIME = 'time';
 
+    case BINARY = 'binary';
+
     /**
      * Map common validation rule names to their corresponding format.
      */
@@ -33,6 +35,7 @@ enum StringFormat: string
             'email' => self::EMAIL,
             'date' => self::DATE_TIME, // Laravel's 'date' rule often maps to date-time in schema context
             'url' => self::URL,
+            'file', 'image', 'mimes', 'mimetypes', 'extensions' => self::BINARY,
             default => null,
         };
     }

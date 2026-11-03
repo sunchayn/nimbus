@@ -6,7 +6,12 @@ import { convertPayloadToFormData } from '@/utils/http';
  * Convert payload to JSON format with proper indentation.
  */
 export const convertPayloadToJson = (payload: PayloadObject): string => {
-    return JSON.stringify(payload, null, 3);
+    // A file has no text form, so it is left empty.
+    return JSON.stringify(
+        payload,
+        (_key, value) => (value instanceof Blob ? '' : value),
+        3,
+    );
 };
 
 /**
@@ -14,7 +19,7 @@ export const convertPayloadToJson = (payload: PayloadObject): string => {
  */
 export const convertPayloadToPlainText = (payload: PayloadObject): string => {
     return Object.entries(payload)
-        .map(([key, value]) => `${key}=${value};`)
+        .map(([key, value]) => `${key}=${value instanceof Blob ? '' : value};`)
         .join('\n');
 };
 
@@ -31,7 +36,7 @@ export const serializeSchemaPayload = (
         case RequestBodyTypeEnum.PLAIN_TEXT:
             return convertPayloadToPlainText(payload);
         case RequestBodyTypeEnum.FORM_DATA:
-            return convertPayloadToFormData(payload);
+            return convertPayloadToFormData(payload, true);
         default:
             return null;
     }

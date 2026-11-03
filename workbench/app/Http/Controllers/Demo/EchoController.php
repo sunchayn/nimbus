@@ -25,22 +25,6 @@ class EchoController
         ]);
     }
 
-    public function upload(Request $request): JsonResponse
-    {
-        $data = $request->validate([
-            'title' => 'required|string|max:100',
-            'file' => 'required|file|max:2048',
-            'attachments' => 'sometimes|array|max:3',
-            'attachments.*' => 'file|max:2048',
-        ]);
-
-        return response()->json([
-            'title' => $data['title'],
-            'file' => $data['file']->getClientOriginalName(),
-            'size' => $data['file']->getSize(),
-        ], 201);
-    }
-
     public function form(Request $request): JsonResponse
     {
         return response()->json($request->validate([

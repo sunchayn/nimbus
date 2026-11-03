@@ -39,6 +39,36 @@ describe('requestUtils', () => {
         expect(type).toBe(RequestBodyTypeEnum.JSON);
     });
 
+    it('selects form data payload when the schema expects a file', () => {
+        // Arrange
+
+        const route = {
+            method: 'POST',
+            endpoint: 'users',
+            shortEndpoint: 'users',
+            schema: {
+                shape: {
+                    properties: {
+                        name: { type: 'string' },
+                        photos: {
+                            type: 'array',
+                            items: { type: 'string', format: 'binary' },
+                        },
+                    },
+                },
+                extractionErrors: null,
+            },
+        } as RouteDefinition;
+
+        // Act
+
+        const type = getDefaultPayloadTypeForRoute(route);
+
+        // Assert
+
+        expect(type).toBe(RequestBodyTypeEnum.FORM_DATA);
+    });
+
     it('selects empty payload when schema has no properties', () => {
         // Arrange
 

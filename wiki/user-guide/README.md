@@ -154,6 +154,7 @@ The Request Builder provides an intuitive interface for configuring API requests
 - JSON editor with syntax highlighting.
 - Schema validation based on Laravel validation rules.
 - Real-time validation feedback.
+- Form Data editor with text and file rows. See [Uploading Files](#uploading-files).
 
 **Authorization**
 - Multiple authentication methods.
@@ -170,6 +171,26 @@ Nimbus analyzes your Laravel validation rules to provide intelligent editing:
 - Field types are enforced (string, number, boolean, etc.).
 - Validation errors shown in real-time.
 - Nested object and array support.
+
+#### Uploading Files
+
+Send files from the **Form Data** body type. Each row is either text or a file.
+
+**How to use:**
+1. Open the **Body** tab and select **Form Data** as the payload type.
+2. Click **Add** to create a row.
+3. Change the row type from **Text** to **File**.
+4. Enter the field name and click **Choose file** to pick a file from your computer.
+5. Send the request. Nimbus sends the body as `multipart/form-data` with a boundary, so your app receives a regular upload.
+
+**Sending several files:**
+Each row holds one file. To send several files, add one row per file and use an array name such as `photos[]` or `photos[0]`. Rows that share the `photos[]` name are all kept and arrive in your app as a list.
+
+**Things to know:**
+- The browser keeps the file only for the current page. After a refresh, the row shows `name (select the file again)` and the file is not sent until you pick it again.
+- History and shareable links keep the file name only, never the file contents.
+- File rows are only available in Form Data bodies. GET and HEAD requests send body fields as query parameters, so files are dropped.
+- The limits of your app apply, such as `upload_max_filesize` and `post_max_size` in `php.ini`, and any `max` rule on the field.
 
 #### Auto-Fill Payloads
 

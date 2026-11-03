@@ -71,7 +71,8 @@ export const useKeyValueParameters = <T extends ParameterContract>(
                 row.key === b[index].key &&
                 row.value === b[index].value &&
                 row.type === b[index].type &&
-                row.enabled === b[index].enabled,
+                row.enabled === b[index].enabled &&
+                row.file === b[index].file,
         );
 
     /**
@@ -100,6 +101,7 @@ export const useKeyValueParameters = <T extends ParameterContract>(
                     value: external.value,
                     type: external.type,
                     enabled: external.enabled,
+                    file: external.file,
                 } as T;
             }
 
@@ -133,6 +135,7 @@ export const useKeyValueParameters = <T extends ParameterContract>(
             key: p.key,
             value: p.value,
             enabled: p.enabled,
+            file: p.file,
         }));
 
         onUpdate(clonedParameters as T[]);
