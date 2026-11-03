@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Cookie\CookieValuePrefix;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -328,6 +329,94 @@ class RequestRelayActionFunctionalTest extends TestCase
         $this->assertTrue($response->body->body['bodyMatches'], 'POST body should be sent as JSON');
 
         $this->assertEquals($bodyData, $response->body->body['receivedBody']);
+    }
+
+    public function test_it_sends_files_as_multipart_parts(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'post',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: ['content-type' => 'multipart/form-data'],
+            body: [
+                'title' => 'Holiday',
+                'photos' => [
+                    UploadedFile::fake()->createWithContent('first.txt', 'first contents'),
+                    UploadedFile::fake()->createWithContent('second.txt', 'second contents'),
+                ],
+                'user' => ['avatar' => UploadedFile::fake()->createWithContent('me.txt', 'avatar contents')],
+            ],
+            cookies: new ParameterBag,
+        );
+
+        // Anticipate
+
+        Http::fake();
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        Http::assertSent(function (Request $request): bool {
+            $this->assertStringStartsWith('multipart/form-data; boundary=', $request->header('Content-Type')[0]);
+
+            $body = $request->body();
+
+            $this->assertMultipartPart($body, 'name="title"', 'Holiday');
+            $this->assertMultipartPart($body, 'name="photos[]"; filename="first.txt"', 'first contents');
+            $this->assertMultipartPart($body, 'name="photos[]"; filename="second.txt"', 'second contents');
+            $this->assertMultipartPart($body, 'name="user[avatar]"; filename="me.txt"', 'avatar contents');
+
+            return true;
+        });
+    }
+
+    public function test_it_sends_text_only_form_data_as_multipart(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'post',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: ['content-type' => 'multipart/form-data'],
+            body: ['name' => 'john', 'tags' => ['a', 'b']],
+            cookies: new ParameterBag,
+        );
+
+        // Anticipate
+
+        Http::fake();
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        Http::assertSent(function (Request $request): bool {
+            $this->assertStringStartsWith('multipart/form-data; boundary=', $request->header('Content-Type')[0]);
+
+            $body = $request->body();
+
+            $this->assertMultipartPart($body, 'name="name"', 'john');
+            $this->assertMultipartPart($body, 'name="tags[]"', 'a');
+            $this->assertMultipartPart($body, 'name="tags[]"', 'b');
+
+            return true;
+        });
     }
 
     public function test_it_relays_plain_text_body(): void
@@ -685,6 +774,14 @@ class RequestRelayActionFunctionalTest extends TestCase
     /*
      * Helpers.
      */
+
+    private function assertMultipartPart(string $body, string $disposition, string $contents): void
+    {
+        $this->assertMatchesRegularExpression(
+            '/'.preg_quote($disposition, '/').'\r\n(?:[A-Za-z-]+: [^\r]*\r\n)*\r\n'.preg_quote($contents, '/').'\r\n/',
+            $body,
+        );
+    }
 
     private function getRandomAuthorizationCredentials(): AuthorizationCredentials
     {

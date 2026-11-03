@@ -2,6 +2,7 @@
 
 namespace Sunchayn\Nimbus\Modules\Schemas\Services\Builders;
 
+use Illuminate\Validation\Rules\File;
 use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
 use Sunchayn\Nimbus\Modules\Schemas\Enums\SchemaPropertyType;
 use Sunchayn\Nimbus\Modules\Schemas\Enums\StringFormat;
@@ -84,6 +85,10 @@ class PropertyBuilder
     private function extractFormat(array $rules): ?StringFormat
     {
         foreach ($rules as $rule) {
+            if ($this->isFileRuleObject($rule)) {
+                return StringFormat::BINARY;
+            }
+
             if (! is_string($rule)) {
                 continue;
             }
@@ -98,8 +103,17 @@ class PropertyBuilder
         return null;
     }
 
+    /**
+     * The File rule object covers file(), image(), and the rules chained on them.
+     */
+    private function isFileRuleObject(mixed $rule): bool
+    {
+        return $rule instanceof File;
+    }
+
     private function detectFormatFromRule(string $rule): ?StringFormat
     {
-        return StringFormat::fromRule($rule);
+        // Rules such as mimes:jpg carry parameters that are not part of the name.
+        return StringFormat::fromRule(strtolower(explode(':', $rule)[0]));
     }
 }

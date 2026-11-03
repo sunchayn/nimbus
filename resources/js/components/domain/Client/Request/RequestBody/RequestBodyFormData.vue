@@ -41,7 +41,21 @@ function convertParametersArrayToFormData(parameters: ParameterContract[]): Form
     const formData = new FormData();
 
     for (const parameter of parameters) {
-        formData.set(parameter.key, parameter.value);
+        if (!parameter.enabled || parameter.key.trim() === '') {
+            continue;
+        }
+
+        if (parameter.type === ParameterType.File) {
+            // Without a file, an empty one keeps the row typed and named until the file is picked again.
+            formData.append(
+                parameter.key,
+                parameter.file ?? new File([], parameter.value),
+            );
+
+            continue;
+        }
+
+        formData.append(parameter.key, parameter.value);
     }
 
     return formData;
@@ -52,13 +66,13 @@ function convertFormDataToParametersArray(form: FormData): ParameterContract[] {
 
     form.forEach((entryValue: FormDataEntryValue, key: string) => {
         if (entryValue instanceof File) {
-            // The filename is stored as a placeholder because file uploads are not verified.
-            // TODO [Feature] Properly support file uploads.
+            // An empty file is a placeholder restored from storage, so the user picks it again.
             parameters.push({
                 type: ParameterType.File,
                 key: key,
                 value: entryValue.name,
                 enabled: true,
+                file: entryValue.size > 0 ? entryValue : undefined,
             });
 
             return;

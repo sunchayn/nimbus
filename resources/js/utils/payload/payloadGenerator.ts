@@ -208,7 +208,12 @@ function generateString(
     isPlaceholder: boolean,
     propertyName: string,
     isRequired: boolean,
-): string {
+): string | File {
+    // A file cannot be generated, so an empty one marks the field as an upload.
+    if (schema.format === 'binary') {
+        return new File([], '');
+    }
+
     if (isPlaceholder) {
         return '<placeholder>';
     }

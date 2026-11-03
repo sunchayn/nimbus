@@ -7,6 +7,7 @@ use Workbench\App\Http\Controllers\Demo\DemoController;
 use Workbench\App\Http\Controllers\Demo\DumpAndDieController;
 use Workbench\App\Http\Controllers\Demo\EchoController;
 use Workbench\App\Http\Controllers\Demo\ShapesController;
+use Workbench\App\Http\Controllers\Demo\UploadsController;
 use Workbench\App\Http\Controllers\Demo\VerbsController;
 
 Route::prefix('inline-validation')->group(function () {
@@ -101,7 +102,14 @@ Route::prefix('echo')->group(function () {
     Route::post('/plain-text', [EchoController::class, 'text']);
 });
 
-Route::post('/uploads', [EchoController::class, 'upload']);
+Route::prefix('uploads')->group(function () {
+    Route::post('/multipart/single', [UploadsController::class, 'multipartSingle']);
+    Route::post('/multipart/multiple', [UploadsController::class, 'multipartMultiple']);
+    Route::post('/multipart/mixed', [UploadsController::class, 'multipartMixed']);
+    Route::post('/json/single', [UploadsController::class, 'jsonSingle']);
+    Route::post('/json/multiple', [UploadsController::class, 'jsonMultiple']);
+});
+
 Route::post('/login-form', [EchoController::class, 'form']);
 
 Route::prefix('auth')->group(function () {

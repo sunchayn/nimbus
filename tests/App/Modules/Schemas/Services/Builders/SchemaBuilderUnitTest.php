@@ -6,6 +6,7 @@ use Generator;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\In;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -349,6 +350,24 @@ class SchemaBuilderUnitTest extends TestCase
             'rules' => ['created_at' => 'required|date'],
             'propertyName' => 'created_at',
             'expectedFormat' => 'date-time',
+        ];
+
+        yield 'file rule' => [
+            'rules' => ['document' => 'required|file'],
+            'propertyName' => 'document',
+            'expectedFormat' => 'binary',
+        ];
+
+        yield 'image rule with parameters' => [
+            'rules' => ['avatar' => 'required|mimes:jpg,png|max:2048'],
+            'propertyName' => 'avatar',
+            'expectedFormat' => 'binary',
+        ];
+
+        yield 'file rule object' => [
+            'rules' => ['avatar' => ['required', File::image()->max(1024)]],
+            'propertyName' => 'avatar',
+            'expectedFormat' => 'binary',
         ];
 
         yield 'no format' => [

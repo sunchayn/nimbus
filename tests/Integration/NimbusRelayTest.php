@@ -5,6 +5,7 @@ namespace Sunchayn\Nimbus\Tests\Integration;
 use Generator;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Foundation\Http\Middleware\TrimStrings;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -72,6 +73,61 @@ class NimbusRelayTest extends TestCase
             'duration' => $relayResponseStub->durationMs,
             'timestamp' => $relayResponseStub->timestamp,
         ]);
+    }
+
+    public function test_it_forwards_uploaded_files_in_the_body(): void
+    {
+        // Arrange
+
+        $relayResponseStub = new RelayedRequestResponseData(
+            statusCode: 200,
+            statusText: 'OK',
+            body: new PrintableResponseBody(''),
+            headers: [],
+            durationMs: 1.5,
+            timestamp: 1_700_000_000,
+            cookies: [],
+        );
+
+        $requestRelayActionMock = $this->mock(RequestRelayAction::class);
+
+        // Anticipate
+
+        $requestRelayActionMock
+            ->shouldReceive('execute')
+            ->withAnyArgs()
+            ->andReturn($relayResponseStub);
+
+        // Act
+
+        $response = $this->post(route('nimbus.api.relay'), [
+            'method' => 'POST',
+            'endpoint' => '/upload',
+            'headers' => [['key' => 'Content-Type', 'value' => 'multipart/form-data']],
+            'body' => [
+                'title' => 'Holiday',
+                'photos' => [
+                    UploadedFile::fake()->createWithContent('first.txt', 'first'),
+                    UploadedFile::fake()->createWithContent('second.txt', 'second'),
+                ],
+            ],
+        ], ['Accept' => 'application/json']);
+
+        // Assert
+
+        $response->assertOk();
+
+        $requestRelayActionMock
+            ->shouldHaveReceived('execute')
+            ->once()
+            ->withArgs(function (RequestRelayData $data): bool {
+                $this->assertSame('Holiday', $data->body['title']);
+                $this->assertCount(2, $data->body['photos']);
+                $this->assertContainsOnlyInstancesOf(UploadedFile::class, $data->body['photos']);
+                $this->assertSame('first.txt', $data->body['photos'][0]->getClientOriginalName());
+
+                return true;
+            });
     }
 
     public function test_it_serializes_download_responses(): void

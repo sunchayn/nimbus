@@ -19,7 +19,7 @@ Plain Laravel package code. Strictly typed, explicit, no more abstract than need
 5. Inject dependencies and let the container resolve them. Use `resolve()` only in static factories.
 6. Prefer `Arr`, `Str`, and `Collection` over hand-rolled code.
 7. Use `match` over nested ternaries or long `if`/`elseif`. Enum cases are TitleCase.
-8. DTOs and value objects are `readonly`. Split a class that gains a second reason to change.
+8. DTOs and value objects are immutable. Mark each promoted property `readonly`. Use `readonly class` only when no mocked method returns it, because Mockery cannot subclass a readonly class. Split a class that gains a second reason to change.
 9. Throw domain exceptions for expected failures, not `null`.
 10. Add a Strategy class for interchangeable behavior families like extraction, not a new branch.
 11. Never run host code during extraction. Use the AST modules.

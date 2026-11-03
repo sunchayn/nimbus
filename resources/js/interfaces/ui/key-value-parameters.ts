@@ -4,6 +4,7 @@ export interface ParameterContract {
     key: string;
     value: string;
     enabled: boolean;
+    file?: File;
 }
 
 export enum ParameterType {
