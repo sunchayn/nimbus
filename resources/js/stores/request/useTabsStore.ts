@@ -32,7 +32,7 @@ import { generateValue } from '@/utils/value-generator/generateValue';
 import { generateValueFromType } from '@/utils/value-generator/generateValueFromType';
 import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
-import { computed, ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 
 /**
  * Store for managing application tabs and their associated request states.
@@ -432,6 +432,40 @@ export const useTabsStore = defineStore(
                 closeTab(activeTabId.value);
             }
         };
+
+        /**
+         * Gives open tabs the schema the backend serves now.
+         * A restored tab would otherwise keep the schema saved when it was opened.
+         */
+        const refreshSchemas = () => {
+            if (!routesStore.routes) {
+                return;
+            }
+
+            for (const tab of tabs.value) {
+                const request = tab.request;
+
+                const supportedRoutes = findRoutesByEndpoint(
+                    routesStore.routes,
+                    request.routeDefinition.endpoint,
+                );
+
+                const route = supportedRoutes.find(
+                    (supported: RouteDefinition) =>
+                        supported.method.toUpperCase() === request.method.toUpperCase(),
+                );
+
+                if (!route) {
+                    continue;
+                }
+
+                request.schema = route.schema;
+                request.routeDefinition = route;
+                request.supportedRoutes = supportedRoutes;
+            }
+        };
+
+        watch(() => routesStore.routes, refreshSchemas, { immediate: true });
 
         /**
          * Opens a new tab holding the request and response of a history log.
