@@ -24,9 +24,9 @@ Put code in the right folder, type it strictly, style it with the existing Tailw
 4. Keep state minimal, derive with `computed`, split components with more than one responsibility.
 5. Type everything. No `any`. Use `import type`. Import with `@/` (js) and `~/` (css).
 6. Backend types come from `@/interfaces/generated`. Never edit it. Run `php bin/intellisense` after backend changes.
-7. Tailwind v4 with Nuxt UI. Visual decisions live in `tools/ui/theme.js` and `resources/css/themes/base.css`, never in a wrapper. The preset reads tokens only, run `npm run check:theme` after editing it. Use `gap` for sibling spacing and existing utilities like `h-toolbar` and `p-panel`.
+7. Tailwind v4 with Nuxt UI. Visual decisions live in `tools/ui/theme.js` and `resources/css/structure.css` for structure and `resources/css/themes` for colors, never in a wrapper. The preset reads tokens only, run `npm run check:theme` after editing it. Use `gap` for sibling spacing and existing utilities like `h-toolbar` and `p-panel`.
    - Use semantic utilities such as `bg-default`, `bg-muted`, `text-muted`, `text-highlighted`, `border-default`, and the named token utilities such as `h-control-md`, `gap-base`, `p-card`, `shadow-overlay` and `z-overlay`.
-   - Never write a variable class such as `gap-(--gap-base)`. If a token has no utility, register it in the `@theme inline` block of `base.css`, or add an `@utility` in `app.css` when Tailwind has no namespace for it. Then add the name to `twMergeConfig` in `tools/ui/theme.js`.
+   - Never write a variable class such as `gap-(--gap-base)`. If a token has no utility, register it in the `@theme inline` block of `structure.css`, or add an `@utility` in `app.css` when Tailwind has no namespace for it. Then add the name to `twMergeConfig` in `tools/ui/theme.js`.
    - No raw palette classes such as `zinc` or `white`, and no arbitrary values for size, radius, shadow, or z-index. The semantic utilities already follow dark mode.
    - Icons use full literal names such as `i-hugeicons-cancel-01`, through `AppIcon` or an `icon` prop. Never build a name from parts.
 8. Run `npm run style:fix` instead of formatting by hand.

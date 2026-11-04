@@ -1,0 +1,41 @@
+/*
+ * Solarized Dark palette, deep teal surfaces with cream text.
+ */
+[data-theme='solarized-dark'] {
+    color-scheme: dark;
+
+    --ui-primary: #fdf6e3;
+    --ui-bg-inverted: #fdf6e3;
+    --ui-text-inverted: #00252f;
+    --ui-border-inverted: #fdf6e3;
+    --ui-secondary: #9a9ee6;
+    --ui-error: #f47a77;
+    --ui-success: #a3b81a;
+    --ui-warning: #d6a21a;
+    --ui-info: #4aa3e0;
+
+    --ui-bg: #00252f;
+    --ui-bg-muted: #002b36;
+    --ui-bg-elevated: #073642;
+    --ui-bg-accented: #0f4553;
+    --surface-overlay: #073642;
+    --surface-overlay-hover: #0f4553;
+    --surface-scrim: rgb(0 15 20 / 0.6);
+
+    --ui-text-highlighted: #fdf6e3;
+    --ui-text: #eee8d5;
+    --ui-text-toned: #cdd3c9;
+    --ui-text-muted: #a9b6b5;
+    --ui-text-dimmed: #8d9e9f;
+
+    --ui-border: #0d3f4c;
+    --ui-border-muted: #073642;
+    --ui-border-accented: #1a5260;
+
+    --elevation-overlay: 0 8px 24px -4px rgb(0 10 14 / 0.55), 0 1px 3px rgb(0 10 14 / 0.4);
+    --elevation-modal: 0 24px 64px -8px rgb(0 10 14 / 0.7), 0 2px 8px rgb(0 10 14 / 0.45);
+
+    --overlay-separator: #1a5260;
+    --beam-from: #2aa198;
+    --beam-to: #6c71c4;
+}

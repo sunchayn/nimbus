@@ -7,7 +7,7 @@ import { defineConfig } from 'vite';
 import preset, { createTwMergeConfig } from './tools/ui/theme.js';
 
 const twMergeConfig = createTwMergeConfig(
-    readFileSync('resources/css/themes/base.css', 'utf8'),
+    readFileSync('resources/css/structure.css', 'utf8'),
 );
 
 /*
