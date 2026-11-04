@@ -1,11 +1,11 @@
 /*
  * Nuxt UI component theme preset.
- * Every visual value reads a CSS variable from resources/css/themes, so a theme never edits this file.
+ * Every visual value reads a CSS variable from resources/css, so a theme never edits this file.
  * Tailwind finds classes by scanning source text, so every class is written out in full.
  */
 
 /*
- * Token utility names read from resources/css/themes/base.css, taught to Tailwind merge.
+ * Token utility names read from resources/css/structure.css, taught to Tailwind merge.
  * Without them it reads an unknown name such as shadow-overlay as a color and keeps the default class.
  * A new token in the CSS is picked up here, so nothing is listed twice.
  * The caller passes the CSS text, so this file runs in Node and in the browser bundle.
@@ -230,7 +230,7 @@ const activeTab =
     "data-[state=active]:bg-tab-active-bg data-[state=active]:text-tab-active-text data-[state=active]:shadow-tab-active data-[state=active]:ring-line data-[state=active]:ring-tab-active-border";
 
 /*
- * Dialogs pad the whole surface once and space their parts with one gap, like native sheets.
+ * Dialogs pad the whole surface once and space their parts with one gap.
  * The header, body and footer add no padding and no dividers of their own.
  */
 const dialogSlots = {

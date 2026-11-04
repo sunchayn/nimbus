@@ -1,0 +1,233 @@
+/*
+ * Structure tokens shared by every theme, such as spacing, sizing, type, radius and motion.
+ * Each token has one name, the one its utility uses, such as --spacing-card for p-card.
+ * Colors live in the palette files under themes.
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Utility generating tokens.
+ * Each one creates a class such as text-xxs or bg-overlay.
+ * The inline blocks point at the runtime variables below, so a theme that overrides a variable also changes its class.
+ */
+@theme {
+    --font-sans:
+        -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-mono:
+        ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+
+    /* Type scale. The other steps keep the Tailwind defaults. */
+    --text-xxs: 0.6875rem;
+    --text-xxs--line-height: 0.875rem;
+    --text-sm: 0.8125rem;
+    --text-sm--line-height: 1.125rem;
+
+    --breakpoint-xs: 360px;
+
+    /* Slight overshoot, so toggles and presses settle with a bit of spring. */
+    --ease-elastic: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/*
+ * Tokens that do not change between light and dark.
+ * Static keeps every variable in the output, so a theme override and plain CSS can always read them.
+ */
+@theme static {
+    /* Spacing scale. Every padding and gap in the preset reads one of these. */
+    --spacing-tight: calc(var(--spacing) * 1);
+    --spacing-base: calc(var(--spacing) * 2);
+    --spacing-loose: calc(var(--spacing) * 3);
+
+    /* Spacing roles. They give gap-base, p-card, px-panel, translate-y-press and similar classes. */
+    --spacing-card: var(--spacing-loose);
+    --spacing-dialog: var(--spacing-loose);
+    --spacing-dialog-gap: var(--spacing-loose);
+    --spacing-popover: var(--spacing-base);
+    --spacing-menu: var(--spacing-tight);
+    --spacing-toast: var(--spacing-loose);
+    --spacing-panel: var(--spacing-base);
+    --spacing-tabs: 2px;
+    --spacing-tabs-gap: var(--spacing-tight);
+    --spacing-nav-gap: var(--spacing-tight);
+    /* Tooltips sit 8px from the trigger by default, and the nudge brings them to 4px. */
+    --spacing-tooltip-nudge: 4px;
+    --spacing-press: 0px;
+    /* Panes are rounded cards on the window background, with a gap between them. */
+    --spacing-pane: calc(var(--spacing) * 1);
+    --spacing-group: calc(var(--spacing) * 2);
+    --radius-pane: 0.5rem;
+    --spacing-line: 1px;
+    --spacing-grip: 2px;
+    --spacing-fade: 32px;
+    --spacing-mask: 1.5rem;
+    --spacing-hair: 2px;
+    --spacing-hit-sm: 4px;
+    --spacing-hit-lg: 20px;
+    --spacing-pane-header: calc(var(--toolbar-height) + 2 * var(--spacing-line));
+
+    /* Small round indicators and status dots. */
+    --spacing-dot-xs: 5px;
+    --spacing-dot-sm: 8px;
+    --spacing-dot-md: 12px;
+
+    /* Boxes for badges, kbd and dividers that sit between the icon and item sizes. */
+    --spacing-chip-sm: 16px;
+
+    /* Icon and row sizes. They give size-icon-md, size-nav-icon and h-item-md. */
+    --spacing-icon-xs: 12px;
+    --spacing-icon-sm: 14px;
+    --spacing-icon-md: 16px;
+    --spacing-icon-lg: 18px;
+    --spacing-nav-icon: var(--spacing-icon-md);
+    --spacing-item-sm: 24px;
+    --spacing-item-md: 28px;
+
+    /* Layout bars and the sidebar widths. */
+    --toolbar-height: 36px;
+    --sub-toolbar-height: 32px;
+    --sidebar-expanded-width: 280px;
+    --sidebar-collapsed-width: 3rem;
+
+    /* Overlay widths and the dialog height. */
+    --min-width-overlay: 8rem;
+    /* Popovers grow to their content up to this width, then wrap. */
+    --max-width-popover: min(28rem, calc(100vw - 2 * var(--spacing-loose)));
+    --max-width-dialog: 30rem;
+    --max-width-dialog-lg: 35rem;
+    --max-width-tab: 14rem;
+    --max-height-dialog: 70dvh;
+
+    /* Control text sizes, each with its line height, and the menu group label size. */
+    --text-control-xs: var(--text-xs);
+    --text-control-xs--line-height: var(--text-xs--line-height);
+    --text-control-sm: var(--text-xs);
+    --text-control-sm--line-height: var(--text-xs--line-height);
+    --text-control-md: var(--text-sm);
+    --text-control-md--line-height: var(--text-sm--line-height);
+    --text-control-lg: var(--text-sm);
+    --text-control-lg--line-height: var(--text-sm--line-height);
+    --text-menu-label: 0.6875rem;
+    --leading-compact: 0.875rem;
+
+    /* Easing for the icon swap, a fast start and a long settle. */
+    --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+    /* Border width, layers and state. */
+    --ring-width-line: var(--spacing-line);
+    --ring-width-focus: var(--focus-ring-w);
+    --border-width-line: var(--spacing-line);
+    --z-index-sticky: 10;
+    --z-index-raised: 20;
+    --z-index-overlay: 50;
+    --z-index-toast: 100;
+    --opacity-disabled: 0.5;
+}
+
+@theme inline {
+    /* Surface names for utilities that read the color namespace such as from-muted. */
+    --color-default: var(--ui-bg);
+    --color-muted: var(--ui-bg-muted);
+    --color-elevated: var(--ui-bg-elevated);
+    --color-accented: var(--ui-bg-accented);
+
+    /* Overlay surfaces. They give bg-overlay, bg-overlay-hover and bg-scrim. */
+    --color-overlay: var(--surface-overlay);
+    --color-overlay-hover: var(--surface-overlay-hover);
+    --color-scrim: var(--surface-scrim);
+
+    /* Component colors. They give bg-separator, bg-tab-active-bg and similar classes. */
+    --color-separator: var(--overlay-separator);
+    --color-tab-active-bg: var(--tab-active-bg);
+    --color-tab-active-text: var(--tab-active-text);
+    --color-tab-active-border: var(--tab-active-border);
+    --color-sidebar-item-active: var(--sidebar-item-active-bg);
+    --caret-color-default: var(--ui-text);
+
+    /* Elevation and motion. */
+    --shadow-control: var(--elevation-control);
+    --shadow-overlay: var(--elevation-overlay);
+    --shadow-modal: var(--elevation-modal);
+    --shadow-tab-active: var(--tab-active-shadow);
+    --transition-duration-fast: var(--duration-fast);
+    --transition-duration-base: var(--duration-base);
+    --transition-duration-slow: var(--duration-slow);
+    --transition-duration-spring: var(--duration-spring);
+
+    /* Overlay and collapsible motion. The keyframes come from Nuxt UI. */
+    --animate-fade-in-fast: fade-in var(--duration-fast) var(--ease-out);
+    --animate-fade-out-fast: fade-out var(--duration-fast) var(--ease-out);
+    --animate-fade-in-base: fade-in var(--duration-base) var(--ease-out);
+    --animate-fade-out-base: fade-out var(--duration-base) var(--ease-out);
+    --animate-collapsible-down: collapsible-down var(--duration-base) var(--ease-out);
+    --animate-collapsible-up: collapsible-up var(--duration-base) var(--ease-out);
+}
+
+/*
+ * Control scale lookups for the control utilities in app.css.
+ * Reference keeps them out of the output, and inline makes each class read the primitive.
+ */
+@theme inline reference {
+    --control-height-xs: var(--control-h-xs);
+    --control-height-sm: var(--control-h-sm);
+    --control-height-md: var(--control-h-md);
+    --control-height-lg: var(--control-h-lg);
+    --control-inline-xs: var(--control-px-xs);
+    --control-inline-sm: var(--control-px-sm);
+    --control-inline-md: var(--control-px-md);
+    --control-inline-lg: var(--control-px-lg);
+    --control-space-xs: var(--control-gap-xs);
+    --control-space-sm: var(--control-gap-sm);
+    --control-space-md: var(--control-gap-md);
+    --control-space-lg: var(--control-gap-lg);
+}
+
+/*
+ * Primitives.
+ * Raw scales that the control utilities read.
+ */
+:root {
+    /* Control scale. Heights, horizontal padding, and gap. */
+    --control-h-xs: 20px;
+    --control-h-sm: 24px;
+    --control-h-md: 28px;
+    --control-h-lg: 32px;
+    --control-px-xs: 6px;
+    --control-px-sm: 8px;
+    --control-px-md: 10px;
+    --control-px-lg: 14px;
+    --control-gap-xs: 4px;
+    --control-gap-sm: 4px;
+    --control-gap-md: 6px;
+    --control-gap-lg: 8px;
+}
+
+/*
+ * Roles.
+ * Shape, motion and states.
+ */
+:root {
+    /*
+     * Nuxt UI derives its radius scale from this value, sm 4px, md 6px and lg 8px.
+     * Items, buttons, badges, tab triggers, kbd and tooltips use sm.
+     * Fields, cards, alerts, toasts, tab lists, menus and popovers use md.
+     * Dialogs and large floating surfaces use lg. No other radius is used.
+     */
+    --ui-radius: 0.25rem;
+
+    /* The control shadow is transparent, because none would break combined ring shadows. */
+    --elevation-control: 0 0 #0000;
+
+    /* The press scale shrinks a pressed button. */
+    --duration-fast: 100ms;
+    --duration-base: 150ms;
+    --duration-slow: 300ms;
+    --press-scale: 0.96;
+    --duration-spring: 280ms;
+    --focus-ring-w: 2px;
+
+    /* Stroke width of line icons in their 24 unit grid. The icon set draws 1.5. */
+    --icon-stroke-w: 1.75;
+}

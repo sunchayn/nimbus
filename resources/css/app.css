@@ -1,10 +1,14 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
+@import './structure.css';
 @import './themes/base.css';
+@import './themes/solarized-light.css';
+@import './themes/solarized-dark.css';
+@import './themes/sakura.css';
 @import './vendor.css';
 
 @layer base {
-    /* Native feel, no rubber band bounce at the edge of any scrollable element. */
+    /* No rubber band bounce at the edge of any scrollable element. */
     /*
      * Horizontal swipes never navigate back.
      * Vertical chaining stays on for nested scrollers, so wheel scrolling over a code box still reaches the pane.
@@ -99,7 +103,7 @@
 
 /*
  * Control scale, such as h-control-md, px-control-md and gap-control-md.
- * The lookups live in themes/base.css.
+ * The lookups live in structure.css.
  */
 @utility h-control-* {
     height: --value(--control-height-*);

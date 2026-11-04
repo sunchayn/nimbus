@@ -100,7 +100,7 @@ const vueFiles = walk(jsRoot).filter(
 // Plain CSS reads tokens too. Data urls cannot read a variable, so those lines are skipped.
 const cssRules = [
     {
-        name: 'raw px or rem value, use a token from themes/base.css',
+        name: 'raw px or rem value, use a token from structure.css',
         pattern: /^(?!.*data:image).*\d(?:px|rem)\b/,
     },
 ];

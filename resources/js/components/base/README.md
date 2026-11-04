@@ -13,7 +13,7 @@ The rest of the app imports the `App*` wrappers and never imports `@nuxt/ui`.
    It exposes the Nuxt UI vocabulary (`color`, `variant`, `size`, `items`, slots) and passes `data-testid` and other attributes through.
 3. Visual decisions live in two places.
    The theme preset is `tools/ui/theme.js`, with one section per Nuxt UI component.
-   The design tokens are in `resources/css/themes/base.css`.
+   The design tokens are in `resources/css/structure.css`.
 4. Domain code never imports a Nuxt UI type.
    Use the aliases exported by the base barrels, for example `AppDropdownMenuItem`, `AppSelectItem`, `AppTabsItem`, `AppTableColumn`, `AppCommandGroup`, and `AppSplitterItem`.
 5. Import `reka-ui` only where Nuxt UI has no equivalent, and say what is missing in a comment.
@@ -22,7 +22,7 @@ The rest of the app imports the `App*` wrappers and never imports `@nuxt/ui`.
 
 ## Spacing
 
-1. Every padding and gap comes from one scale of tokens in `resources/css/themes/base.css`.
+1. Every padding and gap comes from one scale of tokens in `resources/css/structure.css`.
    The preset reads them, so wrappers never set spacing.
 2. Use `gap-tight` (4px), `gap-base` (8px), and `gap-loose` (12px) for gaps, and the same names with `p`, `m`, and the other spacing prefixes.
    Never write `gap-1`, `gap-2`, or `gap-3`, because a denser theme cannot change them.

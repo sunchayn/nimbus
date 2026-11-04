@@ -1,3 +1,4 @@
+import { NAMED_THEMES, type ThemePreference } from '@/composables/ui/useThemePreference';
 import { AuthorizationType } from '@/interfaces/generated';
 import type { RequestBodyTypeEnum } from '@/interfaces/http';
 import { defineStore } from 'pinia';
@@ -9,12 +10,14 @@ export interface UserPreferences {
     maxHistoryLogs: number;
 
     // UI/UX Preferences
-    theme: 'light' | 'dark' | 'system';
+    theme: ThemePreference;
 
     // Request Defaults
     defaultRequestBodyType: RequestBodyTypeEnum | -1;
     defaultAuthorizationType: AuthorizationType;
 }
+
+const THEMES: string[] = ['light', 'dark', 'system', ...Object.keys(NAMED_THEMES)];
 
 const STORAGE_KEY = 'nimbus-user-preferences';
 
@@ -50,6 +53,10 @@ export const useSettingsStore = defineStore('settings', () => {
                 const parsed = JSON.parse(stored);
 
                 preferences.value = parsed;
+
+                if (!THEMES.includes(parsed.theme)) {
+                    preferences.value.theme = defaultPreferences.theme;
+                }
             }
         } catch (error) {
             console.error('Failed to load preferences:', error);

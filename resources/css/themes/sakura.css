@@ -1,0 +1,46 @@
+/*
+ * Sakura palette, soft pink surfaces with dark plum text.
+ */
+[data-theme='sakura'] {
+    color-scheme: light;
+
+    --ui-primary: #3a2630;
+    --ui-bg-inverted: #3a2630;
+    --ui-text-inverted: #fffafb;
+    --ui-border-inverted: #3a2630;
+    --ui-secondary: #a8496f;
+    --ui-error: #b3304f;
+    --ui-success: #3f6e53;
+    --ui-warning: #8a5a1a;
+    --ui-info: #2a6d8c;
+
+    --ui-bg: #fffafb;
+    --ui-bg-muted: #fdf3f6;
+    --ui-bg-elevated: #f9e8ef;
+    --ui-bg-accented: #f1d3df;
+    --surface-overlay: #ffffff;
+    --surface-overlay-hover: #f9e8ef;
+    --surface-scrim: rgb(58 38 48 / 0.3);
+
+    --ui-text-highlighted: #3a2630;
+    --ui-text: #3a2630;
+    --ui-text-toned: #54384a;
+    --ui-text-muted: #6e4d5f;
+    --ui-text-dimmed: #80606f;
+
+    --ui-border: #f3dbe5;
+    --ui-border-muted: #f8e6ed;
+    --ui-border-accented: #e8c3d3;
+
+    --elevation-overlay:
+        0 6px 20px -4px rgb(120 50 80 / 0.12), 0 1px 3px rgb(120 50 80 / 0.08);
+    --elevation-modal:
+        0 20px 56px -8px rgb(120 50 80 / 0.2), 0 2px 8px rgb(120 50 80 / 0.1);
+
+    --tab-active-shadow: 0 1px 2px 0 rgb(120 50 80 / 0.06);
+    --tab-active-border: #e8c3d3;
+    --sidebar-item-active-bg: #f9e8ef;
+    --overlay-separator: #e8c3d3;
+    --beam-from: #cb6b91;
+    --beam-to: #69a2bd;
+}

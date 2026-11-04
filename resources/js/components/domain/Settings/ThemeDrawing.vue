@@ -3,12 +3,13 @@
  * @component ThemeDrawing
  * @description Small drawing of the workspace. The `light` and `dark` classes scope the theme tokens to it.
  */
-defineProps<{ mode: 'light' | 'dark' }>();
+defineProps<{ mode: 'light' | 'dark'; theme?: string }>();
 </script>
 
 <template>
     <div
         :class="mode"
+        :data-theme="theme"
         class="bg-default text-default gap-tight flex size-full flex-col overflow-hidden"
     >
         <div

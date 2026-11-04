@@ -47,6 +47,22 @@ const themeItems = [
         description:
             'The standard Nimbus dark theme with full color contrast and brightness on a dark background.',
     },
+    {
+        label: 'Solarized Light',
+        value: 'solarized-light',
+        description: 'Warm cream surfaces with deep teal text, based on Solarized.',
+    },
+    {
+        label: 'Solarized Dark',
+        value: 'solarized-dark',
+        description: 'Deep teal surfaces with soft cream text, based on Solarized.',
+    },
+    {
+        label: 'Sakura',
+        value: 'sakura',
+        description:
+            'Soft pink surfaces with dark plum text, inspired by cherry blossoms.',
+    },
 ];
 
 const requestBodyTypeItems = [

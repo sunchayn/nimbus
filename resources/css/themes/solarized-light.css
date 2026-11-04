@@ -1,0 +1,43 @@
+/*
+ * Solarized Light palette, cream surfaces with deep teal text.
+ */
+[data-theme='solarized-light'] {
+    color-scheme: light;
+
+    --ui-primary: #073642;
+    --ui-bg-inverted: #073642;
+    --ui-text-inverted: #fdf8ea;
+    --ui-border-inverted: #073642;
+    --ui-secondary: #5a5fb0;
+    --ui-error: #b8282a;
+    --ui-success: #5c6e00;
+    --ui-warning: #8a6200;
+    --ui-info: #1a68a0;
+
+    --ui-bg: #fdf8ea;
+    --ui-bg-muted: #f7f1df;
+    --ui-bg-elevated: #f1ead6;
+    --ui-bg-accented: #e4dcc4;
+    --surface-overlay: #fffcf3;
+    --surface-overlay-hover: #f1ead6;
+    --surface-scrim: rgb(7 54 66 / 0.3);
+
+    --ui-text-highlighted: #073642;
+    --ui-text: #073642;
+    --ui-text-toned: #28444d;
+    --ui-text-muted: #4a6068;
+    --ui-text-dimmed: #526870;
+
+    --ui-border: #e6dec6;
+    --ui-border-muted: #eee7d2;
+    --ui-border-accented: #d5ccb0;
+
+    --elevation-overlay:
+        0 6px 20px -4px rgb(88 62 20 / 0.12), 0 1px 3px rgb(88 62 20 / 0.08);
+    --elevation-modal: 0 20px 56px -8px rgb(88 62 20 / 0.2), 0 2px 8px rgb(88 62 20 / 0.1);
+
+    --tab-active-shadow: 0 1px 2px 0 rgb(88 62 20 / 0.06);
+    --overlay-separator: #d5ccb0;
+    --beam-from: #cb4b16;
+    --beam-to: #268bd2;
+}

@@ -1,4 +1,7 @@
-import { useThemePreference } from '@/composables/ui/useThemePreference';
+import {
+    type ThemePreference,
+    useThemePreference,
+} from '@/composables/ui/useThemePreference';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { effectScope, nextTick, ref } from 'vue';
 
@@ -31,6 +34,7 @@ describe('useThemePreference', () => {
         );
         vi.stubGlobal('requestAnimationFrame', (callback: () => void) => callback());
         document.documentElement.classList.remove('dark');
+        delete document.documentElement.dataset.theme;
     });
 
     afterEach(() => {
@@ -78,6 +82,36 @@ describe('useThemePreference', () => {
         await nextTick();
 
         expect(document.documentElement.classList.contains('dark')).toBe(true);
+        scope.stop();
+    });
+
+    it('sets data-theme and the dark class for a dark named theme', () => {
+        const scope = effectScope();
+        scope.run(() => useThemePreference('solarized-dark'));
+
+        expect(document.documentElement.dataset.theme).toBe('solarized-dark');
+        expect(document.documentElement.classList.contains('dark')).toBe(true);
+        scope.stop();
+    });
+
+    it('keeps the dark class off for a light named theme', () => {
+        const scope = effectScope();
+        scope.run(() => useThemePreference('sakura'));
+
+        expect(document.documentElement.dataset.theme).toBe('sakura');
+        expect(document.documentElement.classList.contains('dark')).toBe(false);
+        scope.stop();
+    });
+
+    it('removes data-theme when switching back to a base theme', async () => {
+        const preference = ref<ThemePreference>('sakura');
+        const scope = effectScope();
+        scope.run(() => useThemePreference(preference));
+
+        preference.value = 'light';
+        await nextTick();
+
+        expect(document.documentElement.dataset.theme).toBeUndefined();
         scope.stop();
     });
 
