@@ -1,3 +1,4 @@
+import { BINARY_FIXTURES } from '@/config/binaries/fixtures';
 import { getGeneratorById } from '@/config/generators';
 import {
     generatePlaceholderPayload,
@@ -250,6 +251,272 @@ describe('payloadGenerator', () => {
             expect(int).not.toHaveBeenCalled();
             expect(quantity).toBeGreaterThanOrEqual(1);
             expect(quantity).toBeLessThanOrEqual(999);
+        });
+    });
+
+    describe('Binary content', () => {
+        const RUNS = 30;
+
+        const findFixture = (content: unknown) =>
+            BINARY_FIXTURES.find(fixture => fixture.base64 === content);
+
+        const createFileSchema = (content: JSONSchema7, mimeType: JSONSchema7 = {}) =>
+            ({
+                type: 'object',
+                required: ['name', 'content', 'mime_type'],
+                properties: {
+                    name: { type: 'string' },
+                    content: { type: 'string', ...content },
+                    mime_type: { type: 'string', ...mimeType },
+                },
+            }) satisfies JSONSchema7;
+
+        it.each([
+            ['contentEncoding', { contentEncoding: 'base64' }],
+            ['the byte format', { format: 'byte' }],
+        ])('describes the same file in every field using %s', (_label, content) => {
+            for (let run = 0; run < RUNS; run++) {
+                // Arrange
+
+                const schema = createFileSchema(content);
+
+                // Act
+
+                const payload = generateRandomPayload(schema);
+                const fixture = findFixture(payload.content);
+
+                // Assert
+
+                expect(fixture).toBeDefined();
+                expect(payload.mime_type).toBe(fixture?.mimeType);
+                expect(String(payload.name)).toMatch(
+                    new RegExp(`^[a-z]+\\.${fixture?.extension}$`),
+                );
+            }
+        });
+
+        it('picks a file for each item of an array of objects', () => {
+            // Arrange
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                required: ['files'],
+                properties: {
+                    files: {
+                        type: 'array',
+                        items: createFileSchema({ contentEncoding: 'base64' }),
+                    },
+                },
+            };
+            let sawDifferentFiles = false;
+
+            for (let run = 0; run < 60; run++) {
+                // Act
+
+                const files = generateRandomPayload(schema).files as Record<
+                    string,
+                    string
+                >[];
+
+                // Assert
+
+                for (const file of files) {
+                    expect(file.mime_type).toBe(findFixture(file.content)?.mimeType);
+                }
+
+                sawDifferentFiles ||= new Set(files.map(file => file.content)).size > 1;
+            }
+
+            expect(sawDifferentFiles).toBe(true);
+        });
+
+        it('limits the files to the mime types the schema allows', () => {
+            for (let run = 0; run < RUNS; run++) {
+                // Arrange
+
+                const schema = createFileSchema(
+                    { contentEncoding: 'base64' },
+                    { enum: ['image/png', 'image/gif'] },
+                );
+
+                // Act
+
+                const payload = generateRandomPayload(schema);
+
+                // Assert
+
+                expect(['image/png', 'image/gif']).toContain(payload.mime_type);
+                expect(findFixture(payload.content)?.mimeType).toBe(payload.mime_type);
+            }
+        });
+
+        it('limits the files to the encoded length the schema allows', () => {
+            for (let run = 0; run < RUNS; run++) {
+                // Arrange
+
+                const schema = createFileSchema({
+                    contentEncoding: 'base64',
+                    maxLength: 40,
+                });
+
+                // Act
+
+                const payload = generateRandomPayload(schema);
+
+                // Assert
+
+                expect(String(payload.content).length).toBeLessThanOrEqual(40);
+                expect(findFixture(payload.content)?.mimeType).toBe(payload.mime_type);
+            }
+        });
+
+        it('still fills the fields when no file fits', () => {
+            for (let run = 0; run < RUNS; run++) {
+                // Arrange
+
+                const schema = createFileSchema({
+                    contentEncoding: 'base64',
+                    maxLength: 8,
+                });
+
+                // Act
+
+                const payload = generateRandomPayload(schema);
+
+                // Assert
+
+                expect(String(payload.content).length).toBeLessThanOrEqual(8);
+                expect(() => atob(String(payload.content))).not.toThrow();
+                expect(String(payload.mime_type)).toMatch(/^[a-z]+\/[a-z+.-]+$/);
+            }
+        });
+
+        it('keeps a plain name as a person name when the object holds no file', () => {
+            // Arrange
+
+            const fullName = spyOnGenerator('full-name').mockReturnValue('Jane Doe');
+            const fileName = spyOnGenerator('file-name');
+            const schema: JSONSchema7 = {
+                type: 'object',
+                required: ['name', 'mime_type'],
+                properties: {
+                    name: { type: 'string' },
+                    mime_type: { type: 'string' },
+                },
+            };
+
+            // Act
+
+            const payload = generateRandomPayload(schema);
+
+            // Assert
+
+            expect(payload.name).toBe('Jane Doe');
+            expect(fullName).toHaveBeenCalled();
+            expect(fileName).not.toHaveBeenCalled();
+        });
+
+        it('fills a mime type that has no file next to it', () => {
+            // Arrange
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                required: ['mime_type'],
+                properties: { mime_type: { type: 'string', maxLength: 100 } },
+            };
+
+            // Act
+
+            const payload = generateRandomPayload(schema);
+
+            // Assert
+
+            expect(String(payload.mime_type)).toMatch(/^[a-z]+\/[a-z+.-]+$/);
+        });
+
+        it('leaves the placeholder untouched', () => {
+            // Act
+
+            const payload = generatePlaceholderPayload(
+                createFileSchema({ contentEncoding: 'base64' }),
+            );
+
+            // Assert
+
+            expect(payload.content).toBe('<placeholder>');
+        });
+    });
+
+    describe('Arrays', () => {
+        it('keeps the number of items within the schema limits', () => {
+            // Arrange
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                properties: {
+                    tags: {
+                        type: 'array',
+                        minItems: 2,
+                        maxItems: 3,
+                        items: { type: 'string', minLength: 3 },
+                    },
+                },
+            };
+
+            for (let run = 0; run < 30; run++) {
+                // Act
+
+                const tags = generateRandomPayload(schema).tags as unknown[];
+
+                // Assert
+
+                expect(tags.length).toBeGreaterThanOrEqual(2);
+                expect(tags.length).toBeLessThanOrEqual(3);
+            }
+        });
+
+        it('keeps a single item when the maximum is one', () => {
+            // Arrange
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                properties: {
+                    tags: {
+                        type: 'array',
+                        maxItems: 1,
+                        items: { type: 'string', minLength: 3 },
+                    },
+                },
+            };
+
+            for (let run = 0; run < 20; run++) {
+                // Act
+
+                const tags = generateRandomPayload(schema).tags as unknown[];
+
+                // Assert
+
+                expect(tags).toHaveLength(1);
+            }
+        });
+
+        it('starts a placeholder at the minimum number of items', () => {
+            // Arrange
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                properties: {
+                    tags: { type: 'array', minItems: 2, items: { type: 'string' } },
+                },
+            };
+
+            // Act
+
+            const tags = generatePlaceholderPayload(schema).tags as unknown[];
+
+            // Assert
+
+            expect(tags).toHaveLength(2);
         });
     });
 });

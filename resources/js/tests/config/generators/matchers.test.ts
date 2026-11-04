@@ -149,8 +149,30 @@ describe('generator matchers', () => {
             'per_page',
             'is_active',
             'avatar_image',
+            'mime_type',
+            'mimeType',
+            'content_type',
+            'filename',
         ])('lets a single generator claim %s', name => {
             expect(matchingIds(name)).toHaveLength(1);
+        });
+    });
+
+    describe('Files', () => {
+        it.each([
+            ['mime_type', 'mime-type'],
+            ['mimeType', 'mime-type'],
+            ['content_type', 'mime-type'],
+            ['media_type', 'mime-type'],
+            ['file_mime_type', 'mime-type'],
+            ['filename', 'file-name'],
+            ['file_name', 'file-name'],
+        ])('maps %s to %s', (name, id) => {
+            expect(matchName(name)).toBe(id);
+        });
+
+        it('maps the byte format to the base64 content generator', () => {
+            expect(formatMatchers.get('byte')?.id).toBe('base64-content');
         });
     });
 });

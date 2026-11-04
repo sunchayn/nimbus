@@ -161,6 +161,14 @@ YAML;
             ],
         ];
 
+        yield 'base64 string property' => [
+            'yamlSchema' => "type: string\n                  format: byte",
+            'expectedClass' => StringSchemaProperty::class,
+            'expectedAttributes' => [
+                'contentEncoding' => 'base64',
+            ],
+        ];
+
         yield 'integer property' => [
             'yamlSchema' => "type: integer\n                  minimum: 0\n                  maximum: 100",
             'expectedClass' => IntegerSchemaProperty::class,

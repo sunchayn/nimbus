@@ -7,6 +7,7 @@ import type {
 } from '@/interfaces/schema/payload';
 import type { GeneratorContext } from '@/interfaces/ui';
 import { isComplexType, isPrimitiveType, SchemaType } from '@/types/schema';
+import { describeFileProperties, pickObjectFixture } from '@/utils/binaries/objectFile';
 import { faker } from '@faker-js/faker/locale/en';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -120,12 +121,30 @@ function generateArrayOfPrimitives(
 ): PayloadPrimitive[] {
     const generatedItems: PayloadPrimitive[] = Array.from(
         { length: numberOfArrayItemsToGenerate },
-        () => generateValue(itemsShape, isPlaceholder, 'item', false),
+        () => generateValue(itemsShape, isPlaceholder, 'item', true),
     ) as PayloadPrimitive[];
 
     return generatedItems.filter(
         (item: PayloadPrimitive) => item !== null && item.toString().length,
     );
+}
+
+/**
+ * Picks how many items an array gets, within the schema item limits.
+ */
+function countArrayItems(schema: JSONSchema7, isPlaceholder: boolean): number {
+    const minItems =
+        schema.minItems ??
+        Math.min(PAYLOAD_GENERATOR_CONFIG.MIN_ARRAY_ITEMS, schema.maxItems ?? Infinity);
+
+    if (isPlaceholder) {
+        return minItems;
+    }
+
+    const maxItems =
+        schema.maxItems ?? minItems + PAYLOAD_GENERATOR_CONFIG.MAX_ARRAY_ITEMS - 1;
+
+    return faker.number.int({ min: minItems, max: Math.max(minItems, maxItems) });
 }
 
 /**
@@ -147,10 +166,7 @@ function generateArray(
         return [];
     }
 
-    const numberOfArrayItemsToGenerate = isPlaceholder
-        ? PAYLOAD_GENERATOR_CONFIG.MIN_ARRAY_ITEMS
-        : PAYLOAD_GENERATOR_CONFIG.MIN_ARRAY_ITEMS +
-          Math.floor(Math.random() * PAYLOAD_GENERATOR_CONFIG.MAX_ARRAY_ITEMS);
+    const numberOfArrayItemsToGenerate = countArrayItems(schema, isPlaceholder);
 
     if (itemsSchema.properties !== undefined) {
         return generateArrayOfObjects(
@@ -178,6 +194,7 @@ function generatePayload(
 
     if (schema.properties && typeof schema.properties === 'object') {
         const required = schema.required || [];
+        const fixture = isPlaceholder ? undefined : pickObjectFixture(schema);
 
         for (const key in schema.properties) {
             const property = schema.properties[key];
@@ -194,6 +211,11 @@ function generatePayload(
             const isRequired = required.includes(key);
 
             payload[key] = generateValue(property, isPlaceholder, key, isRequired);
+        }
+
+        // The file decides the related fields, so they always describe the same file.
+        if (fixture) {
+            Object.assign(payload, describeFileProperties(schema, fixture));
         }
     }
 
@@ -301,7 +323,9 @@ function generateFromMatchingGenerator(
     propertyName: string,
     shouldBeInteger: boolean = false,
 ): string | number | bigint | null {
-    const formatGenerator = schema.format ? formatMatchers.get(schema.format) : undefined;
+    // Base64 content is selected through the byte format, whichever way the schema says it.
+    const format = schema.contentEncoding === 'base64' ? 'byte' : schema.format;
+    const formatGenerator = format ? formatMatchers.get(format) : undefined;
 
     if (formatGenerator) {
         return formatGenerator.generate(schemaContext);
