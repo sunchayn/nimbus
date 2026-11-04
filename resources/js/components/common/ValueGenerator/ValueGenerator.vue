@@ -4,7 +4,8 @@
  * @description Global command palette for value generation across the application.
  */
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
-import { useValueGeneratorStore } from '@/stores';
+import { useGeneratorCommandStore } from '@/stores';
+import { generateValue } from '@/utils/value-generator/generateValue';
 import { ref, useTemplateRef, watch } from 'vue';
 import ValueGeneratorCategoryFilters from './ValueGeneratorCategoryFilters.vue';
 import ValueGeneratorFooter from './ValueGeneratorFooter.vue';
@@ -24,7 +25,7 @@ export interface ValueGeneratorEmits {
 
 const emits = defineEmits<ValueGeneratorEmits>();
 
-const store = useValueGeneratorStore();
+const store = useGeneratorCommandStore();
 const { restoreScrollPosition } = useTabHorizontalScroll();
 const generatorList = useTemplateRef<{ focusInput: () => void }>('generatorList');
 
@@ -90,7 +91,8 @@ const calculateCommandPosition = (inputRef: HTMLElement | null) => {
 const changeFocusToTheCommandSearchBox = (): void => generatorList.value?.focusInput();
 
 const onGeneratorSelected = (generatorId: string) => {
-    const value = store.generateValue(generatorId);
+    const value = generateValue(generatorId);
+    store.addToRecentGenerators(generatorId);
 
     if (store.currentInputRef) {
         (store.currentInputRef as HTMLInputElement).value = String(value);

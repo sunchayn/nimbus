@@ -14,7 +14,7 @@ const restoreScrollPosition = vi.fn(() => Promise.resolve());
 const mockStore = reactive({
     isCommandOpen: false,
     currentInputRef: null as HTMLElement | null,
-    generateValue: vi.fn(),
+    addToRecentGenerators: vi.fn(),
     closeCommand: vi.fn(),
     openCommand: vi.fn(),
     commandState: { recentGenerators: [] },
@@ -25,8 +25,12 @@ const mockStore = reactive({
 vi.mock('@/stores', async importOriginal => {
     const actual = await importOriginal<object>();
 
-    return { ...actual, useValueGeneratorStore: () => mockStore };
+    return { ...actual, useGeneratorCommandStore: () => mockStore };
 });
+
+const generateValue = vi.hoisted(() => vi.fn());
+
+vi.mock('@/utils/value-generator/generateValue', () => ({ generateValue }));
 
 vi.mock('@/composables/ui/useTabHorizontalScroll', () => ({
     useTabHorizontalScroll: () => ({ restoreScrollPosition }),
@@ -86,7 +90,7 @@ describe('ValueGenerator', () => {
             // Arrange
 
             const input = document.createElement('input');
-            mockStore.generateValue.mockReturnValue('val');
+            generateValue.mockReturnValue('val');
             mockStore.currentInputRef = input;
             const wrapper = createWrapper(pinia);
 
@@ -99,6 +103,7 @@ describe('ValueGenerator', () => {
             // Assert
 
             expect(input.value).toBe('val');
+            expect(mockStore.addToRecentGenerators).toHaveBeenCalled();
             expect(mockStore.closeCommand).toHaveBeenCalled();
         });
     });

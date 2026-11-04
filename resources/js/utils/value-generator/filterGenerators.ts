@@ -5,11 +5,11 @@ import type { ValueGenerator } from '@/interfaces/ui';
  * and optionally by category id.
  */
 export function filterGenerators(
-    generators: ValueGenerator[],
+    generators: readonly ValueGenerator[],
     searchQuery: string,
     selectedCategory: string | null,
 ): ValueGenerator[] {
-    let filtered = generators;
+    let filtered = [...generators];
 
     if (searchQuery) {
         const query = searchQuery.toLowerCase();

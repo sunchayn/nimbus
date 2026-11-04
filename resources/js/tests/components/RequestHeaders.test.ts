@@ -21,12 +21,14 @@ const mockConfigStore = reactive({
     ],
 });
 
-const generateValue = vi.fn(() => 'generated@example.com');
+const generateValue = vi.hoisted(() => vi.fn(() => 'generated@example.com'));
 
 const mockRequestStore = reactive({
     pendingRequestData: ref<PendingRequest | null>(null),
     updateRequestHeaders: vi.fn(),
 });
+
+vi.mock('@/utils/value-generator/generateValue', () => ({ generateValue }));
 
 vi.mock('@/stores', async importOriginal => {
     const actual = await importOriginal<object>();
@@ -35,9 +37,6 @@ vi.mock('@/stores', async importOriginal => {
         ...actual,
         useRequestStore: () => mockRequestStore,
         useConfigStore: () => mockConfigStore,
-        useValueGeneratorStore: () => ({
-            generateValue,
-        }),
     };
 });
 

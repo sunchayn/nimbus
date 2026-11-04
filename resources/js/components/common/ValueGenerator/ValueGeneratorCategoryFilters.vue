@@ -5,7 +5,8 @@
  */
 import { AppIcon } from '@/components/base/icons';
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
-import { useValueGeneratorStore } from '@/stores';
+import { getGeneratorCategories } from '@/config/generators';
+import { useGeneratorCommandStore } from '@/stores';
 
 /*
  * Types & Interfaces.
@@ -20,7 +21,7 @@ export interface ValueGeneratorCategoryFiltersProps {}
 defineProps<ValueGeneratorCategoryFiltersProps>();
 const emits = defineEmits<{ (e: 'focus-search'): void }>();
 
-const store = useValueGeneratorStore();
+const store = useGeneratorCommandStore();
 
 const {
     scrollContainer,
@@ -83,7 +84,7 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
                 @keydown="handleCategoryArrowNavigation"
             >
                 <button
-                    v-for="category in store.categories"
+                    v-for="category in getGeneratorCategories"
                     :key="category.id"
                     tabindex="0"
                     :class="[

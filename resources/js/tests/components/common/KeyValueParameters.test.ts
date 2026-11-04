@@ -101,7 +101,7 @@ vi.mock('@/stores', async importOriginal => {
 
     return {
         ...actual,
-        useValueGeneratorStore: () => ({
+        useGeneratorCommandStore: () => ({
             openCommand,
             closeCommand,
         }),

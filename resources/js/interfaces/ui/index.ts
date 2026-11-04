@@ -9,6 +9,9 @@ export { ParameterType } from './key-value-parameters';
 export type {
     GeneratorCategory,
     GeneratorCommandState,
+    GeneratorContext,
+    PropertyNameBasedRule,
+    PropertyTypeBasedRule,
     ValueGenerator,
 } from './value-generator';
 

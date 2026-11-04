@@ -1,11 +1,40 @@
+import type { ValueGenerator } from '@/interfaces/ui';
 import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
 import { useGeneratorCommandStore } from '@/stores/generators/useGeneratorCommandStore';
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 /*
  * Fixtures.
  */
+
+const generatorFixtures = vi.hoisted(() => {
+    const uuid = {
+        id: 'uuid',
+        name: 'UUID',
+        description: 'Generates UUID',
+        category: { id: 'strings', name: 'Strings' },
+        generate: () => 'uuid-value',
+    } as ValueGenerator;
+
+    const age = {
+        id: 'age',
+        name: 'Age',
+        description: 'Generates age',
+        category: { id: 'numbers', name: 'Numbers' },
+        generate: () => 30,
+    } as ValueGenerator;
+
+    return {
+        getAllGenerators: [uuid, age],
+        getGeneratorById: new Map([
+            [uuid.id, uuid],
+            [age.id, age],
+        ]),
+    };
+});
+
+vi.mock('@/config/generators', () => generatorFixtures);
 
 describe('useGeneratorCommandStore', () => {
     beforeEach(() => {
@@ -83,6 +112,47 @@ describe('useGeneratorCommandStore', () => {
             // Assert
 
             expect(commandInstance.filterState.search).toBe('date');
+        });
+    });
+
+    describe('Derived Generators', () => {
+        it('filters generators by search query and category', () => {
+            // Arrange
+
+            const store = useGeneratorCommandStore();
+
+            // Act
+
+            store.setSearchQuery('uuid');
+            const matching = store.filteredGenerators.map(g => g.id);
+
+            store.setSearchQuery('nope');
+            const none = store.filteredGenerators;
+
+            store.setSearchQuery('');
+            store.setSelectedCategory('numbers');
+            const byCategory = store.filteredGenerators.map(g => g.id);
+
+            // Assert
+
+            expect(matching).toEqual(['uuid']);
+            expect(none).toEqual([]);
+            expect(byCategory).toEqual(['age']);
+        });
+
+        it('resolves recent generators and ignores unknown ids', () => {
+            // Arrange
+
+            const store = useGeneratorCommandStore();
+
+            // Act
+
+            store.addToRecentGenerators('missing');
+            store.addToRecentGenerators('age');
+
+            // Assert
+
+            expect(store.recentGenerators.map(g => g.id)).toEqual(['age']);
         });
     });
 });

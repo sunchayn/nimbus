@@ -14,7 +14,7 @@ import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import { useKeyValueParameters } from '@/composables/ui/useKeyValueParameters';
 import { type ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
-import { useValueGeneratorStore } from '@/stores';
+import { useGeneratorCommandStore } from '@/stores';
 import { cn } from '@/utils/ui';
 import { useTimeoutFn } from '@vueuse/core';
 import { computed, type HTMLAttributes, ref, shallowRef } from 'vue';
@@ -45,7 +45,7 @@ const props = withDefaults(defineProps<KeyValueParametersProps>(), {
 
 const emit = defineEmits<KeyValueParametersEmits>();
 
-const { openCommand, closeCommand } = useValueGeneratorStore();
+const { openCommand, closeCommand } = useGeneratorCommandStore();
 const { start: scheduleCloseCommand } = useTimeoutFn(closeCommand, 100, {
     immediate: false,
 });
