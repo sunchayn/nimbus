@@ -1,5 +1,5 @@
 import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
-import { useValueGeneratorStore } from '@/stores';
+import { useGeneratorCommandStore } from '@/stores';
 
 const SHIFT_PRESS_THRESHOLD_MS = 500;
 
@@ -10,7 +10,7 @@ const SHIFT_PRESS_THRESHOLD_MS = 500;
 export const useDoubleShiftGenerator = (
     getInput: () => HTMLElement | null | undefined,
 ): ((event: KeyboardEvent) => void) => {
-    const { openCommand } = useValueGeneratorStore();
+    const { openCommand } = useGeneratorCommandStore();
     let lastShiftPress = 0;
 
     return (event: KeyboardEvent): void => {

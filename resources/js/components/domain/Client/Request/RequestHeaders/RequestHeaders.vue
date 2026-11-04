@@ -9,7 +9,8 @@ import type { GeneratorType } from '@/interfaces/http';
 import { type SourceGlobalHeaders } from '@/interfaces/http';
 import { type ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
-import { useConfigStore, useRequestStore, useValueGeneratorStore } from '@/stores';
+import { useConfigStore, useRequestStore } from '@/stores';
+import { generateValue } from '@/utils/value-generator/generateValue';
 import { generateValueFromType } from '@/utils/value-generator/generateValueFromType';
 import { computed, onBeforeMount, type Ref, ref } from 'vue';
 
@@ -31,7 +32,6 @@ defineProps<RequestHeadersProps>();
 
 const requestStore = useRequestStore();
 const configStore = useConfigStore();
-const valueGeneratorStore = useValueGeneratorStore();
 
 /*
  * State.
@@ -82,7 +82,7 @@ onBeforeMount(() => {
                 globalHeader.type === 'generator'
                     ? generateValueFromType(
                           globalHeader.value as GeneratorType,
-                          valueGeneratorStore.generateValue,
+                          generateValue,
                       )
                     : String(globalHeader.value),
             enabled: true,

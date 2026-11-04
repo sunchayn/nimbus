@@ -1,5 +1,7 @@
-import type { GeneratorCommandState } from '@/interfaces/ui';
+import { getAllGenerators, getGeneratorById } from '@/config/generators';
+import type { GeneratorCommandState, ValueGenerator } from '@/interfaces/ui';
 import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
+import { filterGenerators } from '@/utils/value-generator/filterGenerators';
 import { defineStore } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
 
@@ -32,6 +34,20 @@ export const useGeneratorCommandStore = defineStore('_generatorCommand', () => {
     /*
      * Computed.
      */
+
+    const filteredGenerators = computed(() =>
+        filterGenerators(
+            getAllGenerators,
+            commandState.value.searchQuery,
+            commandState.value.selectedCategory,
+        ),
+    );
+
+    const recentGenerators = computed(() =>
+        commandState.value.recentGenerators
+            .map(id => getGeneratorById.get(id))
+            .filter((generator): generator is ValueGenerator => generator !== undefined),
+    );
 
     const wasOpenedViaShiftShift = computed(() => {
         if (!currentInputRef.value) {
@@ -121,6 +137,8 @@ export const useGeneratorCommandStore = defineStore('_generatorCommand', () => {
         currentInputRef,
 
         // Computed
+        filteredGenerators,
+        recentGenerators,
         wasOpenedViaShiftShift,
 
         // Actions

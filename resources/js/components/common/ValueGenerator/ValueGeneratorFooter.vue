@@ -4,7 +4,7 @@
  * @description The footer for the value generator command, showing shortcuts and hints.
  */
 import { AppBadge } from '@/components/base/badge';
-import { useValueGeneratorStore } from '@/stores';
+import { useGeneratorCommandStore } from '@/stores';
 
 /*
  * Types & Interfaces.
@@ -18,7 +18,7 @@ export interface ValueGeneratorFooterProps {}
 
 defineProps<ValueGeneratorFooterProps>();
 
-const store = useValueGeneratorStore();
+const store = useGeneratorCommandStore();
 </script>
 
 <template>

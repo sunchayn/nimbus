@@ -1,13 +1,13 @@
-import { allValueGenerators, PROPERTY_NAME_PATTERNS } from '@/config/generators';
+import { formatMatchers, nameMatchers } from '@/config/generators';
 import { PAYLOAD_GENERATOR_CONFIG } from '@/config/payload-generator';
 import type {
     PayloadObject,
     PayloadObjectValue,
     PayloadPrimitive,
 } from '@/interfaces/schema/payload';
-import type { ValueGenerator } from '@/interfaces/ui';
+import type { GeneratorContext } from '@/interfaces/ui';
 import { isComplexType, isPrimitiveType, SchemaType } from '@/types/schema';
-import { faker } from '@faker-js/faker';
+import { faker } from '@faker-js/faker/locale/en';
 import type { JSONSchema7 } from 'json-schema';
 
 /**
@@ -223,30 +223,35 @@ function generateString(
         return '';
     }
 
-    const range: { minLength: number; maxLength: number } = {
-        ...PAYLOAD_GENERATOR_CONFIG.STRING_LENGTH,
-    };
+    const generatorContext: GeneratorContext = {};
 
     if (schema.minLength) {
-        range.minLength = schema.minLength;
+        generatorContext.minLength = schema.minLength;
     }
 
     if (schema.maxLength) {
-        range.maxLength = schema.maxLength;
+        generatorContext.maxLength = schema.maxLength;
     }
 
-    const generatedValue = generateFromMatchingGenerator(schema, range, propertyName);
+    const generatedValue = generateFromMatchingGenerator(
+        schema,
+        generatorContext,
+        propertyName,
+    );
 
     if (generatedValue !== null) {
-        return !(typeof generatedValue === 'string')
-            ? generatedValue.toString()
-            : generatedValue;
+        return generatedValue.toString();
     }
+
+    const length = {
+        ...PAYLOAD_GENERATOR_CONFIG.STRING_LENGTH,
+        ...generatorContext, // <- Overwrites default boundaries.
+    };
 
     return faker.string.alpha({
         length: {
-            min: range.minLength,
-            max: range.maxLength,
+            min: Math.min(length.minLength, length.maxLength),
+            max: length.maxLength,
         },
     });
 }
@@ -263,21 +268,19 @@ function generateInteger(
         return 0;
     }
 
-    const range: { min: number; max: number } = {
-        ...PAYLOAD_GENERATOR_CONFIG.NUMBER_RANGE,
-    };
+    const schemaRange: GeneratorContext = {};
 
-    if (schema.minimum) {
-        range.min = schema.minimum;
+    if (schema.minimum !== undefined) {
+        schemaRange.min = schema.minimum;
     }
 
-    if (schema.maximum) {
-        range.max = schema.maximum;
+    if (schema.maximum !== undefined) {
+        schemaRange.max = schema.maximum;
     }
 
     const generatedValue = generateFromMatchingGenerator(
         schema,
-        range,
+        schemaRange,
         propertyName,
         true,
     );
@@ -286,64 +289,37 @@ function generateInteger(
         return generatedValue;
     }
 
-    return faker.number.int(range);
+    return faker.number.int({ ...PAYLOAD_GENERATOR_CONFIG.NUMBER_RANGE, ...schemaRange });
 }
-
-/**
- * Format to generator ID mapping.
- */
-const FORMAT_TO_GENERATOR: Record<string, string> = {
-    uuid: 'uuid',
-    email: 'email',
-    'date-time': 'datetime',
-    url: 'url',
-    date: 'date',
-    time: 'time',
-    uri: 'url',
-};
 
 /**
  * Gets the appropriate generator for a schema property with context
  */
 function generateFromMatchingGenerator(
     schema: JSONSchema7,
-    range: { min?: number; max?: number; minLength?: number; maxLength?: number } = {},
+    schemaContext: GeneratorContext,
     propertyName: string,
     shouldBeInteger: boolean = false,
 ): string | number | bigint | null {
-    if (schema.format && FORMAT_TO_GENERATOR[schema.format]) {
-        const generatorId = FORMAT_TO_GENERATOR[schema.format];
+    const formatGenerator = schema.format ? formatMatchers.get(schema.format) : undefined;
 
-        return (
-            allValueGenerators
-                .find((generator: ValueGenerator) => generator.id === generatorId)
-                ?.generate() ?? null
-        );
+    if (formatGenerator) {
+        return formatGenerator.generate(schemaContext);
     }
 
-    for (const patternSettings of PROPERTY_NAME_PATTERNS) {
-        if (shouldBeInteger && !patternSettings.isInteger) {
+    for (const matcher of nameMatchers) {
+        if (shouldBeInteger && !matcher.returnsInteger) {
             continue;
         }
 
-        if (!patternSettings.pattern.test(propertyName)) {
+        if (!matcher.pattern.test(propertyName)) {
             continue;
         }
 
-        const matchingGenerator = allValueGenerators.find(
-            (generator: ValueGenerator) => generator.id === patternSettings.generatorId,
-        );
-
-        if (!matchingGenerator) {
-            continue;
-        }
-
-        return (
-            matchingGenerator.generate({
-                ...patternSettings.generatorConfig,
-                ...range,
-            }) ?? null
-        );
+        return matcher.generator.generate({
+            ...matcher.defaultParameters,
+            ...schemaContext, // <- Overwrites default parameters.
+        });
     }
 
     return null;

@@ -17,7 +17,6 @@ import {
     useEnvironmentVariablesStore,
     useRoutesStore,
     useSettingsStore,
-    useValueGeneratorStore,
 } from '@/stores';
 import { HOST_ONLY_AUTHORIZATION_TYPES } from '@/utils/environment';
 import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
@@ -29,6 +28,7 @@ import {
 } from '@/utils/request/pendingRequestBuilders';
 import { findRoutesByEndpoint } from '@/utils/routes';
 import { formDataSerializer } from '@/utils/stores/formDataSerializer';
+import { generateValue } from '@/utils/value-generator/generateValue';
 import { generateValueFromType } from '@/utils/value-generator/generateValueFromType';
 import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
@@ -47,7 +47,6 @@ export const useTabsStore = defineStore(
         const settingsStore = useSettingsStore();
         const configStore = useConfigStore();
         const routesStore = useRoutesStore();
-        const valueGeneratorStore = useValueGeneratorStore();
         const environmentVariablesStore = useEnvironmentVariablesStore();
 
         /*
@@ -89,7 +88,7 @@ export const useTabsStore = defineStore(
                         globalHeader.type === 'generator'
                             ? generateValueFromType(
                                   globalHeader.value as GeneratorType,
-                                  valueGeneratorStore.generateValue,
+                                  generateValue,
                               )
                             : String(globalHeader.value);
 
