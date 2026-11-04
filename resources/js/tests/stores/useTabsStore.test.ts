@@ -29,6 +29,10 @@ let headers: Array<{
     value: string | number;
 }> = [{ header: 'X-App-1', type: 'raw', value: 'value-1' }];
 
+vi.mock('@/utils/value-generator/generateValue', () => ({
+    generateValue: (type: string) => `generated-${type}`,
+}));
+
 vi.mock('@/stores', async importOriginal => {
     const actual = await importOriginal<object>();
 
@@ -52,9 +56,6 @@ vi.mock('@/stores', async importOriginal => {
                 return apiUrl;
             },
             resolve: (value: string) => value,
-        }),
-        useValueGeneratorStore: () => ({
-            generateValue: (type: string) => `generated-${type}`,
         }),
     };
 });

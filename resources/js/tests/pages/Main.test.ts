@@ -56,7 +56,7 @@ const mockConfigStore = {
     activeApplication: null,
 };
 
-const mockValueGeneratorStore = {
+const mockCommandStore = {
     openCommand: vi.fn(),
     closeCommand: vi.fn(),
 };
@@ -69,7 +69,7 @@ vi.mock('@/stores', async () => {
         useRoutesStore: () => mockRoutesStore,
         useConfigStore: () => mockConfigStore,
         useErrorStore: () => mockErrorStore,
-        useValueGeneratorStore: () => mockValueGeneratorStore,
+        useGeneratorCommandStore: () => mockCommandStore,
     };
 });
 

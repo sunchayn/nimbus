@@ -1,1 +1,1 @@
-export { useValueGeneratorStore } from './useValueGeneratorStore';
+export { useGeneratorCommandStore } from './useGeneratorCommandStore';

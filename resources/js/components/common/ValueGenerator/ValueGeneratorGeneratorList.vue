@@ -4,8 +4,9 @@
  * @description The command palette listing the available generators, with search and recent items.
  */
 import { AppCommand } from '@/components/base/command';
+import { getGeneratorCategories } from '@/config/generators';
 import { type ValueGenerator } from '@/interfaces/ui';
-import { useValueGeneratorStore } from '@/stores';
+import { useGeneratorCommandStore } from '@/stores';
 import { computed, reactive, useTemplateRef, watch } from 'vue';
 
 /*
@@ -25,7 +26,7 @@ export interface ValueGeneratorGeneratorListEmits {
 defineProps<ValueGeneratorGeneratorListProps>();
 const emits = defineEmits<ValueGeneratorGeneratorListEmits>();
 
-const store = useValueGeneratorStore();
+const store = useGeneratorCommandStore();
 
 /*
  * State.
@@ -70,9 +71,9 @@ const recentGenerators = computed(() => {
 });
 
 const groups = computed(() => {
-    const filtered: ValueGenerator[] = store.filteredGenerators ?? [];
+    const filtered: ValueGenerator[] = store.filteredGenerators;
 
-    const categoryGroups = (store.categories ?? []).map(category => ({
+    const categoryGroups = getGeneratorCategories.map(category => ({
         id: category.id,
         label: category.name,
         ignoreFilter: true,
