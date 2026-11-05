@@ -117,7 +117,7 @@ const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
                 </template>
 
                 <template #content>
-                    <div class="p-tight w-80">
+                    <div class="w-80">
                         <RequestBuilderEndpointParameterWarningContent
                             :parameters="parameters"
                         />
