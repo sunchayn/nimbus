@@ -7,7 +7,7 @@ import { useTabsStore } from '@/stores/request/useTabsStore';
 import { useRoutesStore } from '@/stores/routes/useRoutesStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { reactive } from 'vue';
+import { nextTick, reactive } from 'vue';
 
 /*
  * Fixtures.
@@ -425,6 +425,54 @@ describe('useTabsStoreUnitTest', () => {
     /*
      * Restoration.
      */
+
+    describe('Schema refresh', () => {
+        it('gives an open tab the schema of the loaded routes', async () => {
+            // Arrange
+
+            const store = useTabsStore();
+            const routesStore = useRoutesStore();
+            store.openTab(baseRoute, [baseRoute]);
+
+            const freshRoute: RouteDefinition = {
+                ...baseRoute,
+                schema: {
+                    shape: { type: 'object', properties: { name: { type: 'string' } } },
+                    extractionErrors: null,
+                },
+            };
+
+            // Act
+
+            routesStore.routes = {
+                v1: [{ name: 'f', path: 'f', routes: [freshRoute], children: [] }],
+            };
+            await nextTick();
+
+            // Assert
+
+            expect(store.activeRequest?.schema).toEqual(freshRoute.schema);
+            expect(store.activeRequest?.routeDefinition).toEqual(freshRoute);
+        });
+
+        it('keeps the schema of a tab whose route is no longer served', async () => {
+            // Arrange
+
+            const store = useTabsStore();
+            store.openTab(baseRoute, [baseRoute]);
+
+            // Act
+
+            useRoutesStore().routes = {
+                v1: [{ name: 'f', path: 'f', routes: [secondRoute], children: [] }],
+            };
+            await nextTick();
+
+            // Assert
+
+            expect(store.activeRequest?.schema).toEqual(baseRoute.schema);
+        });
+    });
 
     describe('Restoration', () => {
         const makeLog = (route: RouteDefinition): RequestLog =>

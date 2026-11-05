@@ -25,7 +25,7 @@ test('Link Sharing complete workflow', async ({ page, basePage }) => {
     await page.getByRole('button', { name: 'Auto Fill' }).click();
 
     const bodyEditor = page.getByTestId('request-builder-root').locator('.cm-content');
-    await expect(bodyEditor).toContainText('"name"');
+    await expect(bodyEditor).toContainText('"user_id"');
 
     // Act - Add Bearer token authorization
 
@@ -121,7 +121,7 @@ test('Link Sharing complete workflow', async ({ page, basePage }) => {
 
     // Body tab
     await page.getByRole('tab', { name: 'Body' }).click();
-    await expect(bodyEditor).toContainText('"name"');
+    await expect(bodyEditor).toContainText('"user_id"');
 
     // Authorization tab
     await page.getByTestId('request-builder-root').getByRole('tab', { name: 'Authorization' }).click();
