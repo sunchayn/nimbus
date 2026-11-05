@@ -13,7 +13,7 @@ import {
 } from '@/utils/request';
 import { sendRelayRequest } from '@/utils/request/sendRelayRequest';
 import { defineStore } from 'pinia';
-import { computed, shallowRef } from 'vue';
+import { computed, shallowRef, watch } from 'vue';
 
 /**
  * Store for managing request execution and timing.
@@ -61,6 +61,9 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
         abortController?.abort();
     };
 
+    // The response belongs to the tab that sent the request, so leaving that tab cancels it.
+    watch(() => tabsStore.activeTabId, cancelCurrentRequest);
+
     const executeRequest = async (request: PendingRequest) => {
         // Prevent concurrent requests to avoid race conditions.
         if (abortController) {
@@ -105,6 +108,9 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
 
         let timer: ReturnType<typeof createRequestTimer> | null = null;
 
+        const senderTabId = tabsStore.activeTabId;
+        const senderTabIsActive = () => tabsStore.activeTabId === senderTabId;
+
         const cleanupAfterPendingRequest = () => {
             if (timer) {
                 timer.stop();
@@ -126,8 +132,8 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
 
             const result = await executeRequest(requestData);
 
-            if (result === null) {
-                // The response request didn't finish. This means the request is canceled.
+            if (result === null || !senderTabIsActive()) {
+                // The request was canceled or its tab is no longer active.
                 // We exit here, we shouldn't add this to the log.
 
                 cleanupAfterPendingRequest();
@@ -146,6 +152,10 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
             historyStore.addLog(requestLog);
             tabsStore.updateActiveTabResponse(requestLog);
         } catch (error) {
+            if (!senderTabIsActive()) {
+                return;
+            }
+
             const requestLog = generateErrorRequestLog(
                 requestData,
                 error as ErrorPlainResponse,

@@ -1,9 +1,10 @@
 import type { PendingRequest } from '@/interfaces';
 import { useRequestExecutorStore } from '@/stores/request/useRequestExecutorStore';
+import { useTabsStore } from '@/stores/request/useTabsStore';
 import { createMockPendingRequest } from '@/tests/_utils/testFactories';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { reactive } from 'vue';
+import { nextTick, reactive } from 'vue';
 
 /*
  * Fixtures.
@@ -142,6 +143,63 @@ describe('useRequestExecutorStore', () => {
             // Assert
 
             expect(signal?.aborted).toBe(true);
+        });
+
+        it('aborts the in-flight request when the active tab changes', async () => {
+            // Arrange
+
+            const store = useRequestExecutorStore();
+            const tabsStore = useTabsStore();
+            let signal: AbortSignal | undefined;
+
+            tabsStore.activeTabId = 'tab-a';
+
+            executeRequest.mockImplementation(
+                (_request: PendingRequest, options: { signal: AbortSignal }) => {
+                    signal = options.signal;
+
+                    return Promise.resolve(null);
+                },
+            );
+
+            // Act
+
+            const execution = store.executeRequestWithTiming({ ...request });
+            tabsStore.activeTabId = 'tab-b';
+            await nextTick();
+            await execution;
+
+            // Assert
+
+            expect(signal?.aborted).toBe(true);
+        });
+
+        it('discards a late response when its tab is no longer active', async () => {
+            // Arrange
+
+            const store = useRequestExecutorStore();
+            const tabsStore = useTabsStore();
+            let resolveRequest: (value: unknown) => void = () => undefined;
+
+            tabsStore.activeTabId = 'tab-a';
+
+            executeRequest.mockImplementation(
+                () =>
+                    new Promise(resolve => {
+                        resolveRequest = resolve;
+                    }),
+            );
+
+            // Act
+
+            const execution = store.executeRequestWithTiming({ ...request });
+            tabsStore.activeTabId = 'tab-b';
+            resolveRequest({ duration: 2000, response: { status: 200 } });
+            await execution;
+
+            // Assert
+
+            expect(mockRequestsHistoryStore.addLog).not.toHaveBeenCalled();
         });
 
         it('does nothing when canceling without a request in flight', () => {
