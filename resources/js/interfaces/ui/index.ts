@@ -7,6 +7,7 @@ export type { ParameterContract } from './key-value-parameters';
 export { ParameterType } from './key-value-parameters';
 
 export type {
+    BinaryFixture,
     GeneratorCategory,
     GeneratorCommandState,
     GeneratorContext,

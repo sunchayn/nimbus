@@ -4,6 +4,16 @@ export enum ValueGeneratorCommandOpenMethod {
 }
 
 /**
+ * A tiny valid file used to fill the properties of an object that holds a file.
+ */
+export interface BinaryFixture {
+    id: string;
+    extension: string;
+    mimeType: string;
+    base64: string;
+}
+
+/**
  * Optional hints a caller can pass to a generator.
  *
  * Each generator reads only the fields it supports.

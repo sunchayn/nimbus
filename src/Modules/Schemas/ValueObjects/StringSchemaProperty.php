@@ -15,9 +15,12 @@ use Sunchayn\Nimbus\Modules\Schemas\Enums\StringFormat;
  * - Format validation (email, uuid, date-time, etc.)
  * - Enum constraints
  * - Length constraints (minLength, maxLength)
+ * - Content encoding (the string holds base64 bytes)
  */
 class StringSchemaProperty implements SchemaPropertyInterface
 {
+    public const CONTENT_ENCODING_BASE64 = 'base64';
+
     /**
      * @param  array<array-key, scalar>|null  $enum
      */
@@ -31,6 +34,7 @@ class StringSchemaProperty implements SchemaPropertyInterface
         private readonly ?int $maxLength = null,
         private readonly ?string $pattern = null,
         private readonly mixed $const = null,
+        private readonly ?string $contentEncoding = null,
     ) {}
 
     public function getName(): string
@@ -51,6 +55,33 @@ class StringSchemaProperty implements SchemaPropertyInterface
     public function getType(): SchemaPropertyType
     {
         return SchemaPropertyType::STRING;
+    }
+
+    /**
+     * Whether the string is plain text, with no format, enum, constant, or encoding.
+     */
+    public function isUnconstrainedText(): bool
+    {
+        return ! $this->stringFormat instanceof \Sunchayn\Nimbus\Modules\Schemas\Enums\StringFormat
+            && ($this->enum === null || $this->enum === [])
+            && $this->const === null
+            && $this->contentEncoding === null;
+    }
+
+    public function withContentEncoding(string $contentEncoding): self
+    {
+        return new self(
+            name: $this->name,
+            required: $this->required,
+            nullable: $this->nullable,
+            stringFormat: $this->stringFormat,
+            enum: $this->enum,
+            minLength: $this->minLength,
+            maxLength: $this->maxLength,
+            pattern: $this->pattern,
+            const: $this->const,
+            contentEncoding: $contentEncoding,
+        );
     }
 
     public function toJsonSchema(): array
@@ -81,6 +112,10 @@ class StringSchemaProperty implements SchemaPropertyInterface
 
         if ($this->const !== null) {
             $properties['const'] = $this->const;
+        }
+
+        if ($this->contentEncoding !== null) {
+            $properties['contentEncoding'] = $this->contentEncoding;
         }
 
         return $properties;

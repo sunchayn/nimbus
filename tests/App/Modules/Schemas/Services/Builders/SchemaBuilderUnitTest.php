@@ -15,6 +15,7 @@ use stdClass;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
 use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
 use Sunchayn\Nimbus\Modules\Schemas\Enums\StringFormat;
+use Sunchayn\Nimbus\Modules\Schemas\Services\BinaryContentInferrer;
 use Sunchayn\Nimbus\Modules\Schemas\Services\Builders\PropertyBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\Services\Builders\SchemaBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\Services\RulesMapper\Processors\EnumRuleProcessor;
@@ -28,6 +29,7 @@ use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\NumberSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ObjectSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
+use Sunchayn\Nimbus\Tests\App\Modules\Schemas\Services\Builders\Stubs\Base64RuleStub;
 use Sunchayn\Nimbus\Tests\App\Modules\Schemas\Services\Builders\Stubs\StatusEnumStub;
 
 #[CoversClass(SchemaBuilder::class)]
@@ -136,6 +138,80 @@ class SchemaBuilderUnitTest extends TestCase
             ),
         ];
 
+        yield 'array size rules declared before item rules' => [
+            'rules' => [
+                'files' => 'required|array|min:1|max:3',
+                'files.*.name' => 'string',
+            ],
+            'expectedSchema' => new Schema(
+                properties: [
+                    new ArraySchemaProperty(
+                        name: 'files',
+                        required: true,
+                        schemaProperty: new ObjectSchemaProperty(
+                            name: 'item',
+                            required: false,
+                            schema: new Schema(
+                                properties: [
+                                    new StringSchemaProperty(name: 'name', required: false),
+                                ],
+                                extractionError: null,
+                            )
+                        ),
+                        minItems: 1,
+                        maxItems: 3,
+                    ),
+                ],
+                extractionError: null,
+            ),
+        ];
+
+        yield 'array size rules declared after item rules' => [
+            'rules' => [
+                'files.*.name' => 'string',
+                'files' => 'required|array|min:1|max:3',
+            ],
+            'expectedSchema' => new Schema(
+                properties: [
+                    new ArraySchemaProperty(
+                        name: 'files',
+                        required: true,
+                        schemaProperty: new ObjectSchemaProperty(
+                            name: 'item',
+                            required: false,
+                            schema: new Schema(
+                                properties: [
+                                    new StringSchemaProperty(name: 'name', required: false),
+                                ],
+                                extractionError: null,
+                            )
+                        ),
+                        minItems: 1,
+                        maxItems: 3,
+                    ),
+                ],
+                extractionError: null,
+            ),
+        ];
+
+        yield 'array of primitives keeps size rules' => [
+            'rules' => [
+                'attachments' => 'sometimes|array|max:3',
+                'attachments.*' => 'string',
+            ],
+            'expectedSchema' => new Schema(
+                properties: [
+                    new ArraySchemaProperty(
+                        name: 'attachments',
+                        required: false,
+                        schemaProperty: new StringSchemaProperty(name: 'attachment', required: false),
+                        maxItems: 3,
+                    ),
+                ],
+                extractionError: null,
+            ),
+        ];
+
         yield 'array of objects rules' => [
             'rules' => [
                 'persons' => 'array|required',
@@ -189,6 +265,167 @@ class SchemaBuilderUnitTest extends TestCase
                     new BooleanSchemaProperty(name: 'is_active', required: false),
                     new NumberSchemaProperty(name: 'salary', required: false),
                     new ObjectSchemaProperty(name: 'config', required: false, schema: new Schema([])),
+                ],
+                extractionError: null,
+            ),
+        ];
+
+        yield 'base64 rule marks the string as base64 content' => [
+            'rules' => [
+                'photo' => 'required|string|base64',
+            ],
+            'expectedSchema' => new Schema(
+                properties: [
+                    new StringSchemaProperty(name: 'photo', required: true, contentEncoding: 'base64'),
+                ],
+                extractionError: null,
+            ),
+        ];
+
+        yield 'rule class named base64 marks the string as base64 content' => [
+            'rules' => [
+                'photo' => ['required', new Base64RuleStub],
+            ],
+            'expectedSchema' => new Schema(
+                properties: [
+                    new StringSchemaProperty(name: 'photo', required: true, contentEncoding: 'base64'),
+                ],
+                extractionError: null,
+            ),
+        ];
+
+        yield 'base64 looking names mark the string as base64 content' => [
+            'rules' => [
+                'avatar_base64' => 'string',
+                'logoB64' => 'string',
+                'dataUri' => 'string',
+                'base64' => 'string',
+                'avatar' => 'string',
+            ],
+            'expectedSchema' => new Schema(
+                properties: [
+                    new StringSchemaProperty(name: 'avatar_base64', contentEncoding: 'base64'),
+                    new StringSchemaProperty(name: 'logoB64', contentEncoding: 'base64'),
+                    new StringSchemaProperty(name: 'dataUri', contentEncoding: 'base64'),
+                    new StringSchemaProperty(name: 'base64', contentEncoding: 'base64'),
+                    new StringSchemaProperty(name: 'avatar'),
+                ],
+                extractionError: null,
+            ),
+        ];
+
+        yield 'content next to a mime type is base64 content' => [
+            'rules' => [
+                'file.name' => 'required|string|max:255',
+                'file.content' => 'required|string',
+                'file.mime_type' => 'nullable|string|max:100',
+            ],
+            'expectedSchema' => new Schema(
+                properties: [
+                    new ObjectSchemaProperty(
+                        name: 'file',
+                        required: false,
+                        schema: new Schema(
+                            properties: [
+                                new StringSchemaProperty(name: 'name', required: true, maxLength: 255),
+                                new StringSchemaProperty(name: 'content', required: true, contentEncoding: 'base64'),
+                                new StringSchemaProperty(name: 'mime_type', required: false, maxLength: 100),
+                            ],
+                            extractionError: null,
+                        ),
+                    ),
+                ],
+                extractionError: null,
+            ),
+        ];
+
+        yield 'content next to a mime type is base64 content in array items' => [
+            'rules' => [
+                'files' => 'required|array',
+                'files.*.name' => 'required|string',
+                'files.*.content' => 'required|string',
+                'files.*.mime_type' => 'nullable|string',
+            ],
+            'expectedSchema' => new Schema(
+                properties: [
+                    new ArraySchemaProperty(
+                        name: 'files',
+                        required: true,
+                        schemaProperty: new ObjectSchemaProperty(
+                            name: 'item',
+                            required: false,
+                            schema: new Schema(
+                                properties: [
+                                    new StringSchemaProperty(name: 'name', required: true),
+                                    new StringSchemaProperty(name: 'content', required: true, contentEncoding: 'base64'),
+                                    new StringSchemaProperty(name: 'mime_type', required: false),
+                                ],
+                                extractionError: null,
+                            ),
+                        ),
+                    ),
+                ],
+                extractionError: null,
+            ),
+        ];
+
+        yield 'content next to a file name is base64 content at the root' => [
+            'rules' => [
+                'filename' => 'required|string',
+                'data' => 'required|string',
+            ],
+            'expectedSchema' => new Schema(
+                properties: [
+                    new StringSchemaProperty(name: 'filename', required: true),
+                    new StringSchemaProperty(name: 'data', required: true, contentEncoding: 'base64'),
+                ],
+                extractionError: null,
+            ),
+        ];
+
+        yield 'content without a file companion stays text' => [
+            'rules' => [
+                'post.title' => 'required|string',
+                'post.content' => 'required|string',
+            ],
+            'expectedSchema' => new Schema(
+                properties: [
+                    new ObjectSchemaProperty(
+                        name: 'post',
+                        required: false,
+                        schema: new Schema(
+                            properties: [
+                                new StringSchemaProperty(name: 'title', required: true),
+                                new StringSchemaProperty(name: 'content', required: true),
+                            ],
+                            extractionError: null,
+                        ),
+                    ),
+                ],
+                extractionError: null,
+            ),
+        ];
+
+        yield 'content with a format or an enum stays as is' => [
+            'rules' => [
+                'file.data' => 'string|email',
+                'file.content' => ['string', Rule::in('a', 'b')],
+                'file.mime_type' => 'string',
+            ],
+            'expectedSchema' => new Schema(
+                properties: [
+                    new ObjectSchemaProperty(
+                        name: 'file',
+                        required: false,
+                        schema: new Schema(
+                            properties: [
+                                new StringSchemaProperty(name: 'data', stringFormat: StringFormat::EMAIL),
+                                new StringSchemaProperty(name: 'content', enum: ['a', 'b']),
+                                new StringSchemaProperty(name: 'mime_type'),
+                            ],
+                            extractionError: null,
+                        ),
+                    ),
                 ],
                 extractionError: null,
             ),
@@ -436,6 +673,7 @@ class SchemaBuilderUnitTest extends TestCase
 
         return new SchemaBuilder(
             $propertyBuilder,
+            new BinaryContentInferrer,
         );
     }
 }

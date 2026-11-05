@@ -188,6 +188,10 @@ class ExtractOpenApiRoutesAction
             minLength: $openApiSchema->minLength,
             maxLength: $openApiSchema->maxLength,
             pattern: $openApiSchema->pattern,
+            // OpenAPI uses the "byte" format for base64 strings.
+            contentEncoding: $openApiSchema->format === 'byte'
+                ? StringSchemaProperty::CONTENT_ENCODING_BASE64
+                : null,
         );
     }
 

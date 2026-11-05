@@ -53,6 +53,16 @@ class ArraySchemaProperty implements SchemaPropertyInterface
         return $this->schemaProperty;
     }
 
+    public function getMinItems(): ?int
+    {
+        return $this->minItems;
+    }
+
+    public function getMaxItems(): ?int
+    {
+        return $this->maxItems;
+    }
+
     public function getType(): SchemaPropertyType
     {
         return SchemaPropertyType::ARRAY;

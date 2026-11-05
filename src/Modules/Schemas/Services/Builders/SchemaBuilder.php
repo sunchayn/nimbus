@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
 use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
 use Sunchayn\Nimbus\Modules\Schemas\Enums\RulesFieldType;
+use Sunchayn\Nimbus\Modules\Schemas\Services\BinaryContentInferrer;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ArraySchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\FieldPath;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ObjectSchemaProperty;
@@ -34,6 +35,7 @@ class SchemaBuilder
 {
     public function __construct(
         private readonly PropertyBuilder $propertyBuilder,
+        private readonly BinaryContentInferrer $binaryContentInferrer,
     ) {}
 
     public function buildSchemaFromRuleset(
@@ -43,7 +45,7 @@ class SchemaBuilder
         $properties = $this->buildProperties($ruleset);
 
         return new Schema(
-            properties: $properties,
+            properties: $this->binaryContentInferrer->infer($properties),
             extractionError: $rulesExtractionError,
         );
     }
@@ -124,6 +126,8 @@ class SchemaBuilder
             name: $arrayName,
             required: $existingProperty?->isRequired() ?? false,
             schemaProperty: $schemaProperty,
+            minItems: $existingProperty instanceof ArraySchemaProperty ? $existingProperty->getMinItems() : null,
+            maxItems: $existingProperty instanceof ArraySchemaProperty ? $existingProperty->getMaxItems() : null,
         );
 
         return $properties;
@@ -233,6 +237,8 @@ class SchemaBuilder
             name: $schemaProperty->getName(),
             required: $schemaProperty->isRequired(),
             schemaProperty: $itemSchema,
+            minItems: $schemaProperty instanceof ArraySchemaProperty ? $schemaProperty->getMinItems() : null,
+            maxItems: $schemaProperty instanceof ArraySchemaProperty ? $schemaProperty->getMaxItems() : null,
         );
     }
 
@@ -290,7 +296,7 @@ class SchemaBuilder
         return new ObjectSchemaProperty(
             name: $schemaProperty->getName(),
             required: $schemaProperty->isRequired(),
-            schema: new Schema($properties),
+            schema: new Schema($this->binaryContentInferrer->infer($properties)),
         );
     }
 

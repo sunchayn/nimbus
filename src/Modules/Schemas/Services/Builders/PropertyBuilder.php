@@ -2,6 +2,7 @@
 
 namespace Sunchayn\Nimbus\Modules\Schemas\Services\Builders;
 
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\File;
 use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
 use Sunchayn\Nimbus\Modules\Schemas\Enums\SchemaPropertyType;
@@ -48,6 +49,7 @@ class PropertyBuilder
                 enum: $schemaMetadata['enum'] ?? null,
                 minLength: $schemaMetadata['minimum'],
                 maxLength: $schemaMetadata['maximum'],
+                contentEncoding: $this->extractContentEncoding($field, $rules),
             ),
             SchemaPropertyType::INTEGER => new IntegerSchemaProperty(
                 name: $field,
@@ -70,6 +72,8 @@ class PropertyBuilder
                 name: $field,
                 required: $schemaMetadata['required'],
                 // Items ($schemaProperty) will be set later by SchemaBuilder if needed.
+                minItems: $schemaMetadata['minimum'],
+                maxItems: $schemaMetadata['maximum'],
             ),
             SchemaPropertyType::OBJECT => new ObjectSchemaProperty(
                 name: $field,
@@ -101,6 +105,30 @@ class PropertyBuilder
         }
 
         return null;
+    }
+
+    /**
+     * A base64 rule or a base64 looking name marks the string as base64 content.
+     *
+     * Custom rules are matched by name only, so the host app never needs to import anything from Nimbus.
+     *
+     * @param  NormalizedRulesShape  $rules
+     */
+    private function extractContentEncoding(string $field, array $rules): ?string
+    {
+        foreach ($rules as $rule) {
+            $ruleName = is_object($rule)
+                ? $rule::class
+                : explode(':', (string) $rule)[0];
+
+            if (str_contains(strtolower($ruleName), 'base64')) {
+                return StringSchemaProperty::CONTENT_ENCODING_BASE64;
+            }
+        }
+
+        $isBase64Name = preg_match('/(^|_)(base64|b64|data_?uri)$/', Str::snake($field)) === 1;
+
+        return $isBase64Name ? StringSchemaProperty::CONTENT_ENCODING_BASE64 : null;
     }
 
     /**
