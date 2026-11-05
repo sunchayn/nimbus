@@ -305,16 +305,15 @@ class ShareableLinkProcessorServiceUnitTest extends TestCase
         $this->assertNull($processor->getTargetApplication());
     }
 
-    public function test_it_handles_empty_json_decode(): void
+    #[DataProvider('provideMalformedPayloads')]
+    public function test_it_rejects_payloads_that_are_not_a_shareable_request(string $json): void
     {
         // Arrange
 
         $this->expectNoApplicationLookup();
         $processor = new ShareableLinkProcessorService($this->configMock);
 
-        // Create payload that decodes to null
-        $nullJson = gzcompress('null');
-        $encoded = base64_encode($nullJson);
+        $encoded = base64_encode((string) gzcompress($json));
 
         // Act
 
@@ -322,8 +321,25 @@ class ShareableLinkProcessorServiceUnitTest extends TestCase
 
         // Assert
 
-        $this->assertTrue($processor->hasPayload());
-        $this->assertSame([], $processor->getDecodedPayload());
+        $this->assertFalse($processor->hasPayload());
+        $this->assertFalse($processor->routeExists());
+        $this->assertSame('Payload is not a shareable request', $processor->getError());
+    }
+
+    /**
+     * @return Generator<string, array{string}>
+     */
+    public static function provideMalformedPayloads(): Generator
+    {
+        yield 'null' => ['null'];
+
+        yield 'list of numbers' => ['[1,2]'];
+
+        yield 'empty object' => ['{}'];
+
+        yield 'missing headers' => ['{"method":"GET","endpoint":"/api/test","queryParameters":[],"body":[],"payloadType":"empty","authorization":{"type":"none"}}'];
+
+        yield 'method is not a string' => ['{"method":["GET"],"endpoint":"/api/test","headers":[],"queryParameters":[],"body":[],"payloadType":"empty","authorization":{"type":"none"}}'];
     }
 
     public function test_it_handles_application_config_without_routes_key(): void

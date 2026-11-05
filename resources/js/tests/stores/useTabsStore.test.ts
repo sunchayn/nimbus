@@ -474,6 +474,53 @@ describe('useTabsStoreUnitTest', () => {
         });
     });
 
+    describe('Stale saved state', () => {
+        it('keeps usable tabs and drops tabs without a route definition', () => {
+            // Arrange
+
+            const store = useTabsStore();
+
+            store.openTab(baseRoute, [baseRoute]);
+
+            const usableTab = store.tabs[0];
+
+            store.tabs.push({
+                id: 'stale',
+                title: 'stale',
+                method: 'GET',
+                request: { method: 'GET' },
+                response: null,
+            } as never);
+
+            // Act
+
+            store.discardUnusableTabs();
+
+            // Assert
+
+            expect(store.tabs).toEqual([usableTab]);
+            expect(store.activeTabId).toBe(usableTab.id);
+        });
+
+        it('resets when the saved tabs have the wrong shape', () => {
+            // Arrange
+
+            const store = useTabsStore();
+
+            store.tabs = 'x' as never;
+            store.activeTabId = 5 as never;
+
+            // Act
+
+            store.discardUnusableTabs();
+
+            // Assert
+
+            expect(store.tabs).toEqual([]);
+            expect(store.activeTabId).toBeNull();
+        });
+    });
+
     describe('Restoration', () => {
         const makeLog = (route: RouteDefinition): RequestLog =>
             ({

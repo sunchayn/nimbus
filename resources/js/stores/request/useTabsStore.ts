@@ -35,6 +35,19 @@ import { v4 as uuidv4 } from 'uuid';
 import { computed, ref, shallowRef, watch } from 'vue';
 
 /**
+ * Checks the fields every restored tab is read through.
+ */
+const isUsableTab = (tab: unknown): tab is Tab => {
+    const candidate = tab as Partial<Tab> | null;
+
+    return (
+        typeof candidate?.id === 'string' &&
+        typeof candidate.request?.method === 'string' &&
+        typeof candidate.request.routeDefinition?.endpoint === 'string'
+    );
+};
+
+/**
  * Store for managing application tabs and their associated request states.
  */
 export const useTabsStore = defineStore(
@@ -468,6 +481,19 @@ export const useTabsStore = defineStore(
         watch(() => routesStore.routes, refreshSchemas, { immediate: true });
 
         /**
+         * Drops restored tabs that an older version saved in a shape this version cannot read.
+         */
+        const discardUnusableTabs = () => {
+            const restored: unknown = tabs.value;
+
+            tabs.value = Array.isArray(restored) ? restored.filter(isUsableTab) : [];
+
+            if (!tabs.value.some(tab => tab.id === activeTabId.value)) {
+                activeTabId.value = tabs.value[0]?.id ?? null;
+            }
+        };
+
+        /**
          * Opens a new tab holding the request and response of a history log.
          */
         const restoreFromHistory = (historicalRequest: RequestLog) => {
@@ -614,6 +640,7 @@ export const useTabsStore = defineStore(
             restoreFromHistory,
             restoreFromSharedPayload,
             syncGlobalHeadersWhenApplicable,
+            discardUnusableTabs,
             getRequestUrl,
         };
     },
@@ -622,6 +649,7 @@ export const useTabsStore = defineStore(
             serializer: formDataSerializer,
             pick: ['tabs', 'activeTabId', 'activeApplication', 'lastSyncedGlobalHeaders'],
             afterHydrate: context => {
+                context.store.discardUnusableTabs();
                 context.store.syncGlobalHeadersWhenApplicable();
             },
         },
