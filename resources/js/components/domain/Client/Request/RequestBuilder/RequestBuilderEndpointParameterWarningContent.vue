@@ -21,10 +21,8 @@ defineProps<Props>();
 </script>
 
 <template>
-    <AppPanel class="gap-base px-base py-tight flex flex-col shadow-none">
-        <AppPanelTitle class="px-0">
-            Please resolve the missing route parameters
-        </AppPanelTitle>
+    <AppPanel class="gap-base flex flex-col shadow-none">
+        <AppPanelTitle>Please resolve the missing route parameters</AppPanelTitle>
 
         <AppPanelDescription class="text-xs">
             Provide values for the following parameters to proceed with the request
