@@ -8,6 +8,7 @@ import { AppEditable } from '@/components/base/editable';
 import AppSwapIcon from '@/components/base/icons/AppSwapIcon.vue';
 import { AppTooltip } from '@/components/base/tooltip';
 import { useConfirmationAction } from '@/composables/ui/useConfirmationAction';
+import { environmentConfig } from '@/config';
 import { EnvironmentSource } from '@/interfaces/generated';
 import { useEnvironmentVariablesStore } from '@/stores';
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue';
@@ -117,12 +118,17 @@ watch(
                 ref="environmentNameEditor"
                 v-model="editingEnvironmentName"
                 placeholder="Environment name..."
+                :maxlength="environmentConfig.NAME_MAX_LENGTH"
                 data-testid="environment-name-editor"
                 @submit="submitName"
             >
                 {{ environmentVariablesStore.editingEnvironment.name }}
             </AppEditable>
-            <span v-else class="text-xs font-medium" data-testid="environment-name">
+            <span
+                v-else
+                class="truncate text-xs font-medium"
+                data-testid="environment-name"
+            >
                 {{ environmentVariablesStore.editingEnvironment.name }}
             </span>
         </div>

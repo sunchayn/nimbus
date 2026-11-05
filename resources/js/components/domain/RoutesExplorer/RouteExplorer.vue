@@ -122,7 +122,7 @@ const filteredRoutes = computed(() => {
         return routesInVersion.value;
     }
 
-    const searchTerm = search.value.toLowerCase();
+    const searchTerm = search.value.trim().toLowerCase();
 
     return routesInVersion.value
         .map(folder => filterFolder(folder, searchTerm))

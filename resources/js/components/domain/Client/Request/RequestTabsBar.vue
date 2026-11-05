@@ -211,14 +211,13 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
 <template>
     <div class="gap-pane flex shrink-0 items-center" data-testid="request-tabs-bar">
         <ExplorerToggleButton class="shrink-0" />
-        <div
+        <span
             v-if="!tabsStore.tabs.length"
-            class="bg-default text-toned border-tab-active-border shadow-tab-active h-control-md gap-base px-base flex items-center rounded-md border text-sm"
+            class="text-muted px-base text-sm"
             data-testid="request-tabs-empty"
         >
-            <AppIcon name="i-hugeicons-add-01" class="size-icon-xs" />
-            <span>New request</span>
-        </div>
+            No open requests
+        </span>
         <draggable
             v-else
             ref="tabsList"
@@ -278,7 +277,7 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
                             <button
                                 type="button"
                                 aria-label="Close tab"
-                                class="hover:bg-accented focus-visible:ring-primary p-tight focus-visible:ring-focus shrink-0 rounded-sm opacity-0 transition-opacity outline-none group-focus-within:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100"
+                                class="hover:bg-accented focus-visible:ring-primary size-item-sm focus-visible:ring-focus flex shrink-0 items-center justify-center rounded-sm opacity-0 transition-opacity outline-none group-focus-within:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100"
                                 data-testid="sidebar-tab-close"
                                 @click.stop="closeTab(tab.id)"
                             >

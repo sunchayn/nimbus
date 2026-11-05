@@ -40,7 +40,7 @@ const timeAgo = useShortTimeAgo(
     <button
         type="button"
         :aria-current="active ? 'true' : undefined"
-        class="hover:bg-elevated focus-visible:bg-elevated gap-x-base gap-y-tight px-loose py-base grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center text-start focus-visible:outline-none"
+        class="hover:bg-elevated focus-visible:ring-primary focus-visible:ring-focus gap-x-base gap-y-tight px-loose py-base grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center text-start focus-visible:outline-none focus-visible:ring-inset"
         :data-active="active"
     >
         <div class="iems-center gap-pane flex">
