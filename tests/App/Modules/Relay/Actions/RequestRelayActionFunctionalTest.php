@@ -331,6 +331,40 @@ class RequestRelayActionFunctionalTest extends TestCase
         $this->assertEquals($bodyData, $response->body->body['receivedBody']);
     }
 
+    public function test_it_sends_a_single_content_type_header_with_a_json_body(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'post',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: ['content-type' => 'application/vnd.api+json'],
+            body: ['user' => 'john'],
+            cookies: new ParameterBag,
+        );
+
+        // Anticipate
+
+        Http::fake();
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        Http::assertSent(function (Request $request): bool {
+            $this->assertSame(['application/vnd.api+json'], $request->header('Content-Type'));
+
+            return true;
+        });
+    }
+
     public function test_it_sends_files_as_multipart_parts(): void
     {
         // Arrange

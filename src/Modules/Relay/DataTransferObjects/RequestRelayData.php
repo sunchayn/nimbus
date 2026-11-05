@@ -2,7 +2,6 @@
 
 namespace Sunchayn\Nimbus\Modules\Relay\DataTransferObjects;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayRequest;
 use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
@@ -15,7 +14,7 @@ readonly class RequestRelayData
     /**
      * @param  array<string, string>  $headers
      * @param  array<string, mixed>|string  $body
-     * @param  array<string, string|null>  $queryParameters
+     * @param  array<string, string|list<string>>  $queryParameters
      */
     public function __construct(
         public string $method,
@@ -43,18 +42,20 @@ readonly class RequestRelayData
          **/
         $data = $nimbusRelayRequest->validated();
 
+        // Header names are case-insensitive, so names are lowercased first and repeated names are joined.
         /** @var Collection<string, string> $headers */
         $headers = collect($data['headers'] ?? [])
-            ->pluck('value', 'key');
+            ->groupBy(fn (array $header): string => strtolower($header['key']))
+            ->map(fn (Collection $group): string => $group->pluck('value')->implode(', '));
 
         $headers->when(
-            ! $headers->has('Accept'),
-            fn () => $headers->put('Accept', 'application/json'),
+            ! $headers->has('accept'),
+            fn () => $headers->put('accept', 'application/json'),
         );
 
         $headers->when(
-            $nimbusRelayRequest->userAgent() !== null,
-            fn () => $headers->put('User-Agent', (string) $nimbusRelayRequest->userAgent()),
+            ! $headers->has('user-agent') && $nimbusRelayRequest->userAgent() !== null,
+            fn () => $headers->put('user-agent', (string) $nimbusRelayRequest->userAgent()),
         );
 
         [
@@ -73,7 +74,7 @@ readonly class RequestRelayData
                     value: $data['authorization']['value'] ?? null,
                 )
                 : AuthorizationCredentials::none(),
-            headers: $headers->mapWithKeys(fn (mixed $value, string $key): array => [strtolower($key) => $value])->all(),
+            headers: $headers->all(),
             body: $nimbusRelayRequest->getBody(),
             cookies: $nimbusRelayRequest->cookies,
             queryParameters: $queryParameters,
@@ -84,7 +85,7 @@ readonly class RequestRelayData
     }
 
     /**
-     * @return array{endpoint: string, queryParameters: array<string, string|null>}
+     * @return array{endpoint: string, queryParameters: array<string, string|list<string>>}
      */
     private static function extractAndRemoveQueryParametersFromEndpoint(string $endpoint): array
     {
@@ -103,23 +104,46 @@ readonly class RequestRelayData
             .(array_key_exists('path', $urlParts) ? $urlParts['path'] : '');
 
         $queryParameters = array_key_exists('query', $urlParts)
-            ? Arr::mapWithKeys(
-                explode('&', $urlParts['query']),
-                static function (string $query): array {
-                    $parts = explode('=', $query);
-
-                    if (count($parts) !== 2) {
-                        return [];
-                    }
-
-                    return [$parts[0] => $parts[1]];
-                },
-            )
+            ? self::parseQueryString($urlParts['query'])
             : [];
 
         return [
             'endpoint' => $cleanEndpoint,
             'queryParameters' => $queryParameters,
         ];
+    }
+
+    /**
+     * Splits on the first equals sign only, so values such as base64 padding survive.
+     * The result is decoded because the HTTP client encodes the parameters again.
+     *
+     * @return array<string, string|list<string>>
+     */
+    private static function parseQueryString(string $query): array
+    {
+        $parameters = [];
+
+        foreach (explode('&', $query) as $pair) {
+            if ($pair === '') {
+                continue;
+            }
+
+            [$key, $value] = array_pad(explode('=', $pair, 2), 2, '');
+
+            $key = urldecode($key);
+            $value = urldecode($value);
+
+            if (str_ends_with($key, '[]')) {
+                $name = substr($key, 0, -2);
+
+                $parameters[$name] = [...(array) ($parameters[$name] ?? []), $value];
+
+                continue;
+            }
+
+            $parameters[$key] = $value;
+        }
+
+        return $parameters;
     }
 }

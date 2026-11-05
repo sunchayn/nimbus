@@ -96,6 +96,55 @@ class RequestRelayDataUnitTest extends TestCase
         $this->assertFalse($result->transactionMode);
     }
 
+    public function test_it_keeps_user_headers_regardless_of_name_case(): void
+    {
+        // Arrange
+
+        $mockRequest = Mockery::mock(NimbusRelayRequest::class);
+
+        $mockRequest->shouldReceive('userAgent')->andReturn('::browser_user_agent::');
+
+        $mockRequest->cookies = new InputBag;
+
+        // Anticipate
+
+        $mockRequest
+            ->shouldReceive('validated')
+            ->andReturn(
+                [
+                    'method' => 'GET',
+                    'endpoint' => '/api/test',
+                    'headers' => [
+                        ['key' => 'accept', 'value' => 'text/csv'],
+                        ['key' => 'User-Agent', 'value' => '::custom_agent::'],
+                        ['key' => 'X-Tag', 'value' => 'a'],
+                        ['key' => 'x-tag', 'value' => 'b'],
+                    ],
+                    'body' => [],
+                ],
+            );
+
+        $mockRequest->shouldReceive('getBody')->andReturn([]);
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturnNull();
+        $mockRequest->shouldReceive('environmentId')->andReturn('current');
+        $mockRequest->shouldReceive('isCurrentHost')->andReturnTrue();
+
+        // Act
+
+        $result = RequestRelayData::fromRelayApiRequest($mockRequest);
+
+        // Assert
+
+        $this->assertSame(
+            [
+                'accept' => 'text/csv',
+                'user-agent' => '::custom_agent::',
+                'x-tag' => 'a, b',
+            ],
+            $result->headers,
+        );
+    }
+
     public function test_it_extracts_transaction_mode_from_header(): void
     {
         // Arrange
@@ -161,10 +210,31 @@ class RequestRelayDataUnitTest extends TestCase
             'body' => ['test' => 'data'],
         ];
 
-        yield 'absolute URL with multiple params including broken' => [
-            'endpoint' => 'https://127.0.0.1/api/test?key=1&key-2=&broken',
+        yield 'absolute URL with multiple params including a flag' => [
+            'endpoint' => 'https://127.0.0.1/api/test?key=1&key-2=&flag',
             'expectedEndpoint' => 'https://127.0.0.1/api/test',
-            'expectedParameters' => ['key' => '1', 'key-2' => ''],
+            'expectedParameters' => ['key' => '1', 'key-2' => '', 'flag' => ''],
+            'body' => ['test' => 'data'],
+        ];
+
+        yield 'value with base64 padding' => [
+            'endpoint' => '/api/test?token=abc==',
+            'expectedEndpoint' => '/api/test',
+            'expectedParameters' => ['token' => 'abc=='],
+            'body' => ['test' => 'data'],
+        ];
+
+        yield 'encoded value is decoded once' => [
+            'endpoint' => '/api/test?q=hello%20world&r=a%26b&s=a+b',
+            'expectedEndpoint' => '/api/test',
+            'expectedParameters' => ['q' => 'hello world', 'r' => 'a&b', 's' => 'a b'],
+            'body' => ['test' => 'data'],
+        ];
+
+        yield 'repeated bracket keys keep every value' => [
+            'endpoint' => '/api/test?a[]=1&a[]=2&b=3',
+            'expectedEndpoint' => '/api/test',
+            'expectedParameters' => ['a' => ['1', '2'], 'b' => '3'],
             'body' => ['test' => 'data'],
         ];
 
