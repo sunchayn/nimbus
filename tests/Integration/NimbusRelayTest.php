@@ -5,6 +5,7 @@ namespace Sunchayn\Nimbus\Tests\Integration;
 use Generator;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Foundation\Http\Middleware\TrimStrings;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -73,6 +74,105 @@ class NimbusRelayTest extends TestCase
             'duration' => $relayResponseStub->durationMs,
             'timestamp' => $relayResponseStub->timestamp,
         ]);
+    }
+
+    #[DataProvider('typedBodyProvider')]
+    public function test_it_sends_a_typed_body_as_written(string $body, string|array $expectedBody): void
+    {
+        // Arrange
+
+        $requestRelayActionMock = $this->mock(RequestRelayAction::class);
+
+        // Anticipate
+
+        $requestRelayActionMock
+            ->shouldReceive('execute')
+            ->once()
+            ->withArgs(fn (RequestRelayData $data): bool => $data->body === $expectedBody)
+            ->andReturn(new RelayedRequestResponseData(
+                statusCode: 200,
+                statusText: 'OK',
+                body: new PrintableResponseBody(''),
+                headers: [],
+                durationMs: 1.5,
+                timestamp: 1_700_000_000,
+                cookies: [],
+            ));
+
+        // Act
+
+        $response = $this->postJson(route('nimbus.api.relay'), [
+            'method' => 'POST',
+            'endpoint' => '/test-endpoint',
+            'body' => $body,
+        ]);
+
+        // Assert
+
+        $response->assertOk();
+    }
+
+    public static function typedBodyProvider(): Generator
+    {
+        yield 'false' => ['false', 'false'];
+        yield 'true' => ['true', 'true'];
+        yield 'zero' => ['0', '0'];
+        yield 'json object' => ['{"a":1}', ['a' => 1]];
+        yield 'plain text' => ['hello', 'hello'];
+    }
+
+    public function test_it_returns_a_short_message_when_the_target_is_unreachable_without_debug(): void
+    {
+        // Arrange
+
+        config()->set('app.debug', false);
+
+        $requestRelayActionMock = $this->mock(RequestRelayAction::class);
+
+        // Anticipate
+
+        $requestRelayActionMock
+            ->shouldReceive('execute')
+            ->andThrow(new ConnectionException('cURL error 7: Failed to connect'));
+
+        // Act
+
+        $response = $this->postJson(route('nimbus.api.relay'), [
+            'method' => 'GET',
+            'endpoint' => 'http://127.0.0.1:1/x',
+        ]);
+
+        // Assert
+
+        $response->assertStatus(500);
+        $response->assertExactJson(['message' => 'cURL error 7: Failed to connect']);
+    }
+
+    public function test_it_includes_the_trace_when_the_target_is_unreachable_while_debugging(): void
+    {
+        // Arrange
+
+        config()->set('app.debug', true);
+
+        $requestRelayActionMock = $this->mock(RequestRelayAction::class);
+
+        // Anticipate
+
+        $requestRelayActionMock
+            ->shouldReceive('execute')
+            ->andThrow(new ConnectionException('cURL error 7: Failed to connect'));
+
+        // Act
+
+        $response = $this->postJson(route('nimbus.api.relay'), [
+            'method' => 'GET',
+            'endpoint' => 'http://127.0.0.1:1/x',
+        ]);
+
+        // Assert
+
+        $response->assertStatus(500);
+        $response->assertJsonStructure(['message', 'exception', 'trace']);
     }
 
     public function test_it_forwards_uploaded_files_in_the_body(): void
@@ -325,6 +425,22 @@ class NimbusRelayTest extends TestCase
                 'authorization' => ['type' => 'impersonate', 'value' => '1'],
             ],
             'expectedErrors' => ['authorization.type'],
+        ];
+
+        yield 'method is an array' => [
+            'payload' => [
+                'method' => ['GET'],
+                'endpoint' => '/test-endpoint',
+            ],
+            'expectedErrors' => ['method'],
+        ];
+
+        yield 'method is not a token' => [
+            'payload' => [
+                'method' => 'GET /admin',
+                'endpoint' => '/test-endpoint',
+            ],
+            'expectedErrors' => ['method'],
         ];
 
         yield 'unsupported endpoint scheme' => [
