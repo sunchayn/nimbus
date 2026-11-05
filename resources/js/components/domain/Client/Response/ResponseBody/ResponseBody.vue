@@ -23,6 +23,8 @@ defineProps<ResponseBodyProps>();
 <template>
     <CodeEditor
         language="json"
+        wrappable
+        wrap-key="response-body"
         :readonly="true"
         :placeholder="content === '' ? 'Empty' : 'Response JSON Payload'"
         :model-value="content"

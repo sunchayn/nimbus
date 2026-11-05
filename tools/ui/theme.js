@@ -403,6 +403,10 @@ export default {
     },
 
     checkbox: {
+        slots: {
+            base: "cursor-pointer",
+            label: "cursor-pointer",
+        },
         variants: {
             disabled: disabledToggle,
         },
