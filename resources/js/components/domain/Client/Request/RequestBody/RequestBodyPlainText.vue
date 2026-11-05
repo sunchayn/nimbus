@@ -35,6 +35,8 @@ const customExtensions = computed(() => {
     <CodeEditor
         v-model="model"
         language="plain"
+        wrappable
+        wrap-key="request-plain-text"
         :readonly="false"
         placeholder="Your Plain Text Content"
         :custom-extensions="customExtensions"

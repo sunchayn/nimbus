@@ -38,6 +38,8 @@ const customExtensions = computed(() => {
     <CodeEditor
         v-model="model"
         language="json"
+        wrappable
+        wrap-key="request-json"
         :readonly="false"
         placeholder="Your JSON Payload"
         :validation-schema="schema"
