@@ -191,10 +191,18 @@
     }
 }
 
+@layer base {
+    /* The browser default is a blue auto outline. A solid style lets one color apply everywhere. */
+    :focus-visible {
+        outline-style: solid;
+    }
+}
+
 /*
- * Unlayered on purpose, so the focus ring width token wins over the Nuxt UI outline utilities.
+ * Unlayered on purpose, so the focus ring tokens win over the Nuxt UI outline utilities.
  */
 :focus-visible {
+    outline-color: var(--ui-primary);
     outline-width: var(--focus-ring-w);
 
     /* Inset, so a parent with hidden overflow never crops the ring. */

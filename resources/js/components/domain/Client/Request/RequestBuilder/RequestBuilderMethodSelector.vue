@@ -78,7 +78,7 @@ const items = computed(() => {
             class="h-full w-14 rounded-none font-mono"
             :trailing="false"
             :ui="{
-                base: 'font-mono focus-visible:outline-none',
+                base: 'font-mono',
                 content: 'min-w-32',
             }"
             :content="{ align: 'start', sideOffset: 6 }"
