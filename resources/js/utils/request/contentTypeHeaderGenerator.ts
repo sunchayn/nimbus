@@ -63,8 +63,9 @@ export function getMimeTypeForPayloadType(
 /**
  * Generates a new headers array with the appropriate Content-Type header.
  *
- * A payload type with a MIME type adds or updates the Content-Type header.
- * A payload type without one, such as EMPTY, removes any Content-Type header.
+ * A payload type with a MIME type adds the Content-Type header when the user did not set one.
+ * A Content-Type the user set is kept, except for Form Data because its boundary is generated.
+ * A payload type without a MIME type, such as EMPTY, removes any Content-Type header.
  * The input headers array is not mutated.
  *
  * @param payloadType - The request body type to generate Content-Type for
@@ -102,6 +103,11 @@ export function generateContentTypeHeader(
     }
 
     if (contentTypeIndex !== -1) {
+        // The relay detects multipart bodies from this header, so Form Data always overrides it.
+        if (payloadType !== RequestBodyTypeEnum.FORM_DATA) {
+            return existingHeaders;
+        }
+
         return [
             ...existingHeaders.slice(0, contentTypeIndex),
             {
