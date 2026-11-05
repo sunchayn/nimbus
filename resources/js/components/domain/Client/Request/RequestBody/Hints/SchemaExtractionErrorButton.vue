@@ -31,7 +31,7 @@ defineProps<SchemaExtractionErrorButtonProps>();
         <AppButton
             size="xs"
             variant="ghost"
-            icon="i-hugeicons-arrow-left-right"
+            icon="i-hugeicons-alert-02"
             label="Error Info"
         />
 

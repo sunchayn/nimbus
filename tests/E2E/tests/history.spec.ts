@@ -329,7 +329,7 @@ test.describe('Rewind Functionality', () => {
         const bodyEditor = page.getByTestId('request-builder-root').locator('.cm-content');
 
         // Assert - Verify body is filled
-        await expect(bodyEditor).toContainText('"name"');
+        await expect(bodyEditor).toContainText('"user_id"');
 
         // Act - Send request and then another request
         await basePage.executeRequest();
@@ -340,7 +340,7 @@ test.describe('Rewind Functionality', () => {
         await basePage.rewindToHistoryItem('nested-object');
 
         // Assert - Verify body is restored
-        await expect(bodyEditor).toContainText('"name"');
+        await expect(bodyEditor).toContainText('"user_id"');
     });
 
     test('updates all UI elements on rewind', async ({ page, basePage }) => {
