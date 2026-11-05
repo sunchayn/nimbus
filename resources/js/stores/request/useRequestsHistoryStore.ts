@@ -4,6 +4,9 @@ import { formDataSerializer } from '@/utils/stores/formDataSerializer';
 import { defineStore } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
 
+// Local storage allows about 5 MB for the whole origin, so history gets a share of it.
+export const HISTORY_MAX_CHARS = 2_000_000;
+
 export const useRequestsHistoryStore = defineStore(
     'requestHistory',
     () => {
@@ -33,6 +36,13 @@ export const useRequestsHistoryStore = defineStore(
 
             if (logs.value.length > maxLogs.value) {
                 logs.value = logs.value.slice(-maxLogs.value);
+            }
+
+            while (
+                logs.value.length > 1 &&
+                JSON.stringify(logs.value).length > HISTORY_MAX_CHARS
+            ) {
+                logs.value = logs.value.slice(1);
             }
 
             activeLogIndex.value = null;
