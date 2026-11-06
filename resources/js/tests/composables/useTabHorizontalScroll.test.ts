@@ -1,4 +1,5 @@
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
+import { useEventListener } from '@vueuse/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { effectScope } from 'vue';
 
@@ -117,6 +118,54 @@ describe('useTabHorizontalScroll', () => {
                 left: 120,
                 behavior: 'smooth',
             });
+        });
+
+        it('scrolls the list sideways on a vertical wheel', () => {
+            // Arrange
+
+            const composable = runComposable();
+            const container = { scrollLeft: 10 } as unknown as HTMLElement;
+            composable.scrollContainer.value = container;
+            const wheelCall = vi
+                .mocked(useEventListener)
+                .mock.calls.find(call => call[1] === 'wheel');
+            const preventDefault = vi.fn();
+
+            // Act
+
+            (wheelCall![2] as (event: unknown) => void)({
+                deltaX: 0,
+                deltaY: 40,
+                preventDefault,
+            });
+
+            // Assert
+
+            expect(container.scrollLeft).toBe(50);
+            expect(preventDefault).toHaveBeenCalled();
+        });
+
+        it('ignores a wheel that already moves sideways', () => {
+            // Arrange
+
+            const composable = runComposable();
+            const container = { scrollLeft: 10 } as unknown as HTMLElement;
+            composable.scrollContainer.value = container;
+            const wheelCall = vi
+                .mocked(useEventListener)
+                .mock.calls.find(call => call[1] === 'wheel');
+
+            // Act
+
+            (wheelCall![2] as (event: unknown) => void)({
+                deltaX: 40,
+                deltaY: 2,
+                preventDefault: vi.fn(),
+            });
+
+            // Assert
+
+            expect(container.scrollLeft).toBe(10);
         });
     });
 });
