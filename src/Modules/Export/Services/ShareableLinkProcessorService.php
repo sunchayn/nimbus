@@ -132,14 +132,29 @@ class ShareableLinkProcessorService
      */
     private function parseJson(string $json): array
     {
-        /** @var array<string, mixed>|null $decoded */
         $decoded = json_decode($json, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \RuntimeException('Failed to parse JSON payload: '.json_last_error_msg());
         }
 
-        return $decoded ?? [];
+        if (! $this->hasShareableShape($decoded)) {
+            throw new \RuntimeException('Payload is not a shareable request');
+        }
+
+        return $decoded;
+    }
+
+    private function hasShareableShape(mixed $decoded): bool
+    {
+        return is_array($decoded)
+            && is_string($decoded['method'] ?? null)
+            && is_string($decoded['endpoint'] ?? null)
+            && is_array($decoded['headers'] ?? null)
+            && is_array($decoded['queryParameters'] ?? null)
+            && is_array($decoded['body'] ?? null)
+            && is_string($decoded['payloadType'] ?? null)
+            && is_array($decoded['authorization'] ?? null);
     }
 
     protected function discoverRoute(): void
