@@ -160,7 +160,11 @@ const settings = computed(() =>
             </div>
         </div>
 
-        <AppDropdownMenu :items="environmentItems" :content="{ align: 'center' }">
+        <AppDropdownMenu
+            :items="environmentItems"
+            :content="{ align: 'center' }"
+            :ui="{ content: 'max-w-80', itemLabel: 'truncate' }"
+        >
             <AppButton
                 :color="switcherColor"
                 :variant="switcherColor === 'neutral' ? 'ghost' : 'soft'"
@@ -168,6 +172,8 @@ const settings = computed(() =>
                 :icon="environmentStore.isCurrentHost ? undefined : 'i-hugeicons-cloud'"
                 trailing-icon="i-hugeicons-arrow-down-01"
                 :label="environmentStore.activeEnvironment.name"
+                :ui="{ label: 'truncate' }"
+                class="max-w-64"
                 data-testid="environment-switcher"
                 :data-environment-current-host="environmentStore.isCurrentHost"
             />

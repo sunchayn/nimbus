@@ -88,7 +88,7 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
                     :key="category.id"
                     tabindex="0"
                     :class="[
-                        'focus-visible:ring-primary h-control-xs gap-tight px-base focus-visible:ring-focus flex shrink-0 items-center justify-center rounded-sm text-xs font-medium whitespace-nowrap transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
+                        'focus-visible:ring-primary h-control-sm gap-tight px-base focus-visible:ring-focus flex shrink-0 items-center justify-center rounded-sm text-xs font-medium whitespace-nowrap transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
                         getCategoryButtonClass(category.id),
                     ]"
                     @click="event => handleCategoryClick(event, category.id)"

@@ -40,6 +40,18 @@ describe('AppEditable', () => {
 
             expect(wrapper.attributes('data-testid')).toBe('editor');
         });
+
+        it('limits the input length when maxlength is set', () => {
+            // Arrange & Act
+
+            const wrapper = mount(AppEditable, {
+                props: { modelValue: 'Staging', maxlength: 64 },
+            });
+
+            // Assert
+
+            expect(wrapper.find('input').attributes('maxlength')).toBe('64');
+        });
     });
 
     describe('Behavior', () => {

@@ -12,6 +12,7 @@ import { ref } from 'vue';
 
 export interface AppEditableProps {
     placeholder?: string;
+    maxlength?: number;
     submitMode?: 'blur' | 'enter' | 'both';
 }
 
@@ -21,6 +22,7 @@ export interface AppEditableProps {
 
 withDefaults(defineProps<AppEditableProps>(), {
     placeholder: undefined,
+    maxlength: undefined,
     submitMode: 'both',
 });
 
@@ -62,10 +64,13 @@ defineExpose({ focus });
     >
         <EditablePreview
             ref="preview"
-            class="hover:bg-elevated -ml-tight px-tight cursor-text rounded-sm text-sm font-medium transition-colors"
+            class="hover:bg-elevated -ml-tight px-tight cursor-text truncate rounded-sm text-sm font-medium transition-colors"
         >
             <slot>{{ modelValue }}</slot>
         </EditablePreview>
-        <EditableInput class="bg-elevated w-full border-none p-0 text-sm font-medium" />
+        <EditableInput
+            :maxlength="maxlength"
+            class="bg-elevated w-full border-none p-0 text-sm font-medium"
+        />
     </EditableRoot>
 </template>
