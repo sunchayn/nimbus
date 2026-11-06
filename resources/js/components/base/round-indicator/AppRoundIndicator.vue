@@ -43,6 +43,6 @@ const props = defineProps<AppRoundIndicatorProps>();
 .indicator-glow {
     box-shadow:
         var(--spacing-dot-xs) 0 var(--spacing-dot-xs) currentColor,
-        -var(--spacing-dot-xs) 0 var(--spacing-dot-xs) currentColor;
+        calc(var(--spacing-dot-xs) * -1) 0 var(--spacing-dot-xs) currentColor;
 }
 </style>
