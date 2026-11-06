@@ -187,7 +187,7 @@ const handleDeleteParameter = (index: number) => {
                 size="xs"
                 icon="i-hugeicons-plus-sign"
                 label="Add"
-                class="px-panel h-full -translate-x-0.5 rounded-none"
+                class="px-panel h-full rounded-none"
                 data-testid="add-button"
                 @click="withRowMotion(addNewEmptyParameter)"
             />
@@ -201,7 +201,7 @@ const handleDeleteParameter = (index: number) => {
                         : 'i-hugeicons-view-off-slash'
                 "
                 :label="areAllParametersDisabled ? 'Enable All' : 'Disable All'"
-                class="px-panel h-full -translate-x-0.5 rounded-none"
+                class="px-panel h-full rounded-none"
                 :disabled="parameters.length <= 1"
                 data-testid="enable-all-button"
                 @click="toggleAllParametersEnabledState"
@@ -213,7 +213,7 @@ const handleDeleteParameter = (index: number) => {
                 icon="i-hugeicons-delete-02"
                 label="Delete All"
                 :color="deletingAll ? 'error' : undefined"
-                class="px-panel h-full -translate-x-0.5 rounded-none"
+                class="px-panel h-full rounded-none"
                 :disabled="parameters.length <= 1"
                 data-testid="delete-all-button"
                 @click="withRowMotion(deleteAllParameters)"

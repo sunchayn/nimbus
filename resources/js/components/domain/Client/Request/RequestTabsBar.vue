@@ -277,7 +277,7 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
                             <button
                                 type="button"
                                 aria-label="Close tab"
-                                class="hover:bg-accented focus-visible:ring-primary size-item-sm focus-visible:ring-focus flex shrink-0 items-center justify-center rounded-sm opacity-0 transition-opacity outline-none group-focus-within:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100"
+                                class="hover:bg-accented size-item-sm flex shrink-0 items-center justify-center rounded-sm opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100"
                                 data-testid="sidebar-tab-close"
                                 @click.stop="closeTab(tab.id)"
                             >
