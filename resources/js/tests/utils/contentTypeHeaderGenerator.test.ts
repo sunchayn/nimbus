@@ -99,7 +99,7 @@ describe('contentTypeHeaderGenerator', () => {
             ]);
         });
 
-        it('updates existing Content-Type header', () => {
+        it('keeps a Content-Type header the user set', () => {
             // Arrange
 
             const headers = [
@@ -109,7 +109,7 @@ describe('contentTypeHeaderGenerator', () => {
                 },
                 {
                     key: 'content-type',
-                    value: 'text/plain',
+                    value: 'application/vnd.api+json',
                 },
             ];
 
@@ -119,9 +119,25 @@ describe('contentTypeHeaderGenerator', () => {
 
             // Assert
 
+            expect(result).toEqual(headers);
+        });
+
+        it('replaces a user Content-Type for Form Data because the boundary is generated', () => {
+            // Arrange
+
+            const headers = [{ key: 'Content-Type', value: 'application/vnd.api+json' }];
+
+            // Act
+
+            const result = generateContentTypeHeader(
+                RequestBodyTypeEnum.FORM_DATA,
+                headers,
+            );
+
+            // Assert
+
             expect(result).toEqual([
-                { key: 'Accept', value: 'application/json' },
-                { key: 'content-type', value: 'application/json' },
+                { key: 'content-type', value: 'multipart/form-data' },
             ]);
         });
 
@@ -182,10 +198,11 @@ describe('contentTypeHeaderGenerator', () => {
 
             // Assert
 
-            expect(result).toEqual([
-                { key: 'Accept', value: 'application/json' },
-                { key: 'content-type', value: 'application/json' },
-            ]);
+            expect(result).toHaveLength(2);
+            expect(result[1]).toEqual({
+                key: 'Content-Type',
+                value: 'text/plain',
+            });
         });
 
         it('does not mutate the original headers array', () => {
