@@ -16,7 +16,7 @@ class NimbusRelayRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'method' => 'required',
+            'method' => 'required|string|alpha|max:20',
             'endpoint' => [
                 'required',
                 'string',
@@ -71,12 +71,15 @@ class NimbusRelayRequest extends FormRequest
      */
     public function getBody(): string|array
     {
-        $body = $this->validated('body') && filled($this->validated('body'))
-            ? $this->validated('body')
-            : [];
+        $body = $this->validated('body');
 
-        return is_string($body)
-            ? json_decode($body, true) ?? $body
-            : $body;
+        if (! filled($body)) {
+            return [];
+        }
+
+        // Only a JSON object or list is decoded, so a typed value such as false or 0 is sent as written.
+        $decoded = is_string($body) ? json_decode($body, true) : null;
+
+        return is_array($decoded) ? $decoded : $body;
     }
 }
