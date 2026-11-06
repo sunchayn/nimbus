@@ -23,6 +23,7 @@ vi.mock('@/stores', async importOriginal => {
     return {
         ...actual,
         useRequestStore: () => mockRequestStore,
+        useEnvironmentVariablesStore: () => ({ baseUrl: 'https://api.test' }),
     };
 });
 
@@ -61,6 +62,63 @@ describe('RequestBuilderEndpointInput', () => {
         const wrapper = createWrapper();
         const input = wrapper.find('input');
         expect((input.element as HTMLInputElement).value).toBe('/users/1');
+    });
+
+    describe('Pasting a full URL', () => {
+        const paste = async (text: string) => {
+            const wrapper = createWrapper({ attachTo: document.body });
+            const event = new Event('paste', { bubbles: true, cancelable: true });
+            Object.assign(event, { clipboardData: { getData: () => text } });
+            wrapper.find('input').element.dispatchEvent(event);
+            await wrapper.vm.$nextTick();
+
+            return { wrapper, event };
+        };
+
+        it('inserts only the path when the URL matches the base URL', async () => {
+            // Arrange
+
+            const insertText = vi.fn();
+            document.execCommand = insertText;
+
+            // Act
+
+            const { event } = await paste('https://api.test/users/5?x=1');
+
+            // Assert
+
+            expect(event.defaultPrevented).toBe(true);
+            expect(insertText).toHaveBeenCalledWith('insertText', false, 'users/5?x=1');
+        });
+
+        it('rejects a URL for another host and shows a warning', async () => {
+            // Arrange
+
+            const insertText = vi.fn();
+            document.execCommand = insertText;
+
+            // Act
+
+            const { event } = await paste('https://other.test/users/5');
+
+            // Assert
+
+            expect(event.defaultPrevented).toBe(true);
+            expect(insertText).not.toHaveBeenCalled();
+            expect(document.body.textContent).toContain(
+                'This URL does not match the environment',
+            );
+        });
+
+        it('leaves plain text pastes alone', async () => {
+            // Act
+
+            const { event } = await paste('users/5');
+
+            // Assert
+
+            expect(event.defaultPrevented).toBe(false);
+        });
     });
 
     it('updates the endpoint when input changes', async () => {

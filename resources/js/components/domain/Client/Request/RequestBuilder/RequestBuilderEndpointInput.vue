@@ -10,21 +10,34 @@ import EnvironmentAwareInput from '@/components/common/EnvironmentAwareInput.vue
 
 import { useRouteParameterParsing } from '@/composables/request/useRouteParameterParsing';
 import { useRouteSegmentSelection } from '@/composables/request/useRouteSegmentSelection';
-import { useRequestStore } from '@/stores';
+import { useEnvironmentVariablesStore, useRequestStore } from '@/stores';
 import { computed, shallowRef } from 'vue';
 import RequestBuilderEndpointParameterWarningContent from './RequestBuilderEndpointParameterWarningContent.vue';
+import RequestBuilderEndpointUrlWarningContent from './RequestBuilderEndpointUrlWarningContent.vue';
 
 /*
  * Stores.
  */
 
 const requestStore = useRequestStore();
+const environmentVariablesStore = useEnvironmentVariablesStore();
 
 /*
  * State.
  */
 
 const showParameterWarning = shallowRef(false);
+const showUrlWarning = shallowRef(false);
+
+const warningOpen = computed({
+    get: () => showParameterWarning.value || showUrlWarning.value,
+    set: (open: boolean) => {
+        if (!open) {
+            showParameterWarning.value = false;
+            showUrlWarning.value = false;
+        }
+    },
+});
 
 /*
  * Computed.
@@ -55,6 +68,8 @@ const executeCurrentRequest = async function () {
         return;
     }
 
+    showUrlWarning.value = false;
+
     if (hasParameters.value) {
         showParameterWarning.value = true;
 
@@ -64,6 +79,28 @@ const executeCurrentRequest = async function () {
     showParameterWarning.value = false;
 
     await requestStore.executeCurrentRequest();
+};
+
+// A pasted full URL keeps only its path when it targets the active base URL.
+const handlePaste = (event: ClipboardEvent) => {
+    const pasted = event.clipboardData?.getData('text').trim() ?? '';
+
+    if (!/^https?:\/\//i.test(pasted)) {
+        return;
+    }
+
+    event.preventDefault();
+
+    const baseUrl = environmentVariablesStore.baseUrl;
+
+    if (pasted.toLowerCase().startsWith(`${baseUrl.toLowerCase()}/`)) {
+        document.execCommand('insertText', false, pasted.slice(baseUrl.length + 1));
+
+        return;
+    }
+
+    showParameterWarning.value = false;
+    showUrlWarning.value = true;
 };
 
 const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
@@ -89,10 +126,11 @@ const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
             data-testid="endpoint-input"
             @click="autoSelectRouteVariableSegmentWhenApplicable"
             @keydown="executeCurrentRequestWhenEnterIsPressed"
+            @paste="handlePaste"
         />
 
         <div class="gap-tight pe-tight flex items-center">
-            <AppPopover v-model:open="showParameterWarning" :content="{ align: 'start' }">
+            <AppPopover v-model:open="warningOpen" :content="{ align: 'start' }">
                 <template #anchor>
                     <AppTooltip text="Send (Enter)">
                         <AppButton
@@ -118,7 +156,12 @@ const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
 
                 <template #content>
                     <div class="w-80">
+                        <RequestBuilderEndpointUrlWarningContent
+                            v-if="showUrlWarning"
+                            :base-url="environmentVariablesStore.baseUrl"
+                        />
                         <RequestBuilderEndpointParameterWarningContent
+                            v-else
                             :parameters="parameters"
                         />
                     </div>
