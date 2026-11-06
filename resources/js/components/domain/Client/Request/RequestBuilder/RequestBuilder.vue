@@ -84,7 +84,7 @@ const tabs = computed(() => [
                 list: 'h-toolbar overflow-x-auto rounded-none px-0',
                 trigger: 'px-panel',
                 content:
-                    'border-default flex max-h-full min-h-0 flex-1 flex-col border-t',
+                    'border-default flex max-h-full min-h-0 flex-1 flex-col overflow-y-auto border-t',
             }"
             data-testid="app-tabs-container"
         >

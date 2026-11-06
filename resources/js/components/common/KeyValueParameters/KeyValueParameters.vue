@@ -177,11 +177,11 @@ const handleDeleteParameter = (index: number) => {
 </script>
 <template>
     <div
-        :class="cn('flex h-full flex-col overflow-hidden', props.class)"
+        :class="cn('flex h-full min-h-min flex-col overflow-hidden', props.class)"
         data-testid="kv-container"
     >
         <!-- Header Actions -->
-        <div class="h-control-lg flex items-center overflow-hidden border-b p-0">
+        <div class="h-control-lg flex shrink-0 items-center overflow-hidden border-b p-0">
             <AppButton
                 variant="ghost"
                 size="xs"
@@ -225,7 +225,7 @@ const handleDeleteParameter = (index: number) => {
             tag="div"
             name="kv-row"
             :css="animateRows"
-            class="flex-1 overflow-y-auto"
+            class="min-h-control-lg flex-1 overflow-y-auto"
         >
             <div
                 v-for="(parameter, index) in parameters"
