@@ -1,7 +1,10 @@
 import type { RequestLog } from '@/interfaces/history/logs';
 import type { Request } from '@/interfaces/http';
 import { useSettingsStore } from '@/stores/core/useSettingsStore';
-import { useRequestsHistoryStore } from '@/stores/request/useRequestsHistoryStore';
+import {
+    HISTORY_MAX_CHARS,
+    useRequestsHistoryStore,
+} from '@/stores/request/useRequestsHistoryStore';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
 
@@ -50,6 +53,32 @@ describe('useRequestsHistoryStore', () => {
             // Assert
 
             expect(store.allLogs).toHaveLength(2);
+            expect(store.lastLog?.durationInMs).toBe(30);
+        });
+
+        it('drops the oldest logs when the stored size exceeds the budget', () => {
+            // Arrange
+
+            const store = useRequestsHistoryStore();
+            useSettingsStore().updatePreference('maxHistoryLogs', 30);
+            const big = 'x'.repeat(300_000);
+
+            // Act
+
+            for (let i = 1; i <= 30; i++) {
+                store.addLog({
+                    durationInMs: i,
+                    isProcessing: false,
+                    request: { big } as unknown as Request,
+                });
+            }
+
+            // Assert
+
+            expect(JSON.stringify(store.allLogs).length).toBeLessThanOrEqual(
+                HISTORY_MAX_CHARS,
+            );
+            expect(store.allLogs.length).toBeLessThan(30);
             expect(store.lastLog?.durationInMs).toBe(30);
         });
 
