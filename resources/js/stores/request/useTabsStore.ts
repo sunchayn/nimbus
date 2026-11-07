@@ -217,6 +217,7 @@ export const useTabsStore = defineStore(
                 wasExecuted: false,
                 durationInMs: 0,
                 transactionMode: activeRequest.value?.transactionMode ?? false,
+                signUrl: activeRequest.value?.signUrl ?? false,
                 options: activeRequest.value?.options
                     ? { ...activeRequest.value.options }
                     : undefined,
@@ -479,6 +480,12 @@ export const useTabsStore = defineStore(
             }
         }
 
+        function updateSignUrl(signUrl: boolean) {
+            if (activeRequest.value) {
+                activeRequest.value.signUrl = signUrl;
+            }
+        }
+
         const resetRequest = () => {
             if (activeTabId.value) {
                 closeTab(activeTabId.value);
@@ -676,6 +683,7 @@ export const useTabsStore = defineStore(
             updateAuthorization,
             updateTransactionMode,
             updateOptions,
+            updateSignUrl,
             resetRequest,
             restoreFromHistory,
             restoreFromSharedPayload,

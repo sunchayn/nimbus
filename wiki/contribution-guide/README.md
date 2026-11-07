@@ -87,7 +87,7 @@ src/
 **Module responsibilities:**
 
 - **Config** - Application configuration, enums, and constants.
-- **Magic** - Laravel aware behavior that acts inside the target request, such as transaction mode and the special authentication injectors.
+- **Magic** - Laravel aware behavior that acts inside the target request, such as transaction mode, the special authentication injectors, and URL signing for routes with the `signed` middleware.
 - **Routes** - Extract and normalize Laravel routes and validation rules.
 - **Schemas** - Transform validation rules into JSON schemas.
 - **Relay** - Forward HTTP requests and handle authentication.
@@ -313,6 +313,8 @@ sequenceDiagram
     LaravelBackend->>VueFrontend: Return relayed response
     VueFrontend->>User: Display Response
 ```
+
+**Sign URL.** When the request option is on for a route with the `signed` middleware, the frontend first calls `POST /api/magic/signed-url` with the full URL. `SignRouteUrlAction` matches the route without running it, refuses routes that lack the `signed` middleware or a name, and returns the URL signed for the host of the given URL, because the signature covers the host. The frontend relays a copy of the request that targets the signed URL, so the tab keeps its own endpoint.
 
 ---
 

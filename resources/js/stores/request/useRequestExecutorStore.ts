@@ -12,6 +12,8 @@ import {
     generateSuccessRequestLog,
 } from '@/utils/request';
 import { sendRelayRequest } from '@/utils/request/sendRelayRequest';
+import { signRequestUrl } from '@/utils/request/signRequestUrl';
+import { isSignedRoute } from '@/utils/routes';
 import { defineStore } from 'pinia';
 import { computed, shallowRef, watch } from 'vue';
 
@@ -64,7 +66,7 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
     // The response belongs to the tab that sent the request, so leaving that tab cancels it.
     watch(() => tabsStore.activeTabId, cancelCurrentRequest);
 
-    const executeRequest = async (request: PendingRequest) => {
+    const executeRequest = async (request: PendingRequest, sign: boolean) => {
         // Prevent concurrent requests to avoid race conditions.
         if (abortController) {
             throw new Error('Request already in progress');
@@ -80,14 +82,30 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
                 ),
             );
 
+            const apiUrl = environmentVariablesStore.baseUrl;
+            const appBasePath = configStore.appBasePath;
+            const resolve = environmentVariablesStore.createSendResolver();
+            const signal = abortController.signal;
+
             return await Promise.race([
-                sendRelayRequest(request, {
-                    apiUrl: environmentVariablesStore.baseUrl,
-                    environment: environmentVariablesStore.activeEnvironment.id,
-                    appBasePath: configStore.appBasePath,
-                    resolve: environmentVariablesStore.createSendResolver(),
-                    signal: abortController.signal,
-                }),
+                (async () =>
+                    sendRelayRequest(
+                        sign
+                            ? await signRequestUrl(request, {
+                                  apiUrl,
+                                  appBasePath,
+                                  resolve,
+                                  signal,
+                              })
+                            : request,
+                        {
+                            apiUrl,
+                            environment: environmentVariablesStore.activeEnvironment.id,
+                            appBasePath,
+                            resolve,
+                            signal,
+                        },
+                    ))(),
                 timeoutPromise,
             ]);
         } finally {
@@ -130,7 +148,11 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
                 }
             });
 
-            const result = await executeRequest(requestData);
+            const result = await executeRequest(
+                requestData,
+                requestData.signUrl === true &&
+                    isSignedRoute(requestData.routeDefinition),
+            );
 
             if (result === null || !senderTabIsActive()) {
                 // The request was canceled or its tab is no longer active.

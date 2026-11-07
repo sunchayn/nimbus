@@ -10,4 +10,4 @@ export {
     searchRoutes,
 } from './routeProcessor';
 
-export { describeRouteParameter, describeThrottle } from './routeMetadata';
+export { describeRouteParameter, describeThrottle, isSignedRoute } from './routeMetadata';

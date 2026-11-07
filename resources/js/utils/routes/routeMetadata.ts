@@ -46,3 +46,14 @@ export function describeRouteParameter(
 
     return parts.length ? parts.join(', ') : null;
 }
+
+/**
+ * Whether the route uses the signed middleware, so it only accepts a signed URL.
+ */
+export function isSignedRoute(route: RouteDefinition | undefined): boolean {
+    return (
+        route?.metadata?.middleware?.some(entry =>
+            entry.startsWith('Illuminate\\Routing\\Middleware\\ValidateSignature'),
+        ) ?? false
+    );
+}
