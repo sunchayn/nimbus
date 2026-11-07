@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
+use Sunchayn\Nimbus\Modules\Magic\Listeners\ResetRateLimiterListener;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
 use Sunchayn\Nimbus\Modules\Relay\Responses\DumpAndDieResponse;
@@ -142,6 +143,10 @@ class RequestRelayAction
 
         if ($requestRelayData->timeTravel !== null) {
             $headers['x-nimbus-time-travel'] = $requestRelayData->timeTravel;
+        }
+
+        if ($requestRelayData->resetLimiter) {
+            $headers[strtolower(ResetRateLimiterListener::HEADER)] = '1';
         }
 
         return Http::withOptions(

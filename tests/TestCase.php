@@ -19,6 +19,7 @@ class TestCase extends BaseTestCase
     protected function getEnvironmentSetUp($app): void
     {
         $app['config']->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
+        $app['config']->set('cache.default', 'array');
         $app['config']->set('nimbus.prefix', 'nimbus');
         $app['config']->set('nimbus.default_application', 'main');
         $app['config']->set('nimbus.applications', [

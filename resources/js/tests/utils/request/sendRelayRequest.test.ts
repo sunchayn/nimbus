@@ -94,6 +94,31 @@ describe('sendRelayRequest', () => {
             expect(result?.duration).toBe(120);
         });
 
+        it('should send the reset limiter header only when asked', async () => {
+            // Arrange
+
+            mockedAxios.post.mockResolvedValue({
+                data: JSON.stringify(createMockRelayProxyResponse({ body: '' })),
+            });
+
+            // Act
+
+            await sendRelayRequest(createMockPendingRequest(), options);
+            await sendRelayRequest(createMockPendingRequest(), {
+                ...options,
+                resetLimiter: true,
+            });
+
+            // Assert
+
+            const sentHeaders = mockedAxios.post.mock.calls.map(
+                call => (call[2] as { headers: Record<string, string> }).headers,
+            );
+
+            expect(sentHeaders[0]['X-Nimbus-Reset-Limiter']).toBeUndefined();
+            expect(sentHeaders[1]['X-Nimbus-Reset-Limiter']).toBe('1');
+        });
+
         it('should forward a download once and keep only its metadata', async () => {
             // Arrange
 

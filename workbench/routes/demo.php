@@ -222,3 +222,5 @@ Route::get('/time', fn () => response()->json([
     'now' => now()->toIso8601String(),
     'timezone' => config('app.timezone'),
 ]))->name('demo.time');
+
+Route::get('/rate-limit', fn () => response()->json(['ok' => true]))->middleware('throttle:5,1');

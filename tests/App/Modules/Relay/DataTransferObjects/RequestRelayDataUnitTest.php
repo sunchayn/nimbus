@@ -59,6 +59,7 @@ class RequestRelayDataUnitTest extends TestCase
         $mockRequest->shouldReceive('getBody')->andReturn($body);
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturnNull();
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Time-Travel')->andReturnNull();
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Reset-Limiter')->andReturnNull();
         $mockRequest->shouldReceive('environmentId')->andReturn('current');
         $mockRequest->shouldReceive('isCurrentHost')->andReturnTrue();
 
@@ -120,6 +121,7 @@ class RequestRelayDataUnitTest extends TestCase
         $mockRequest->shouldReceive('getBody')->andReturn([]);
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturnNull();
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Time-Travel')->andReturnNull();
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Reset-Limiter')->andReturnNull();
         $mockRequest->shouldReceive('environmentId')->andReturn('current');
         $mockRequest->shouldReceive('isCurrentHost')->andReturnTrue();
 
@@ -165,6 +167,7 @@ class RequestRelayDataUnitTest extends TestCase
         $mockRequest->shouldReceive('getBody')->andReturn([]);
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturnNull();
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Time-Travel')->andReturnNull();
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Reset-Limiter')->andReturnNull();
         $mockRequest->shouldReceive('environmentId')->andReturn('current');
         $mockRequest->shouldReceive('isCurrentHost')->andReturnTrue();
 
@@ -215,6 +218,7 @@ class RequestRelayDataUnitTest extends TestCase
         $mockRequest->shouldReceive('getBody')->andReturn([]);
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturn('1');
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Time-Travel')->andReturnNull();
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Reset-Limiter')->andReturnNull();
         $mockRequest->shouldReceive('environmentId')->andReturn('staging');
         $mockRequest->shouldReceive('isCurrentHost')->andReturnFalse();
 
@@ -241,6 +245,7 @@ class RequestRelayDataUnitTest extends TestCase
         $mockRequest->shouldReceive('getBody')->andReturn([]);
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturnNull();
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Time-Travel')->andReturn(' +31 days ');
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Reset-Limiter')->andReturnNull();
         $mockRequest->shouldReceive('environmentId')->andReturn('current');
         $mockRequest->shouldReceive('isCurrentHost')->andReturnTrue();
         $mockRequest->cookies = new InputBag;
@@ -273,6 +278,7 @@ class RequestRelayDataUnitTest extends TestCase
         $mockRequest->shouldReceive('getBody')->andReturn([]);
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturnNull();
         $mockRequest->shouldReceive('header')->with('X-Nimbus-Time-Travel')->andReturn(null);
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Reset-Limiter')->andReturnNull();
         $mockRequest->shouldReceive('environmentId')->andReturn('current');
         $mockRequest->shouldReceive('isCurrentHost')->andReturnTrue();
         $mockRequest->cookies = new InputBag;
@@ -284,6 +290,31 @@ class RequestRelayDataUnitTest extends TestCase
         // Assert
 
         $this->assertSame(['posts:read', 'posts:write'], $result->authorization->abilities);
+    }
+
+    public function test_it_reads_the_reset_limiter_header(): void
+    {
+        // Arrange
+
+        $mockRequest = Mockery::mock(NimbusRelayRequest::class);
+        $mockRequest->cookies = new InputBag;
+
+        $mockRequest->shouldReceive('validated')->andReturn(['method' => 'GET', 'endpoint' => '/api/test', 'body' => []]);
+        $mockRequest->shouldReceive('userAgent')->andReturnNull();
+        $mockRequest->shouldReceive('getBody')->andReturn([]);
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturnNull();
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Time-Travel')->andReturnNull();
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Reset-Limiter')->andReturn('1');
+        $mockRequest->shouldReceive('environmentId')->andReturn('current');
+        $mockRequest->shouldReceive('isCurrentHost')->andReturnTrue();
+
+        // Act
+
+        $result = RequestRelayData::fromRelayApiRequest($mockRequest);
+
+        // Assert
+
+        $this->assertTrue($result->resetLimiter);
     }
 
     public static function relayRequestDataDataProvider(): Generator

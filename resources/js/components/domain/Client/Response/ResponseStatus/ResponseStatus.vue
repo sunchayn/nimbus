@@ -7,10 +7,12 @@ import { AppBadge } from '@/components/base/badge';
 import { AppButton } from '@/components/base/button';
 import { AppTooltip } from '@/components/base/tooltip';
 import RequestHistory from '@/components/domain/Client/Response/ResponseStatus/History/RequestHistory.vue';
+import RateLimitMeter from '@/components/domain/Client/Response/ResponseStatus/RateLimitMeter.vue';
 import ResponseStatusCode from '@/components/domain/Client/Response/ResponseStatus/ResponseStatusCode.vue';
 import type { RequestLog } from '@/interfaces/history/logs';
 import { type PendingRequest, STATUS } from '@/interfaces/http';
 import { useRequestStore } from '@/stores';
+import { parseRateLimit } from '@/utils/response/rateLimit';
 import { cn } from '@/utils/ui';
 import prettyBytes from 'pretty-bytes';
 import prettyMs from 'pretty-ms';
@@ -94,6 +96,12 @@ const statusAnnouncement = computed(() => {
     return lastLog.value ? 'Response received' : '';
 });
 
+const rateLimit = computed(() =>
+    lastLog.value?.response ? parseRateLimit(lastLog.value.response.headers) : null,
+);
+
+const resetLimiter = () => requestStore.executeCurrentRequest({ resetLimiter: true });
+
 const isImportedFromShare = computed(() => lastLog.value?.importedFromShare === true);
 </script>
 
@@ -145,6 +153,11 @@ const isImportedFromShare = computed(() => lastLog.value?.importedFromShare === 
             </AppTooltip>
 
             <template v-if="!pendingRequestData?.isProcessing">
+                <RateLimitMeter
+                    v-if="rateLimit"
+                    :rate-limit="rateLimit"
+                    @reset="resetLimiter"
+                />
                 <RequestHistory />
             </template>
 

@@ -20,6 +20,8 @@ export interface SendRelayRequestOptions {
     appBasePath: string;
     resolve: ResolveEnvironmentVariables;
     signal?: AbortSignal;
+    /** Clears the rate limiter of the route before the request is handled. */
+    resetLimiter?: boolean;
 }
 
 /**
@@ -30,7 +32,14 @@ export interface SendRelayRequestOptions {
  */
 export const sendRelayRequest = (
     request: PendingRequest,
-    { apiUrl, environment, appBasePath, resolve, signal }: SendRelayRequestOptions,
+    {
+        apiUrl,
+        environment,
+        appBasePath,
+        resolve,
+        signal,
+        resetLimiter,
+    }: SendRelayRequestOptions,
 ): Promise<RequestResult | null> => {
     return new Promise<RequestResult | null>((resolveResult, reject) => {
         const url = appBasePath + '/api/relay';
@@ -49,6 +58,10 @@ export const sendRelayRequest = (
 
         if (timeTravel) {
             headers['X-Nimbus-Time-Travel'] = timeTravel;
+        }
+
+        if (resetLimiter) {
+            headers['X-Nimbus-Reset-Limiter'] = '1';
         }
 
         axios
