@@ -21,6 +21,7 @@ export type {
     Response,
     ResponseBody,
     ResponseDownload,
+    SentRequest,
 } from './response';
 
 export { STATUS } from './status';

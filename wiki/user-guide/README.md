@@ -267,6 +267,10 @@ The Response Viewer displays detailed information about API responses.
 
 The Response, Headers, and Cookies tabs show a counter when they have items.
 
+The **Plain** tab shows the raw request as the target received it, then the raw response.
+The request shows the final URL, the headers, and the body after variables are resolved.
+Nothing is masked, so authorization headers are visible.
+
 **Features:**
 - Collapsible sections for better organization.
 - Copy response body to clipboard.
