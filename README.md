@@ -5,6 +5,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/sunchayn/nimbus.svg?style=flat-square)](https://packagist.org/packages/sunchayn/nimbus)
 [![License](https://img.shields.io/packagist/l/sunchayn/nimbus.svg?style=flat-square)](https://packagist.org/packages/sunchayn/nimbus)
 [![PHP Version](https://img.shields.io/packagist/php-v/sunchayn/nimbus.svg?style=flat-square)](https://packagist.org/packages/sunchayn/nimbus)
+<a href="https://packagist.org/packages/sunchayn/nimbus"><img src="https://badge.laravel.cloud/badge/sunchayn/nimbus?style=flat" alt="Laravel versions"></a>
 [![codecov](https://codecov.io/github/sunchayn/nimbus/graph/badge.svg?token=IPMYSPI2T4)](https://codecov.io/github/sunchayn/nimbus)
 
 **An integrated, in-browser API client for Laravel with a touch of magic.**  
