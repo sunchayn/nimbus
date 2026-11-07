@@ -26,6 +26,7 @@ import { createApp } from 'vue';
  */
 
 import { useErrorStore, useRoutesStore } from '@/stores';
+import { quotaSafeStorage } from '@/utils/stores/quotaSafeStorage';
 import { createPersistedState } from 'pinia-plugin-persistedstate';
 import App from './App.vue';
 import router from './router';
@@ -45,6 +46,7 @@ app.use(pinia);
 pinia.use(
     createPersistedState({
         key: (id: string) => `nimbus:${id}`,
+        storage: quotaSafeStorage,
     }),
 );
 app.use(router);

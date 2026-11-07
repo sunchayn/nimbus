@@ -4,6 +4,7 @@
  * @description Settings section for configuring user-specific application preferences.
  */
 import { AppIcon } from '@/components/base/icons';
+import { AppInput } from '@/components/base/input';
 import { AppLabel } from '@/components/base/label';
 import { AppRadioCardGroup } from '@/components/base/radio-card';
 import { AppSelect } from '@/components/base/select';
@@ -92,68 +93,45 @@ const updatePreference = <K extends keyof typeof preferences.value>(
         duration: 3000,
     });
 };
+
+const updateMaxHistoryLogs = (value: string | number) => {
+    const logs = Math.trunc(Number(value));
+
+    if (logs >= 10 && logs <= 1000) {
+        updatePreference('maxHistoryLogs', logs);
+    }
+};
 </script>
 
 <template>
     <div class="gap-loose flex flex-col">
-        <!-- Application Behavior -->
-        <!--        <div class="grid gap-base sm:grid-cols-12 sm:gap-8">-->
-        <!--            <div class="col-span-4">-->
-        <!--                <div class="space-y-base">-->
-        <!--                    <div class="flex items-center space-x-base">-->
-        <!--                        <SettingsIcon class="h-4 w-4" />-->
-        <!--                        <h3 class="text-sm font-medium">Application Behavior</h3>-->
-        <!--                    </div>-->
-        <!--                    <p class="text-muted text-xs">-->
-        <!--                        Configure how the application behaves on startup and during use.-->
-        <!--                    </p>-->
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--            <div class="col-span-8">-->
-        <!--                <div class="rounded-lg border p-4">-->
-        <!--                    <div class="space-y-4">-->
-        <!--                        <div class="flex items-center justify-between">-->
-        <!--                            <div class="space-y-tight">-->
-        <!--                                <AppLabel class="text-sm">Auto-refresh routes</AppLabel>-->
-        <!--                                <p class="text-muted text-xs">-->
-        <!--                                    Automatically refresh routes when the application-->
-        <!--                                    starts-->
-        <!--                                </p>-->
-        <!--                            </div>-->
-        <!--                            <AppSwitch-->
-        <!--                                :model-value="preferences.autoRefreshRoutes"-->
-        <!--                                @update:model-value="-->
-        <!--                                    value => updatePreference('autoRefreshRoutes', value)-->
-        <!--                                "-->
-        <!--                            />-->
-        <!--                        </div>-->
-
-        <!--                        <div class="space-y-tight">-->
-        <!--                            <AppLabel class="text-sm">Maximum history logs</AppLabel>-->
-        <!--                            <p class="text-muted mb-base text-xs">-->
-        <!--                                Maximum number of request logs to keep in history-->
-        <!--                            </p>-->
-        <!--                            <AppInput-->
-        <!--                                :model-value="preferences.maxHistoryLogs.toString()"-->
-        <!--                                type="numeric"-->
-        <!--                                min="10"-->
-        <!--                                max="1000"-->
-        <!--                                class="w-24"-->
-        <!--                                @update:model-value="-->
-        <!--                                    value => {-->
-        <!--                                        const numValue = parseInt(String(value));-->
-        <!--                                        const finalValue: number = isNaN(numValue)-->
-        <!--                                            ? 100-->
-        <!--                                            : numValue;-->
-        <!--                                        updatePreference('maxHistoryLogs', finalValue);-->
-        <!--                                    }-->
-        <!--                                "-->
-        <!--                            />-->
-        <!--                        </div>-->
-        <!--                    </div>-->
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--        </div>-->
+        <!-- Request History -->
+        <div class="gap-base sm:gap-loose grid sm:grid-cols-3">
+            <div class="gap-tight flex flex-col">
+                <div class="gap-base flex items-center">
+                    <AppIcon name="i-hugeicons-history" class="size-icon-md" />
+                    <h3 class="text-sm font-medium">Request History</h3>
+                </div>
+                <p class="text-muted text-xs">Control how many past requests are kept.</p>
+            </div>
+            <div
+                class="border-default gap-tight p-card flex flex-col rounded-md border sm:col-span-2"
+            >
+                <AppLabel>Maximum history logs</AppLabel>
+                <p class="text-muted text-xs">
+                    Maximum number of request logs to keep in history, from 10 to 1000.
+                </p>
+                <AppInput
+                    :model-value="preferences.maxHistoryLogs"
+                    type="number"
+                    :min="10"
+                    :max="1000"
+                    class="w-24"
+                    data-testid="max-history-logs-input"
+                    @update:model-value="updateMaxHistoryLogs"
+                />
+            </div>
+        </div>
 
         <!-- Appearance -->
         <div class="gap-base sm:gap-loose grid sm:grid-cols-3">

@@ -1,4 +1,7 @@
-import { formDataSerializer } from '@/utils/stores/formDataSerializer';
+import {
+    formDataSerializer,
+    STORED_BODY_MAX_CHARS,
+} from '@/utils/stores/formDataSerializer';
 import { describe, expect, it } from 'vitest';
 
 describe('formDataSerializer', () => {
@@ -66,5 +69,29 @@ describe('formDataSerializer', () => {
         // Act & Assert
 
         expect(formDataSerializer.deserialize('{broken')).toEqual({});
+    });
+
+    it('cuts a large response body and marks it', () => {
+        // Arrange
+
+        const state = {
+            small: { statusCode: 200, body: 'ok' },
+            large: { statusCode: 200, body: 'a'.repeat(STORED_BODY_MAX_CHARS + 5) },
+        };
+
+        // Act
+
+        const restored = formDataSerializer.deserialize(
+            formDataSerializer.serialize(state),
+        ) as {
+            small: { body: string; bodyTruncated?: boolean };
+            large: { body: string; bodyTruncated?: boolean };
+        };
+
+        // Assert
+
+        expect(restored.small).toEqual({ statusCode: 200, body: 'ok' });
+        expect(restored.large.body).toHaveLength(STORED_BODY_MAX_CHARS);
+        expect(restored.large.bodyTruncated).toBe(true);
     });
 });

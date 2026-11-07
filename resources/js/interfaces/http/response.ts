@@ -26,6 +26,8 @@ export interface Response {
     statusCode: number;
     statusText: string;
     body: string;
+    /** Set when the stored copy of the body was cut to fit the browser storage. */
+    bodyTruncated?: boolean;
     sizeInBytes: number;
     headers: ResponseHeader[];
     cookies: ResponseCookie[];

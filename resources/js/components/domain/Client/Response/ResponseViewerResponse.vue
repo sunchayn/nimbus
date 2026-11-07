@@ -10,6 +10,7 @@ import { AppTooltip } from '@/components/base/tooltip';
 import ResponseBody from '@/components/domain/Client/Response/ResponseBody/ResponseBody.vue';
 import ResponseDownload from '@/components/domain/Client/Response/ResponseBody/ResponseDownload.vue';
 import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDumpAndDie.vue';
+import ResponseNotice from '@/components/domain/Client/Response/ResponseBody/ResponseNotice.vue';
 import ResponseCookies from '@/components/domain/Client/Response/ResponseCookies/ResponseCookies.vue';
 import ResponseHeaders from '@/components/domain/Client/Response/ResponseHeaders/ResponseHeaders.vue';
 import ResponsePlainView from '@/components/domain/Client/Response/ResponsePlainView/ResponsePlainView.vue';
@@ -125,6 +126,15 @@ const pendingRequestData = computed(() => requestStore.pendingRequestData);
                 </div>
             </template>
             <template #response>
+                <ResponseNotice
+                    v-if="lastLog?.response?.bodyTruncated"
+                    label="Stored body truncated"
+                    indicator-class="text-warning"
+                    class="m-panel"
+                >
+                    Only the first 256KB of this response was kept. Send the request again to see the full body.
+                </ResponseNotice>
+
                 <ResponseDownload
                     v-if="lastLog?.response?.download"
                     :download="lastLog.response.download"

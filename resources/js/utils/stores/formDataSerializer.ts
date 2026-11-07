@@ -3,6 +3,9 @@ import type { StateTree } from 'pinia';
 
 const FORM_DATA_TAG = '__formData';
 
+// Stored response bodies are cut to this length so one large response cannot fill the storage.
+export const STORED_BODY_MAX_CHARS = 262_144;
+
 type StoredEntry = string | { file: string };
 
 const revive = (key: string, value: unknown): unknown => {
@@ -35,6 +38,20 @@ const revive = (key: string, value: unknown): unknown => {
 export const formDataSerializer = {
     serialize: (state: unknown): string =>
         JSON.stringify(state, (_key, value) => {
+            if (
+                value !== null &&
+                typeof value === 'object' &&
+                typeof value.statusCode === 'number' &&
+                typeof value.body === 'string' &&
+                value.body.length > STORED_BODY_MAX_CHARS
+            ) {
+                return {
+                    ...value,
+                    body: value.body.slice(0, STORED_BODY_MAX_CHARS),
+                    bodyTruncated: true,
+                };
+            }
+
             if (!(value instanceof FormData)) {
                 return value;
             }
