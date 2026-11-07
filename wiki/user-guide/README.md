@@ -634,7 +634,8 @@ Transaction Mode allows you to execute requests without affecting your database.
 1. Click the **Request Options** (sparkles) icon in the endpoint bar.
 2. Toggle **Transaction mode** to **ON**.
 3. Execute your request.
-4. Nimbus wraps the entire request in a database transaction and automatically rolls it back once the request is complete.
+4. Nimbus opens a transaction on every database connection defined in your `database.connections` config and rolls them all back once the request is complete.
+5. If a connection cannot be reached, Nimbus skips it and lists it in the `X-Nimbus-Transaction-Skipped` response header, so you know it was not covered.
 
 ![Transaction Mode](./assets/transaction-mode.png)
 

@@ -320,6 +320,8 @@ sequenceDiagram
 `ReadLookupValuesAction` reads at most 20 values per pair, and only for pairs that the route's own extracted schema declares.
 The lists stay in memory, autofill picks from them at random, and the store reloads them on an environment change and after a write request.
 
+**Transaction mode.** When the relayed request carries `X-Nimbus-Transaction-Mode`, `TransactionModeListener` (Magic module) runs on `RouteMatched`. It opens a transaction on every connection in `database.connections` and rolls each back in reverse order on terminate. Connections that fail to connect are skipped, logged at debug level, and listed in the `X-Nimbus-Transaction-Skipped` response header.
+
 ---
 
 ## Design Principles

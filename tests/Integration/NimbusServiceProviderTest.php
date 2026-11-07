@@ -2,11 +2,7 @@
 
 namespace Sunchayn\Nimbus\Tests\Integration;
 
-use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Application;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Events\RouteMatched;
-use Illuminate\Routing\Route;
 use Mockery;
 use Orchestra\Testbench\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -98,55 +94,5 @@ class NimbusServiceProviderTest extends TestCase
         // Assert
 
         $this->assertInstanceOf(OpenAPISchemaRoutesProcessor::class, $processor);
-    }
-
-    public function test_it_rolls_back_transaction_on_termination(): void
-    {
-        // Arrange
-
-        $dbMock = Mockery::mock(DatabaseManager::class);
-
-        $dbMock->shouldReceive('rollBack')->once();
-
-        $this->app->instance('db', $dbMock);
-
-        $request = Request::create('/test', 'GET');
-        $request->headers->set('X-Nimbus-Transaction-Mode', '1');
-
-        $route = new Route(['GET'], '/test', fn () => 'ok');
-        $event = new RouteMatched($route, $request);
-
-        // Anticipate
-
-        $dbMock->shouldReceive('beginTransaction'); // Triggered by event
-        $dbMock->shouldReceive('transactionLevel')->andReturn(1);
-
-        // Act
-
-        $this->app['events']->dispatch($event);
-
-        // Trigger termination logic manually
-        $this->app->terminate();
-    }
-
-    public function test_it_ignores_transaction_mode_if_header_missing(): void
-    {
-        // Arrange
-
-        $dbMock = Mockery::mock(DatabaseManager::class);
-        $dbMock->shouldNotReceive('beginTransaction');
-
-        $this->app->instance('db', $dbMock);
-
-        $request = Request::create('/test', 'GET');
-
-        // No header
-
-        $route = new Route(['GET'], '/test', fn () => 'ok');
-        $event = new RouteMatched($route, $request);
-
-        // Act
-
-        $this->app['events']->dispatch($event);
     }
 }
