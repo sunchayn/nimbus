@@ -1,6 +1,6 @@
 <?php
 
-namespace Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors;
+namespace Sunchayn\Nimbus\Modules\Magic\Injectors;
 
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Authenticatable;

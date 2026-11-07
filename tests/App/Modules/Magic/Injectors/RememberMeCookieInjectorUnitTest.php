@@ -1,6 +1,6 @@
 <?php
 
-namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\Services\Authorization\Injectors;
+namespace Sunchayn\Nimbus\Tests\App\Modules\Magic\Injectors;
 
 use Illuminate\Auth\SessionGuard;
 use Illuminate\Container\Container;
@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
-use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\RememberMeCookieInjector;
+use Sunchayn\Nimbus\Modules\Magic\Injectors\RememberMeCookieInjector;
 use Sunchayn\Nimbus\Tests\App\Modules\Relay\Authorization\Injectors\MockInterface;
 use Sunchayn\Nimbus\Tests\TestCase;
 

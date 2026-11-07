@@ -10,9 +10,9 @@ use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
 use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentSourceEnum;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
+use Sunchayn\Nimbus\Modules\Magic\Injectors\RememberMeCookieInjector;
+use Sunchayn\Nimbus\Modules\Magic\Injectors\TymonJwtTokenInjector;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Contracts\SpecialAuthenticationInjectorContract;
-use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\RememberMeCookieInjector;
-use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\TymonJwtTokenInjector;
 
 class ActiveApplicationResolver
 {
