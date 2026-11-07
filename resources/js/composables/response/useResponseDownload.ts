@@ -33,7 +33,12 @@ const extractContentType = (response?: Response): string => {
 const getDownloadSlug = (request?: Request): string => {
     const routeName = request?.routeDefinition?.metadata?.name;
 
-    if (typeof routeName === 'string' && routeName.trim() !== '') {
+    // A name ending in a dot is a group prefix that Laravel gives to a route with no name.
+    if (
+        typeof routeName === 'string' &&
+        routeName.trim() !== '' &&
+        !routeName.endsWith('.')
+    ) {
         return routeName.trim();
     }
 

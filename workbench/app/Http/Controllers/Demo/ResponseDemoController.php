@@ -3,8 +3,11 @@
 namespace Workbench\App\Http\Controllers\Demo;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Workbench\App\Http\Controllers\Demo\SpatieData\SpatieDataExample;
+use Workbench\App\Http\Resources\DemoPostResource;
+use Workbench\App\Models\Product;
 
 class DemoUserResource extends JsonResource
 {
@@ -69,5 +72,27 @@ class ResponseDemoController
             'active' => true,
             'count' => 42,
         ];
+    }
+
+    public function paginated(): AnonymousResourceCollection
+    {
+        return DemoPostResource::collection(Product::query()->paginate(15));
+    }
+
+    public function simplePaginated(): AnonymousResourceCollection
+    {
+        return DemoPostResource::collection(Product::query()->simplePaginate(15));
+    }
+
+    public function cursorPaginated(): AnonymousResourceCollection
+    {
+        $products = Product::query()->orderBy('id')->cursorPaginate(15);
+
+        return DemoPostResource::collection($products);
+    }
+
+    public function resourceWithOptionalKeys(): DemoPostResource
+    {
+        return new DemoPostResource(null);
     }
 }

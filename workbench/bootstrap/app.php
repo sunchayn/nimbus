@@ -15,7 +15,6 @@ return Application::configure(basePath: $APP_BASE_PATH ?? default_skeleton_path(
         then: function (): void {
             Route::middleware(['api'])
                 ->prefix('_demo')
-                ->name('demo.')
                 ->group(__DIR__.'/../routes/demo.php');
         },
     )

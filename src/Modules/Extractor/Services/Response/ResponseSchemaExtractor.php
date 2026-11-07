@@ -11,6 +11,7 @@ use Sunchayn\Nimbus\Modules\Extractor\Actions\InferSchemaFromArrayAction;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\Contracts\ResponseSchemaStrategyContract;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\DataTransferObjects\ExtractableResponseData;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\Strategies\JsonResourceStrategy;
+use Sunchayn\Nimbus\Modules\Extractor\Services\Response\Strategies\PaginatedResourceCollectionStrategy;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\Strategies\RawJsonResponseStrategy;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\Strategies\SpatieDataObjectResponseStrategy;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
@@ -31,6 +32,7 @@ class ResponseSchemaExtractor
         private readonly InferSchemaFromArrayAction $inferSchemaFromArrayAction,
     ) {
         $this->strategies = [
+            $container->make(PaginatedResourceCollectionStrategy::class),
             $container->make(JsonResourceStrategy::class),
             $container->make(SpatieDataObjectResponseStrategy::class),
             $container->make(RawJsonResponseStrategy::class),
