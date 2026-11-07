@@ -8,6 +8,10 @@ export enum RequestBodyTypeEnum {
     JSON = 'json',
     PLAIN_TEXT = 'plain-text',
     FORM_DATA = 'form-data',
+    URLENCODED = 'urlencoded',
+    HTML = 'html',
+    XML = 'xml',
+    BINARY = 'binary',
 }
 
 /**

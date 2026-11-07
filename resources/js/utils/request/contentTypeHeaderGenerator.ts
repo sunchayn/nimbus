@@ -42,7 +42,52 @@ export const types: TypeShape[] = [
         autoFillable: true,
         mimeType: 'multipart/form-data',
     },
+    {
+        id: RequestBodyTypeEnum.URLENCODED,
+        label: 'Form URL Encoded',
+        autoFillable: true,
+        mimeType: 'application/x-www-form-urlencoded',
+    },
+    {
+        id: RequestBodyTypeEnum.HTML,
+        label: 'HTML',
+        autoFillable: false,
+        mimeType: 'text/html',
+    },
+    {
+        id: RequestBodyTypeEnum.XML,
+        label: 'XML',
+        autoFillable: false,
+        mimeType: 'application/xml',
+    },
+    {
+        id: RequestBodyTypeEnum.BINARY,
+        label: 'Binary',
+        autoFillable: false,
+        mimeType: null,
+    },
 ];
+
+/**
+ * Gets the Content-Type a request needs for its body.
+ * A binary body uses the type of its file and other types use their own MIME type.
+ */
+export function getMimeTypeForRequest(request: {
+    payloadType: RequestBodyTypeEnum;
+    body: Partial<
+        Record<string, Partial<Record<RequestBodyTypeEnum, FormData | string | null>>>
+    >;
+    method: string;
+}): string | null {
+    if (request.payloadType === RequestBodyTypeEnum.BINARY) {
+        const body = request.body[request.method]?.[RequestBodyTypeEnum.BINARY];
+        const file = body instanceof FormData ? body.get('file') : null;
+
+        return file instanceof File && file.type ? file.type : 'application/octet-stream';
+    }
+
+    return getMimeTypeForPayloadType(request.payloadType);
+}
 
 /**
  * Gets the MIME type for a given payload type.
@@ -83,8 +128,9 @@ export function getMimeTypeForPayloadType(
 export function generateContentTypeHeader(
     payloadType: RequestBodyTypeEnum,
     existingHeaders: HttpHeaders[],
+    mimeTypeOverride: string | null = null,
 ): HttpHeaders[] {
-    const mimeType = getMimeTypeForPayloadType(payloadType);
+    const mimeType = mimeTypeOverride ?? getMimeTypeForPayloadType(payloadType);
 
     // Find existing Content-Type header (case-insensitive)
     const contentTypeIndex = existingHeaders.findIndex(

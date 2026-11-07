@@ -2,6 +2,7 @@ import { RequestBodyTypeEnum } from '@/interfaces/http';
 import {
     generateContentTypeHeader,
     getMimeTypeForPayloadType,
+    getMimeTypeForRequest,
     types,
 } from '@/utils/request/contentTypeHeaderGenerator';
 import { describe, expect, it } from 'vitest';
@@ -9,7 +10,7 @@ import { describe, expect, it } from 'vitest';
 describe('contentTypeHeaderGenerator', () => {
     describe('types constant', () => {
         it('exports all payload types with correct structure', () => {
-            expect(types).toHaveLength(4);
+            expect(types).toHaveLength(8);
             expect(types).toEqual([
                 {
                     id: RequestBodyTypeEnum.EMPTY,
@@ -34,6 +35,30 @@ describe('contentTypeHeaderGenerator', () => {
                     label: 'Form Data',
                     autoFillable: true,
                     mimeType: 'multipart/form-data',
+                },
+                {
+                    id: RequestBodyTypeEnum.URLENCODED,
+                    label: 'Form URL Encoded',
+                    autoFillable: true,
+                    mimeType: 'application/x-www-form-urlencoded',
+                },
+                {
+                    id: RequestBodyTypeEnum.HTML,
+                    label: 'HTML',
+                    autoFillable: false,
+                    mimeType: 'text/html',
+                },
+                {
+                    id: RequestBodyTypeEnum.XML,
+                    label: 'XML',
+                    autoFillable: false,
+                    mimeType: 'application/xml',
+                },
+                {
+                    id: RequestBodyTypeEnum.BINARY,
+                    label: 'Binary',
+                    autoFillable: false,
+                    mimeType: null,
                 },
             ]);
         });
@@ -270,6 +295,52 @@ describe('contentTypeHeaderGenerator', () => {
                     value: 'text/plain',
                 },
             ]);
+        });
+    });
+
+    describe('getMimeTypeForRequest', () => {
+        const base = { method: 'POST', body: {} };
+
+        it.each([
+            [RequestBodyTypeEnum.HTML, 'text/html'],
+            [RequestBodyTypeEnum.XML, 'application/xml'],
+        ])('uses the own MIME type for a %s body', (payloadType, mimeType) => {
+            expect(getMimeTypeForRequest({ ...base, payloadType })).toBe(mimeType);
+        });
+
+        it('uses the file type for a binary body', () => {
+            const formData = new FormData();
+            formData.append('file', new File(['x'], 'a.png', { type: 'image/png' }));
+
+            expect(
+                getMimeTypeForRequest({
+                    method: 'POST',
+                    payloadType: RequestBodyTypeEnum.BINARY,
+                    body: { POST: { [RequestBodyTypeEnum.BINARY]: formData } },
+                }),
+            ).toBe('image/png');
+            expect(
+                getMimeTypeForRequest({
+                    ...base,
+                    payloadType: RequestBodyTypeEnum.BINARY,
+                }),
+            ).toBe('application/octet-stream');
+        });
+
+        it('sets the override header unless the user set one', () => {
+            expect(
+                generateContentTypeHeader(RequestBodyTypeEnum.BINARY, [], 'image/png'),
+            ).toEqual([{ key: 'content-type', value: 'image/png' }]);
+
+            const userHeaders = [{ key: 'Content-Type', value: 'text/csv' }];
+
+            expect(
+                generateContentTypeHeader(
+                    RequestBodyTypeEnum.BINARY,
+                    userHeaders,
+                    'image/png',
+                ),
+            ).toEqual(userHeaders);
         });
     });
 });

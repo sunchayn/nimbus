@@ -104,6 +104,45 @@ describe('relayRequest', () => {
     });
 
     describe('createRelayPayload', () => {
+        it('sends a binary body as the file with its type', () => {
+            const formData = new FormData();
+            formData.append('file', new File(['abc'], 'a.png', { type: 'image/png' }));
+
+            const payload = createRelayPayload(
+                createMockPendingRequest({
+                    method: 'POST',
+                    payloadType: RequestBodyTypeEnum.BINARY,
+                    body: { POST: { [RequestBodyTypeEnum.BINARY]: formData } },
+                }),
+                'https://a.test',
+                resolve,
+            );
+
+            expect((payload.body as File).name).toBe('a.png');
+            expect(payload.headers).toContainEqual({
+                key: 'content-type',
+                value: 'image/png',
+            });
+        });
+
+        it('sends an HTML body with the HTML content type', () => {
+            const payload = createRelayPayload(
+                createMockPendingRequest({
+                    method: 'POST',
+                    payloadType: RequestBodyTypeEnum.HTML,
+                    body: { POST: { [RequestBodyTypeEnum.HTML]: '<p></p>' } },
+                }),
+                'https://a.test',
+                resolve,
+            );
+
+            expect(payload.body).toBe('<p></p>');
+            expect(payload.headers).toContainEqual({
+                key: 'content-type',
+                value: 'text/html',
+            });
+        });
+
         it('maps the set options and omits the unset ones', () => {
             const request = createMockPendingRequest({
                 options: { followRedirects: false, timeout: 5 },

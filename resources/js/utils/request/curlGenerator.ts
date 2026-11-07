@@ -4,9 +4,8 @@ import type { ResolverFn } from '@/interfaces/common/env-vars';
 import { AuthorizationType } from '@/interfaces/generated';
 import type { PendingRequest } from '@/interfaces/http';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
-import { ParameterType } from '@/interfaces/ui/key-value-parameters';
 import { buildRequestUrl } from '@/utils';
-import { getMimeTypeForPayloadType } from '@/utils/request/contentTypeHeaderGenerator';
+import { getMimeTypeForRequest } from '@/utils/request/contentTypeHeaderGenerator';
 
 /**
  * Result of cURL command generation.
@@ -27,21 +26,18 @@ export function generateCurlCommand(
     baseUrl: string,
     resolver: ResolverFn,
 ): CurlGenerationResult {
-    const { queryParameters, requestBody } = getEffectiveQueryParametersAndBodyValue(
-        request,
-        resolver,
-    );
+    const requestBody = getRequestEffectiveBody(request);
+    const bodyParts = buildRequestBodyParts(requestBody, request.payloadType, resolver);
 
-    const methodPart = buildHttpMethodPart(request.method);
+    const methodPart = buildHttpMethodPart(request.method, bodyParts.length > 0);
     const fullUrl = buildRequestUrl(
         baseUrl,
         resolver(request.endpoint),
-        queryParameters,
+        request.queryParameters,
         resolver,
     );
     const headerParts = buildRequestHeaderParts(request, resolver);
     const authPart = buildAuthorizationHeaderPart(request.authorization, resolver);
-    const bodyParts = buildRequestBodyParts(requestBody, resolver);
 
     const command = ['curl']
         .concat(methodPart ? [methodPart] : [])
@@ -57,51 +53,14 @@ export function generateCurlCommand(
     };
 }
 
-function getEffectiveQueryParametersAndBodyValue(
-    request: PendingRequest,
-    resolver: ResolverFn,
-): {
-    queryParameters: ParameterContract[];
-    requestBody: FormData | string | null;
-} {
-    const requestBody = getRequestEffectiveBody(request);
-
-    const isGetRequest = request.method.toLowerCase() === 'get';
-
-    // In GET requests, we want to move the body content to query parameters and discard the body.
-    if (isGetRequest) {
-        const requestBodyKeyValuePairs = transformRequestBodyToKeyValuePairs(
-            requestBody,
-            request.payloadType,
-            resolver,
-        );
-
-        return {
-            queryParameters: [
-                ...request.queryParameters.filter(isValidParameter),
-                ...convertKeyValuePairsToQueryParameters(
-                    requestBodyKeyValuePairs,
-                    resolver,
-                ),
-            ],
-            requestBody: null,
-        };
-    }
-
-    return {
-        queryParameters: request.queryParameters,
-        requestBody: requestBody,
-    };
-}
-
 /**
  * Builds HTTP method part.
  */
-function buildHttpMethodPart(method: string): string | null {
+function buildHttpMethodPart(method: string, hasBody: boolean): string | null {
     const upperMethod = method.toUpperCase();
 
-    // GET is the default HTTP method in cURL, so no explicit flag needed
-    if (upperMethod === 'GET') {
+    // GET is the default HTTP method in cURL, unless a body is sent, which makes cURL use POST.
+    if (upperMethod === 'GET' && !hasBody) {
         return null;
     }
 
@@ -123,7 +82,7 @@ function buildRequestHeaderParts(
         return `-H "${header.key}: ${headerValue}"`;
     });
 
-    const mimeType = getMimeTypeForPayloadType(request.payloadType);
+    const mimeType = getMimeTypeForRequest(request);
     if (mimeType) {
         const hasContentType = validHeaders.some(
             header => header.key.toLowerCase() === 'content-type',
@@ -151,18 +110,6 @@ function buildAuthorizationHeaderPart(
     }
 
     return `-H "${authHeader}"`;
-}
-
-function convertKeyValuePairsToQueryParameters(
-    keyValuePairs: Record<string, string>,
-    _resolver: ResolverFn,
-): ParameterContract[] {
-    return Object.entries(keyValuePairs).map(([key, value]) => ({
-        type: ParameterType.Text,
-        enabled: true,
-        key,
-        value: value,
-    }));
 }
 
 /**
@@ -244,80 +191,77 @@ function getRequestEffectiveBody(request: PendingRequest): FormData | string | n
 }
 
 /**
- * Builds request body parts.
+ * Wraps a value in single quotes so the shell reads it literally.
+ */
+function quoteShellValue(value: string): string {
+    return `'${value.replace(/'/g, `'\\''`)}'`;
+}
+
+/**
+ * Builds the cURL body flags for the payload type.
+ *
+ * The body never goes into the query string, whatever the HTTP method is.
  */
 function buildRequestBodyParts(
     requestBody: FormData | string | null,
+    payloadType: RequestBodyTypeEnum,
     resolver: ResolverFn,
 ): string[] {
-    if (requestBody === null) {
+    if (requestBody === null || payloadType === RequestBodyTypeEnum.EMPTY) {
         return [];
     }
 
-    return convertBodyValueToRequestParts(requestBody, resolver);
-}
+    switch (payloadType) {
+        case RequestBodyTypeEnum.FORM_DATA:
+            return requestBody instanceof FormData
+                ? buildFormDataParts(requestBody, resolver)
+                : [];
 
-function transformRequestBodyToKeyValuePairs(
-    bodyValue: string | FormData | null,
-    payloadType: RequestBodyTypeEnum,
-    resolver: ResolverFn,
-): Record<string, string> {
-    if (bodyValue === null) {
-        return {};
+        case RequestBodyTypeEnum.URLENCODED:
+            return requestBody instanceof FormData
+                ? buildUrlencodedParts(requestBody, resolver)
+                : [];
+
+        case RequestBodyTypeEnum.BINARY:
+            return requestBody instanceof FormData ? buildBinaryParts(requestBody) : [];
+
+        default:
+            return typeof requestBody === 'string'
+                ? [`-d ${quoteShellValue(resolver(requestBody))}`]
+                : [];
     }
-
-    if (bodyValue instanceof FormData) {
-        return Object.fromEntries(
-            Array.from(bodyValue.entries()).map(([key, value]) => [
-                key,
-                value instanceof File ? `@${value}` : value,
-            ]),
-        );
-    }
-
-    const resolvedBodyValue = typeof bodyValue === 'string' ? resolver(bodyValue) : '';
-
-    if (payloadType === RequestBodyTypeEnum.JSON) {
-        return JSON.parse(resolvedBodyValue);
-    }
-
-    return resolvedBodyValue.split('\n').reduce<Record<string, string>>(function (
-        carry,
-        bodyLine,
-    ) {
-        const { 0: key, 1: value } = bodyLine.split('=');
-
-        carry[key] = value;
-
-        return carry as Record<string, string>;
-    }, {}) as Record<string, string>;
 }
 
 /**
- * Formats body value based on payload type.
+ * Builds one -F flag for each form data field.
  */
-function convertBodyValueToRequestParts(
-    bodyValue: string | FormData,
-    resolver: ResolverFn,
-): string[] {
-    if (bodyValue instanceof FormData) {
-        return convertFormDataToCUrlFields(bodyValue);
-    }
-
-    return [`-d '${resolver(bodyValue)}'`];
+function buildFormDataParts(formData: FormData, resolver: ResolverFn): string[] {
+    return Array.from(formData.entries()).map(([key, value]) =>
+        value instanceof File
+            ? `-F ${quoteShellValue(`${key}=@${value.name}`)}`
+            : `-F ${quoteShellValue(`${key}=${resolver(value)}`)}`,
+    );
 }
 
 /**
- * Converts FormData object to cURL field strings.
+ * Builds one --data-urlencode flag for each field.
  */
-function convertFormDataToCUrlFields(formData: FormData): string[] {
-    return Array.from(formData.entries()).map(([key, value]) => {
-        if (value instanceof File) {
-            return `-F ${key}=@${value.name}`;
-        }
+function buildUrlencodedParts(formData: FormData, resolver: ResolverFn): string[] {
+    return Array.from(formData.entries()).map(
+        ([key, value]) =>
+            `--data-urlencode ${quoteShellValue(`${key}=${resolver(String(value))}`)}`,
+    );
+}
 
-        return `-F ${key}=${value}`;
-    });
+/**
+ * Builds the flag that sends the file as the raw request body.
+ */
+function buildBinaryParts(formData: FormData): string[] {
+    const file = formData.get('file');
+
+    return file instanceof File
+        ? [`--data-binary ${quoteShellValue(`@${file.name}`)}`]
+        : [];
 }
 
 /**

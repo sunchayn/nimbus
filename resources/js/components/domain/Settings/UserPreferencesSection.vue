@@ -71,7 +71,11 @@ const requestBodyTypeItems = [
     { label: 'Empty', value: RequestBodyTypeEnum.EMPTY },
     { label: 'JSON', value: RequestBodyTypeEnum.JSON },
     { label: 'Form Data', value: RequestBodyTypeEnum.FORM_DATA },
+    { label: 'Form URL Encoded', value: RequestBodyTypeEnum.URLENCODED },
+    { label: 'Binary', value: RequestBodyTypeEnum.BINARY },
     { label: 'Plain Text', value: RequestBodyTypeEnum.PLAIN_TEXT },
+    { label: 'HTML', value: RequestBodyTypeEnum.HTML },
+    { label: 'XML', value: RequestBodyTypeEnum.XML },
 ];
 
 const authorizationTypeItems = [

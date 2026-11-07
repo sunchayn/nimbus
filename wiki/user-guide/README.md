@@ -188,6 +188,10 @@ The Request Builder provides an intuitive interface for configuring API requests
 - Schema validation based on Laravel validation rules.
 - Real-time validation feedback.
 - Form Data editor with text and file rows. See [Uploading Files](#uploading-files).
+- Form URL Encoded editor with text rows, sent as `application/x-www-form-urlencoded`.
+- HTML and XML body types that send the text with `text/html` or `application/xml` as the `Content-Type` header, unless you set one yourself.
+- Binary body that sends one file as the raw request body. The `Content-Type` header comes from the file type unless you set one yourself.
+- Auto Fill works for Form URL Encoded the same way it works for Form Data. After a page reload, pick a binary file again.
 
 **Authorization**
 - Multiple authentication methods.
@@ -579,7 +583,7 @@ Export configured requests as cURL commands for use in terminals or scripts.
 - Full URL with parameters
 - All headers (including global headers)
 - Authentication credentials
-- Request body
+- Request body. Form Data uses `-F`, Form URL Encoded uses `--data-urlencode`, Binary uses `--data-binary` with the file name, and the other types use `-d`.
 - HTTP method
 
 ### Shareable Links

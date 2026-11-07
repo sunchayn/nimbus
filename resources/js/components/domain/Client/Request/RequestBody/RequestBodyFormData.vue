@@ -13,13 +13,15 @@ import { ref, watch } from 'vue';
  * Types & Interfaces.
  */
 
-export interface RequestBodyFormDataProps {}
+export interface RequestBodyFormDataProps {
+    freeFormTypes?: boolean;
+}
 
 /*
  * Component Setup.
  */
 
-defineProps<RequestBodyFormDataProps>();
+withDefaults(defineProps<RequestBodyFormDataProps>(), { freeFormTypes: true });
 
 const model = defineModel<FormData | null>({
     default: () => null,
@@ -122,7 +124,7 @@ watch(
 <template>
     <KeyValueParametersBuilder
         :model-value="payload"
-        :free-form-types="true"
+        :free-form-types="freeFormTypes"
         @update:parameters="handlePayloadUpdate"
     />
 </template>

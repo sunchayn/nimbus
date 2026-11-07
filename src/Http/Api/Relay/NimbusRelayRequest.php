@@ -4,6 +4,7 @@ namespace Sunchayn\Nimbus\Http\Api\Relay;
 
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
 use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
@@ -80,6 +81,11 @@ class NimbusRelayRequest extends FormRequest
 
         if (! filled($body)) {
             return [];
+        }
+
+        // A binary body arrives as a single uploaded file and is sent as its raw bytes.
+        if ($body instanceof UploadedFile) {
+            return (string) file_get_contents($body->getRealPath());
         }
 
         // Only a JSON object or list is decoded, so a typed value such as false or 0 is sent as written.

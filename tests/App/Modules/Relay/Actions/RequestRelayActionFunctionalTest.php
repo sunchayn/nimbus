@@ -1138,4 +1138,37 @@ class RequestRelayActionFunctionalTest extends TestCase
         $this->assertSame(SentRequest::MAX_BODY_BYTES, strlen($sent->body));
         $this->assertTrue($sent->bodyTruncated);
     }
+
+    public function test_it_builds_urlencoded_bodies_with_http_build_query(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'post',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: ['content-type' => 'application/x-www-form-urlencoded'],
+            body: ['name' => 'Ada Lovelace', 'tags' => ['a', 'b']],
+            cookies: new ParameterBag,
+        );
+
+        // Anticipate
+
+        Http::fake();
+
+        $this->mockAuthorizationHandler();
+
+        // Act
+
+        resolve(RequestRelayAction::class)->execute($requestData);
+
+        // Assert
+
+        Http::assertSent(function (Request $request): bool {
+            $this->assertSame('application/x-www-form-urlencoded', $request->header('Content-Type')[0]);
+            $this->assertSame(http_build_query(['name' => 'Ada Lovelace', 'tags' => ['a', 'b']]), $request->body());
+
+            return true;
+        });
+    }
 }
