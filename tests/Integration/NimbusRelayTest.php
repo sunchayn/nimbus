@@ -148,6 +148,32 @@ class NimbusRelayTest extends TestCase
         $response->assertExactJson(['message' => 'cURL error 7: Failed to connect']);
     }
 
+    public function test_it_explains_a_timeout_against_the_same_host_and_port(): void
+    {
+        // Arrange
+
+        $requestRelayActionMock = $this->mock(RequestRelayAction::class);
+
+        // Anticipate
+
+        $requestRelayActionMock
+            ->shouldReceive('execute')
+            ->andThrow(new ConnectionException('cURL error 28: Operation timed out'));
+
+        // Act
+
+        $response = $this->postJson(route('nimbus.api.relay'), [
+            'method' => 'GET',
+            'endpoint' => 'http://localhost/api/users',
+        ]);
+
+        // Assert
+
+        $response->assertStatus(500);
+        $this->assertStringContainsString('single threaded', $response->json('message'));
+        $this->assertStringContainsString('http://localhost:81', $response->json('message'));
+    }
+
     public function test_it_includes_the_trace_when_the_target_is_unreachable_while_debugging(): void
     {
         // Arrange
