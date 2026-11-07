@@ -251,6 +251,10 @@ flowchart TD
 - `ConditionalRuleProcessor` handles `nullable`, `sometimes`, and the `required`, `prohibited`, and `exclude` families.
 - `FormatRuleProcessor` handles formats, patterns, `between`, `digits`, `distinct`, and file rules.
 - `LookupRuleProcessor` handles `exists` and `unique`.
+- `RuleObjectProcessor` handles rule objects such as `RequiredIf`, `ProhibitedIf`, closures, and custom rule classes. It never runs a rule or a condition closure. Only a label and the definition line are kept.
+- `Rule::when()` is resolved when its condition is a boolean. A closure condition is ignored.
+- `ReadFormRequestHooksAction` reads `prepareForValidation()`, `attributes()`, and `authorize()` from the source. `FormRequestStrategy` uses it to relax merged keys, set the field titles, and add a warning to the root description.
+- Rule objects are only seen on the form request path. Inline validation is read from the AST, where a static call such as `Rule::in()` is lost.
 - `min`, `max`, `size`, and `between` only store a number. `PropertyBuilder` decides whether it is a length, a value, or an item count from the final type, so the order of the rules does not matter.
 - Extra information with no JSON Schema keyword lives in `PropertyAnnotations`. Hints become the `description` of the property. `lookup` and `skipAutofill` are custom keywords read by the client.
 - Unknown rules add nothing and never fail the extraction.

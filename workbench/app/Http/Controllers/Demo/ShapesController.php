@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Workbench\App\Http\Requests\Demo\ArrayOfPrimitivesRequest;
 use Workbench\App\Http\Requests\Demo\NestedObjectRequest;
 use Workbench\App\Http\Requests\Demo\RuleCoverageRequest;
+use Workbench\App\Http\Requests\Demo\RuleObjectsRequest;
 
 /**
  * Request shapes that need a FormRequest, and cookies set by the response.
@@ -33,6 +34,11 @@ class ShapesController
     }
 
     public function ruleCoverage(RuleCoverageRequest $request): JsonResponse
+    {
+        return response()->json(['message' => 'Rules are valid']);
+    }
+
+    public function ruleObjects(RuleObjectsRequest $request): JsonResponse
     {
         return response()->json(['message' => 'Rules are valid']);
     }

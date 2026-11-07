@@ -43,6 +43,7 @@ class FormatRuleProcessor
             'between' => ['minimum' => $params[0] ?? null, 'maximum' => $params[1] ?? null],
             'mimes', 'extensions' => ['hints' => ['accepted types '.implode(', ', $params)]],
             'mimetypes' => ['hints' => ['accepted mime types '.implode(', ', $params)]],
+            'dimensions' => ['format' => 'binary', 'hints' => ['image dimensions '.implode(', ', $params)]],
             'image' => ['hints' => ['image file']],
             default => [],
         };
