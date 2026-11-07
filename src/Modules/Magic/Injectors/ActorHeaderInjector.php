@@ -15,9 +15,18 @@ use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Contracts\SpecialAuthen
  */
 class ActorHeaderInjector implements SpecialAuthenticationInjectorContract
 {
+    private ?string $guard = null;
+
     public function __construct(
         private readonly ActiveApplicationResolver $activeApplicationResolver,
     ) {}
+
+    public function forGuard(string $guard): self
+    {
+        $this->guard = $guard;
+
+        return $this;
+    }
 
     public function attach(
         PendingRequest $pendingRequest,
@@ -25,7 +34,7 @@ class ActorHeaderInjector implements SpecialAuthenticationInjectorContract
     ): PendingRequest {
         return $pendingRequest->withHeaders([
             NimbusHeaders::ACTOR => NimbusHeaders::actorValue(
-                $this->activeApplicationResolver->getAuthGuard(),
+                $this->guard ?? $this->activeApplicationResolver->getAuthGuard(),
                 (string) $authenticatable->getAuthIdentifier(),
             ),
         ]);

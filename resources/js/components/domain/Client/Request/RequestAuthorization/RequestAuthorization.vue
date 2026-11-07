@@ -29,8 +29,13 @@ defineProps<RequestAuthorizationProps>();
  * Composables.
  */
 
-const { authorization, selectedType, types, updateCurrentAuthorizationValue } =
-    useRequestAuthorization();
+const {
+    authorization,
+    selectedType,
+    types,
+    updateCurrentAuthorizationValue,
+    updateCurrentAuthorizationGuard,
+} = useRequestAuthorization();
 </script>
 
 <template>
@@ -48,6 +53,8 @@ const { authorization, selectedType, types, updateCurrentAuthorizationValue } =
             <RequestAuthorizationImpersonateUser
                 v-else-if="authorization.type === AuthorizationType.Impersonate"
                 :model-value="String(authorization.value)"
+                :guard="authorization.guard"
+                @update:guard="value => updateCurrentAuthorizationGuard(value)"
                 @update:model-value="value => updateCurrentAuthorizationValue(value)"
             />
             <RequestAuthorizationBearer

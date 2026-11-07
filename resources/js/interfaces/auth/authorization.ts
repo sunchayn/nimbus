@@ -47,6 +47,7 @@ export interface CurrentUserAuthorization extends AuthorizationContractBase {
 export interface ImpersonateAuthorization extends AuthorizationContractBase {
     type: AuthorizationType.Impersonate;
     value: number | string;
+    guard?: string;
 }
 
 /**

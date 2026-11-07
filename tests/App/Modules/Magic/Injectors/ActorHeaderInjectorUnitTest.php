@@ -37,4 +37,26 @@ class ActorHeaderInjectorUnitTest extends TestCase
 
         $this->assertSame($pendingRequest, $result);
     }
+
+    public function test_it_uses_the_guard_chosen_for_the_request(): void
+    {
+        // Arrange
+
+        $resolver = Mockery::mock(ActiveApplicationResolver::class);
+        $resolver->shouldReceive('getAuthGuard')->andReturn('web');
+
+        $pendingRequest = Mockery::mock(PendingRequest::class);
+        $pendingRequest->shouldReceive('withHeaders')
+            ->once()
+            ->with(['X-Nimbus-Actor' => 'api:5'])
+            ->andReturnSelf();
+
+        // Act & Assert
+
+        $result = (new ActorHeaderInjector($resolver))
+            ->forGuard('api')
+            ->attach($pendingRequest, new GenericUser(['id' => 5]));
+
+        $this->assertSame($pendingRequest, $result);
+    }
 }

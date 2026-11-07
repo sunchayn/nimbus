@@ -452,8 +452,11 @@ Make requests as any user in your system using their user key.
 
 **How it works:**
 1. Select "Impersonate User with ID" from authentication options.
-2. Enter the user key. Integer IDs, UUIDs, ULIDs, and custom keys all work.
-3. Nimbus authenticates the request as that user.
+2. Pick a user from the list, or type the user key. Integer IDs, UUIDs, ULIDs, and custom keys all work.
+3. If your application has several guards, choose the guard for this request. It defaults to the configured `auth.guard`.
+4. Nimbus authenticates the request as that user.
+
+The picker lists up to 20 users of the guard's Eloquent provider. Type to search by ID, name, or email. Name and email are only used when the column exists. The label is the first non empty value of `name`, `email`, `username`, or the key. Providers that are not Eloquent show no list, but you can still type the key.
 
 By default Nimbus sends an `X-Nimbus-Actor` header with the guard name and the user key. A listener in your application reads it before route middleware runs and sets the user on that guard. So `auth` and `can` middleware see the user. No session, cookie, or remember token is created, and nothing is written to your database.
 

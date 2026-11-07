@@ -82,6 +82,12 @@ class AuthorizationHandlerFactoryUnitTest extends TestCase
             'checkIsValid' => fn (AuthorizationCredentials $credentials, ImpersonateUserAuthorizationHandler $handler): bool => $handler->userId === '01HZX3Y8K2M4N6P8Q0R2S4T6V8',
         ];
 
+        yield 'Impersonate handler with a guard' => [
+            'authorizationCredentials' => new AuthorizationCredentials(AuthorizationTypeEnum::Impersonate, value: '22', guard: 'web'),
+            'expectedAuthorizationHandler' => ImpersonateUserAuthorizationHandler::class,
+            'checkIsValid' => fn (AuthorizationCredentials $credentials, ImpersonateUserAuthorizationHandler $handler): bool => $handler->userId === 22,
+        ];
+
         yield 'Current User handler' => [
             'authorizationCredentials' => new AuthorizationCredentials(AuthorizationTypeEnum::CurrentUser, value: 22),
             'expectedAuthorizationHandler' => CurrentUserAuthorizationHandler::class,

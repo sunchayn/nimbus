@@ -12,6 +12,7 @@ readonly class AuthorizationCredentials
     public function __construct(
         public AuthorizationTypeEnum $type,
         public string|array|null $value,
+        public ?string $guard = null,
     ) {}
 
     public static function none(): self

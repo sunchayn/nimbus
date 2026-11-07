@@ -40,6 +40,7 @@ class NimbusRelayRequest extends FormRequest
                 ),
             ],
             'authorization.value' => 'sometimes',
+            'authorization.guard' => 'sometimes|nullable|string',
             'body' => 'sometimes',
             'options' => 'sometimes|array',
             'options.follow_redirects' => 'sometimes|boolean',
