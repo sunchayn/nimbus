@@ -529,6 +529,26 @@ To reference an environment variable, use the double-brace syntax: `{{ variable_
 
 ![Environment Variable Tooltip](./assets/env-variables-resolved-value.png)
 
+#### Dynamic Variables
+
+Dynamic variables use single braces and a `$` prefix, such as `{$uuid}`. They create a new value each time you send a request.
+They have their own syntax and are not related to the environment variables, which keep the `{{ name }}` syntax.
+A dynamic variable used several times in one request has the same value everywhere in that request.
+
+| Variable | Value |
+|----------|-------|
+| `{$uuid}` | A random UUID. |
+| `{$timestamp}` | A Unix timestamp. |
+| `{$isoDate}` | An ISO 8601 date and time. |
+| `{$randomInt}` | A random integer. |
+| `{$email}` | A random email address. |
+
+They work in the same places as environment variables.
+In a JSON body, a dynamic variable is a valid value even without quotes, for example `{ "id": {$uuid} }`. The editor does not report it as an error.
+
+Type `{{` in an input or an editor to suggest environment variables, and type `{$` to suggest dynamic variables.
+Dynamic entries show a sample value.
+
 #### Supported Inputs
 
 Environment variables are supported in nearly all input fields where dynamic values are useful:

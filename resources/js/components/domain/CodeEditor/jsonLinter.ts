@@ -1,3 +1,4 @@
+import { maskDynamicVariables } from '@/utils/dynamicVariableMask';
 import { linter } from '@codemirror/lint';
 import type { ParseError } from 'jsonc-parser';
 import { parse as parseJson, printParseErrorCode } from 'jsonc-parser';
@@ -11,7 +12,8 @@ export const jsonLinter = linter(view => {
 
     const errors: ParseError[] = [];
 
-    parseJson(text, errors);
+    // A dynamic variable is valid wherever a JSON value can be written.
+    parseJson(maskDynamicVariables(text).text, errors);
 
     return errors.map(error => ({
         from: error.offset,

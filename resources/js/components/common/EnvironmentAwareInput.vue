@@ -7,7 +7,9 @@
 import type { AppInputProps } from '@/components/base/input';
 import { EnvVariableSegment } from '@/components/common/EnvVariableSegment';
 import GeneratorInput from '@/components/common/GeneratorInput.vue';
+import VariableSuggestionList from '@/components/common/VariableSuggestionList.vue';
 import { useEnvVariablesAwareString } from '@/composables/request/useEnvVariablesAwareString';
+import { useVariableSuggestions } from '@/composables/request/useVariableSuggestions';
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
 import { EnvVariableCheckStatus } from '@/interfaces/common/env-vars';
 import { cn, withOccurrenceKeys } from '@/utils/ui';
@@ -71,6 +73,11 @@ const { scrollContainer, showLeftMask, showRightMask, updateScrollMasks } =
     });
 
 const { raw: rawValue, segments } = useEnvVariablesAwareString(modelValue);
+
+const suggestions = useVariableSuggestions(
+    () => inputRef.value?.inputRef ?? null,
+    internalRawValue,
+);
 
 const keyedSegments = computed(() =>
     withOccurrenceKeys(segments.value, segment => segment.text),
@@ -244,6 +251,14 @@ defineExpose({
                 </span>
             </template>
         </div>
+
+        <VariableSuggestionList
+            v-if="suggestions.isOpen.value"
+            :items="suggestions.items.value"
+            :active-index="suggestions.activeIndex.value"
+            :position="suggestions.position.value"
+            @select="suggestions.select"
+        />
 
         <!-- Scroll Gradient Masks -->
         <div

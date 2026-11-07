@@ -445,4 +445,58 @@ describe('useEnvironmentVariablesStore', () => {
             });
         });
     });
+
+    describe('dynamic variables', () => {
+        it('resolves a dynamic variable written with single braces', () => {
+            const store = useEnvironmentVariablesStore();
+
+            expect(store.resolve('{$uuid}')).toMatch(/^[0-9a-f-]{36}$/);
+            expect(store.resolve('{$timestamp}')).toMatch(/^\d+$/);
+            expect(store.resolve('{$unknown}')).toBe('{$unknown}');
+        });
+
+        it('does not treat the double brace syntax as a dynamic variable', () => {
+            const store = useEnvironmentVariablesStore();
+
+            expect(store.resolve('{{$uuid}}')).toBe('{{$uuid}}');
+            expect(store.check('$uuid')).toBe('missing');
+        });
+
+        it('does not report a dynamic variable as an environment variable', () => {
+            const store = useEnvironmentVariablesStore();
+
+            const segments = store.getSegments('id-{$uuid}');
+
+            expect(segments).toHaveLength(1);
+            expect(segments[0].isEnvVariable).toBe(false);
+        });
+
+        it('resolves a dynamic variable once per send', () => {
+            const store = useEnvironmentVariablesStore();
+            const resolveForSend = store.createSendResolver();
+            const [one, two] = resolveForSend('{$uuid}/{$uuid}').split('/');
+
+            expect(one).toBe(two);
+            expect(resolveForSend('{$uuid}')).toBe(one);
+            expect(store.createSendResolver()('{$uuid}')).not.toBe(one);
+        });
+
+        it('keeps a variable named like a dynamic one separate', () => {
+            const store = useEnvironmentVariablesStore();
+
+            addActive(store);
+            store.updateVariables([
+                {
+                    id: 1,
+                    type: ParameterType.Text,
+                    key: '$uuid',
+                    value: 'fixed',
+                    enabled: true,
+                },
+            ]);
+
+            expect(store.resolve('{{$uuid}}')).toBe('fixed');
+            expect(store.resolve('{$uuid}')).not.toBe('fixed');
+        });
+    });
 });

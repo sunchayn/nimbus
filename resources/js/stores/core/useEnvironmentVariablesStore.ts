@@ -1,6 +1,8 @@
+import { resolveDynamicPlaceholders } from '@/config/dynamic-variables';
 import {
     EnvVariableCheckStatus,
     PLACEHOLDER_PATTERN,
+    type ResolverFn,
     type StringSegment,
 } from '@/interfaces/common/env-vars';
 import { EnvironmentId, EnvironmentSource } from '@/interfaces/generated';
@@ -168,6 +170,8 @@ export const useEnvironmentVariablesStore = defineStore(
             return new Map(entries);
         });
 
+        const variableNames = computed(() => [...variables.value.keys()]);
+
         /*
          * Actions.
          */
@@ -316,9 +320,12 @@ export const useEnvironmentVariablesStore = defineStore(
         };
 
         /**
-         * Resolves all environment variable placeholders in a string.
+         * Resolves the dynamic variables and the environment variable placeholders in a string.
          */
-        const resolve = (value: string | number | boolean | null | undefined): string => {
+        const resolveWith = (
+            value: string | number | boolean | null | undefined,
+            dynamicCache: Map<string, string> | null,
+        ): string => {
             if (value === null || value === undefined) {
                 return '';
             }
@@ -327,11 +334,13 @@ export const useEnvironmentVariablesStore = defineStore(
                 return String(value);
             }
 
-            if (!value.includes('{{')) {
-                return value;
+            const withDynamicValues = resolveDynamicPlaceholders(value, dynamicCache);
+
+            if (!withDynamicValues.includes('{{')) {
+                return withDynamicValues;
             }
 
-            return value.replace(PLACEHOLDER_PATTERN, (match, key) => {
+            return withDynamicValues.replace(PLACEHOLDER_PATTERN, (match, key) => {
                 const normalizedKey = String(key).trim();
 
                 if (!variables.value.has(normalizedKey)) {
@@ -340,6 +349,18 @@ export const useEnvironmentVariablesStore = defineStore(
 
                 return variables.value.get(normalizedKey) ?? '';
             });
+        };
+
+        const resolve = (value: string | number | boolean | null | undefined): string =>
+            resolveWith(value, null);
+
+        /**
+         * Creates a resolver for one send, so a dynamic variable has one value in the whole request.
+         */
+        const createSendResolver = (): ResolverFn => {
+            const dynamicCache = new Map<string, string>();
+
+            return value => resolveWith(value, dynamicCache);
         };
 
         /**
@@ -400,6 +421,7 @@ export const useEnvironmentVariablesStore = defineStore(
             baseUrl,
             editableVariables,
             variables,
+            variableNames,
 
             // Actions
             select,
@@ -413,6 +435,7 @@ export const useEnvironmentVariablesStore = defineStore(
             completeRenaming,
             migrateLegacyCollections,
             resolve,
+            createSendResolver,
             check,
             getSegments,
         };
