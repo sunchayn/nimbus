@@ -11,3 +11,14 @@ export {
 } from './routeProcessor';
 
 export { describeRouteParameter, describeThrottle, isSignedRoute } from './routeMetadata';
+
+export {
+    collectMethods,
+    collectMiddleware,
+    collectRoutes,
+    emptyRouteFilters,
+    filterFolders,
+    hasActiveRouteFilters,
+    routeMatchesFilters,
+    type RouteFilters,
+} from './routeFilters';

@@ -8,15 +8,25 @@ import { AppScrollArea } from '@/components/base/scroll-area';
 import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import ApplicationSwitcher from '@/components/domain/RoutesExplorer/ApplicationSwitcher.vue';
 import RouteExplorerVersionSelector from '@/components/domain/RoutesExplorer/RouteExplorerVersionSelector.vue';
+import RoutesFilterDropdown from '@/components/domain/RoutesExplorer/RoutesFilterDropdown.vue';
 import RoutesList from '@/components/domain/RoutesExplorer/RoutesList/RoutesList.vue';
 import { showingSearchResultsKey } from '@/components/domain/RoutesExplorer/showingSearchResults';
 import RoutesListSkeleton from '@/components/layout/skeleton/RoutesListSkeleton.vue';
 import { useTabVerticalScroll } from '@/composables/ui/useTabVerticalScroll';
-import { type RouteDefinition, type RoutesFolder } from '@/interfaces/routes/routes';
+import { type RoutesFolder } from '@/interfaces/routes/routes';
 import { useConfigStore } from '@/stores';
+import {
+    collectMethods,
+    collectMiddleware,
+    collectRoutes,
+    emptyRouteFilters,
+    filterFolders,
+    hasActiveRouteFilters,
+    routeMatchesFilters,
+} from '@/utils/routes';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
-import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, provide, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 /*
  * Types & Interfaces.
@@ -53,6 +63,7 @@ const configStore = useConfigStore();
 
 const search = useStorage(singletonPersistenceKey('routes-explorer-search-keyword'), '');
 const currentVersion = shallowRef('');
+const filters = ref(emptyRouteFilters());
 
 const scrollAreaRef = useTemplateRef<InstanceType<typeof AppScrollArea>>('scrollAreaRef');
 
@@ -96,37 +107,32 @@ const routesInVersion = computed(() => {
     return props.routes[currentVersion.value] ?? [];
 });
 
-// Keeps the matching routes and drops the folders left with nothing to show.
-const filterFolder = (folder: RoutesFolder, searchTerm: string): RoutesFolder | null => {
-    const routes = folder.routes.filter((route: RouteDefinition) =>
-        route.keywords?.some((keyword: string) =>
-            keyword.toLowerCase().includes(searchTerm),
-        ),
-    );
-
-    const children = folder.children
-        .map(child => filterFolder(child, searchTerm))
-        .filter((child): child is RoutesFolder => child !== null);
-
-    return routes.length > 0 || children.length > 0
-        ? { ...folder, routes, children }
-        : null;
-};
+const allRoutes = computed(() => collectRoutes(routesInVersion.value));
+const availableMethods = computed(() => collectMethods(allRoutes.value));
+const availableMiddleware = computed(() => collectMiddleware(allRoutes.value));
+const filtersAreActive = computed(() => hasActiveRouteFilters(filters.value));
 
 const filteredRoutes = computed(() => {
     if (props.routes === null) {
         return [];
     }
 
-    if (!search.value.trim()) {
+    const searchTerm = search.value.trim().toLowerCase();
+
+    if (!searchTerm && !filtersAreActive.value) {
         return routesInVersion.value;
     }
 
-    const searchTerm = search.value.trim().toLowerCase();
-
-    return routesInVersion.value
-        .map(folder => filterFolder(folder, searchTerm))
-        .filter((folder): folder is RoutesFolder => folder !== null);
+    return filterFolders(
+        routesInVersion.value,
+        route =>
+            routeMatchesFilters(route, filters.value) &&
+            (!searchTerm ||
+                (route.keywords?.some((keyword: string) =>
+                    keyword.toLowerCase().includes(searchTerm),
+                ) ??
+                    false)),
+    );
 });
 
 const hasMultipleApplications = computed(
@@ -139,7 +145,9 @@ const snapshotTitle = computed(() =>
         : 'Refresh routes',
 );
 
-const showingSearchResults = computed(() => search.value.trim().length > 0);
+const showingSearchResults = computed(
+    () => search.value.trim().length > 0 || filtersAreActive.value,
+);
 
 watch(
     () => scrollAreaRef.value?.viewport,
@@ -165,6 +173,13 @@ provide(showingSearchResultsKey, showingSearchResults);
                 placeholder="Type to search..."
                 :disabled="routesInVersion.length === 0"
                 class="min-w-0 flex-1"
+            />
+            <RoutesFilterDropdown
+                v-model="filters"
+                :routes="allRoutes"
+                :methods="availableMethods"
+                :middleware="availableMiddleware"
+                :disabled="routesInVersion.length === 0"
             />
             <AppButton
                 v-if="snapshotAt"

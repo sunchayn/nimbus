@@ -8,6 +8,8 @@ export interface RequestLog {
     response?: Response;
     error?: ErrorPlainResponse;
     importedFromShare?: boolean;
+    /** Pinned logs are never trimmed from the history. */
+    pinned?: boolean;
 }
 
 export type RequestLogRef = Ref<RequestLog | null>;

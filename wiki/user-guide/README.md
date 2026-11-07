@@ -150,6 +150,7 @@ The Route Explorer automatically discovers your Laravel API routes and organizes
 - **Authentication Badge**: A lock icon marks routes that use the `auth` middleware. A new tab for such a route starts with the last authorization you used, when the current one is **None**.
 - **Throttle Hint**: A route with `throttle` middleware shows a timer icon in the routes list. Hover over it to read the limit, for example "60 requests per minute".
 - **Parameter Hints**: When route parameters are missing, the warning lists the model bound to each parameter and its `where` pattern.
+- **Route Filters**: Click the filter button next to the search field to open the filter list. Search the list, move with the arrow keys, and press Enter to turn a filter on or off. You can filter by HTTP method, by routes that require authentication, and by middleware. Each option shows how many routes it matches. The button shows how many filters are applied, and **Clear** removes them all. Filters combine with the search.
 
 Nimbus reads this from the route middleware, resolved through the router. Only known authentication middleware such as `auth`, `auth:sanctum`, and `auth.basic` marks a route as protected. Custom middleware is never guessed.
 
@@ -362,7 +363,8 @@ Nimbus keeps a log of every request you send, allowing you to quickly "rewind" t
 
 **Features:**
 - **Automatic Logging**: Every execution is recorded with its timestamp, request details, and response status.
-- **Searchable Logs**: Use the filter input within the history dropdown to filter by endpoint path.
+- **Searchable Logs**: Search the history dropdown by endpoint path, status code, status text, or the text of the request and response bodies. The **2xx**, **3xx**, **4xx**, and **5xx** buttons filter by status class.
+- **Pinned Logs**: Pin a log to keep it at the top of the list. Pinned logs are never removed when the history reaches its size limit.
 - **Full Restoration**: Clicking any history item will restore the **entire Request Builder state**, including:
     - HTTP Method and Endpoint
     - Headers and Query Parameters
@@ -372,7 +374,7 @@ Nimbus keeps a log of every request you send, allowing you to quickly "rewind" t
 
 **How to use:**
 1. Click on the relative timestamp (e.g., "5m ago") in the response status bar.
-2. Browse or filter your previous requests by endpoint.
+2. Browse or search your previous requests.
 3. Click a log entry to restore its state into the Request Builder.
 4. Use the "Clear" button to purge your session logs.
 

@@ -22,6 +22,7 @@ const mockRequestsHistoryStore = reactive({
     lastLog: null as RequestLog | null,
     allLogs: [] as RequestLog[],
     setActiveLog: vi.fn(),
+    togglePin: vi.fn(),
     clearLogs: vi.fn(),
 });
 
@@ -132,6 +133,67 @@ describe('RequestHistory', () => {
         await wrapper.get('[data-testid="response-history-trigger"]').trigger('click');
         await flushPromises();
     };
+
+    describe('Pinning and status filters', () => {
+        const logWithStatus = (endpoint: string, timestamp: number, statusCode: number) =>
+            createMockRequestLog({
+                request: { endpoint } as Request,
+                response: { timestamp, statusCode } as unknown as Response,
+            });
+
+        it('filters by status class', async () => {
+            // Arrange
+
+            const ok = logWithStatus('/ok', 1000, 200);
+            const failed = logWithStatus('/failed', 2000, 500);
+            mockRequestsHistoryStore.allLogs = [ok, failed];
+            mockRequestsHistoryStore.lastLog = failed;
+
+            const wrapper = createWrapper();
+
+            // Act
+
+            await openMenu(wrapper);
+            (
+                document.body.querySelector(
+                    '[data-testid="history-filter-5xx"]',
+                ) as HTMLElement
+            ).click();
+            await nextTick();
+
+            // Assert
+
+            expect(bodyItems()).toHaveLength(1);
+            expect(bodyItems()[0].textContent).toContain('/failed');
+        });
+
+        it('lists pinned logs first and toggles the pin', async () => {
+            // Arrange
+
+            const older = { ...logWithStatus('/older', 1000, 200), pinned: true };
+            const newer = logWithStatus('/newer', 2000, 200);
+            mockRequestsHistoryStore.allLogs = [older, newer];
+            mockRequestsHistoryStore.lastLog = newer;
+
+            const wrapper = createWrapper();
+
+            // Act
+
+            await openMenu(wrapper);
+
+            // Assert
+
+            expect(bodyItems()[0].textContent).toContain('/older');
+
+            (
+                document.body.querySelector(
+                    '[data-testid="history-pin-toggle"]',
+                ) as HTMLElement
+            ).click();
+
+            expect(mockRequestsHistoryStore.togglePin).toHaveBeenCalledWith(older);
+        });
+    });
 
     describe('Behavior', () => {
         it('filters logs based on search query', async () => {

@@ -31,21 +31,38 @@ export const useRequestsHistoryStore = defineStore(
         });
 
         // Actions
+        // Drops the oldest log that is not pinned, and tells whether one was found.
+        const dropOldestUnpinned = (): boolean => {
+            const index = logs.value.findIndex(log => !log.pinned);
+
+            if (index === -1) {
+                return false;
+            }
+
+            logs.value = logs.value.filter((_, position) => position !== index);
+
+            return true;
+        };
+
         const addLog = (log: RequestLog) => {
             logs.value.push(log);
 
-            if (logs.value.length > maxLogs.value) {
-                logs.value = logs.value.slice(-maxLogs.value);
-            }
+            const isOverBudget = () =>
+                logs.value.length > maxLogs.value ||
+                (logs.value.length > 1 &&
+                    JSON.stringify(logs.value).length > HISTORY_MAX_CHARS);
 
-            while (
-                logs.value.length > 1 &&
-                JSON.stringify(logs.value).length > HISTORY_MAX_CHARS
-            ) {
-                logs.value = logs.value.slice(1);
+            while (isOverBudget()) {
+                if (!dropOldestUnpinned()) {
+                    break;
+                }
             }
 
             activeLogIndex.value = null;
+        };
+
+        const togglePin = (log: RequestLog) => {
+            log.pinned = !log.pinned;
         };
 
         const setActiveLog = (index: number | null) => {
@@ -68,6 +85,7 @@ export const useRequestsHistoryStore = defineStore(
 
             // Actions
             addLog,
+            togglePin,
             clearLogs,
             setActiveLog,
         };

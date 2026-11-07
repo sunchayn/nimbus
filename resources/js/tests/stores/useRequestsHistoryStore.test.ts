@@ -82,6 +82,29 @@ describe('useRequestsHistoryStore', () => {
             expect(store.lastLog?.durationInMs).toBe(30);
         });
 
+        it('never trims a pinned log', () => {
+            // Arrange
+
+            const store = useRequestsHistoryStore();
+            const make = (durationInMs: number): RequestLog => ({
+                durationInMs,
+                isProcessing: false,
+                request: {} as unknown as Request,
+            });
+            const first = make(10);
+
+            // Act
+
+            store.addLog(first);
+            store.togglePin(first);
+            store.addLog(make(20));
+            store.addLog(make(30));
+
+            // Assert
+
+            expect(store.allLogs.map(log => log.durationInMs)).toEqual([10, 30]);
+        });
+
         it('clears logs when requested', () => {
             // Arrange
 
