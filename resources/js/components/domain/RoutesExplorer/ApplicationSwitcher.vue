@@ -5,6 +5,7 @@
  */
 import { AppSelect } from '@/components/base/select';
 import { useConfigStore } from '@/stores';
+import { switchApplication } from '@/utils/applications';
 import { computed } from 'vue';
 
 /*
@@ -42,10 +43,7 @@ const handleApplicationChange = (applicationKey: unknown) => {
         return;
     }
 
-    // We reload the page with the new application query parameter to trigger the backend switch.
-    const url = new URL(window.location.href);
-    url.searchParams.set('application', String(applicationKey));
-    window.location.href = url.toString();
+    switchApplication(String(applicationKey));
 };
 </script>
 

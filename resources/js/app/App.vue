@@ -4,14 +4,17 @@
  * @description Application root that mounts the Nuxt UI provider, top bar, routed page, and global value generator.
  */
 import ValueGenerator from '@/components/common/ValueGenerator/ValueGenerator.vue';
+import CommandPalette from '@/components/domain/CommandPalette/CommandPalette.vue';
+import ShortcutsHelpDialog from '@/components/domain/CommandPalette/ShortcutsHelpDialog.vue';
 import AppTopBar from '@/components/layout/AppTopBar.vue';
 import MainPageSkeleton from '@/components/layout/skeleton/MainPageSkeleton.vue';
 import PageSkeleton from '@/components/layout/skeleton/PageSkeleton.vue';
+import { useGlobalShortcuts } from '@/composables/ui/useGlobalShortcuts';
 import { useThemePreference } from '@/composables/ui/useThemePreference';
 import { useSettingsStore } from '@/stores';
 import UApp from '@nuxt/ui/components/App.vue';
 import { computed, shallowRef } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const settingsStore = useSettingsStore();
 
@@ -22,6 +25,9 @@ useThemePreference(() => settingsStore.preferences.theme);
  */
 
 const router = useRouter();
+const currentRoute = useRoute();
+
+useGlobalShortcuts(() => currentRoute.name === 'main');
 const isRouterReady = shallowRef(false);
 
 router.isReady().then(() => (isRouterReady.value = true));
@@ -55,6 +61,9 @@ const isMainPending = computed(() => {
 
             <!-- ValueGenerator provides a global menu for generating values throughout the app. -->
             <ValueGenerator />
+
+            <CommandPalette />
+            <ShortcutsHelpDialog />
         </div>
     </UApp>
 </template>
