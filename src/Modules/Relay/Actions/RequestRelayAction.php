@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
+use Sunchayn\Nimbus\Modules\Magic\Actions\PullInsightAction;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\ResetRateLimiterListener;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
@@ -44,11 +45,15 @@ class RequestRelayAction
         private readonly Container $container,
         private readonly AuthorizationHandlerFactory $authorizationHandlerFactory,
         private readonly ActiveApplicationResolver $activeApplicationResolver,
+        private readonly PullInsightAction $pullInsightAction,
     ) {}
 
     public function execute(RequestRelayData $requestRelayData): RelayedRequestResponseData
     {
-        $pendingRequest = $this->prepareRequest($requestRelayData);
+        // Insight comes from the current host only, because other hosts do not run Nimbus.
+        $insightId = $requestRelayData->isCurrentHost ? PullInsightAction::newId() : null;
+
+        $pendingRequest = $this->prepareRequest($requestRelayData, $insightId);
 
         $authorizationHandler = $this
             ->authorizationHandlerFactory
@@ -92,10 +97,11 @@ class RequestRelayAction
             cookies: $this->processCookies($response->toPsrResponse()->getHeader('Set-Cookie'), $requestRelayData->isCurrentHost),
             download: $download,
             sent: $sentRequest,
+            insight: $insightId === null ? null : $this->pullInsightAction->execute($insightId),
         );
     }
 
-    private function prepareRequest(RequestRelayData $requestRelayData): PendingRequest
+    private function prepareRequest(RequestRelayData $requestRelayData, ?string $insightId = null): PendingRequest
     {
         $contentType = $requestRelayData->headers['content-type'] ?? self::DEFAULT_CONTENT_TYPE;
 
@@ -147,6 +153,10 @@ class RequestRelayAction
 
         if ($requestRelayData->resetLimiter) {
             $headers[strtolower(ResetRateLimiterListener::HEADER)] = '1';
+        }
+
+        if ($insightId !== null) {
+            $headers[strtolower(PullInsightAction::HEADER)] = $insightId;
         }
 
         return Http::withOptions(
