@@ -19,7 +19,7 @@ const isTyping = (target: EventTarget | null): boolean => {
  */
 export const useGlobalShortcuts = (isMainPage: () => boolean): void => {
     const tabsStore = useTabsStore();
-    const { togglePalette, isHelpOpen } = useCommandPalette();
+    const { togglePalette, isHelpOpen, isToolboxOpen } = useCommandPalette();
 
     useEventListener(window, 'keydown', (event: KeyboardEvent) => {
         // The endpoint input already sends on Enter and marks the event as handled.
@@ -33,6 +33,13 @@ export const useGlobalShortcuts = (isMainPage: () => boolean): void => {
         if (mod && !event.altKey && !event.shiftKey && key === 'k') {
             event.preventDefault();
             togglePalette();
+
+            return;
+        }
+
+        if (mod && !event.altKey && !event.shiftKey && key === 'e') {
+            event.preventDefault();
+            isToolboxOpen.value = !isToolboxOpen.value;
 
             return;
         }

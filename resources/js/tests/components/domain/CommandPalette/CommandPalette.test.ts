@@ -264,4 +264,20 @@ describe('CommandPalette', () => {
 
         expect(push).toHaveBeenCalledWith({ name: 'settings' });
     });
+
+    it('opens the toolbox dialog', async () => {
+        // Arrange
+
+        await open();
+        useCommandPalette().isToolboxOpen.value = false;
+
+        // Act
+
+        choose('Open toolbox');
+
+        // Assert
+
+        expect(useCommandPalette().isToolboxOpen.value).toBe(true);
+        expect(useCommandPalette().isPaletteOpen.value).toBe(false);
+    });
 });

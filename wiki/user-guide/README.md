@@ -36,6 +36,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
     - [Export to cURL](#export-to-curl)
     - [Export as Code](#export-as-code)
     - [Shareable Links](#shareable-links)
+    - [Toolbox](#toolbox)
     - [OpenAPI Support](#openapi-support)
     - [Routes Snapshot](#routes-snapshot)
 - [Configuration](#configuration)
@@ -121,6 +122,7 @@ The command icon in the top bar also opens the command palette and shows its key
 | `Cmd+K` | `Ctrl+K` | Open the command palette |
 | `Cmd+Enter` | `Ctrl+Enter` | Send the request |
 | `Cmd+L` | `Ctrl+L` | Focus the endpoint |
+| `Cmd+E` | `Ctrl+E` | Open the toolbox |
 | `Cmd+B` | `Ctrl+B` | Show or hide the routes |
 | `Option+1` to `Option+9` | `Alt+1` to `Alt+9` | Switch to a tab by position |
 | `?` | `?` | Show the shortcuts |
@@ -129,7 +131,7 @@ Some browsers keep `Cmd+L` or `Ctrl+L` for themselves.
 Use the command palette in that case.
 
 The command palette searches routes, open tabs, and environments, and runs actions.
-The actions are new tab, close tab, switch environment, switch application, toggle transaction mode, toggle theme, open settings, clear history, and copy as code.
+The actions are new tab, close tab, switch environment, switch application, toggle transaction mode, toggle theme, open toolbox, open settings, clear history, and copy as code.
 
 ---
 
@@ -753,6 +755,24 @@ When a shareable link is opened, Nimbus will:
 - Parse and decompress the payload.
 - Automatically restore all request data.
 - **Switch Applications**: If the link points to a route in a different application (e.g., from `Rest API` to `Admin API`), Nimbus will automatically switch the active application context for you.
+
+### Toolbox
+
+The toolbox is a dialog with small Laravel tools.
+Open it from the **Toolbox** button next to the settings button, with `Cmd+E` or `Ctrl+E`, or from the **Open toolbox** action of the command palette.
+Pick a tool from the list on the left to open its panel.
+Each tool is one form and one result, and runs on the current host with its app key and config.
+Closing the dialog keeps what you typed and the last result, so you can come back to it.
+The tools are available wherever Nimbus is enabled, which is controlled by `allowed_envs`.
+
+- **Encryption** decrypts or encrypts a value with the app key. Fill in a cookie name to check or add the cookie prefix.
+- **Signed URL** has two tabs. **Verify** checks a URL. **Sign** creates one from a route picked in a searchable list of the named routes, parameters as JSON, and an optional expiry in minutes.
+- **Hash** makes a hash of a value, or checks a value against a hash when you fill the hash field.
+- **Tokens** decodes a JWT without verifying its signature, or finds a Sanctum token by its plain text value.
+- **Session** shows the stored session of a session ID or of an encrypted session cookie, including flash data and the CSRF token.
+
+The Sanctum lookup needs `laravel/sanctum`.
+The session tool reads the session store configured in your application.
 
 ### OpenAPI Support
 

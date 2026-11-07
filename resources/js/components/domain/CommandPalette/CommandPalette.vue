@@ -34,7 +34,7 @@ const toast = useAppToast();
 const { copy } = useClipboard();
 const switchEnvironment = useEnvironmentSwitch();
 const confirmation = useConfirmationAction();
-const { isPaletteOpen, paletteMode, closePalette } = useCommandPalette();
+const { isPaletteOpen, paletteMode, closePalette, isToolboxOpen } = useCommandPalette();
 
 const routesStore = useRoutesStore();
 const tabsStore = useTabsStore();
@@ -191,6 +191,13 @@ const actionItems = computed(() => {
                     settingsStore.preferences.theme === 'dark' ? 'light' : 'dark',
                 ),
             ),
+        },
+        {
+            label: 'Open toolbox',
+            icon: 'i-hugeicons-tools',
+            onSelect: run(() => {
+                isToolboxOpen.value = true;
+            }),
         },
         {
             label: 'Open settings',

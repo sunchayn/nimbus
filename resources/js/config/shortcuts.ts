@@ -7,6 +7,7 @@ export interface ShortcutDefinition {
 
 export const SHORTCUTS: ShortcutDefinition[] = [
     { id: 'palette', keys: 'Mod+K', description: 'Open the command palette' },
+    { id: 'toolbox', keys: 'Mod+E', description: 'Open the toolbox' },
     { id: 'send', keys: 'Mod+Enter', description: 'Send the request' },
     { id: 'focus-url', keys: 'Mod+L', description: 'Focus the endpoint' },
     { id: 'toggle-explorer', keys: 'Mod+B', description: 'Show or hide the routes' },
