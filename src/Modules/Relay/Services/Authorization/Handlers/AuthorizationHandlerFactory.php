@@ -24,7 +24,7 @@ class AuthorizationHandlerFactory
             ! $isCurrentHost
             && in_array(
                 $authorizationCredentials->type,
-                [AuthorizationTypeEnum::CurrentUser, AuthorizationTypeEnum::Impersonate],
+                [AuthorizationTypeEnum::CurrentUser, AuthorizationTypeEnum::Impersonate, AuthorizationTypeEnum::Token],
                 true,
             )
         ) {
@@ -34,6 +34,7 @@ class AuthorizationHandlerFactory
         return match ($authorizationCredentials->type) {
             AuthorizationTypeEnum::CurrentUser => $this->buildCurrentUserHandler(),
             AuthorizationTypeEnum::Impersonate => $this->buildImpersonateHandler($authorizationCredentials->value, $authorizationCredentials->guard),
+            AuthorizationTypeEnum::Token => $this->buildTokenHandler($authorizationCredentials),
             AuthorizationTypeEnum::Bearer => $this->buildBearerHandler($authorizationCredentials->value),
             AuthorizationTypeEnum::Basic => $this->buildBasicHandler($authorizationCredentials->value),
             AuthorizationTypeEnum::None => $this->buildNoAuthorizationHandler(),
@@ -63,6 +64,21 @@ class AuthorizationHandlerFactory
         return resolve(ImpersonateUserAuthorizationHandler::class, [
             'userId' => ctype_digit($rawValue) ? (int) $rawValue : $rawValue,
             'guard' => $guard,
+        ]);
+    }
+
+    protected function buildTokenHandler(AuthorizationCredentials $authorizationCredentials): TokenForUserAuthorizationHandler
+    {
+        $rawValue = $authorizationCredentials->value;
+
+        if (! is_string($rawValue) || $rawValue === '') {
+            throw new \InvalidArgumentException('Token user ID must be a non empty string.');
+        }
+
+        return resolve(TokenForUserAuthorizationHandler::class, [
+            'userId' => ctype_digit($rawValue) ? (int) $rawValue : $rawValue,
+            'abilities' => $authorizationCredentials->abilities,
+            'guard' => $authorizationCredentials->guard,
         ]);
     }
 

@@ -4,6 +4,7 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\Actions;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Cookie\CookieValuePrefix;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
@@ -23,6 +24,7 @@ use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\DataTransferObjects\Aut
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\AuthorizationHandler;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\AuthorizationHandlerFactory;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\RevokesAfterResponse;
 use Sunchayn\Nimbus\Modules\Relay\Services\VarDumpParser\DataTransferObjects\ParseResultDto;
 use Sunchayn\Nimbus\Modules\Relay\Services\VarDumpParser\VarDumpParser;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
@@ -698,6 +700,39 @@ class RequestRelayActionFunctionalTest extends TestCase
             $response->body->body['receivedHeaders']['x-nimbus-time-travel'][0],
             'The time travel header should keep its value.',
         );
+    }
+
+    public function test_it_revokes_what_the_handler_created_even_when_sending_fails(): void
+    {
+        // Arrange
+
+        $handler = Mockery::mock(AuthorizationHandler::class, RevokesAfterResponse::class);
+        $handler->shouldReceive('authorize')->andReturnArg(0);
+        $handler->shouldReceive('revoke')->once();
+
+        $this->mock(
+            AuthorizationHandlerFactory::class,
+            fn (MockInterface $mock) => $mock->shouldReceive('create')->andReturn($handler),
+        );
+
+        Http::fake(fn () => throw new ConnectionException('Connection refused.'));
+
+        $requestData = new RequestRelayData(
+            method: 'GET',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: [],
+            cookies: new ParameterBag,
+        );
+
+        // Anticipate
+
+        $this->expectException(ConnectionException::class);
+
+        // Act
+
+        resolve(RequestRelayAction::class)->execute($requestData);
     }
 
     public function test_it_auto_injects_csrf_token_header_when_missing(): void

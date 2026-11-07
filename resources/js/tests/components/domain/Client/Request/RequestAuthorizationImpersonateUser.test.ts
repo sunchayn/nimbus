@@ -1,23 +1,35 @@
 import RequestAuthorizationImpersonateUser from '@/components/domain/Client/Request/RequestAuthorization/RequestAuthorizationImpersonateUser.vue';
+import { clearActorsCache } from '@/composables/request/useActors';
 import { flushPromises, mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const respondWith = (guards: string[]) =>
+const respondWith = () =>
     vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
-            guard: 'web',
-            guards,
             actors: [{ id: '01HZ', label: 'Ada', model: 'App\\Models\\User' }],
         }),
     });
 
 describe('RequestAuthorizationImpersonateUser', () => {
+    const useGuards = (guards: string[], tokenGuards: string[] = guards) => {
+        window.Nimbus = {
+            guards: JSON.stringify(guards),
+            defaultGuard: 'web',
+            tokenGuards: JSON.stringify(tokenGuards),
+        } as typeof window.Nimbus;
+        setActivePinia(createPinia());
+    };
+
     beforeEach(() => {
-        vi.stubGlobal('fetch', respondWith(['web', 'api']));
+        clearActorsCache();
+        useGuards(['web', 'api']);
+        vi.stubGlobal('fetch', respondWith());
     });
 
     afterEach(() => {
+        window.Nimbus = undefined as unknown as typeof window.Nimbus;
         vi.unstubAllGlobals();
     });
 
@@ -54,7 +66,7 @@ describe('RequestAuthorizationImpersonateUser', () => {
     });
 
     it('hides the guard select when there is one guard', async () => {
-        vi.stubGlobal('fetch', respondWith(['web']));
+        useGuards(['web']);
 
         const wrapper = mount(RequestAuthorizationImpersonateUser, {
             props: { modelValue: '' },
@@ -63,6 +75,56 @@ describe('RequestAuthorizationImpersonateUser', () => {
         await flushPromises();
 
         expect(wrapper.find('[data-testid="actor-guard-select"]').exists()).toBe(false);
+    });
+
+    it('lists the guards that were preloaded for tokens', async () => {
+        useGuards(['web', 'api']);
+
+        const wrapper = mount(RequestAuthorizationImpersonateUser, {
+            props: { modelValue: '', tokensOnly: true, guard: 'api' },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find('[data-testid="actor-guard-select"]').exists()).toBe(true);
+        expect(vi.mocked(fetch).mock.calls[0][0]).toContain('guard=api');
+    });
+
+    it('hides the guard select when one token guard is preloaded', async () => {
+        useGuards(['api']);
+
+        const wrapper = mount(RequestAuthorizationImpersonateUser, {
+            props: { modelValue: '', tokensOnly: true, guard: 'api' },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find('[data-testid="actor-guard-select"]').exists()).toBe(false);
+    });
+
+    it('emits the first token guard when the chosen one is not preloaded', async () => {
+        useGuards(['api']);
+
+        const wrapper = mount(RequestAuthorizationImpersonateUser, {
+            props: { modelValue: '', tokensOnly: true, guard: 'web' },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.emitted('update:guard')?.[0]).toEqual(['api']);
+        expect(vi.mocked(fetch).mock.calls[0][0]).toContain('guard=api');
+    });
+
+    it('does not load users when no token guard is preloaded', async () => {
+        useGuards([]);
+
+        mount(RequestAuthorizationImpersonateUser, {
+            props: { modelValue: '', tokensOnly: true },
+        });
+
+        await flushPromises();
+
+        expect(fetch).not.toHaveBeenCalled();
     });
 
     it('fills the key with the user picked from the list', async () => {

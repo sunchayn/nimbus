@@ -12,6 +12,7 @@ export enum AuthorizationType {
     Bearer = 'bearer',
     Basic = 'basic',
     Impersonate = 'impersonate',
+    Token = 'token',
 }
 
 /**

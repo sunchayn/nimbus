@@ -41,6 +41,8 @@ export const createDefaultAuthorization = (
             return { type: AuthorizationType.CurrentUser };
         case AuthorizationType.Impersonate:
             return { type: AuthorizationType.Impersonate, value: 1 };
+        case AuthorizationType.Token:
+            return { type: AuthorizationType.Token, value: 1, abilities: '*' };
         case AuthorizationType.Bearer:
             return { type: AuthorizationType.Bearer, value: '' };
         case AuthorizationType.Basic:

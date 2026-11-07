@@ -51,6 +51,17 @@ export interface ImpersonateAuthorization extends AuthorizationContractBase {
 }
 
 /**
+ * Personal access token for a user authorization contract.
+ * The abilities are one comma separated string.
+ */
+export interface TokenAuthorization extends AuthorizationContractBase {
+    type: AuthorizationType.Token;
+    value: number | string;
+    abilities?: string;
+    guard?: string;
+}
+
+/**
  * Union type for all authorization contracts
  */
 export type AuthorizationContract =
@@ -58,4 +69,5 @@ export type AuthorizationContract =
     | BearerAuthorization
     | BasicAuthorization
     | CurrentUserAuthorization
-    | ImpersonateAuthorization;
+    | ImpersonateAuthorization
+    | TokenAuthorization;

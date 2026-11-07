@@ -83,6 +83,12 @@ class NimbusIndexTest extends TestCase
 
         $response->assertViewHas('currentUser', ['::current-user::']);
 
+        $response->assertViewHas('guards', ['web']);
+
+        $response->assertViewHas('defaultGuard', 'web');
+
+        $response->assertViewHas('tokenGuards', []);
+
         $response->assertViewHas('sharedState', null);
 
         $response->assertViewHas('environments', fn (array $environments): bool => $environments[0]['id'] === 'current'
@@ -356,6 +362,7 @@ class NimbusIndexTest extends TestCase
 
         $activeApplicationResolverMock->shouldReceive('isVersioned')->andReturn(false);
         $activeApplicationResolverMock->shouldReceive('getApiBaseUrl')->andReturn('http://localhost');
+        $activeApplicationResolverMock->shouldReceive('getAuthGuard')->andReturn('web');
         $activeApplicationResolverMock->shouldReceive('getAvailableApplications')->andReturn('{}');
         $activeApplicationResolverMock->shouldReceive('showOperationId')->andReturn(false);
         $activeApplicationResolverMock->shouldReceive('getEnvironments')->andReturn([]);

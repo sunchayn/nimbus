@@ -320,6 +320,8 @@ sequenceDiagram
 `ReadLookupValuesAction` reads at most 20 values per pair, and only for pairs that the route's own extracted schema declares.
 The lists stay in memory, autofill picks from them at random, and the store reloads them on an environment change and after a write request.
 
+**Token for user.** `TokenForUserAuthorizationHandler` creates the token through the user model's `createToken` and reads both the Sanctum and the Passport result without referencing their classes. It implements `RevokesAfterResponse`, and `RequestRelayAction` calls `revoke()` in a `finally` block after sending.
+
 **Transaction mode.** When the relayed request carries `X-Nimbus-Transaction-Mode`, `TransactionModeListener` (Magic module) runs on `RouteMatched`. It opens a transaction on every connection in `database.connections` and rolls each back in reverse order on terminate. Connections that fail to connect are skipped, logged at debug level, and listed in the `X-Nimbus-Transaction-Skipped` response header.
 
 **Actor header.** The default special authentication injector, `ActorHeaderInjector`, adds `X-Nimbus-Actor` as `guard:key` to the relayed request. In the target application, `ActorHeaderListener` (Magic module) runs on `RouteMatched`, which fires before route middleware. It loads the user with the guard's provider and `retrieveById`, then calls `Auth::shouldUse()` and `setUser()`. The header is unsigned and trusted whenever Nimbus is active, so `allowed_envs` is the only gate. `NimbusHeaders` reads and validates the Nimbus headers in one place.

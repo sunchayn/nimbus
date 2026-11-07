@@ -4,9 +4,11 @@ namespace Workbench\App\Http\Controllers\Demo;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Workbench\App\Support\DemoAccessToken;
 
 /**
  * Credentials are fixed. Bearer is "demo-token" and "demo-admin-token", basic is demo and secret.
+ * Personal access tokens are created for a user by the token authorization of Nimbus.
  */
 class AuthController
 {
@@ -26,6 +28,21 @@ class AuthController
             'demo-token' => response()->json(['message' => 'Admins only.'], 403),
             default => response()->json(['message' => 'Invalid or missing bearer token.'], 401),
         };
+    }
+
+    public function token(Request $request): JsonResponse
+    {
+        $token = DemoAccessToken::find($request->bearerToken());
+
+        if ($token === null) {
+            return response()->json(['message' => 'Invalid or missing personal access token.'], 401);
+        }
+
+        return response()->json([
+            'message' => 'Authenticated with a personal access token.',
+            'user_id' => $token->userId,
+            'abilities' => $token->abilities,
+        ]);
     }
 
     public function basic(Request $request): JsonResponse

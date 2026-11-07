@@ -10,6 +10,7 @@ import { AppPopover } from '@/components/base/popover';
 import { AppSelect } from '@/components/base/select';
 import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import { useActors, type Actor } from '@/composables/request/useActors';
+import { useConfigStore } from '@/stores';
 import { useDebounceFn } from '@vueuse/core';
 import {
     computed,
@@ -27,6 +28,7 @@ import {
 
 export interface RequestAuthorizationImpersonateUserProps {
     guard?: string;
+    tokensOnly?: boolean;
 }
 
 /*
@@ -43,7 +45,8 @@ const model: ModelRef<number | string> = defineModel<number | string>({
     default: () => '',
 });
 
-const { actors, guards, defaultGuard, isLoading, hasFailed, search } = useActors();
+const { actors, isLoading, hasFailed, search } = useActors();
+const configStore = useConfigStore();
 
 /*
  * State.
@@ -58,9 +61,32 @@ const searchInputRef =
  * Computed & Methods.
  */
 
-const selectedGuard = computed(() => props.guard ?? defaultGuard.value);
+// The guards are provided on page load. With tokens only, they are the ones that can create tokens.
+const availableGuards = computed(() =>
+    props.tokensOnly ? configStore.tokenGuards : configStore.guards,
+);
 
-const runSearch = () => search(props.guard, query.value.trim());
+const effectiveGuard = computed(() => {
+    if (!props.tokensOnly) {
+        return props.guard ?? configStore.defaultGuard ?? undefined;
+    }
+
+    return props.guard && availableGuards.value.includes(props.guard)
+        ? props.guard
+        : availableGuards.value[0];
+});
+
+const selectedGuard = computed(() => effectiveGuard.value);
+
+const hasNoTokenGuard = computed(
+    () => props.tokensOnly && configStore.tokenGuards.length === 0,
+);
+
+const runSearch = () => {
+    if (!hasNoTokenGuard.value) {
+        search(effectiveGuard.value, query.value.trim());
+    }
+};
 const runSearchDebounced = useDebounceFn(runSearch, 250);
 
 const pick = (actor: Actor) => {
@@ -83,12 +109,26 @@ watch(isOpen, async open => {
 watch(query, runSearchDebounced);
 
 // The list belongs to one guard, so a guard change loads it again.
-watch(() => props.guard, runSearch);
+watch(effectiveGuard, runSearch);
+
+// The guard that is shown must be the one that is sent.
+watch(
+    effectiveGuard,
+    guard => {
+        if (props.tokensOnly && guard && guard !== props.guard) {
+            emit('update:guard', guard);
+        }
+    },
+    { immediate: true },
+);
 </script>
 
 <template>
     <div>
-        <div v-if="guards.length > 1" class="h-control-lg grid grid-cols-3 border-b">
+        <div
+            v-if="availableGuards.length > 1"
+            class="h-control-lg grid grid-cols-3 border-b"
+        >
             <label
                 class="px-panel h-control-lg py-tight flex items-center border-r text-xs"
                 for="actor-guard"
@@ -98,7 +138,7 @@ watch(() => props.guard, runSearch);
             <AppSelect
                 id="actor-guard"
                 :model-value="selectedGuard"
-                :items="guards"
+                :items="availableGuards"
                 variant="none"
                 size="sm"
                 class="col-span-2 h-full"
@@ -136,6 +176,7 @@ watch(() => props.guard, runSearch);
                         size="sm"
                         icon="i-hugeicons-search-01"
                         aria-label="Pick a user"
+                        :loading="isLoading"
                         data-testid="actor-picker-button"
                         square
                     />

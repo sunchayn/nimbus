@@ -7,29 +7,29 @@ export interface Actor {
 }
 
 interface ActorsResponse {
-    guard: string;
-    guards: string[];
     actors: Actor[];
 }
 
 export interface UseActorsResult {
     actors: ShallowRef<Actor[]>;
-    guards: ShallowRef<string[]>;
-    defaultGuard: ShallowRef<string>;
     isLoading: ShallowRef<boolean>;
     hasFailed: ShallowRef<boolean>;
     search: (guard: string | undefined, query: string) => Promise<void>;
 }
 
+// The list without a search is loaded once per guard and reused.
+const defaultLists = new Map<string, Actor[]>();
+
+export const clearActorsCache = (): void => defaultLists.clear();
+
 /**
  * Searches the users of an authentication guard through the actors endpoint.
+ * The guards themselves are provided on page load.
  *
  * A newer search replaces the result of an older one that is still in flight.
  */
 export const useActors = (): UseActorsResult => {
     const actors = shallowRef<Actor[]>([]);
-    const guards = shallowRef<string[]>([]);
-    const defaultGuard = shallowRef('');
     const isLoading = shallowRef(false);
     const hasFailed = shallowRef(false);
 
@@ -37,6 +37,17 @@ export const useActors = (): UseActorsResult => {
 
     const search = async (guard: string | undefined, query: string): Promise<void> => {
         const current = ++latestSearch;
+        const cacheKey = guard ?? '';
+        const cached = query === '' ? defaultLists.get(cacheKey) : undefined;
+
+        if (cached) {
+            actors.value = cached;
+            hasFailed.value = false;
+            isLoading.value = false;
+
+            return;
+        }
+
         const parameters = new URLSearchParams();
 
         if (guard) {
@@ -67,13 +78,15 @@ export const useActors = (): UseActorsResult => {
 
             const data = (await response.json()) as ActorsResponse;
 
+            if (query === '') {
+                defaultLists.set(cacheKey, data.actors);
+            }
+
             if (current !== latestSearch) {
                 return;
             }
 
             actors.value = data.actors;
-            guards.value = data.guards;
-            defaultGuard.value = data.guard;
             hasFailed.value = false;
         } catch {
             if (current === latestSearch) {
@@ -87,5 +100,5 @@ export const useActors = (): UseActorsResult => {
         }
     };
 
-    return { actors, guards, defaultGuard, isLoading, hasFailed, search };
+    return { actors, isLoading, hasFailed, search };
 };

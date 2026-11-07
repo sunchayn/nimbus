@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Vite;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\DataTransferObjects\EnvironmentData;
 use Sunchayn\Nimbus\Modules\Export\Services\ShareableLinkProcessorService;
+use Sunchayn\Nimbus\Modules\Magic\Actions\ListActorsAction;
 use Sunchayn\Nimbus\Modules\Routes\Actions;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\RoutesProcessorContract;
 
@@ -23,6 +24,7 @@ class NimbusIndexController
         Actions\DisableThirdPartyUiAction $disableThirdPartyUiAction,
         ActiveApplicationResolver $activeApplicationResolver,
         ShareableLinkProcessorService $shareableLinkProcessorService,
+        ListActorsAction $listActorsAction,
     ): Renderable|RedirectResponse {
         $incomingShareableLinkPayload = $this->processShareableLink($shareableLinkProcessorService, $activeApplicationResolver);
 
@@ -43,6 +45,9 @@ class NimbusIndexController
                 fn (EnvironmentData $environment): array => $environment->toArray(),
                 $activeApplicationResolver->getEnvironments(),
             ),
+            'guards' => $listActorsAction->guards(),
+            'defaultGuard' => $activeApplicationResolver->getAuthGuard(),
+            'tokenGuards' => $listActorsAction->tokenGuards(),
             'primaryProcessorName' => $routesProcessorContract->getName()->value,
             'showOperationId' => $activeApplicationResolver->showOperationId(),
         ]);

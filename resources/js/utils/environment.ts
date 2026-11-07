@@ -34,4 +34,5 @@ export const isProductionEnvironment = (environment: {
 export const HOST_ONLY_AUTHORIZATION_TYPES: readonly AuthorizationType[] = [
     AuthorizationType.CurrentUser,
     AuthorizationType.Impersonate,
+    AuthorizationType.Token,
 ];

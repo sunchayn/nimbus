@@ -25,6 +25,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
     - [Bearer Tokens](#bearer-tokens)
     - [Basic Auth](#basic-auth)
     - [User Impersonation](#user-impersonation)
+    - [Token for User](#token-for-user)
 - [Advanced Features](#advanced-features)
     - [Global Headers](#global-headers)
     - [Value Generators](#value-generators)
@@ -467,6 +468,22 @@ By default Nimbus sends an `X-Nimbus-Actor` header with the guard name and the u
 - A header with an unknown guard or user is ignored and logged at debug level. The request continues as a guest.
 
 To use the cookie or JWT approach instead, set `auth.special.injector` to `'remember_me_cookie'` or `'tymon_jwt'`. The remember me injector may write a remember token to the user row.
+
+### Token for User
+
+Send a real personal access token for a user. Use it for routes that read the bearer token itself, for example `auth:sanctum` with token abilities, or Passport scopes.
+
+**How it works:**
+1. Select "Token for user" from authentication options.
+2. Enter the user key.
+3. Enter the abilities as a comma separated list. An empty list means all abilities (`*`).
+4. Nimbus calls `createToken` on the user model, sends the token as a bearer token, and deletes it once the response arrives. The token is deleted even when the request fails.
+
+**Requirements:**
+- Laravel Sanctum or Laravel Passport must be installed in your application, and the user model must use its `HasApiTokens` trait. Nimbus adds no dependency.
+- Like impersonation, this type works on the current host only.
+
+**Note:** The token row is created by Nimbus before the request is sent, so it is outside the database transaction of Transaction Mode. It is deleted after the response, so nothing stays behind.
 
 ---
 

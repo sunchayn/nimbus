@@ -50,6 +50,7 @@ const environmentStore = useEnvironmentVariablesStore();
 const specialIcons: Partial<Record<AuthorizationType, string>> = {
     [AuthorizationType.CurrentUser]: 'i-hugeicons-user',
     [AuthorizationType.Impersonate]: 'i-hugeicons-user-switch',
+    [AuthorizationType.Token]: 'i-hugeicons-key-01',
 };
 
 const isDisabled = (type: AuthorizationType) =>

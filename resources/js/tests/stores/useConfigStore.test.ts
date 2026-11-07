@@ -46,6 +46,9 @@ describe('useConfigStore', () => {
                 primaryProcessorName: null,
                 showOperationId: null,
                 globalException: null,
+                guards: JSON.stringify(['web', 'api']),
+                defaultGuard: 'web',
+                tokenGuards: JSON.stringify(['api']),
                 environments: JSON.stringify([
                     {
                         id: 'current',
@@ -74,6 +77,9 @@ describe('useConfigStore', () => {
             expect(store.isVersioned).toBe(true);
             expect(store.isLoggedIn).toBe(true);
             expect(store.userId).toBe(99);
+            expect(store.guards).toEqual(['web', 'api']);
+            expect(store.defaultGuard).toBe('web');
+            expect(store.tokenGuards).toEqual(['api']);
         });
     });
 });

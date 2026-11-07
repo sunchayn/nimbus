@@ -13,6 +13,9 @@ interface NimbusConfig {
     showOperationId: boolean | null;
     globalException: string | null;
     environments?: string | null;
+    guards?: string | null;
+    defaultGuard?: string | null;
+    tokenGuards?: string | null;
 }
 
 declare global {
