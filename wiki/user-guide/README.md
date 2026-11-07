@@ -217,6 +217,15 @@ Nimbus analyzes your Laravel validation rules to provide intelligent editing:
 
 Rules that Nimbus does not know never break the extraction. They are ignored.
 
+#### Query Parameters
+
+A `GET` route has no body, so Nimbus reads the controller method to find the query parameters it uses.
+
+- Nimbus looks for `$request->query('x')`, `$request->input('x')`, `$request->has('x')`, and `$request->only(['x', 'y'])`.
+- Each key found is added to the schema as an optional text field.
+- A key that already has validation rules keeps the type from those rules.
+- Only literal keys are read. Dotted keys and keys built at runtime are skipped.
+
 #### Uploading Files
 
 Send files from the **Form Data** body type. Each row is either text or a file.

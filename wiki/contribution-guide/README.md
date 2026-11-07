@@ -260,6 +260,10 @@ flowchart TD
 - Unknown rules add nothing and never fail the extraction.
 - A new rule family needs positive and negative tests, because a wrong mapping creates false validation errors.
 
+#### Query Parameters
+
+`RequestSchemaExtractor` runs `ReadRequestQueryKeysAction` after a strategy matches. It reads literal keys passed to `query`, `input`, `has`, and `only` on a request variable. For `GET` routes, the keys with no rule are added as optional string properties.
+
 ### Response Shape Extraction Process
 
 The response shape extraction process resolves the JSON type structure of a route's response. It is triggered asynchronously when the user trigger the response shape download (from the response viewer tab).
