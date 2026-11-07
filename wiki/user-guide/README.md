@@ -282,6 +282,13 @@ Nothing is masked, so authorization headers are visible.
 - Download the response type shape resolved via static analysis of controllers and resources.
 - Pretty-printed JSON for readability.
 
+#### Response Tools
+
+The response body has these tools.
+
+- **Search**: Press `Cmd+F` on macOS or `Ctrl+F` on Windows and Linux while the pointer is over the response body, or while it has focus. A search box opens in the top right corner of the body and highlights the matches. The counter shows the current match and the total. Use the arrows or Enter to move between matches. The current match is centered in the viewer. Press `Esc` to close it.
+- **Pretty and Raw tabs**: A JSON body has two tabs. **Pretty** shows the formatted body and **Raw** shows it as one compact line.
+
 #### Cookie Inspection
 
 View and decrypt Laravel session cookies with ease.

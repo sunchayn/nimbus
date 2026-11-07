@@ -1,5 +1,5 @@
-import ResponseBody from '@/components/domain/Client/Response/ResponseBody/ResponseBody.vue';
 import ResponseDownload from '@/components/domain/Client/Response/ResponseBody/ResponseDownload.vue';
+import ResponseBodyViewer from '@/components/domain/Client/Response/ResponseTools/ResponseBodyViewer.vue';
 import ResponseViewerResponse from '@/components/domain/Client/Response/ResponseViewerResponse.vue';
 import type { RequestLog } from '@/interfaces';
 import { STATUS } from '@/interfaces/http';
@@ -69,7 +69,7 @@ const createWrapper = (props = {}): VueWrapper => {
         global: {
             plugins: [createPinia()],
             stubs: {
-                ResponseBody: true,
+                ResponseBodyViewer: true,
                 ResponseDumpAndDie: true,
                 ResponseCookies: true,
                 ResponseHeaders: true,
@@ -91,7 +91,7 @@ describe('ResponseViewerResponse', () => {
     it('renders the body viewer for a regular response', () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.findComponent(ResponseBody).exists()).toBe(true);
+        expect(wrapper.findComponent(ResponseBodyViewer).exists()).toBe(true);
         expect(wrapper.findComponent(ResponseDownload).exists()).toBe(false);
     });
 
@@ -113,7 +113,7 @@ describe('ResponseViewerResponse', () => {
         });
 
         expect(wrapper.findComponent(ResponseDownload).exists()).toBe(true);
-        expect(wrapper.findComponent(ResponseBody).exists()).toBe(false);
+        expect(wrapper.findComponent(ResponseBodyViewer).exists()).toBe(false);
     });
 
     it('leaves the download action to the status row', () => {

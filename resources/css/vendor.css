@@ -102,6 +102,15 @@
         background-color: var(--ui-bg-elevated) !important;
     }
 
+    /* Search matches stay visible on the active line and under the selection. */
+    .cm-searchMatch {
+        background-color: color-mix(in oklab, var(--ui-warning) 20%, transparent) !important;
+    }
+
+    .cm-searchMatch.cm-searchMatch-selected {
+        background-color: color-mix(in oklab, var(--ui-warning) 30%, transparent) !important;
+    }
+
     .cm-line span {
         color: var(--ui-text-muted) !important;
     }
