@@ -146,6 +146,17 @@ flowchart TD
 4. **Schema Generation** - Convert validation rules to JSON schema.
 5. **Output** - Produce `ExtractedRoute` objects with complete metadata.
 
+**Route metadata:**
+
+`ExtractRouteMetadataAction` fills the `metadata` of each `ExtractedRoute` in the same pass. It never runs host code.
+
+- `middleware` is resolved through `Router::resolveMiddleware()`, so aliases and groups become class names.
+- `auth` is `required` for known authentication middleware, `hint` for `can` and ability middleware only, and `none` otherwise. The hints are kept in `authHints`.
+- `unknownGuards` lists the guards named by authentication middleware that `auth.guards` does not define. Guards are never resolved, because that throws for an undefined guard.
+- `throttle` is the argument of the throttle middleware, such as `60,1` or a limiter name.
+- `bindings` come from `Route::model()` registrations and from model type hints on the controller method, read by reflection. `key` is set only for `{model:field}` routes.
+- `where` holds the patterns of the route parameters.
+
 ### Routes Snapshot
 
 The snapshot is opt-in and lives outside the routes processors.

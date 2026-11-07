@@ -169,6 +169,33 @@ export const useTabsStore = defineStore(
             lastSyncedGlobalHeaders.value = newGlobalHeaders;
         }
 
+        // The last authorization that was not "none", offered again to routes that need one.
+        let lastUsedAuthorization: AuthorizationContract | null = null;
+
+        function getAuthorizationForRoute(route: RouteDefinition): AuthorizationContract {
+            const previous = activeRequest.value?.authorization;
+
+            if (previous && previous.type !== AuthorizationType.None) {
+                lastUsedAuthorization = previous;
+            }
+
+            const authorization =
+                activeRequest.value?.authorization ?? getAuthorizationForNewRequest();
+
+            const canPreselect =
+                route.metadata?.auth === 'required' &&
+                authorization.type === AuthorizationType.None &&
+                lastUsedAuthorization !== null &&
+                (environmentVariablesStore.isCurrentHost ||
+                    !HOST_ONLY_AUTHORIZATION_TYPES.includes(lastUsedAuthorization.type));
+
+            return canPreselect && lastUsedAuthorization
+                ? (JSON.parse(
+                      JSON.stringify(lastUsedAuthorization),
+                  ) as AuthorizationContract)
+                : authorization;
+        }
+
         function createPendingRequest(
             route: RouteDefinition,
             availableRoutesForEndpoint: RouteDefinition[],
@@ -183,8 +210,7 @@ export const useTabsStore = defineStore(
                 payloadType: getDefaultPayload(route),
                 schema: route.schema,
                 queryParameters: [],
-                authorization:
-                    activeRequest.value?.authorization ?? getAuthorizationForNewRequest(),
+                authorization: getAuthorizationForRoute(route),
                 supportedRoutes: availableRoutesForEndpoint,
                 routeDefinition: route,
                 isProcessing: false,

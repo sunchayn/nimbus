@@ -123,6 +123,8 @@ class ExtractApplicationRoutesActionFunctionalTest extends TestCase
                 $extractedRoute->metadata['name'] ?? null,
             );
 
+            $this->assertArrayHasKey('auth', $extractedRoute->metadata);
+
             $routeFactoryMock
                 ->shouldHaveReceived(
                     'fromLaravelRoute',

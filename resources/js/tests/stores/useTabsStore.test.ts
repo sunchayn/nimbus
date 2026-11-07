@@ -390,6 +390,55 @@ describe('useTabsStoreUnitTest', () => {
             expect(store.activeRequest?.endpoint).toEqual('new-endpoint');
         });
 
+        it('offers the last used authorization to a route that needs one', () => {
+            // Arrange
+
+            const store = useTabsStore();
+            const protectedRoute: RouteDefinition = {
+                ...secondRoute,
+                metadata: { auth: 'required' },
+            };
+
+            store.openTab(baseRoute, [baseRoute]);
+            store.updateAuthorization({ type: AuthorizationType.Bearer, value: 'token' });
+
+            // The second tab inherits the bearer token, then the user clears it.
+            store.openTab({ ...baseRoute, endpoint: 'orders', method: 'POST' }, []);
+            store.updateAuthorization({ type: AuthorizationType.None });
+
+            // Act
+
+            store.openTab(protectedRoute, [protectedRoute]);
+
+            // Assert
+
+            expect(store.activeRequest?.authorization).toEqual({
+                type: AuthorizationType.Bearer,
+                value: 'token',
+            });
+        });
+
+        it('keeps no authorization for a route that needs none', () => {
+            // Arrange
+
+            const store = useTabsStore();
+
+            store.openTab(baseRoute, [baseRoute]);
+            store.updateAuthorization({ type: AuthorizationType.Bearer, value: 'token' });
+            store.openTab({ ...baseRoute, endpoint: 'orders', method: 'POST' }, []);
+            store.updateAuthorization({ type: AuthorizationType.None });
+
+            // Act
+
+            store.openTab(secondRoute, [secondRoute]);
+
+            // Assert
+
+            expect(store.activeRequest?.authorization).toEqual({
+                type: AuthorizationType.None,
+            });
+        });
+
         it('synchronizes global headers when switching apps across tabs', () => {
             // Arrange
 
