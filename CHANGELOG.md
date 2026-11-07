@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0](https://github.com/sunchayn/nimbus/compare/v0.9.0-alpha...v1.0.0) (2026-11-07)
+
+
+### Maintenance
+
+* add laravel versions badge ([#160](https://github.com/sunchayn/nimbus/issues/160)) ([dd8a456](https://github.com/sunchayn/nimbus/commit/dd8a456143cbfa790813290c1ccc86e503313f8f))
+
 ## [0.9.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.8.0-alpha...v0.9.0-alpha) (2026-11-06)
 
 
