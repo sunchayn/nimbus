@@ -26,6 +26,7 @@ class ObjectSchemaProperty implements SchemaPropertyInterface
         private readonly bool $nullable = false,
         private readonly ?Schema $schema = null,
         private readonly bool $additionalProperties = false,
+        private readonly PropertyAnnotations $propertyAnnotations = new PropertyAnnotations,
     ) {}
 
     public function getName(): string
@@ -41,6 +42,11 @@ class ObjectSchemaProperty implements SchemaPropertyInterface
     public function isNullable(): bool
     {
         return $this->nullable;
+    }
+
+    public function getAnnotations(): PropertyAnnotations
+    {
+        return $this->propertyAnnotations;
     }
 
     /**
@@ -69,6 +75,6 @@ class ObjectSchemaProperty implements SchemaPropertyInterface
 
         $result['additionalProperties'] = $this->additionalProperties;
 
-        return $result;
+        return $result + $this->propertyAnnotations->toJsonSchema();
     }
 }

@@ -233,6 +233,18 @@ flowchart TD
 - **Property building** - Convert validation rules to JSON Schema properties.
 - **Recursive processing** - Handle deeply nested structures.
 
+#### Rule Processing
+
+`RuleToSchemaMapper` reads each rule of a field and merges the changes into one property shape. Rule families live in small processors under `Services/RulesMapper/Processors`.
+
+- `ConditionalRuleProcessor` handles `nullable`, `sometimes`, and the `required`, `prohibited`, and `exclude` families.
+- `FormatRuleProcessor` handles formats, patterns, `between`, `digits`, `distinct`, and file rules.
+- `LookupRuleProcessor` handles `exists` and `unique`.
+- `min`, `max`, `size`, and `between` only store a number. `PropertyBuilder` decides whether it is a length, a value, or an item count from the final type, so the order of the rules does not matter.
+- Extra information with no JSON Schema keyword lives in `PropertyAnnotations`. Hints become the `description` of the property. `lookup` and `skipAutofill` are custom keywords read by the client.
+- Unknown rules add nothing and never fail the extraction.
+- A new rule family needs positive and negative tests, because a wrong mapping creates false validation errors.
+
 ### Response Shape Extraction Process
 
 The response shape extraction process resolves the JSON type structure of a route's response. It is triggered asynchronously when the user trigger the response shape download (from the response viewer tab).

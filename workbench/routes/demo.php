@@ -22,6 +22,8 @@ Route::prefix('shapes')->group(function () {
     Route::post('/nested-object', [\Workbench\App\Http\Controllers\Demo\ShapesController::class, 'nestedObject']);
 
     Route::post('/array-of-primitives', [\Workbench\App\Http\Controllers\Demo\ShapesController::class, 'arrayOfPrimitives']);
+
+    Route::post('/rule-coverage', [\Workbench\App\Http\Controllers\Demo\ShapesController::class, 'ruleCoverage']);
 });
 
 Route::prefix('responses')->group(function () {

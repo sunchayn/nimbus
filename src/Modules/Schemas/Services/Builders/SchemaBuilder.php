@@ -15,8 +15,10 @@ use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ArraySchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\FieldPath;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ObjectSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\PathSegment;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\PropertyAnnotations;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 
 /**
  * Converts Laravel validation rules into JSON Schema structures.
@@ -74,10 +76,47 @@ class SchemaBuilder
                     // Builds a root-level property (e.g., "name", "email").
                     $properties[$fieldName] = $this->propertyBuilder->buildPropertyFromRules($fieldName, $rules);
 
-                    return $properties;
+                    return $this->addConfirmationProperty($fieldName, $rules, $properties);
                 },
                 initial: [],
             );
+    }
+
+    /**
+     * A confirmed rule makes the request carry a matching "{field}_confirmation" value.
+     *
+     * @param  NormalizedRulesShape  $rules
+     * @param  array<string, SchemaPropertyInterface>  $properties
+     * @return array<string, SchemaPropertyInterface>
+     */
+    private function addConfirmationProperty(string $fieldName, array $rules, array $properties): array
+    {
+        if (! $this->hasRule($rules, 'confirmed')) {
+            return $properties;
+        }
+
+        $confirmationName = $fieldName.'_confirmation';
+
+        $properties[$confirmationName] ??= new StringSchemaProperty(
+            name: $confirmationName,
+            required: $properties[$fieldName]->isRequired(),
+        );
+
+        return $properties;
+    }
+
+    /**
+     * @param  NormalizedRulesShape  $rules
+     */
+    private function hasRule(array $rules, string $name): bool
+    {
+        foreach ($rules as $rule) {
+            if (is_string($rule) && explode(':', $rule)[0] === $name) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -125,9 +164,14 @@ class SchemaBuilder
         $properties[$arrayName] = new ArraySchemaProperty(
             name: $arrayName,
             required: $existingProperty?->isRequired() ?? false,
+            nullable: $existingProperty?->isNullable() ?? false,
             schemaProperty: $schemaProperty,
             minItems: $existingProperty instanceof ArraySchemaProperty ? $existingProperty->getMinItems() : null,
             maxItems: $existingProperty instanceof ArraySchemaProperty ? $existingProperty->getMaxItems() : null,
+            // The distinct rule usually sits on the wildcard rules, for example "tags.*".
+            uniqueItems: $this->hasRule($rules, 'distinct')
+                || ($existingProperty instanceof ArraySchemaProperty && $existingProperty->hasUniqueItems()),
+            propertyAnnotations: $existingProperty?->getAnnotations() ?? new PropertyAnnotations,
         );
 
         return $properties;
@@ -236,9 +280,12 @@ class SchemaBuilder
         return new ArraySchemaProperty(
             name: $schemaProperty->getName(),
             required: $schemaProperty->isRequired(),
+            nullable: $schemaProperty->isNullable(),
             schemaProperty: $itemSchema,
             minItems: $schemaProperty instanceof ArraySchemaProperty ? $schemaProperty->getMinItems() : null,
             maxItems: $schemaProperty instanceof ArraySchemaProperty ? $schemaProperty->getMaxItems() : null,
+            uniqueItems: $schemaProperty instanceof ArraySchemaProperty && $schemaProperty->hasUniqueItems(),
+            propertyAnnotations: $schemaProperty->getAnnotations(),
         );
     }
 
@@ -296,7 +343,9 @@ class SchemaBuilder
         return new ObjectSchemaProperty(
             name: $schemaProperty->getName(),
             required: $schemaProperty->isRequired(),
+            nullable: $schemaProperty->isNullable(),
             schema: new Schema($this->binaryContentInferrer->infer($properties)),
+            propertyAnnotations: $schemaProperty->getAnnotations(),
         );
     }
 

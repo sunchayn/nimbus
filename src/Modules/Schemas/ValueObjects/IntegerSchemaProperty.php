@@ -26,6 +26,7 @@ class IntegerSchemaProperty implements SchemaPropertyInterface
         private readonly int|float|null $minimum = null,
         private readonly int|float|null $maximum = null,
         private readonly ?array $enum = null,
+        private readonly PropertyAnnotations $propertyAnnotations = new PropertyAnnotations,
     ) {}
 
     public function getName(): string
@@ -41,6 +42,11 @@ class IntegerSchemaProperty implements SchemaPropertyInterface
     public function isNullable(): bool
     {
         return $this->nullable;
+    }
+
+    public function getAnnotations(): PropertyAnnotations
+    {
+        return $this->propertyAnnotations;
     }
 
     public function getType(): SchemaPropertyType
@@ -66,6 +72,6 @@ class IntegerSchemaProperty implements SchemaPropertyInterface
             $properties['enum'] = $this->enum;
         }
 
-        return $properties;
+        return $properties + $this->propertyAnnotations->toJsonSchema();
     }
 }

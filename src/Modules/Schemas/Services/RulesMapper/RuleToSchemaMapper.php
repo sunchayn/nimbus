@@ -2,17 +2,54 @@
 
 namespace Sunchayn\Nimbus\Modules\Schemas\Services\RulesMapper;
 
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\In;
 use Illuminate\Validation\ValidationRuleParser;
 use Sunchayn\Nimbus\Modules\Schemas\Enums\SchemaPropertyType;
+use Sunchayn\Nimbus\Modules\Schemas\Services\RulesMapper\Processors\ConditionalRuleProcessor;
 use Sunchayn\Nimbus\Modules\Schemas\Services\RulesMapper\Processors\EnumRuleProcessor;
+use Sunchayn\Nimbus\Modules\Schemas\Services\RulesMapper\Processors\FormatRuleProcessor;
 use Sunchayn\Nimbus\Modules\Schemas\Services\RulesMapper\Processors\InRuleProcessor;
+use Sunchayn\Nimbus\Modules\Schemas\Services\RulesMapper\Processors\LookupRuleProcessor;
 
 /**
  * Converts Laravel validation rules into JSON Schema property definitions.
  *
  * @phpstan-import-type NormalizedRulesShape from \Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset
+ *
+ * @phpstan-type MappedShape array{
+ *    type: SchemaPropertyType,
+ *    required: bool,
+ *    nullable: bool,
+ *    format: string|null,
+ *    enum: ?non-empty-array<array-key, scalar>,
+ *    minimum: ?int,
+ *    maximum: ?int,
+ *    pattern: ?string,
+ *    uniqueItems: bool,
+ *    hints: string[],
+ *    lookup: ?array{table: string, column: string},
+ *    skipAutofill: bool,
+ *    dateFormat: ?string,
+ *  }
+ * @phpstan-type RuleUpdates array{
+ *    type?: SchemaPropertyType,
+ *    required?: bool,
+ *    nullable?: bool,
+ *    sometimes?: bool,
+ *    format?: string|null,
+ *    enum?: ?non-empty-array<array-key, scalar>,
+ *    minimum?: ?int,
+ *    maximum?: ?int,
+ *    pattern?: string,
+ *    uniqueItems?: bool,
+ *    hints?: string[],
+ *    lookup?: array{table: string, column: string},
+ *    skipAutofill?: bool,
+ *    dateFormat?: string,
+ *    digits?: array{int, int},
+ *  }
  */
 class RuleToSchemaMapper
 {
@@ -20,49 +57,78 @@ class RuleToSchemaMapper
      * Converts an array of Laravel validation rules into schema property data.
      *
      * @param  NormalizedRulesShape  $rules
-     * @return array{
-     *    type: SchemaPropertyType,
-     *    required: bool,
-     *    format: string|null,
-     *    enum: ?non-empty-array<array-key, scalar>,
-     *    minimum: ?int,
-     *    maximum: ?int,
-     *  }
+     * @param  ?string  $field  The field name, used when a rule such as exists leaves out the column.
+     * @return MappedShape
      */
-    public function convertRulesToBaseSchemaPropertyMetadata(array $rules): array
+    public function convertRulesToBaseSchemaPropertyMetadata(array $rules, ?string $field = null): array
     {
         $shape = [
             'type' => SchemaPropertyType::STRING,
             'required' => false,
+            'nullable' => false,
+            'sometimes' => false,
             'format' => null,
             'enum' => null,
             'minimum' => null,
             'maximum' => null,
+            'pattern' => null,
+            'uniqueItems' => false,
+            'hints' => [],
+            'lookup' => null,
+            'skipAutofill' => false,
+            'dateFormat' => null,
+            'digits' => null,
         ];
 
         foreach ($rules as $rule) {
-            $ruleSpecificUpdates = $this->processRule($rule);
+            $ruleSpecificUpdates = $this->processRule($rule, $field);
+
+            $hints = [...$shape['hints'], ...($ruleSpecificUpdates['hints'] ?? [])];
 
             // Amend the original shape to add the changes specific to the rule in hand.
-            $shape = array_merge($shape, $ruleSpecificUpdates);
+            $shape = array_merge($shape, $ruleSpecificUpdates, ['hints' => $hints]);
         }
+
+        // A field that may be left out is never required, whatever else the rules say.
+        $shape['required'] = $shape['required'] && ! $shape['sometimes'];
+
+        $shape = array_merge($shape, $this->digitsUpdates($shape['type'], $shape['digits']));
+
+        unset($shape['sometimes'], $shape['digits']);
 
         return $shape;
     }
 
     /**
+     * Digits count characters, so the type decides between a value range and a text pattern.
+     *
+     * @param  ?array{int, int}  $digits
+     * @return array{minimum?: int, maximum?: int, pattern?: string}
+     */
+    private function digitsUpdates(SchemaPropertyType $type, ?array $digits): array
+    {
+        if ($digits === null) {
+            return [];
+        }
+
+        [$min, $max] = $digits;
+
+        if (in_array($type, [SchemaPropertyType::INTEGER, SchemaPropertyType::NUMBER], true)) {
+            return [
+                'minimum' => $min > 1 ? 10 ** ($min - 1) : 0,
+                'maximum' => 10 ** $max - 1,
+            ];
+        }
+
+        return ['pattern' => $min === $max ? sprintf('^\d{%d}$', $min) : sprintf('^\d{%d,%d}$', $min, $max)];
+    }
+
+    /**
      * Processes individual validation rules and returns the changes to apply.
      *
-     * @return array{
-     *     type?: SchemaPropertyType,
-     *     format?: string,
-     *     enum?: ?non-empty-array<array-key, scalar>,
-     *     minimum?: int,
-     *     maximum?: int,
-     *     required?: bool,
-     *     }|array{}
+     * @return RuleUpdates
      */
-    private function processRule(mixed $rule): array
+    private function processRule(mixed $rule, ?string $field): array
     {
         if (is_object($rule)) {
             return $this->processObjectRule($rule);
@@ -74,9 +140,16 @@ class RuleToSchemaMapper
 
         [$name, $params] = ValidationRuleParser::parse((string) $rule);
 
-        $ruleName = strtolower($name);
+        // The parser returns rule names in studly case, for example RequiredIf.
+        $ruleName = Str::snake($name);
 
-        return match ($ruleName) {
+        $processed = array_merge(
+            ConditionalRuleProcessor::process($ruleName, $params),
+            FormatRuleProcessor::process($ruleName, $params),
+            LookupRuleProcessor::process($ruleName, $params, $field),
+        );
+
+        return $processed + match ($ruleName) {
             'required' => ['required' => true],
             'string' => ['type' => SchemaPropertyType::STRING],
             'integer' => ['type' => SchemaPropertyType::INTEGER],

@@ -24,6 +24,8 @@ export interface GeneratorContext {
     minLength?: number;
     maxLength?: number;
     fractionDigits?: number;
+    // The PHP date format the value must follow. Used by the date generators.
+    dateFormat?: string;
 }
 
 /**

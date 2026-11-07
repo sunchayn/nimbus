@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker/locale/en';
 import { defineCategory } from '../utils/defineCategory';
+import { formatPhpDate } from '../utils/formatPhpDate';
 import { withinLength } from '../utils/withinLength';
 
 export const time = defineCategory({
@@ -12,9 +13,10 @@ export const time = defineCategory({
             name: 'Date',
             icon: 'i-hugeicons-calendar-03',
             generate: context =>
-                withinLength(
-                    context,
-                    () => faker.date.anytime().toISOString().split('T')[0],
+                withinLength(context, () =>
+                    context?.dateFormat
+                        ? formatPhpDate(faker.date.anytime(), context.dateFormat)
+                        : faker.date.anytime().toISOString().split('T')[0],
                 ),
             nameRules: [{ pattern: /^(date)$/i }],
             typeRules: [{ format: 'date' }],
@@ -25,7 +27,11 @@ export const time = defineCategory({
             description: 'Generate a random date and time',
             icon: 'i-hugeicons-calendar-02',
             generate: context =>
-                withinLength(context, () => faker.date.anytime().toISOString()),
+                withinLength(context, () =>
+                    context?.dateFormat
+                        ? formatPhpDate(faker.date.anytime(), context.dateFormat)
+                        : faker.date.anytime().toISOString(),
+                ),
             nameRules: [{ pattern: /^(datetime|date[-_]?time)$/i }],
             typeRules: [{ format: 'date-time' }],
         },

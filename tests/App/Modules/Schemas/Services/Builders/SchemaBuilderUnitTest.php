@@ -27,6 +27,7 @@ use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\FieldPath;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\IntegerSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\NumberSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ObjectSchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\PropertyAnnotations;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 use Sunchayn\Nimbus\Tests\App\Modules\Schemas\Services\Builders\Stubs\Base64RuleStub;
@@ -84,7 +85,7 @@ class SchemaBuilderUnitTest extends TestCase
                 properties: [
                     new StringSchemaProperty(name: 'name', required: true),
                     new StringSchemaProperty(name: 'email', required: true, stringFormat: StringFormat::EMAIL),
-                    new IntegerSchemaProperty(name: 'age', required: false, minimum: 18, maximum: 99),
+                    new IntegerSchemaProperty(name: 'age', required: false, minimum: 18, maximum: 99, propertyAnnotations: new PropertyAnnotations(hints: ['required with email'])),
                     new StringSchemaProperty(name: 'statuses', required: true, enum: ['inactive', 'active']),
                     new StringSchemaProperty(name: 'statuses_v2', required: true, enum: ['inactive', 'active']),
                     new IntegerSchemaProperty(name: 'role', required: true, enum: [1, 2, 3, 4]),
@@ -329,7 +330,7 @@ class SchemaBuilderUnitTest extends TestCase
                             properties: [
                                 new StringSchemaProperty(name: 'name', required: true, maxLength: 255),
                                 new StringSchemaProperty(name: 'content', required: true, contentEncoding: 'base64'),
-                                new StringSchemaProperty(name: 'mime_type', required: false, maxLength: 100),
+                                new StringSchemaProperty(name: 'mime_type', required: false, nullable: true, maxLength: 100),
                             ],
                             extractionError: null,
                         ),
@@ -358,7 +359,7 @@ class SchemaBuilderUnitTest extends TestCase
                                 properties: [
                                     new StringSchemaProperty(name: 'name', required: true),
                                     new StringSchemaProperty(name: 'content', required: true, contentEncoding: 'base64'),
-                                    new StringSchemaProperty(name: 'mime_type', required: false),
+                                    new StringSchemaProperty(name: 'mime_type', required: false, nullable: true),
                                 ],
                                 extractionError: null,
                             ),
