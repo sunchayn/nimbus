@@ -21,7 +21,7 @@ defineOptions({
     name: 'SettingsPage',
 });
 
-const VERSION = 'v0.9.0-alpha'; // x-release-please-version
+const VERSION = 'v1.0.0'; // x-release-please-version
 
 /*
  * Stores.
