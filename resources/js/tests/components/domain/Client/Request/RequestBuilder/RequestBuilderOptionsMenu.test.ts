@@ -13,6 +13,7 @@ import { reactive, ref } from 'vue';
 const mockRequestStore = reactive({
     pendingRequestData: ref<PendingRequest | null>(null),
     updateTransactionMode: vi.fn(),
+    updateOptions: vi.fn(),
 });
 
 const mockConfigStore = reactive({
@@ -82,5 +83,32 @@ describe('RequestBuilderOptionsMenu', () => {
         vm.transactionMode = true;
 
         expect(mockRequestStore.updateTransactionMode).toHaveBeenCalledWith(true);
+    });
+
+    describe('request options', () => {
+        interface OptionsVm {
+            followRedirects: boolean;
+            timeout: string | number;
+        }
+
+        const optionsVm = () => createWrapper().vm as unknown as OptionsVm;
+
+        it('saves the follow redirects switch through the store', () => {
+            optionsVm().followRedirects = false;
+
+            expect(mockRequestStore.updateOptions).toHaveBeenCalledWith({
+                followRedirects: false,
+            });
+        });
+
+        it('saves a timeout in range and ignores one out of range', () => {
+            const vm = optionsVm();
+
+            vm.timeout = '12';
+            vm.timeout = '0';
+
+            expect(mockRequestStore.updateOptions).toHaveBeenCalledWith({ timeout: 12 });
+            expect(mockRequestStore.updateOptions).toHaveBeenCalledTimes(1);
+        });
     });
 });

@@ -93,7 +93,9 @@ class RequestRelayAction
 
         $headers = $requestRelayData->headers;
 
-        $multipartBody = is_array($requestBody) && $requestBody !== [] && $contentType === 'multipart/form-data'
+        $mediaType = strtolower(trim(explode(';', $contentType)[0]));
+
+        $multipartBody = is_array($requestBody) && $requestBody !== [] && $mediaType === 'multipart/form-data'
             ? $requestBody
             : null;
 
@@ -119,9 +121,13 @@ class RequestRelayAction
             $headers['x-nimbus-transaction-mode'] = '1';
         }
 
-        // SSL verification is skipped to support self-signed certificates on non production targets.
-        // It stays on for production, including when the current host is detected as production.
-        return Http::withOptions(['verify' => $this->shouldVerifySsl($requestRelayData)])
+        return Http::withOptions(
+            [
+                'verify' => $requestRelayData->verifySsl ?? $this->shouldVerifySsl($requestRelayData),
+                'allow_redirects' => $requestRelayData->followRedirects,
+            ],
+        )
+            ->timeout($requestRelayData->timeout)
             ->withHeaders($headers)
             ->withQueryParameters($queryParameters)
             ->when(

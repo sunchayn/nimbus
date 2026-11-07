@@ -7,10 +7,12 @@ import { AppButton } from '@/components/base/button';
 import type { AppDropdownMenuItem } from '@/components/base/dropdown-menu';
 import { AppDropdownMenu } from '@/components/base/dropdown-menu';
 import { AppIcon } from '@/components/base/icons';
+import { AppInput } from '@/components/base/input';
 import { AppPopover } from '@/components/base/popover';
 import { AppSwitch } from '@/components/base/switch';
 import { useShareableLink } from '@/composables/request/useShareableLink';
 import { useEnvironmentVariablesStore, useRequestStore } from '@/stores';
+import { isProductionEnvironment } from '@/utils/environment';
 import { generateCurlCommand } from '@/utils/request';
 import { computed, shallowRef } from 'vue';
 import CurlExportDialog from './CurlExportDialog.vue';
@@ -44,6 +46,33 @@ const transactionMode = computed({
     set: (value: boolean) => requestStore.updateTransactionMode(value),
 });
 
+const DEFAULT_TIMEOUT = 30;
+
+const defaultVerifySsl = computed(() =>
+    isProductionEnvironment(environmentVariablesStore.activeEnvironment),
+);
+
+const followRedirects = computed({
+    get: () => pendingRequestData.value?.options?.followRedirects ?? true,
+    set: (value: boolean) => requestStore.updateOptions({ followRedirects: value }),
+});
+
+const verifySsl = computed({
+    get: () => pendingRequestData.value?.options?.verifySsl ?? defaultVerifySsl.value,
+    set: (value: boolean) => requestStore.updateOptions({ verifySsl: value }),
+});
+
+const timeout = computed({
+    get: () => pendingRequestData.value?.options?.timeout ?? DEFAULT_TIMEOUT,
+    set: (value: string | number) => {
+        const seconds = Math.trunc(Number(value));
+
+        if (seconds >= 1 && seconds <= 300) {
+            requestStore.updateOptions({ timeout: seconds });
+        }
+    },
+});
+
 /**
  * Generates and displays cURL command for the current request.
  */
@@ -69,6 +98,21 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
         {
             slot: 'transaction',
             label: 'Transaction mode',
+            onSelect: (event: Event) => event.preventDefault(),
+        },
+        {
+            slot: 'redirects',
+            label: 'Follow redirects',
+            onSelect: (event: Event) => event.preventDefault(),
+        },
+        {
+            slot: 'ssl',
+            label: 'Verify SSL',
+            onSelect: (event: Event) => event.preventDefault(),
+        },
+        {
+            slot: 'timeout',
+            label: 'Timeout (seconds)',
             onSelect: (event: Event) => event.preventDefault(),
         },
     ],
@@ -147,6 +191,56 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
                     size="sm"
                     aria-label="Transaction mode"
                     @click.stop
+                />
+            </div>
+        </template>
+
+        <template #redirects="{ item }">
+            <div
+                class="gap-loose flex w-full items-center justify-between"
+                data-testid="follow-redirects-option"
+            >
+                <span>{{ item.label }}</span>
+                <AppSwitch
+                    v-model="followRedirects"
+                    size="sm"
+                    aria-label="Follow redirects"
+                    @click.stop
+                />
+            </div>
+        </template>
+
+        <template #ssl="{ item }">
+            <div
+                class="gap-loose flex w-full items-center justify-between"
+                data-testid="verify-ssl-option"
+            >
+                <span>{{ item.label }}</span>
+                <AppSwitch
+                    v-model="verifySsl"
+                    size="sm"
+                    aria-label="Verify SSL"
+                    @click.stop
+                />
+            </div>
+        </template>
+
+        <template #timeout="{ item }">
+            <div
+                class="gap-loose flex w-full items-center justify-between"
+                data-testid="timeout-option"
+            >
+                <span>{{ item.label }}</span>
+                <AppInput
+                    v-model="timeout"
+                    type="number"
+                    size="xs"
+                    class="w-20"
+                    :min="1"
+                    :max="300"
+                    aria-label="Timeout in seconds"
+                    @click.stop
+                    @keydown.stop
                 />
             </div>
         </template>

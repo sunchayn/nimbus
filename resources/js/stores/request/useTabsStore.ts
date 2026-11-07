@@ -5,6 +5,7 @@ import {
     RequestBodyTypeEnum,
     type GeneratorType,
     type PendingRequest,
+    type RequestOptions,
     type SourceGlobalHeaders,
 } from '@/interfaces/http';
 import type { RouteDefinition } from '@/interfaces/routes/routes';
@@ -190,6 +191,9 @@ export const useTabsStore = defineStore(
                 wasExecuted: false,
                 durationInMs: 0,
                 transactionMode: activeRequest.value?.transactionMode ?? false,
+                options: activeRequest.value?.options
+                    ? { ...activeRequest.value.options }
+                    : undefined,
             };
 
             syncGlobalHeadersForRequest(request);
@@ -440,6 +444,15 @@ export const useTabsStore = defineStore(
             }
         }
 
+        function updateOptions(options: RequestOptions) {
+            if (activeRequest.value) {
+                activeRequest.value.options = {
+                    ...activeRequest.value.options,
+                    ...options,
+                };
+            }
+        }
+
         const resetRequest = () => {
             if (activeTabId.value) {
                 closeTab(activeTabId.value);
@@ -636,6 +649,7 @@ export const useTabsStore = defineStore(
             updateQueryParameters,
             updateAuthorization,
             updateTransactionMode,
+            updateOptions,
             resetRequest,
             restoreFromHistory,
             restoreFromSharedPayload,

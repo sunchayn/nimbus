@@ -3,6 +3,7 @@
 namespace Workbench\App\Http\Controllers\Demo;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 /**
@@ -36,5 +37,17 @@ class EchoController
     public function text(Request $request): JsonResponse
     {
         return response()->json(['received' => $request->getContent(), 'length' => strlen($request->getContent())]);
+    }
+
+    public function redirect(): RedirectResponse
+    {
+        return redirect('/demo/echo');
+    }
+
+    public function slow(): JsonResponse
+    {
+        sleep(3);
+
+        return response()->json(['slept' => 3]);
     }
 }

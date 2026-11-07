@@ -96,6 +96,42 @@ class RequestRelayDataUnitTest extends TestCase
         $this->assertFalse($result->transactionMode);
     }
 
+    public function test_it_reads_request_options(): void
+    {
+        // Arrange
+
+        $mockRequest = Mockery::mock(NimbusRelayRequest::class);
+
+        $mockRequest->shouldReceive('userAgent')->andReturnNull();
+        $mockRequest->cookies = new InputBag;
+
+        // Anticipate
+
+        $mockRequest
+            ->shouldReceive('validated')
+            ->andReturn([
+                'method' => 'GET',
+                'endpoint' => '/api/test',
+                'body' => [],
+                'options' => ['follow_redirects' => false, 'timeout' => 5, 'verify_ssl' => true],
+            ]);
+
+        $mockRequest->shouldReceive('getBody')->andReturn([]);
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturnNull();
+        $mockRequest->shouldReceive('environmentId')->andReturn('current');
+        $mockRequest->shouldReceive('isCurrentHost')->andReturnTrue();
+
+        // Act
+
+        $result = RequestRelayData::fromRelayApiRequest($mockRequest);
+
+        // Assert
+
+        $this->assertFalse($result->followRedirects);
+        $this->assertSame(5, $result->timeout);
+        $this->assertTrue($result->verifySsl);
+    }
+
     public function test_it_keeps_user_headers_regardless_of_name_case(): void
     {
         // Arrange

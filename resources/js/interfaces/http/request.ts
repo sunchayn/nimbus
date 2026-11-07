@@ -89,6 +89,16 @@ export interface PendingRequest {
 
     /** Whether to execute the request in transaction mode (rollback on completion) */
     transactionMode?: boolean;
+
+    /** Per request relay options. A missing field means the default applies. */
+    options?: RequestOptions;
+}
+
+export interface RequestOptions {
+    followRedirects?: boolean;
+    /** Timeout in seconds. */
+    timeout?: number;
+    verifySsl?: boolean;
 }
 
 export interface Request {
@@ -101,4 +111,5 @@ export interface Request {
     authorization: AuthorizationContract;
     routeDefinition: RouteDefinition;
     transactionMode?: boolean;
+    options?: RequestOptions;
 }

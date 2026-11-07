@@ -10,7 +10,7 @@ export type { SourceGlobalHeaders } from '../generated/global-request-types';
 
 export type { CookieValue, ResponseCookie } from './cookies';
 
-export type { PendingRequest, Request } from './request';
+export type { PendingRequest, Request, RequestOptions } from './request';
 
 export { RequestBodyTypeEnum } from './request';
 
