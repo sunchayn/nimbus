@@ -132,6 +132,10 @@ class RequestRelayAction
             $headers['x-nimbus-transaction-mode'] = '1';
         }
 
+        if ($requestRelayData->timeTravel !== null) {
+            $headers['x-nimbus-time-travel'] = $requestRelayData->timeTravel;
+        }
+
         return Http::withOptions(
             [
                 'verify' => $requestRelayData->verifySsl ?? $this->shouldVerifySsl($requestRelayData),

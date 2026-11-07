@@ -215,3 +215,8 @@ Route::prefix('v2')->group(function () {
 Route::get('/signed/unsubscribe/{user}', [EchoController::class, 'echo'])
     ->middleware('signed')
     ->name('demo.signed.unsubscribe');
+
+Route::get('/time', fn () => response()->json([
+    'now' => now()->toIso8601String(),
+    'timezone' => config('app.timezone'),
+]))->name('demo.time');

@@ -34,6 +34,7 @@ readonly class RequestRelayData
         public bool $followRedirects = true,
         public int $timeout = self::DEFAULT_TIMEOUT,
         public ?bool $verifySsl = null,
+        public ?string $timeTravel = null,
     ) {}
 
     public static function fromRelayApiRequest(NimbusRelayRequest $nimbusRelayRequest): self
@@ -93,7 +94,15 @@ readonly class RequestRelayData
             followRedirects: $data['options']['follow_redirects'] ?? true,
             timeout: $data['options']['timeout'] ?? self::DEFAULT_TIMEOUT,
             verifySsl: $data['options']['verify_ssl'] ?? null,
+            timeTravel: self::timeTravelFrom($nimbusRelayRequest),
         );
+    }
+
+    private static function timeTravelFrom(NimbusRelayRequest $nimbusRelayRequest): ?string
+    {
+        $value = $nimbusRelayRequest->header('X-Nimbus-Time-Travel');
+
+        return is_string($value) && trim($value) !== '' ? trim($value) : null;
     }
 
     /**

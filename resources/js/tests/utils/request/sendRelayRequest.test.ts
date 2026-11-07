@@ -192,5 +192,30 @@ describe('sendRelayRequest', () => {
             expect(formData.get('endpoint')).toBe('https://api.example.com/api/users');
             expect(formData.get('body')).toBe('{"name": "John"}');
         });
+
+        it('should send the time travel header only when a time is set', async () => {
+            // Arrange
+
+            mockedAxios.post.mockResolvedValue({
+                data: JSON.stringify(createMockRelayProxyResponse({ statusCode: 200 })),
+            });
+
+            // Act
+
+            await sendRelayRequest(
+                createMockPendingRequest({ timeTravel: ' +31 days ' }),
+                options,
+            );
+            await sendRelayRequest(createMockPendingRequest({ timeTravel: '' }), options);
+
+            // Assert
+
+            expect(mockedAxios.post.mock.calls[0][2]?.headers).toMatchObject({
+                'X-Nimbus-Time-Travel': '+31 days',
+            });
+            expect(mockedAxios.post.mock.calls[1][2]?.headers).not.toHaveProperty(
+                'X-Nimbus-Time-Travel',
+            );
+        });
     });
 });

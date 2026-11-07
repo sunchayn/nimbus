@@ -97,6 +97,9 @@ export interface PendingRequest {
     /** Whether the URL is signed right before the request is sent */
     signUrl?: boolean;
 
+    /** Date time or relative form such as `+31 days` that the target application clock is fixed to */
+    timeTravel?: string;
+
     /** Per request relay options. A missing field means the default applies. */
     options?: RequestOptions;
 }
@@ -119,4 +122,5 @@ export interface Request {
     routeDefinition: RouteDefinition;
     transactionMode?: boolean;
     options?: RequestOptions;
+    timeTravel?: string;
 }

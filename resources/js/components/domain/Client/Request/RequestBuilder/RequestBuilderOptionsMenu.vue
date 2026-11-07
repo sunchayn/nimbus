@@ -20,6 +20,7 @@ import { computed, shallowRef } from 'vue';
 import CodeExportDialog from './CodeExportDialog.vue';
 import CurlExportDialog from './CurlExportDialog.vue';
 import ShareableLinkDialog from './ShareableLinkDialog.vue';
+import TimeTravelDialog from './TimeTravelDialog.vue';
 
 /*
  * Stores.
@@ -40,6 +41,7 @@ const curlCommand = shallowRef('');
 const hasSpecialAuth = shallowRef(false);
 const showCodeDialog = shallowRef(false);
 const codeSamples = shallowRef<Record<string, string>>({});
+const showTimeTravelDialog = shallowRef(false);
 
 /*
  * Computed & Methods.
@@ -134,6 +136,8 @@ const populateCodeExporterDialog = () => {
     showCodeDialog.value = true;
 };
 
+const timeTravel = computed(() => pendingRequestData.value?.timeTravel ?? '');
+
 const items = computed<AppDropdownMenuItem[][]>(() => [
     [
         { label: 'Options', type: 'label' },
@@ -165,6 +169,13 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
             slot: 'timeout',
             label: 'Timeout (seconds)',
             onSelect: (event: Event) => event.preventDefault(),
+        },
+        {
+            slot: 'timeTravel',
+            label: 'Set current time',
+            onSelect: () => {
+                showTimeTravelDialog.value = true;
+            },
         },
     ],
     [
@@ -341,6 +352,16 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
                 />
             </div>
         </template>
+
+        <template #timeTravel="{ item }">
+            <div
+                class="gap-loose flex w-full items-center justify-between"
+                data-testid="time-travel-option"
+            >
+                <span>{{ item.label }}</span>
+                <AppIcon name="i-hugeicons-clock-01" class="text-muted size-icon-sm" />
+            </div>
+        </template>
     </AppDropdownMenu>
 
     <CurlExportDialog
@@ -356,4 +377,10 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
     />
 
     <ShareableLinkDialog v-model:open="showShareableLinkDialog" :link="shareableLink" />
+
+    <TimeTravelDialog
+        v-model:open="showTimeTravelDialog"
+        :value="timeTravel"
+        @save="requestStore.updateTimeTravel"
+    />
 </template>
