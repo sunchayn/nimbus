@@ -1,5 +1,65 @@
 # Changelog
 
+## [0.9.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.8.0-alpha...v0.9.0-alpha) (2026-11-06)
+
+
+### Features
+
+* **client:** accept a pasted full URL in the endpoint ([#157](https://github.com/sunchayn/nimbus/issues/157)) ([8875030](https://github.com/sunchayn/nimbus/commit/88750305e009e11c3294056dd784beb2d132233e))
+* **client:** improve JSON uploads autofilling ([#141](https://github.com/sunchayn/nimbus/issues/141)) ([f648e2e](https://github.com/sunchayn/nimbus/commit/f648e2e63e7971fa030ce584fbaa30d1ea8b8779))
+* **envs:** use environments as request targets ([#136](https://github.com/sunchayn/nimbus/issues/136)) ([5c6abc0](https://github.com/sunchayn/nimbus/commit/5c6abc0926719fe581fbfe48f10706ead37b042d))
+* **relay:** add support for file uploads ([#138](https://github.com/sunchayn/nimbus/issues/138)) ([f92c139](https://github.com/sunchayn/nimbus/commit/f92c13948195f8d4e2854619d74439255174462d))
+* **relay:** forward download responses ([#130](https://github.com/sunchayn/nimbus/issues/130)) ([ba2b949](https://github.com/sunchayn/nimbus/commit/ba2b94963805574c34c7d2e75d60bf0ffccd5285))
+* **routes:** support extraction snapshots ([#128](https://github.com/sunchayn/nimbus/issues/128)) ([3a8b1e4](https://github.com/sunchayn/nimbus/commit/3a8b1e41d59939c837e9ba6ac332be48f9b00526))
+* **routes:** support nested folders in routes list ([#114](https://github.com/sunchayn/nimbus/issues/114)) ([498e37c](https://github.com/sunchayn/nimbus/commit/498e37cc80088421709e9bbdb6b3b7e40008f1e0))
+* **ui:** add loading shell ([#127](https://github.com/sunchayn/nimbus/issues/127)) ([29a102b](https://github.com/sunchayn/nimbus/commit/29a102baaba6bf8fcad8adb33ef403e661de7d5c))
+* **ui:** add open tabs contextual actions ([#125](https://github.com/sunchayn/nimbus/issues/125)) ([36712fd](https://github.com/sunchayn/nimbus/commit/36712fd30a4efd9248691afaad5956a11d118d2c))
+* **ui:** add solarized and sakura themes ([#140](https://github.com/sunchayn/nimbus/issues/140)) ([9e5f453](https://github.com/sunchayn/nimbus/commit/9e5f453408dae54020d658e1d05b057f3bf0ca01))
+* **ui:** allow multiple open tabs for same endpoint ([#131](https://github.com/sunchayn/nimbus/issues/131)) ([9047457](https://github.com/sunchayn/nimbus/commit/90474579ac6abcfc9c0ba1f8f3470da625e98287))
+* **ui:** revamp theme switcher ([#126](https://github.com/sunchayn/nimbus/issues/126)) ([744be23](https://github.com/sunchayn/nimbus/commit/744be23744d6faa6e560d5712ae1449452096803))
+* **ui:** support wrappable views ([#146](https://github.com/sunchayn/nimbus/issues/146)) ([7d29be6](https://github.com/sunchayn/nimbus/commit/7d29be6d7f2b8c5f62d09242774423142eeda71d))
+
+
+### Bug Fixes
+
+* **client:** cancel the request when leaving its tab ([#148](https://github.com/sunchayn/nimbus/issues/148)) ([e65e4f1](https://github.com/sunchayn/nimbus/commit/e65e4f1a66575e0bb5fd35ffbee4479a7b365045))
+* **client:** cap request history by size ([#155](https://github.com/sunchayn/nimbus/issues/155)) ([c9850d5](https://github.com/sunchayn/nimbus/commit/c9850d5f1c649a48d5a8506a046c54d9d85e4039))
+* **client:** keep the Content-Type header the user set ([#150](https://github.com/sunchayn/nimbus/issues/150)) ([94f64a6](https://github.com/sunchayn/nimbus/commit/94f64a6a0086b1ba34388cddbab046b11a315e88))
+* **client:** recover from stale saved state and bad share links ([#149](https://github.com/sunchayn/nimbus/issues/149)) ([36ae0c1](https://github.com/sunchayn/nimbus/commit/36ae0c1b3b64b2bbe817bd31784d2b6c85e05e98))
+* **client:** refresh open tabs schemas when routes reload ([#142](https://github.com/sunchayn/nimbus/issues/142)) ([7c964e3](https://github.com/sunchayn/nimbus/commit/7c964e3daf93432430eb68f5507c122561cdb04b))
+* **generator:** restructure how generators work and fix bugs ([#139](https://github.com/sunchayn/nimbus/issues/139)) ([7f1d317](https://github.com/sunchayn/nimbus/commit/7f1d3177dd842f47f4daf1f824ca2acc5efef30e))
+* **relay:** validate relay input and shorten connection errors ([#151](https://github.com/sunchayn/nimbus/issues/151)) ([70c7d32](https://github.com/sunchayn/nimbus/commit/70c7d324286606ee92854d5032a3939465842962))
+* routes explorer verbs spacing ([#135](https://github.com/sunchayn/nimbus/issues/135)) ([8e19594](https://github.com/sunchayn/nimbus/commit/8e1959401e4d526ae57b95bbe6f4ec25f5beb018))
+* **state:** properly restore form data from state ([#137](https://github.com/sunchayn/nimbus/issues/137)) ([9fbbcf6](https://github.com/sunchayn/nimbus/commit/9fbbcf6d80cc45d810cdaff3456ce77cdeab20d8))
+* **ui:** adjust invalid popup paddings ([#145](https://github.com/sunchayn/nimbus/issues/145)) ([aea148a](https://github.com/sunchayn/nimbus/commit/aea148abe792a4fee0ba5e72a2918d4d2c2829e0))
+* **ui:** broken content alignment for open tabs ([#124](https://github.com/sunchayn/nimbus/issues/124)) ([6642d34](https://github.com/sunchayn/nimbus/commit/6642d34b211f570d49fe4fe9c6da42b04b3255f2))
+* **ui:** improve theme switcher radio button ([#133](https://github.com/sunchayn/nimbus/issues/133)) ([3699bda](https://github.com/sunchayn/nimbus/commit/3699bdad9a4e838935dd00e2ff55e5661f0bd214))
+* **ui:** keep the key-value toolbar visible in short panels ([#154](https://github.com/sunchayn/nimbus/issues/154)) ([8492a2f](https://github.com/sunchayn/nimbus/commit/8492a2f202cd4f4c2c5cbd5b8ad86ce4390e7221))
+* **ui:** let tab lists scroll with a drag or the mouse wheel ([#156](https://github.com/sunchayn/nimbus/issues/156)) ([8b40f43](https://github.com/sunchayn/nimbus/commit/8b40f4317012a89789b03554e823feb3d62daf43))
+* **ui:** polish control sizing and long environment names ([#152](https://github.com/sunchayn/nimbus/issues/152)) ([a09bd86](https://github.com/sunchayn/nimbus/commit/a09bd86b7735392c2ffb43d7c4ff64cc32bd91d2))
+* **ui:** properly save state after collapsing sidebar ([#123](https://github.com/sunchayn/nimbus/issues/123)) ([b75416f](https://github.com/sunchayn/nimbus/commit/b75416fe17b5d4ec43bcbc1d7d9d0667246868ff))
+* **ui:** restore the status indicator glow ([#159](https://github.com/sunchayn/nimbus/issues/159)) ([d452053](https://github.com/sunchayn/nimbus/commit/d452053373b511f8372ee8f989f616c8dec45530))
+* **ui:** rewind history in a new tab ([#132](https://github.com/sunchayn/nimbus/issues/132)) ([a1a8843](https://github.com/sunchayn/nimbus/commit/a1a8843196542d0a4e8792d9762a37674c2137d0))
+* **ui:** tab rename lose focus if opened via right-click ([#129](https://github.com/sunchayn/nimbus/issues/129)) ([265977f](https://github.com/sunchayn/nimbus/commit/265977fbdb937d157c61d4cb6fa476df9a7e7d64))
+* **ui:** use one focus ring style everywhere ([#153](https://github.com/sunchayn/nimbus/issues/153)) ([ddf5c09](https://github.com/sunchayn/nimbus/commit/ddf5c093c592b0fc5bc95a10a41d72666802e4ba))
+
+
+### Code Refactoring
+
+* **core:** introduce a polished Nimbus UI  ([#119](https://github.com/sunchayn/nimbus/issues/119)) ([8293a7b](https://github.com/sunchayn/nimbus/commit/8293a7b8233473b0fd103ec2fe5197a600706876))
+
+
+### Maintenance
+
+* add AI instructions ([#115](https://github.com/sunchayn/nimbus/issues/115)) ([6e6fd14](https://github.com/sunchayn/nimbus/commit/6e6fd1489417616bdfe86a81235ad77cadc77e24))
+* generalize design system tokens ([#122](https://github.com/sunchayn/nimbus/issues/122)) ([2181c4f](https://github.com/sunchayn/nimbus/commit/2181c4f2b51852627fef97872de5e9d141be170f))
+* improve release-please config ([#117](https://github.com/sunchayn/nimbus/issues/117)) ([6f632f5](https://github.com/sunchayn/nimbus/commit/6f632f516a7af7038b792347e375eaf4d53be4c4))
+* repo housekeeping ([#118](https://github.com/sunchayn/nimbus/issues/118)) ([5f30cd9](https://github.com/sunchayn/nimbus/commit/5f30cd9b593bbf2dc7ee5b156f8f3d8be0cf8f7e))
+* **ui:** globalize documentation link ([#134](https://github.com/sunchayn/nimbus/issues/134)) ([423c075](https://github.com/sunchayn/nimbus/commit/423c075138d1b01bc2bba6d819ba72eec240558b))
+* **ui:** improve extraction error design ([#144](https://github.com/sunchayn/nimbus/issues/144)) ([224f7d9](https://github.com/sunchayn/nimbus/commit/224f7d94f56d711c40215c3df569c1c403443492))
+* **ui:** improvements after revamp ([#121](https://github.com/sunchayn/nimbus/issues/121)) ([75bcd31](https://github.com/sunchayn/nimbus/commit/75bcd313fbdebe1d7e9c6f36c43d33551d0a1b56))
+* use workbench in place of a dev repo ([#120](https://github.com/sunchayn/nimbus/issues/120)) ([f5193c6](https://github.com/sunchayn/nimbus/commit/f5193c65f8a57a1d3a5b5af97e67acedb1888e4e))
+
 ## [0.8.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.7.0-alpha...v0.8.0-alpha) (2026-07-25)
 
 
