@@ -1,98 +1,127 @@
-# Nimbus
-
-![Nimbus - Integrated API Client With a Touch of Magic](./art/nimbus-cover.png)
+<img src="art/nimbus-logo.png" width="220"/>
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/sunchayn/nimbus.svg?style=flat-square)](https://packagist.org/packages/sunchayn/nimbus)
+[![Total Downloads](https://img.shields.io/packagist/dt/sunchayn/nimbus.svg?style=flat-square)](https://packagist.org/packages/sunchayn/nimbus)
 [![License](https://img.shields.io/packagist/l/sunchayn/nimbus.svg?style=flat-square)](https://packagist.org/packages/sunchayn/nimbus)
 [![PHP Version](https://img.shields.io/packagist/php-v/sunchayn/nimbus.svg?style=flat-square)](https://packagist.org/packages/sunchayn/nimbus)
 <a href="https://packagist.org/packages/sunchayn/nimbus"><img src="https://badge.laravel.cloud/badge/sunchayn/nimbus?style=flat" alt="Laravel versions"></a>
 [![codecov](https://codecov.io/github/sunchayn/nimbus/graph/badge.svg?token=IPMYSPI2T4)](https://codecov.io/github/sunchayn/nimbus)
 
-**An integrated, in-browser API client for Laravel with a touch of magic.**  
-Nimbus automatically analyzes your application's routes and validation rules to provide an interactive API platform directly in the browser for testing and exploring your API endpoints.
+**An API client that already knows your routes.**
 
-<img src="./art/nimbus-demo-video.gif" style="border: 1px solid black;border-right:0;">
+Nimbus is an in-browser API client for Laravel.
 
----
+It reads your routes, validation rules, and data transfer objects from your source code and builds each request form for you.
+You send the request as any user, see the queries, logs, and events next to the response, and roll back the database changes when you are done.
+
+<img src="./art/nimbus-demo-video.gif">
 
 ## Why Nimbus?
 
-Traditional API testing tools require manual setup for every endpoint. Nimbus removes that friction by automatically discovering your Laravel routes, generating schemas from validation rules, and handling authentication, cookies, and test data. All without leaving your development environment.
+Traditional HTTP clients, such as Postman and Bruno, run outside your application.
 
-## What Nimbus Is NOT
+You copy each URL by hand, write each JSON body from scratch, refresh tokens, and clean the database after a destructive test.
+When a response looks wrong, you open another tool to find out why.
 
-Nimbus is **NOT** an API documentation generator like Swagger or Scribe. It doesn't produce customer-facing API documentation. Instead, it's a **developer-focused API playground** designed to improve your iteration speed while building and testing APIs.
+Nimbus runs inside your local app, so it already knows.
 
-## Key Features
-
-- **Authentication Injection**: Seamlessly switch between special modes like current session auth, user impersonation by ID, or standard modes like Bearer and Basic credentials.
-- **Cookie Decryption**: Inspect and automatically decrypt cookies to streamline debugging.
-- **Shared Request Contexts**: Capture a request state (headers, body, auth) and share with colleagues.
-- **Database Transaction Rollback**: Execute potentially destructive requests (DELETE, UPDATE) within a database transaction that automatically rolls back upon termination.
-- **Integrated dd() Handling**: Intercepts native `dd()` calls and renders them in a dedicated, paginated debug viewer without disrupting the UI or response state.
-- **Payload Autofill**: One-click payload population with realistic test data.
-- **On-Demand Value Generators**: Inline value generators (UUIDs, names, emails, timestamps) within the request builder input fields.
-- **Persistent Request History**: Every request is logged in a searchable history, allowing for full restoration of the interface state to any previous point in time.
-- **Multi-Application Support**: Manage and toggle between multiple APIs (e.g., REST, Admin, or separate microservices) within a single unified dashboard.
-
-### Technical Discovery
-
-#### Automated Route Analysis
-Nimbus performs static analysis of your application's routing layer to discover endpoints and their corresponding validation logic. This includes support for:
-*   Standard Laravel `FormRequest` validation
-*   `Spatie\LaravelData` DTOs
-*   Inline controller validation logic
-
-#### OpenAPI Specification Support
-For projects with formal documentation, Nimbus can consume OpenAPI (YAML/JSON) specifications. This extends the discovery process by merging documented external specs with Nimbus's internal route detection.
-
----
+* **Your routes become the request form.** Nimbus parses routes, Form Requests, DTOs, and inline validation rules by static analysis.
+* **Send as any user.** Pick a user and a guard, and Nimbus authenticates the request.
+* **See what happened.** Queries, N+1 warnings, logs, dispatched events, and `dd()` output appear beside the response.
+* **Undo the DB changes.** POST, PUT, and DELETE requests can run inside a transaction that rolls back on every database connection you configure.
 
 ## Installation
 
-### 1. Requirements
-*   PHP 8.2+
-*   Laravel 10.x, 11.x, 12.x, or 13.x
+Nimbus needs PHP 8.2 or higher and Laravel 10, 11, 12, or 13.
 
-### 2. Composer Install
+**1. Install the package.**
+
 ```bash
-composer require sunchayn/nimbus
+composer require --dev sunchayn/nimbus
 ```
 
-### 3. Publishing Assets
+**2. Publish the assets and config.**
+
 ```bash
 php artisan vendor:publish --tag=nimbus-assets --tag=nimbus-config
 ```
 
-### 4. Access
-Start your Laravel application and navigate to:
+**3. Open Nimbus.**
 
-```
-http://your-app.test/nimbus
-```
-
-That's it! Nimbus will automatically discover your API routes and their validation schemas.
+Start your application and go to `/nimbus`, for example `http://your-app.test/nimbus`.
 
 > [!NOTE]
-> **Single-Threaded Server Environments**
-> When using `php artisan serve` or Laravel Sail, concurrent relay requests may lead to timeouts due to PHP's single-threaded nature.
-> Refer to the [Single-Threaded Guide](wiki/user-guide/README.md#making-nimbus-work-with-single-threaded-servers) for the recommended workaround.
+> **Single-threaded servers**<br/>
+> The `php artisan serve` and Laravel Sail handle one request at a time, so relayed requests can time out.<br/>
+> See the [single-threaded setup guide](wiki/user-guide/README.md#making-nimbus-work-with-single-threaded-servers) for workarounds.
+
+> [!WARNING]
+> **Local development only**<br/>
+> Nimbus can run requests as any user in your system.
+> Don't enable it on a server that is reachable from the public internet.
+
+## Features
+
+### Build requests from your code
+- **Route and schema discovery.** Routes, parameters, and types come from Form Requests, DTOs, and inline rules.
+- **OpenAPI support.** When a spec exists, Nimbus merges it with what it finds in your routes.
+- **Autofill.** Fill a request body with realistic test data in one click.
+
+### Send as any user
+- **Actor impersonation.** Act as any user on any guard, with integer, UUID, or ULID keys, and find the user in a search picker.
+- **Request sandbox.** Fake outbound HTTP calls, mail, queued jobs, and notifications for a single request.
+- **Time travel.** Run a request as if it were a specific date and time.
+
+### See what happened
+- **Request insights.** Database queries, timings, N+1 warnings, logs, and events on the same screen as the response.
+- **Debug interception.** `dd()` output opens in a paginated viewer instead of breaking the response.
+- **History.** Search past requests and restore the full state of any of them.
+
+### Keep your data safe
+- **Transaction rollback.** Destructive requests roll back on every configured database connection.
+
+### Share work with your team and your tools
+- **Git-backed workspaces.** Saved requests are plain files in your repository, so you review them in pull requests.
+- **Shared Links.** Pre-configure a request and share it with your team-mate with one click.
+- **MCP server.** AI coding assistants can list routes, read schemas, and check endpoint behavior inside a rollback.
+
+### Laravel toolbox
+A dedicated page for tools that can be helpful dealing with your APIs.
+- Decrypt session cookies.
+- Create and verify temporary signed URLs.
+- Decode JWT and Sanctum tokens.
+- Check a password against a hash.
+
+## How Nimbus compares
+
+Nimbus trades breadth for depth.
+It does less than a general client, and it does more inside a Laravel app.
+
+| Capability | Nimbus | Postman, Bruno | Swagger, Scribe | Telescope |
+| :--- | :---: | :---: | :---: | :---: |
+| Finds routes and rules without setup | **Yes** | No | Yes, as static docs | No |
+| Interactive request builder | **Yes** | Yes | Playground only | No |
+| Act as any user on any guard | **Yes** | Manual tokens | No | No |
+| Database rollback on all connections | **Yes** | No | No | No |
+| Queries and logs beside the response | **Yes** | No | No | Separate dashboard |
+| `dd()` interception | **Yes** | Partial<br /><i>(may render HTML)</i> | No | Dumps only |
+| MCP server for AI agents | **Yes** | Yes | No | No |
+| Requests stored in Git | **Yes** | Partial | Not applicable | Not applicable |
+| External third-party APIs | No | **Yes** | No | Outbound logs only |
+| GraphQL, gRPC, WebSockets | No | **Yes** | Partial | No |
+| JavaScript test scripts | No | **Yes** | No | No |
+| CI collection runner | No | **Yes** | Partial | No |
+| Hosted cloud sync and team workspaces | No | **Yes** | Static sites | Self-hosted |
+| Public customer documentation | No | No | **Yes** | No |
+| Staging and production monitoring | No | Monitors only | No | **Yes** |
+
+Nimbus is not a documentation generator and not a general API client.
+You might use Scribe or Scramble for public docs, and Postman or Bruno for APIs you do not own.
 
 ## Documentation
 
-*   **[User Guide](wiki/user-guide/README.md)**: Comprehensive interface walkthrough and troubleshooting.
-*   **[Contributor Guide](wiki/contribution-guide/README.md)**: Architecture overview and local development instructions.
-
-## Security Considerations
-- **Development Only**: Nimbus is designed for local development environments. Do not deploy it to production servers.
-- **User Impersonation**: The impersonation feature allows making requests as any user. Ensure Nimbus is only accessible in trusted development environments.
-
-## Release Status
-
-Nimbus is currently an **Alpha**. You may encounter unexpected behaviors or bugs, all feedback is welcome:
-- Report bugs: [Open an issue](https://github.com/sunchayn/nimbus/issues/new/choose)
-- Share ideas: [Start a discussion](https://github.com/sunchayn/nimbus/discussions/categories/ideas)
-- Ask questions: [Q&A discussions](https://github.com/sunchayn/nimbus/discussions/categories/q-a)
+* [User guide](wiki/user-guide/README.md) covers the interface and troubleshooting.
+* [Contributor guide](wiki/contribution-guide/README.md) covers the architecture, AST extractors, and the local workbench.
 
 ## License
 
