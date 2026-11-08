@@ -316,6 +316,10 @@ sequenceDiagram
 
 **Sign URL.** When the request option is on for a route with the `signed` middleware, the frontend first calls `POST /api/magic/signed-url` with the full URL. `SignRouteUrlAction` matches the route without running it, refuses routes that lack the `signed` middleware or a name, and returns the URL signed for the host of the given URL, because the signature covers the host. The frontend relays a copy of the request that targets the signed URL, so the tab keeps its own endpoint.
 
+**Lookup values.** When a request becomes active, `useLookupValuesStore` collects the `lookup` annotations of its schema and posts them to `/api/magic/lookup-values` in one call.
+`ReadLookupValuesAction` reads at most 20 values per pair, and only for pairs that the route's own extracted schema declares.
+The lists stay in memory, autofill picks from them at random, and the store reloads them on an environment change and after a write request.
+
 ---
 
 ## Design Principles

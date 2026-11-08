@@ -3,6 +3,7 @@ import type { ErrorPlainResponse, PendingRequest } from '@/interfaces/http';
 import {
     useConfigStore,
     useEnvironmentVariablesStore,
+    useLookupValuesStore,
     useRequestsHistoryStore,
     useTabsStore,
 } from '@/stores';
@@ -32,6 +33,7 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
     const tabsStore = useTabsStore();
     const configStore = useConfigStore();
     const environmentVariablesStore = useEnvironmentVariablesStore();
+    const lookupValuesStore = useLookupValuesStore();
 
     /*
      * State.
@@ -173,6 +175,7 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
 
             historyStore.addLog(requestLog);
             tabsStore.updateActiveTabResponse(requestLog);
+            lookupValuesStore.refreshAfter(requestData);
         } catch (error) {
             if (!senderTabIsActive()) {
                 return;

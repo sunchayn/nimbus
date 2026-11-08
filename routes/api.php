@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Sunchayn\Nimbus\Http\Api\Doctor\DoctorController;
+use Sunchayn\Nimbus\Http\Api\Magic\LookupValuesController;
 use Sunchayn\Nimbus\Http\Api\Magic\SignedUrlController;
 use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayController;
 use Sunchayn\Nimbus\Http\Api\Responses\ResponseShapeController;
@@ -29,6 +30,9 @@ Route::group(
 
         Route::post('/magic/signed-url', SignedUrlController::class)
             ->name('nimbus.api.magic.signed-url');
+
+        Route::post('/magic/lookup-values', LookupValuesController::class)
+            ->name('nimbus.api.magic.lookup-values');
 
         Route::post('/responses/shape', ResponseShapeController::class)
             ->name('nimbus.api.responses.shape');

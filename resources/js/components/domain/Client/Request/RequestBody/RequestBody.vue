@@ -15,6 +15,7 @@ import ImplementationMissingWarning from './Hints/ImplementationMissingWarning.v
 import RouteAbsentInPrimarySourceInfo from './Hints/MissingRouteInPrimarySourceInfo.vue';
 import RouteExtractionError from './Hints/RouteExtractionError.vue';
 import RequestBodyContent from './RequestBodyContent.vue';
+import RequestBodyRecordPicker from './RequestBodyRecordPicker.vue';
 
 /*
  * Types & Interfaces.
@@ -76,10 +77,21 @@ const showRouteAbsentInPrimaryProcessorInfo = computed(function () {
         <PanelSubHeader class="border-b">
             <RequestBodySelector v-model="payloadType" :types="types" />
             <template #toolbox>
-                <RequestBodyAutoFillButton
-                    :disabled="!supportsAutoFill"
-                    @click="autofill"
-                />
+                <div
+                    class="gap-tight flex items-center"
+                    data-testid="request-body-toolbox"
+                >
+                    <RequestBodyRecordPicker
+                        v-model:payload="payload"
+                        :schema="pendingRequestData?.schema?.shape"
+                        :payload-type="payloadType"
+                    />
+                    <RequestBodyAutoFillButton
+                        :disabled="!supportsAutoFill"
+                        data-testid="request-body-autofill"
+                        @click="autofill"
+                    />
+                </div>
             </template>
         </PanelSubHeader>
 
