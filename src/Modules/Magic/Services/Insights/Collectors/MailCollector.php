@@ -6,6 +6,7 @@ namespace Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Mail\Events\MessageSending;
+use Sunchayn\Nimbus\Modules\Magic\Listeners\SandboxModeListener;
 use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Results\MailResult;
 use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Support\InsightValueLimiter;
 use Symfony\Component\Mime\Address;
@@ -29,6 +30,11 @@ class MailCollector extends ListCollector
 
     private function record(MessageSending $event): void
     {
+        // Sandbox mode lists its mail itself, since the message is faked and not sent.
+        if (config('mail.default') === SandboxModeListener::MAILER) {
+            return;
+        }
+
         $mailable = $event->data['__laravel_mailable'] ?? null;
 
         $this->add([

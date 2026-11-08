@@ -3,7 +3,7 @@
  * Don't update it manually, otherwise, your changes will be lost.
  * To update the file run `php bin/intellisense`.
  *
- * Generated at: 2026-11-11T21:25:27+00:00.
+ * Generated at: 2026-11-11T23:53:20+00:00.
  */
 
 export interface InsightQuery {
@@ -87,6 +87,29 @@ export interface InsightDropped {
     events: number;
 }
 
+export interface InsightSandboxMail {
+    subject: string;
+    to: string[];
+    body: string;
+}
+
+export interface InsightSandboxNotification {
+    notification: string;
+    notifiable: string;
+    channels: string[];
+}
+
+export interface InsightSandboxJob {
+    job: string;
+    queue: string;
+}
+
+export interface InsightSandbox {
+    mail?: InsightSandboxMail[];
+    notifications?: InsightSandboxNotification[];
+    jobs?: InsightSandboxJob[];
+}
+
 export interface Insight {
     queries: InsightQuery[];
     logs: InsightLog[];
@@ -102,4 +125,5 @@ export interface Insight {
     duration_ms: number;
     dropped: InsightDropped;
     truncated: boolean;
+    sandbox: InsightSandbox;
 }

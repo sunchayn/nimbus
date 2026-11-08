@@ -56,6 +56,29 @@ describe('ResponseInsight', () => {
             ]);
         });
 
+        it('adds a sandbox tab counting what was captured', () => {
+            const wrapper = render(
+                makeInsight({
+                    sandbox: {
+                        mail: [{ subject: 'Hi', to: ['a@b.test'], body: 'x' }],
+                        jobs: [{ job: 'App\\Jobs\\Ship', queue: 'default' }],
+                    },
+                }),
+            );
+
+            expect(tabLabels(wrapper).at(-1)).toBe('Sandbox2');
+        });
+
+        it('keeps the sandbox tab when an effect was sandboxed and nothing was captured', () => {
+            const wrapper = render(makeInsight({ sandbox: { mail: [] } }));
+
+            expect(tabLabels(wrapper).at(-1)).toBe('Sandbox0');
+        });
+
+        it('has no sandbox tab when nothing was sandboxed', () => {
+            expect(tabLabels(render(makeInsight())).join(' ')).not.toContain('Sandbox');
+        });
+
         it.each([
             ['cache', { cache: [{ operation: 'hit' as const, key: 'k' }] }, 'Cache'],
             ['jobs', { jobs: [{ job: 'J', queue: null, connection: null }] }, 'Jobs'],

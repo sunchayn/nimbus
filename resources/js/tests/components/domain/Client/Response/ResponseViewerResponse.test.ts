@@ -155,6 +155,7 @@ describe('ResponseViewerResponse', () => {
                 events: 0,
             },
             truncated: false,
+            sandbox: {},
         };
 
         const withInsight = (value: unknown) => {

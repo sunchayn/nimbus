@@ -18,6 +18,7 @@ use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
 use Sunchayn\Nimbus\Modules\Magic\Actions\PullInsightAction;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\ResetRateLimiterListener;
+use Sunchayn\Nimbus\Modules\Magic\Listeners\SandboxModeListener;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
 use Sunchayn\Nimbus\Modules\Relay\Responses\DumpAndDieResponse;
@@ -153,6 +154,10 @@ class RequestRelayAction
 
         if ($requestRelayData->resetLimiter) {
             $headers[strtolower(ResetRateLimiterListener::HEADER)] = '1';
+        }
+
+        if ($requestRelayData->sandbox !== '') {
+            $headers[strtolower(SandboxModeListener::HEADER)] = $requestRelayData->sandbox;
         }
 
         if ($insightId !== null) {

@@ -17,6 +17,7 @@ const mockRequestStore = reactive({
     updateOptions: vi.fn(),
     updateSignUrl: vi.fn(),
     updateTimeTravel: vi.fn(),
+    updateSandbox: vi.fn(),
 });
 
 const mockConfigStore = reactive({
@@ -114,6 +115,70 @@ describe('RequestBuilderOptionsMenu', () => {
             expect(mockRequestStore.updateOptions).toHaveBeenCalledWith({ timeout: 12 });
             expect(mockRequestStore.updateOptions).toHaveBeenCalledTimes(1);
         });
+    });
+
+    it('adds and removes sandbox options', () => {
+        mockRequestStore.pendingRequestData = {
+            sandbox: ['mail'],
+        } as unknown as PendingRequest;
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const vm = createWrapper().vm as any;
+
+        vm.toggleSandbox('queue', true);
+        expect(mockRequestStore.updateSandbox).toHaveBeenLastCalledWith([
+            'mail',
+            'queue',
+        ]);
+
+        vm.toggleSandbox('mail', false);
+        expect(mockRequestStore.updateSandbox).toHaveBeenLastCalledWith([]);
+    });
+
+    it('lists the sandbox options in a sub-menu', async () => {
+        // Arrange
+
+        mockRequestStore.pendingRequestData = {
+            sandbox: ['mail'],
+        } as unknown as PendingRequest;
+        const wrapper = createWrapper({ attachTo: document.body });
+
+        // Act
+
+        await wrapper
+            .find('[data-testid="request-options-button"]')
+            .trigger('keydown', { key: 'ArrowDown' });
+        await flushPromises();
+        const trigger = document.querySelector<HTMLElement>(
+            '[data-testid="sandbox-option"]',
+        );
+        trigger
+            ?.closest<HTMLElement>('[role="menuitem"]')
+            ?.dispatchEvent(
+                new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }),
+            );
+        await flushPromises();
+
+        // Assert
+
+        const checkboxes = document.querySelectorAll('[role="menuitemcheckbox"]');
+        expect(checkboxes).toHaveLength(4);
+        expect(checkboxes[0].getAttribute('aria-checked')).toBe('true');
+        expect(checkboxes[1].getAttribute('aria-checked')).toBe('false');
+        expect([...checkboxes].map(item => item.textContent?.trim())).toEqual([
+            'Mail',
+            'Notifications',
+            'Queued jobs',
+            'Events',
+        ]);
+        expect(
+            document.querySelector('[data-testid="sandbox-intro"]')?.textContent,
+        ).toContain('Pick side effects to fake');
+        // The help for Events is a popover, and the other options have none.
+        expect(checkboxes[3].querySelector('app-popover-stub')).not.toBeNull();
+        expect(checkboxes[0].querySelector('app-popover-stub')).toBeNull();
+
+        wrapper.unmount();
     });
 
     it('updates the sign option via computed property', () => {

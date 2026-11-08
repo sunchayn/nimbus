@@ -19,6 +19,7 @@ import InsightLogs from './Logs/InsightLogs.vue';
 import InsightMail from './Mail/InsightMail.vue';
 import InsightNotifications from './Notifications/InsightNotifications.vue';
 import InsightQueries from './Queries/InsightQueries.vue';
+import InsightSandbox from './Sandbox/InsightSandbox.vue';
 import InsightTimeline from './Timeline/InsightTimeline.vue';
 
 export interface ResponseInsightProps {
@@ -42,6 +43,9 @@ const kindTab = (
     dropped: number,
 ): InsightTab[] =>
     list.length || dropped ? [{ label, value, slot: value, count: list.length }] : [];
+
+// The tab shows for every effect that was sandboxed, even when nothing was captured.
+const sandboxed = computed(() => Object.values(props.insight.sandbox));
 
 const tabs = computed<InsightTab[]>(() => [
     ...(props.insight.exception
@@ -83,6 +87,16 @@ const tabs = computed<InsightTab[]>(() => [
     ),
     ...kindTab('HTTP', 'http', props.insight.http, props.insight.dropped.http),
     ...kindTab('Events', 'events', props.insight.events, props.insight.dropped.events),
+    ...(sandboxed.value.length
+        ? [
+              {
+                  label: 'Sandbox',
+                  value: 'sandbox',
+                  slot: 'sandbox',
+                  count: sandboxed.value.reduce((sum, list) => sum + list.length, 0),
+              },
+          ]
+        : []),
 ]);
 
 // An exception is the most likely reason to open the panel, so it opens first.
@@ -220,6 +234,11 @@ const select = ({ kind, index }: Pick<TimelineRow, 'kind' | 'index'>) => {
                         :entries="insight.events"
                         :dropped="insight.dropped.events"
                     />
+                </AppScrollArea>
+            </template>
+            <template #sandbox>
+                <AppScrollArea class="min-h-0 flex-1">
+                    <InsightSandbox :sandbox="insight.sandbox" />
                 </AppScrollArea>
             </template>
         </AppTabs>

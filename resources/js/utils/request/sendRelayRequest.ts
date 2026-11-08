@@ -64,6 +64,10 @@ export const sendRelayRequest = (
             headers['X-Nimbus-Reset-Limiter'] = '1';
         }
 
+        if (request.sandbox?.length) {
+            headers['X-Nimbus-Sandbox'] = request.sandbox.join(',');
+        }
+
         axios
             .post(url, formData, {
                 headers,

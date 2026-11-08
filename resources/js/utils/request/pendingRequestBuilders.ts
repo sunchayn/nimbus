@@ -107,5 +107,6 @@ export const createRequestFromShareableLinkPayload = (
         wasExecuted,
         durationInMs: payload.response?.durationInMs ?? 0,
         transactionMode: false,
+        sandbox: [],
     };
 };

@@ -65,6 +65,44 @@ class InsightsServiceFunctionalTest extends TestCase
         $this->assertFalse($insight['truncated']);
     }
 
+    public function test_it_writes_what_the_sandbox_capture_returns(): void
+    {
+        // Arrange
+
+        $service = resolve(InsightsService::class, ['collectors' => []]);
+
+        $service->captureSandbox(fn (): array => ['jobs' => [['job' => 'App\\Jobs\\ShipOrder', 'queue' => 'default']]]);
+
+        // Act
+
+        $service->start(self::ID);
+        $service->flush();
+
+        $insight = resolve(InsightStore::class)->pull(self::ID);
+
+        // Assert
+
+        $this->assertSame(['jobs' => [['job' => 'App\\Jobs\\ShipOrder', 'queue' => 'default']]], $insight['sandbox']);
+    }
+
+    public function test_it_writes_an_empty_sandbox_without_a_capture(): void
+    {
+        // Arrange
+
+        $service = resolve(InsightsService::class, ['collectors' => []]);
+
+        // Act
+
+        $service->start(self::ID);
+        $service->flush();
+
+        $insight = resolve(InsightStore::class)->pull(self::ID);
+
+        // Assert
+
+        $this->assertSame([], $insight['sandbox']);
+    }
+
     public function test_it_records_the_duration_in_milliseconds_and_the_peak_memory(): void
     {
         // Arrange

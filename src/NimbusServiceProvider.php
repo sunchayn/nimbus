@@ -15,6 +15,7 @@ use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\ActorHeaderListener;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\InsightCollectorListener;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\ResetRateLimiterListener;
+use Sunchayn\Nimbus\Modules\Magic\Listeners\SandboxModeListener;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\TimeTravelListener;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\TransactionModeListener;
 use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\CacheCollector;
@@ -72,6 +73,7 @@ class NimbusServiceProvider extends PackageServiceProvider
         parent::register();
 
         $this->app->singleton(ManifestManager::class);
+        $this->app->singleton(InsightsService::class);
 
         Event::listen(ClassFileResolved::class, [ManifestManager::class, 'trackFile']);
 
@@ -125,6 +127,7 @@ class NimbusServiceProvider extends PackageServiceProvider
         Event::listen(RouteMatched::class, TimeTravelListener::class);
         Event::listen(RouteMatched::class, ResetRateLimiterListener::class);
         Event::listen(RouteMatched::class, InsightCollectorListener::class);
+        Event::listen(RouteMatched::class, SandboxModeListener::class);
     }
 
     /**

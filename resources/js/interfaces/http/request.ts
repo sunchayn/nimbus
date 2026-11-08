@@ -100,6 +100,9 @@ export interface PendingRequest {
     /** Date time or relative form such as `+31 days` that the target application clock is fixed to */
     timeTravel?: string;
 
+    /** Outside effects to fake for the request, such as mail or queue */
+    sandbox?: string[];
+
     /** Per request relay options. A missing field means the default applies. */
     options?: RequestOptions;
 }
@@ -123,4 +126,5 @@ export interface Request {
     transactionMode?: boolean;
     options?: RequestOptions;
     timeTravel?: string;
+    sandbox?: string[];
 }

@@ -51,6 +51,7 @@ const insight = (duration_ms: number, queries: InsightQuery[] = []): Insight => 
         events: 0,
     },
     truncated: false,
+    sandbox: {},
 });
 
 describe('buildTimeline', () => {

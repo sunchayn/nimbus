@@ -734,6 +734,26 @@ Time Travel runs one request while your application believes it is another date 
 4. Check the preview under the fields, then select **Apply**. The button stays disabled until the value is valid.
 5. Execute your request.
 
+### Sandbox Mode
+
+Sandbox Mode fakes side effects for one request, so you can test endpoints that send mail or dispatch jobs.
+
+**How it works:**
+1. Open **Request Options** in the endpoint bar.
+2. Open the **Sandbox** sub-menu and check the effects to fake.
+3. Execute your request.
+4. The **Insight** tab gets a **Sandbox** tab. It lists what was faked, grouped by mail, notifications, and queued jobs. A group says so when nothing was captured. A mail shows its subject, recipients, and body.
+5. Faked side effects are listed only in the **Sandbox** tab. The **Mail**, **Notifications**, and **Jobs** tabs list only what was really sent or queued.
+
+| Option | What it does |
+| --- | --- |
+| Mail | The message is not sent. |
+| Notifications | The notification is not sent. |
+| Queued jobs | The job is not queued. |
+| Events | Events are not dispatched. It is off by default. |
+
+**Warning:** Faking events also disables model events, so observers and listeners do not run.
+
 ### Export to cURL
 
 Export configured requests as cURL commands for use in terminals or scripts.

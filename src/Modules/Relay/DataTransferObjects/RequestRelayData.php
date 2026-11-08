@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayRequest;
 use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\ResetRateLimiterListener;
+use Sunchayn\Nimbus\Modules\Magic\Listeners\SandboxModeListener;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\DataTransferObjects\AuthorizationCredentials;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -37,6 +38,7 @@ readonly class RequestRelayData
         public ?bool $verifySsl = null,
         public ?string $timeTravel = null,
         public bool $resetLimiter = false,
+        public string $sandbox = '',
     ) {}
 
     public static function fromRelayApiRequest(NimbusRelayRequest $nimbusRelayRequest): self
@@ -99,6 +101,7 @@ readonly class RequestRelayData
             verifySsl: $data['options']['verify_ssl'] ?? null,
             timeTravel: self::timeTravelFrom($nimbusRelayRequest),
             resetLimiter: $nimbusRelayRequest->header(ResetRateLimiterListener::HEADER) === '1',
+            sandbox: (string) $nimbusRelayRequest->header(SandboxModeListener::HEADER),
         );
     }
 

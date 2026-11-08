@@ -97,6 +97,7 @@ const pendingRequestToRequestLogEntry = function (request: PendingRequest): Requ
         transactionMode: request.transactionMode,
         options: request.options ? { ...request.options } : undefined,
         timeTravel: request.timeTravel,
+        sandbox: request.sandbox ? [...request.sandbox] : [],
     };
 };
 
