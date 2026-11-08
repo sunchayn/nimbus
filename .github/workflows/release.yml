@@ -13,6 +13,10 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      body: ${{ steps.release.outputs.body }}
     steps:
       - uses: google-github-actions/release-please-action@v4
         id: release
@@ -70,3 +74,33 @@ jobs:
           commit_message: "build: update production artifacts for v${{ steps.package_version.outputs.version }}"
           file_pattern: "resources/dist/*"
           branch: ${{ fromJson(steps.release.outputs.pr).headBranchName }}
+
+  check-breaking:
+    name: Check for breaking changes
+    needs: release-please
+    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
+    runs-on: ubuntu-latest
+    outputs:
+      is_breaking: ${{ steps.check-breaking.outputs.is_breaking }}
+    steps:
+      - name: Check for breaking changes
+        id: check-breaking
+        run: |
+          BODY="${{ needs.release-please.outputs.body }}"
+          if echo "$BODY" | grep -Ei "BREAKING[ -]CHANGE" > /dev/null; then
+            echo "Breaking change detected in release notes. Skipping auto-deploy to demo."
+            echo "is_breaking=true" >> $GITHUB_OUTPUT
+          else
+            echo "No breaking changes detected."
+            echo "is_breaking=false" >> $GITHUB_OUTPUT
+          fi
+
+  deploy-demo:
+    name: Deploy Demo
+    needs: [release-please, check-breaking]
+    if: ${{ needs.check-breaking.outputs.is_breaking == 'false' }}
+    uses: ./.github/workflows/deploy-demo.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.release-please.outputs.tag_name }}
+      triggered_by: release-please
