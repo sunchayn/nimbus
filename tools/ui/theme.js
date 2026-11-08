@@ -71,10 +71,10 @@ const overlaySeparator = "-mx-menu my-menu bg-separator";
 const overlayDivide = "divide-separator";
 
 const itemMd =
-    "p-0 h-item-md items-center px-control-sm py-0 gap-control-md text-sm";
+    "p-0 min-h-item-md items-center px-control-sm py-0 gap-control-md text-sm";
 
 const itemSm =
-    "p-0 h-item-sm items-center px-control-sm py-0 gap-control-sm text-xs";
+    "p-0 min-h-item-sm items-center px-control-sm py-0 gap-control-sm text-xs";
 
 const itemBase =
     "before:rounded-sm data-disabled:cursor-default data-disabled:opacity-disabled";

@@ -94,4 +94,17 @@ describe('AppDropdownMenu', () => {
         const items = document.querySelectorAll('[role="menuitem"]');
         expect(items[1].getAttribute('aria-disabled')).toBe('true');
     });
+
+    it('lets items grow past the row height', async () => {
+        // Arrange & Act
+
+        mountMenu({ open: true });
+        await nextTick();
+
+        // Assert
+
+        const item = document.querySelector('[role="menuitem"]');
+        expect(item?.classList.contains('min-h-item-md')).toBe(true);
+        expect(item?.classList.contains('h-item-md')).toBe(false);
+    });
 });
