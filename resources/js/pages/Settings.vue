@@ -12,6 +12,7 @@ import { AppDialog } from '@/components/base/dialog';
 import { AppPopover } from '@/components/base/popover';
 import CopyButton from '@/components/common/CopyButton.vue';
 import ConfigReadonlySection from '@/components/domain/Settings/ConfigReadonlySection.vue';
+import DiagnosticsDialog from '@/components/domain/Settings/DiagnosticsDialog.vue';
 import UserPreferencesSection from '@/components/domain/Settings/UserPreferencesSection.vue';
 import PageLayout from '@/components/layout/PageLayout.vue';
 import { useSettingsStore } from '@/stores';
@@ -92,13 +93,16 @@ const copyPublishCommand = async () => {
 
             <!-- Subheader Right -->
             <template #subheader-right>
-                <AppButton
-                    variant="ghost"
-                    size="xs"
-                    icon="i-hugeicons-refresh"
-                    label="Reset"
-                    @click="showResetConfirmation"
-                />
+                <div class="gap-base flex items-center">
+                    <DiagnosticsDialog />
+                    <AppButton
+                        variant="ghost"
+                        size="xs"
+                        icon="i-hugeicons-refresh"
+                        label="Reset"
+                        @click="showResetConfirmation"
+                    />
+                </div>
             </template>
 
             <!-- Content -->

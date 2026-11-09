@@ -78,6 +78,7 @@
             "@php -r \"touch('workbench/database/database.sqlite');\"",
             "@php vendor/bin/testbench workbench:build --ansi"
         ],
+        "nimbus": "@php vendor/bin/testbench",
         "serve": [
             "Composer\\Config::disableProcessTimeout",
             "@build",

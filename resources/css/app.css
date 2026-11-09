@@ -78,6 +78,10 @@
     *:hover {
         scrollbar-color: var(--ui-text-dimmed) transparent;
     }
+
+    a {
+      @apply underline hover:text-info;
+    }
 }
 
 /*
