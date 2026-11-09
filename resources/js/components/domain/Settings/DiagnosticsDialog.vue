@@ -102,11 +102,14 @@ const run = async () => {
                     :data-testid="`diagnostic-${check.status}`"
                 >
                     <AppIcon :name="icons[check.status]" class="size-icon-sm" />
-                    <div class="flex min-w-0 flex-col gap-hair">
-                        <span class="text-sm font-medium leading-none">
+                    <div class="gap-hair flex min-w-0 flex-col">
+                        <span class="text-sm leading-none font-medium">
                             {{ check.name }}
                         </span>
-                        <span class="text-muted text-xs leading-4 break-words whitespace-pre-line" v-html="check.message"></span>
+                        <span
+                            class="text-muted text-xs leading-4 break-words whitespace-pre-line"
+                            v-html="check.message"
+                        ></span>
                     </div>
                 </li>
             </ul>
