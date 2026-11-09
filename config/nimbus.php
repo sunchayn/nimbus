@@ -287,7 +287,12 @@ return [
                     | with authentication credentials.
                     |
                     | Available string aliases:
-                    |   - 'remember_me_cookie': Forwards or generates a Laravel "remember me" cookie (default).
+                    |   - 'actor_header': Sends an unsigned `X-Nimbus-Actor` header (default). Works with any
+                    |     guard and any key type, and writes nothing to the database. The header is trusted
+                    |     whenever Nimbus is active, so keep `allowed_envs` limited to environments that
+                    |     outsiders cannot reach.
+                    |   - 'remember_me_cookie': Forwards or generates a Laravel "remember me" cookie. It may
+                    |     write a remember token to the user row.
                     |   - 'tymon_jwt': Injects a Bearer token using the `tymon/jwt-auth` package.
                     |
                     | You may also provide a custom FQCN string implementing the
@@ -295,7 +300,7 @@ return [
                     |
                     */
 
-                    'injector' => 'remember_me_cookie',
+                    'injector' => 'actor_header',
                 ],
             ],
 

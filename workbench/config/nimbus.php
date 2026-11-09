@@ -35,7 +35,7 @@ return [
             'auth' => [
                 'guard' => 'web',
                 'special' => [
-                    'injector' => 'remember_me_cookie',
+                    'injector' => 'actor_header',
                 ],
             ],
             'headers' => [
@@ -59,7 +59,7 @@ return [
             'auth' => [
                 'guard' => 'web',
                 'special' => [
-                    'injector' => 'remember_me_cookie',
+                    'injector' => 'actor_header',
                 ],
             ],
             'headers' => [

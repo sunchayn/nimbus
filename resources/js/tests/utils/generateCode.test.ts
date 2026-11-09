@@ -112,6 +112,7 @@ describe('generateCode', () => {
 
         expect(code).toContain("->postJson('/users?page=1', [");
         expect(code).toContain('assertStatus(201)');
+        expect(code).not.toContain('actingAs');
     });
 
     it('builds a PHPUnit test class', () => {
@@ -121,6 +122,25 @@ describe('generateCode', () => {
         expect(code).toContain('public function test_post_users_page_1(): void');
         expect(code).toContain('assertStatus(200)');
     });
+
+    it.each(['pest', 'phpunit'] as const)(
+        'acts as a factory user in %s for the current user authorization',
+        language => {
+            const code = generateCode(
+                language,
+                make({
+                    headers: [],
+                    authorization: { type: AuthorizationType.CurrentUser, value: '' },
+                }),
+                base,
+                resolver,
+            );
+
+            expect(code).toContain('use App\\Models\\User;');
+            expect(code).toContain('$this->actingAs(User::factory()->create())');
+            expect(code).not.toContain('Authorization');
+        },
+    );
 
     it('masks secret headers, query parameters and body fields', () => {
         const code = generateCode(

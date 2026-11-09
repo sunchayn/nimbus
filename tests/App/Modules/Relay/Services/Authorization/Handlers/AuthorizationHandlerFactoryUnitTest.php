@@ -76,6 +76,12 @@ class AuthorizationHandlerFactoryUnitTest extends TestCase
             'checkIsValid' => fn (AuthorizationCredentials $credentials, ImpersonateUserAuthorizationHandler $handler): bool => $handler->userId === 22,
         ];
 
+        yield 'Impersonate handler with a ULID' => [
+            'authorizationCredentials' => new AuthorizationCredentials(AuthorizationTypeEnum::Impersonate, value: '01HZX3Y8K2M4N6P8Q0R2S4T6V8'),
+            'expectedAuthorizationHandler' => ImpersonateUserAuthorizationHandler::class,
+            'checkIsValid' => fn (AuthorizationCredentials $credentials, ImpersonateUserAuthorizationHandler $handler): bool => $handler->userId === '01HZX3Y8K2M4N6P8Q0R2S4T6V8',
+        ];
+
         yield 'Current User handler' => [
             'authorizationCredentials' => new AuthorizationCredentials(AuthorizationTypeEnum::CurrentUser, value: 22),
             'expectedAuthorizationHandler' => CurrentUserAuthorizationHandler::class,
@@ -109,14 +115,14 @@ class AuthorizationHandlerFactoryUnitTest extends TestCase
             'expectedError' => 'Impersonate user ID cannot be null.',
         ];
 
-        yield 'Impersonate handler doesnt allow strings`' => [
-            'authorizationCredentials' => new AuthorizationCredentials(AuthorizationTypeEnum::Impersonate, value: 'abc'),
-            'expectedError' => 'Impersonate user ID must be an integer.',
+        yield 'Impersonate handler doesnt allow empty strings' => [
+            'authorizationCredentials' => new AuthorizationCredentials(AuthorizationTypeEnum::Impersonate, value: ''),
+            'expectedError' => 'Impersonate user ID must be a non empty string.',
         ];
 
         yield 'Impersonate handler doesnt allow arrays`' => [
             'authorizationCredentials' => new AuthorizationCredentials(AuthorizationTypeEnum::Impersonate, value: ['username' => 'foo', 'password' => 'bar']),
-            'expectedError' => 'Impersonate user ID must be an integer.',
+            'expectedError' => 'Impersonate user ID must be a non empty string.',
         ];
 
         yield 'Bearer handler doesnt allow `nulls`' => [

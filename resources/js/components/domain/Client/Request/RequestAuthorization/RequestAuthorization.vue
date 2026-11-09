@@ -47,7 +47,7 @@ const { authorization, selectedType, types, updateCurrentAuthorizationValue } =
             />
             <RequestAuthorizationImpersonateUser
                 v-else-if="authorization.type === AuthorizationType.Impersonate"
-                :model-value="authorization.value as number"
+                :model-value="String(authorization.value)"
                 @update:model-value="value => updateCurrentAuthorizationValue(value)"
             />
             <RequestAuthorizationBearer

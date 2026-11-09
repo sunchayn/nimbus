@@ -12,6 +12,7 @@ use Sunchayn\Nimbus\Console\Snapshot\ClearRoutesSnapshotCommand;
 use Sunchayn\Nimbus\Modules\Ast\Events\ClassFileResolved;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
+use Sunchayn\Nimbus\Modules\Magic\Listeners\ActorHeaderListener;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\TransactionModeListener;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\AutoDetectRoutesProcessor;
@@ -84,6 +85,7 @@ class NimbusServiceProvider extends PackageServiceProvider
 
         $this->tagAlongsideLaravelAssets();
 
+        Event::listen(RouteMatched::class, ActorHeaderListener::class);
         Event::listen(RouteMatched::class, TransactionModeListener::class);
     }
 

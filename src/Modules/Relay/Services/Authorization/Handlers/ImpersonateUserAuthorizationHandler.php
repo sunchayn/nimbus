@@ -18,11 +18,11 @@ class ImpersonateUserAuthorizationHandler implements AuthorizationHandler
     private UserProvider $userProvider;
 
     public function __construct(
-        public readonly int $userId,
+        public readonly int|string $userId,
         private readonly Container $container,
         private readonly ActiveApplicationResolver $projectManager,
     ) {
-        if ($userId <= 0) {
+        if ($userId === '' || (is_int($userId) && $userId <= 0)) {
             throw InvalidAuthorizationValueException::becauseUserIsNotFound();
         }
 

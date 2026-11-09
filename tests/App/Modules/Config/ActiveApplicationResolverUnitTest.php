@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
+use Sunchayn\Nimbus\Modules\Magic\Injectors\ActorHeaderInjector;
 use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(ActiveApplicationResolver::class)]
@@ -232,6 +233,28 @@ class ActiveApplicationResolverUnitTest extends TestCase
         // Act & Assert
 
         $this->assertEquals(\Sunchayn\Nimbus\Modules\Magic\Injectors\TymonJwtTokenInjector::class, $resolver->getSpecialAuthInjector());
+    }
+
+    public function test_it_reconciles_actor_header_injector_alias(): void
+    {
+        // Arrange
+
+        $config = [
+            'auth' => [
+                'special' => ['injector' => 'actor_header'],
+            ],
+        ];
+
+        $this->configMock->shouldReceive('get')->with('nimbus.applications', [])->andReturn(['main' => $config]);
+        $this->requestMock->shouldReceive('cookie')->with(ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME)->andReturn(null);
+        $this->configMock->shouldReceive('get')->with('nimbus.default_application')->andReturn('main');
+        $this->configMock->shouldReceive('get')->with('nimbus.applications.main', [])->andReturn($config);
+
+        $resolver = new ActiveApplicationResolver($this->configMock, $this->requestMock);
+
+        // Act & Assert
+
+        $this->assertEquals(ActorHeaderInjector::class, $resolver->getSpecialAuthInjector());
     }
 
     public function test_it_reconciles_route_processing_strategy(): void

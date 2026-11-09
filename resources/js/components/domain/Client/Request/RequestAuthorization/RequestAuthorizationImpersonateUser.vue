@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * @component RequestAuthorizationImpersonateUser
- * @description Input field for user ID to impersonate as authentication.
+ * @description Input field for the user key to impersonate as authentication. Any key type is accepted.
  */
 import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import { type ModelRef } from 'vue';
@@ -18,8 +18,8 @@ export interface RequestAuthorizationImpersonateUserProps {}
 
 defineProps<RequestAuthorizationImpersonateUserProps>();
 
-const model: ModelRef<number> = defineModel<number>({
-    default: () => 0,
+const model: ModelRef<number | string> = defineModel<number | string>({
+    default: () => '',
 });
 </script>
 
@@ -34,11 +34,10 @@ const model: ModelRef<number> = defineModel<number>({
         <GeneratorInput
             id="user-id"
             v-model="model"
-            placeholder="Pick a user ID to impersonate it."
+            placeholder="Pick a user ID, UUID, or ULID to impersonate it."
             variant="none"
             class="col-span-2 h-full"
             :ui="{ base: 'text-xs' }"
-            type="numeric"
         />
     </div>
 </template>

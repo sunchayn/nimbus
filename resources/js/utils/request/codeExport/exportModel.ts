@@ -145,6 +145,10 @@ const buildAuthorizationHeaders = (request: PendingRequest): Header[] => {
     }
 };
 
+const actsAsUser = (request: PendingRequest): boolean =>
+    request.authorization.type === AuthorizationType.CurrentUser ||
+    request.authorization.type === AuthorizationType.Impersonate;
+
 /**
  * Reads a request into the model the generators write code from.
  * Variables are resolved and secret values become placeholders.
@@ -179,5 +183,6 @@ export const buildExportModel = (
         path: pathname + search,
         headers,
         body,
+        actor: actsAsUser(request),
     };
 };

@@ -3,6 +3,7 @@
 namespace Sunchayn\Nimbus\Tests\Integration;
 
 use Illuminate\Foundation\Application;
+use Illuminate\Routing\Events\RouteMatched;
 use Mockery;
 use Orchestra\Testbench\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -59,6 +60,14 @@ class NimbusServiceProviderTest extends TestCase
 
         $this->assertFalse($app->bound(IgnoredRoutesService::class));
         $this->assertFalse($app->bound(RoutesProcessorContract::class));
+        $this->assertFalse($app['events']->hasListeners(RouteMatched::class));
+    }
+
+    public function test_it_listens_for_matched_routes_when_enabled(): void
+    {
+        // Act & Assert
+
+        $this->assertTrue($this->app['events']->hasListeners(RouteMatched::class));
     }
 
     public function test_it_binds_auto_detect_routes_processor_by_default(): void
