@@ -1,0 +1,55 @@
+name: Deploy Demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'sunchayn/nimbus version to deploy in nimbus-dev (leave empty for current composer default, or specify e.g. dev-base, v0.7.0)'
+        required: false
+        type: string
+      dev_branch:
+        description: 'nimbus-dev branch to deploy'
+        required: false
+        default: 'base'
+        type: string
+  workflow_call:
+    inputs:
+      version:
+        required: false
+        type: string
+      dev_branch:
+        required: false
+        default: 'base'
+        type: string
+      triggered_by:
+        required: false
+        type: string
+
+jobs:
+  dispatch:
+    name: Dispatch deploy to nimbus-dev
+    runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_dispatch' || github.actor == 'sunchayn'
+    steps:
+      - name: Verify authorization
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "${{ github.actor }}" != "sunchayn" ]; then
+            echo "::error::Unauthorized: only sunchayn can trigger demo deployments."
+            exit 1
+          fi
+
+      - name: Send repository_dispatch event
+        run: |
+          curl -f -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.CI_TOKEN }}" \
+            https://api.github.com/repos/sunchayn/nimbus-dev/dispatches \
+            -d '{
+              "event_type": "deploy-demo",
+              "client_payload": {
+                "version": "${{ inputs.version }}",
+                "branch": "${{ inputs.dev_branch }}",
+                "triggered_by": "${{ inputs.triggered_by || github.actor }}"
+              }
+            }'
