@@ -442,6 +442,14 @@ Open the Nimbus endpoint of the workbench:
 http://127.0.0.1:8000/demo
 ```
 
+#### 6. Run Nimbus Commands
+
+To try the package Artisan commands against the workbench, use the `nimbus` Composer script. It forwards the arguments to Testbench.
+
+```bash
+composer nimbus nimbus:doctor
+```
+
 ### Testing Different Laravel Versions
 
 Use Composer scripts to switch between Laravel versions:

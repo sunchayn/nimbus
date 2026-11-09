@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Sunchayn\Nimbus\Http\Api\Doctor\DoctorController;
 use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayController;
 use Sunchayn\Nimbus\Http\Api\Responses\ResponseShapeController;
 use Sunchayn\Nimbus\Http\Api\Routes\RoutesController;
@@ -17,6 +18,10 @@ Route::group(
         Route::get('/routes', RoutesController::class)
             ->middleware('web')
             ->name('nimbus.api.routes');
+
+        Route::get('/doctor', DoctorController::class)
+            ->middleware('web')
+            ->name('nimbus.api.doctor');
 
         Route::post('/relay', NimbusRelayController::class)
             ->name('nimbus.api.relay');
