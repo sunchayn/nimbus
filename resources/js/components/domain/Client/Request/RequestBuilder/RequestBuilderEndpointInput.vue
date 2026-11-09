@@ -136,6 +136,7 @@ const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
                         <AppButton
                             size="sm"
                             label="Send"
+                            data-shortcut="send"
                             :trailing-icon="
                                 pendingRequestData?.isProcessing
                                     ? 'i-hugeicons-loading-03'

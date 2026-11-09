@@ -107,6 +107,26 @@ The top bar gives you access to the **HTTP Client**, the **environment menu** (s
 
 Every route you open gets its own request tab above the Request Builder. Use **New request** to start from a blank tab, and the sidebar toggle next to the tabs to hide or show the Route Explorer.
 
+#### Keyboard Shortcuts
+
+Press `?` at any time to see the list of shortcuts.
+The command icon in the top bar also opens the command palette and shows its key on hover.
+
+| Mac | Windows and Linux | Action |
+|---|---|---|
+| `Cmd+K` | `Ctrl+K` | Open the command palette |
+| `Cmd+Enter` | `Ctrl+Enter` | Send the request |
+| `Cmd+L` | `Ctrl+L` | Focus the endpoint |
+| `Cmd+B` | `Ctrl+B` | Show or hide the routes |
+| `Option+1` to `Option+9` | `Alt+1` to `Alt+9` | Switch to a tab by position |
+| `?` | `?` | Show the shortcuts |
+
+Some browsers keep `Cmd+L` or `Ctrl+L` for themselves.
+Use the command palette in that case.
+
+The command palette searches routes, open tabs, and environments, and runs actions.
+The actions are new tab, close tab, switch environment, switch application, toggle transaction mode, toggle theme, open settings, clear history, and copy as code.
+
 ---
 
 ## Using Nimbus
