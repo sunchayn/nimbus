@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * @component RequestBuilderOptionsMenu
- * @description Dropdown menu for request options like Transaction Mode, cURL export, and shareable links.
+ * @description Dropdown menu for request options like Transaction Mode, cURL export, code export, and shareable links.
  */
 import { AppButton } from '@/components/base/button';
 import type { AppDropdownMenuItem } from '@/components/base/dropdown-menu';
@@ -11,10 +11,12 @@ import { AppInput } from '@/components/base/input';
 import { AppPopover } from '@/components/base/popover';
 import { AppSwitch } from '@/components/base/switch';
 import { useShareableLink } from '@/composables/request/useShareableLink';
-import { useEnvironmentVariablesStore, useRequestStore } from '@/stores';
+import { useEnvironmentVariablesStore, useRequestStore, useTabsStore } from '@/stores';
 import { isProductionEnvironment } from '@/utils/environment';
 import { generateCurlCommand } from '@/utils/request';
+import { CODE_LANGUAGES, generateCode } from '@/utils/request/codeGenerators';
 import { computed, shallowRef } from 'vue';
+import CodeExportDialog from './CodeExportDialog.vue';
 import CurlExportDialog from './CurlExportDialog.vue';
 import ShareableLinkDialog from './ShareableLinkDialog.vue';
 
@@ -26,6 +28,7 @@ const { showShareableLinkDialog, shareableLink, openShareableLinkDialog } =
     useShareableLink();
 const requestStore = useRequestStore();
 const environmentVariablesStore = useEnvironmentVariablesStore();
+const tabsStore = useTabsStore();
 
 /*
  * State.
@@ -34,6 +37,8 @@ const environmentVariablesStore = useEnvironmentVariablesStore();
 const showCurlDialog = shallowRef(false);
 const curlCommand = shallowRef('');
 const hasSpecialAuth = shallowRef(false);
+const showCodeDialog = shallowRef(false);
+const codeSamples = shallowRef<Record<string, string>>({});
 
 /*
  * Computed & Methods.
@@ -74,7 +79,7 @@ const timeout = computed({
 });
 
 /**
- * Generates and displays cURL command for the current request.
+ * Generates the cURL command for the current request.
  */
 const populateCurlCommandExporterDialog = () => {
     if (!requestStore.pendingRequestData) {
@@ -90,6 +95,33 @@ const populateCurlCommandExporterDialog = () => {
     curlCommand.value = result.command;
     hasSpecialAuth.value = result.hasSpecialAuth;
     showCurlDialog.value = true;
+};
+
+/**
+ * Generates the code samples for the current request.
+ */
+const populateCodeExporterDialog = () => {
+    const request = requestStore.pendingRequestData;
+
+    if (!request) {
+        return;
+    }
+
+    const expectedStatus = tabsStore.activeResponse?.response?.statusCode || 200;
+
+    codeSamples.value = Object.fromEntries(
+        CODE_LANGUAGES.map(({ value }) => [
+            value,
+            generateCode(
+                value,
+                request,
+                environmentVariablesStore.baseUrl,
+                environmentVariablesStore.resolve,
+                expectedStatus,
+            ),
+        ]),
+    );
+    showCodeDialog.value = true;
 };
 
 const items = computed<AppDropdownMenuItem[][]>(() => [
@@ -123,6 +155,12 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
             icon: 'i-hugeicons-code',
             testId: 'export-curl-option',
             onSelect: populateCurlCommandExporterDialog,
+        },
+        {
+            label: 'Export as code',
+            icon: 'i-hugeicons-source-code',
+            testId: 'export-code-option',
+            onSelect: populateCodeExporterDialog,
         },
         {
             label: 'Copy shareable link',
@@ -250,6 +288,12 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
         v-model:open="showCurlDialog"
         :command="curlCommand"
         :has-special-auth="hasSpecialAuth"
+    />
+
+    <CodeExportDialog
+        v-model:open="showCodeDialog"
+        :samples="codeSamples"
+        :languages="CODE_LANGUAGES"
     />
 
     <ShareableLinkDialog v-model:open="showShareableLinkDialog" :link="shareableLink" />
