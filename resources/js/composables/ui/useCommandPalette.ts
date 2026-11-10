@@ -6,11 +6,13 @@ export type CommandPaletteMode = 'all' | 'routes';
 const isPaletteOpen = shallowRef(false);
 const paletteMode = shallowRef<CommandPaletteMode>('all');
 const isHelpOpen = shallowRef(false);
+const isToolboxOpen = shallowRef(false);
 
 export const useCommandPalette = (): {
     isPaletteOpen: ShallowRef<boolean>;
     paletteMode: ShallowRef<CommandPaletteMode>;
     isHelpOpen: ShallowRef<boolean>;
+    isToolboxOpen: ShallowRef<boolean>;
     openPalette: (mode?: CommandPaletteMode) => void;
     closePalette: () => void;
     togglePalette: () => void;
@@ -32,6 +34,7 @@ export const useCommandPalette = (): {
         isPaletteOpen,
         paletteMode,
         isHelpOpen,
+        isToolboxOpen,
         openPalette,
         closePalette,
         togglePalette,

@@ -26,6 +26,15 @@ vi.mock('vue-router', async importOriginal => ({
     useRoute: () => ({ name: 'main' }),
 }));
 
+const global = {
+    stubs: {
+        ToolboxDialog: {
+            props: ['open'],
+            template: '<div v-if="open" data-testid="toolbox-dialog" />',
+        },
+    },
+};
+
 describe('AppTopBar', () => {
     afterEach(() => {
         useCommandPalette().isHelpOpen.value = false;
@@ -34,7 +43,7 @@ describe('AppTopBar', () => {
     it('opens the shortcuts dialog from the help button', async () => {
         // Arrange
 
-        const wrapper = mount(AppTopBar, { attachTo: document.body });
+        const wrapper = mount(AppTopBar, { attachTo: document.body, global });
 
         // Act
 
@@ -43,6 +52,24 @@ describe('AppTopBar', () => {
         // Assert
 
         expect(useCommandPalette().isHelpOpen.value).toBe(true);
+        wrapper.unmount();
+    });
+
+    it('opens the toolbox dialog from the toolbox button', async () => {
+        // Arrange
+
+        const wrapper = mount(AppTopBar, {
+            attachTo: document.body,
+            global,
+        });
+
+        // Act
+
+        await wrapper.get('[data-testid="toolbox-button"]').trigger('click');
+
+        // Assert
+
+        expect(wrapper.find('[data-testid="toolbox-dialog"]').exists()).toBe(true);
         wrapper.unmount();
     });
 });

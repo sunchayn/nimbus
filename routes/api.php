@@ -10,6 +10,7 @@ use Sunchayn\Nimbus\Http\Api\Magic\SignedUrlController;
 use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayController;
 use Sunchayn\Nimbus\Http\Api\Responses\ResponseShapeController;
 use Sunchayn\Nimbus\Http\Api\Routes\RoutesController;
+use Sunchayn\Nimbus\Http\Api\Toolbox\ToolboxController;
 
 Route::group(
     [
@@ -41,5 +42,15 @@ Route::group(
 
         Route::post('/responses/shape', ResponseShapeController::class)
             ->name('nimbus.api.responses.shape');
+
+        Route::prefix('toolbox')->name('nimbus.api.toolbox.')->group(function () {
+            Route::post('/decrypt', [ToolboxController::class, 'decrypt'])->name('decrypt');
+            Route::post('/encrypt', [ToolboxController::class, 'encrypt'])->name('encrypt');
+            Route::post('/signed-url/verify', [ToolboxController::class, 'verifySignedUrl'])->name('signed-url.verify');
+            Route::post('/signed-url/create', [ToolboxController::class, 'createSignedUrl'])->name('signed-url.create');
+            Route::post('/hash', [ToolboxController::class, 'hash'])->name('hash');
+            Route::post('/token', [ToolboxController::class, 'token'])->name('token');
+            Route::post('/session', [ToolboxController::class, 'session'])->name('session');
+        });
     },
 );

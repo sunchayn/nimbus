@@ -54,6 +54,28 @@ describe('useGlobalShortcuts', () => {
         document.body.innerHTML = '';
     });
 
+    it('toggles the toolbox with Mod+E', () => {
+        // Arrange
+
+        const wrapper = mountShortcuts();
+        const { isToolboxOpen } = useCommandPalette();
+        isToolboxOpen.value = false;
+
+        // Act
+
+        const event = press({ key: 'e', ctrlKey: true });
+
+        // Assert
+
+        expect(event.defaultPrevented).toBe(true);
+        expect(isToolboxOpen.value).toBe(true);
+
+        press({ key: 'e', ctrlKey: true });
+
+        expect(isToolboxOpen.value).toBe(false);
+        wrapper.unmount();
+    });
+
     it('toggles the palette with Mod+K', () => {
         // Arrange
 

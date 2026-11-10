@@ -7,6 +7,7 @@ import { AppButton } from '@/components/base/button';
 import { AppDropdownMenu } from '@/components/base/dropdown-menu';
 import AppBrandIcon from '@/components/base/icons/AppBrandIcon.vue';
 import { AppTooltip } from '@/components/base/tooltip';
+import ToolboxDialog from '@/components/domain/Toolbox/ToolboxDialog.vue';
 import { useEnvironmentSwitch } from '@/composables/environment/useEnvironmentSwitch';
 import { useCommandPalette } from '@/composables/ui/useCommandPalette';
 import { useExplorerVisibility } from '@/composables/ui/useExplorerVisibility';
@@ -24,7 +25,7 @@ const router = useRouter();
 const route = useRoute();
 const environmentStore = useEnvironmentVariablesStore();
 const { toggleExplorer } = useExplorerVisibility();
-const { isHelpOpen } = useCommandPalette();
+const { isHelpOpen, isToolboxOpen } = useCommandPalette();
 
 /*
  * Constants.
@@ -216,16 +217,32 @@ const settings = computed(() =>
                 aria-hidden="true"
             />
 
-            <AppTooltip :text="settings.label">
-                <AppButton
-                    :aria-label="settings.label"
-                    :icon="settings.icon"
-                    color="neutral"
-                    :variant="settings.active ? 'soft' : 'ghost'"
-                    size="sm"
-                    @click="settings.onClick"
-                />
-            </AppTooltip>
+            <div class="gap-tight flex items-center">
+                <AppTooltip text="Toolbox">
+                    <AppButton
+                        aria-label="Toolbox"
+                        icon="i-hugeicons-tools"
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        data-testid="toolbox-button"
+                        @click="isToolboxOpen = true"
+                    />
+                </AppTooltip>
+
+                <AppTooltip :text="settings.label">
+                    <AppButton
+                        :aria-label="settings.label"
+                        :icon="settings.icon"
+                        color="neutral"
+                        :variant="settings.active ? 'soft' : 'ghost'"
+                        size="sm"
+                        @click="settings.onClick"
+                    />
+                </AppTooltip>
+            </div>
         </div>
     </header>
+
+    <ToolboxDialog v-model:open="isToolboxOpen" />
 </template>

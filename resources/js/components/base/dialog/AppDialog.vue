@@ -6,6 +6,7 @@
 import { useForwardedProps } from '@/components/base/useForwardedProps';
 import type { ModalProps, ModalSlots } from '@nuxt/ui/components/Modal.vue';
 import UModal from '@nuxt/ui/components/Modal.vue';
+import { computed } from 'vue';
 
 /*
  * Types & Interfaces.
@@ -31,11 +32,25 @@ const emit = defineEmits<{
 defineSlots<ModalSlots>();
 
 const forwarded = useForwardedProps(props);
+
+// Closing returns the focus to the trigger by default, so the focus is dropped instead.
+// A caller that passes its own close handler keeps control of the focus.
+const content = computed(() => ({
+    onCloseAutoFocus: (event: Event) => {
+        event.preventDefault();
+
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+        }
+    },
+    ...props.content,
+}));
 </script>
 
 <template>
     <UModal
         v-bind="forwarded"
+        :content="content"
         @update:open="value => emit('update:open', value)"
         @enter="emit('enter')"
         @leave="emit('leave')"

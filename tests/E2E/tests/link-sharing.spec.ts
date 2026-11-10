@@ -36,7 +36,7 @@ test('Link Sharing complete workflow', async ({ page, basePage }) => {
     await page.getByRole('option', { name: 'Bearer Token' }).click();
 
     // Set the Bearer token value
-    await page.getByPlaceholder('Token').fill('test-bearer-token-12345');
+    await page.getByTestId('request-authorization').getByPlaceholder('Token').fill('test-bearer-token-12345');
 
     // Act - Add custom headers
 
@@ -130,7 +130,7 @@ test('Link Sharing complete workflow', async ({ page, basePage }) => {
     await expect(page.getByTestId('request-authorization').getByRole('combobox')).toHaveText('Bearer Token');
 
     // Verify token value is restored
-    await expect(page.getByPlaceholder('Token')).toHaveValue('test-bearer-token-12345');
+    await expect(page.getByTestId('request-authorization').getByPlaceholder('Token')).toHaveValue('test-bearer-token-12345');
 
     // Headers tab
     await page.getByTestId('request-builder-root').getByRole('tab', { name: 'Headers' }).click();
