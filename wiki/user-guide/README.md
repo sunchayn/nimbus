@@ -147,6 +147,11 @@ The Route Explorer automatically discovers your Laravel API routes and organizes
 - **Nested Folders**: Optionally, routes are grouped in nested folders that follow the URI. See [Nested Folders](#nested-folders).
 - **HTTP Methods**: Each route explicitly shows its supported methods.
 - **Quick Load**: Click any route to immediately load it into the Request Builder. Each route opens in its own request tab.
+- **Authentication Badge**: A lock icon marks routes that use the `auth` middleware. A new tab for such a route starts with the last authorization you used, when the current one is **None**.
+- **Throttle Hint**: A route with `throttle` middleware shows a timer icon in the routes list. Hover over it to read the limit, for example "60 requests per minute".
+- **Parameter Hints**: When route parameters are missing, the warning lists the model bound to each parameter and its `where` pattern.
+
+Nimbus reads this from the route middleware, resolved through the router. Only known authentication middleware such as `auth`, `auth:sanctum`, and `auth.basic` marks a route as protected. Custom middleware is never guessed.
 
 #### Nested Folders
 

@@ -50,6 +50,8 @@ const endpoint = computed({
     set: (value: string) => requestStore.updateRequestEndpoint(value),
 });
 
+const routeDefinition = computed(() => pendingRequestData.value?.routeDefinition);
+
 /*
  * Composables.
  */
@@ -164,6 +166,7 @@ const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
                         <RequestBuilderEndpointParameterWarningContent
                             v-else
                             :parameters="parameters"
+                            :route="routeDefinition"
                         />
                     </div>
                 </template>

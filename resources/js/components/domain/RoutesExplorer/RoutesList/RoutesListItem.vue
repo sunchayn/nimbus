@@ -4,10 +4,12 @@
  * @description An individual list item representing a route definition.
  */
 import AppIcon from '@/components/base/icons/AppIcon.vue';
+import { AppTooltip } from '@/components/base/tooltip';
 import HttpVerbLabel from '@/components/domain/HttpVerbLabel/HttpVerbLabel.vue';
 import ExplorerRow from '@/components/domain/RoutesExplorer/ExplorerRow.vue';
 import { type RouteDefinition } from '@/interfaces/routes/routes';
 import { useConfigStore, useRoutesStore } from '@/stores';
+import { describeThrottle } from '@/utils/routes';
 import { withOccurrenceKeys } from '@/utils/ui';
 import { computed } from 'vue';
 
@@ -65,6 +67,10 @@ const showOperationId = computed(
     () => configStore.showOperationId && props.route.metadata?.operationId,
 );
 
+const requiresAuth = computed(() => props.route.metadata?.auth === 'required');
+
+const throttleHint = computed(() => describeThrottle(props.route.metadata?.throttle));
+
 const showUndocumented = computed(() => routesStore.isUndocumented(props.route));
 
 const showMissingImplementation = computed(() =>
@@ -98,6 +104,21 @@ const handleClick = () => {
                 </span>
             </template>
         </span>
+
+        <span
+            v-if="requiresAuth"
+            class="justify-self-end"
+            title="Requires authentication"
+            data-testid="route-auth-badge"
+        >
+            <AppIcon name="i-hugeicons-square-lock-02" class="size-icon-xs" />
+        </span>
+
+        <AppTooltip v-if="throttleHint" :text="throttleHint">
+            <span class="justify-self-end" data-testid="route-throttle-badge">
+                <AppIcon name="i-hugeicons-timer-01" class="size-icon-xs" />
+            </span>
+        </AppTooltip>
 
         <span v-if="showUndocumented" class="justify-self-end">
             <AppIcon name="i-hugeicons-information-circle" class="size-icon-xs" />

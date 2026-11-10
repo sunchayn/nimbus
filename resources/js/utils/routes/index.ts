@@ -9,3 +9,5 @@ export {
     processRoutesData,
     searchRoutes,
 } from './routeProcessor';
+
+export { describeRouteParameter, describeThrottle } from './routeMetadata';

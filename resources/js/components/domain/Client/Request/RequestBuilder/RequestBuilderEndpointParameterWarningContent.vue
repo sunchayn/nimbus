@@ -4,6 +4,8 @@
  * @description Renders the content for the route parameter warning panel.
  */
 import { AppPanel, AppPanelDescription, AppPanelTitle } from '@/components/base/panel';
+import type { RouteDefinition } from '@/interfaces/routes/routes';
+import { describeRouteParameter } from '@/utils/routes';
 
 /*
  * Types & Interfaces.
@@ -11,6 +13,7 @@ import { AppPanel, AppPanelDescription, AppPanelTitle } from '@/components/base/
 
 interface Props {
     parameters: string[];
+    route?: RouteDefinition;
 }
 
 /*
@@ -29,12 +32,14 @@ defineProps<Props>();
         </AppPanelDescription>
 
         <ul class="gap-tight flex list-inside list-decimal flex-col text-xs">
-            <li
-                v-for="item in parameters"
-                :key="item"
-                class="font-mono"
-                v-text="'{' + item + '}'"
-            ></li>
+            <li v-for="item in parameters" :key="item">
+                <span class="font-mono" v-text="'{' + item + '}'"></span>
+                <span
+                    v-if="describeRouteParameter(route, item)"
+                    class="text-muted"
+                    v-text="' ' + describeRouteParameter(route, item)"
+                ></span>
+            </li>
         </ul>
     </AppPanel>
 </template>

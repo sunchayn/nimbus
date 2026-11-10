@@ -6,6 +6,7 @@ use Workbench\App\Http\Controllers\Demo\ContentController;
 use Workbench\App\Http\Controllers\Demo\DemoController;
 use Workbench\App\Http\Controllers\Demo\DumpAndDieController;
 use Workbench\App\Http\Controllers\Demo\EchoController;
+use Workbench\App\Http\Controllers\Demo\RouteMetadataController;
 use Workbench\App\Http\Controllers\Demo\ShapesController;
 use Workbench\App\Http\Controllers\Demo\UploadsController;
 use Workbench\App\Http\Controllers\Demo\VerbsController;
@@ -122,6 +123,10 @@ Route::prefix('auth')->group(function () {
     Route::get('/basic', [AuthController::class, 'basic']);
     Route::get('/session', [AuthController::class, 'session']);
 });
+
+Route::get('/route-metadata/products/{product}', [RouteMetadataController::class, 'show'])
+    ->middleware(['auth:web', 'throttle:30,1'])
+    ->where('product', '[a-z0-9-]+');
 
 Route::post('/shapes/unresolvable-rules', [ShapesController::class, 'unresolvableRules'])->name('unresolvable-rules');
 

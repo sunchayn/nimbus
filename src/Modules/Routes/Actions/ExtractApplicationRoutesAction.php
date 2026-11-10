@@ -35,6 +35,7 @@ class ExtractApplicationRoutesAction
         protected IgnoredRoutesService $ignoredRoutesService,
         protected ActiveApplicationResolver $activeApplicationResolver,
         protected LoggerInterface $logger,
+        protected ExtractRouteMetadataAction $extractRouteMetadataAction,
     ) {}
 
     /**
@@ -116,6 +117,7 @@ class ExtractApplicationRoutesAction
             schema: $schema,
             metadata: array_filter([
                 'name' => $route->getName(),
+                ...$this->extractRouteMetadataAction->execute($route),
             ]),
             keywords: $keywords,
         );
