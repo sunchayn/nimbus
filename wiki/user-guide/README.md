@@ -331,6 +331,12 @@ Nimbus keeps a log of every request you send, allowing you to quickly "rewind" t
 3. Click a log entry to restore its state into the Request Builder.
 4. Use the "Clear" button to purge your session logs.
 
+**Limits and storage:**
+- Set **Maximum history logs** (10 to 1000) in **Settings**, under **Request History**.
+- Nimbus keeps history in the browser storage, which is small. When the history gets too large, the oldest logs are dropped.
+- Stored response bodies are cut at 256 KB. A cut body shows a **Stored body truncated** notice. Send the request again to see the full body.
+- When the browser storage is full, Nimbus removes responses from inactive tabs first, then the oldest history, and shows a warning.
+
 #### Downloading Responses
 
 Use the download button at the end of the response status bar to open the download options. **Raw response** downloads the response body (as is) as a file. The extension will be inherited from the `Content-Type` header.
