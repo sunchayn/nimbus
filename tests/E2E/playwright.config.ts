@@ -24,13 +24,15 @@ const workbenchServer = (port: number) => ({
 export default defineConfig({
     testDir: "./tests",
     timeout: 160_000,
+    // The CI runner has few cores, so the app can take several seconds to load.
+    expect: { timeout: process.env.CI ? 15_000 : 5_000 },
     // Stops the run before the CI job limit so the report is still written.
     globalTimeout: process.env.CI ? 6 * 60_000 : undefined,
     fullyParallel: true,
     // Fail the build on CI if you accidentally left test.only in the source code.
     forbidOnly: !!process.env.CI,
     retries: 0,
-    workers: process.env.CI ? 4 : 8,
+    workers: process.env.CI ? 2 : 8,
     // Reporter to use. See https://playwright.dev/docs/test-reporters
     reporter: process.env.CI ? [["list"], ["html"]] : "html",
     // Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions.
