@@ -11,8 +11,8 @@ import ResponseBody from '@/components/domain/Client/Response/ResponseBody/Respo
 import ResponseDownload from '@/components/domain/Client/Response/ResponseBody/ResponseDownload.vue';
 import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDumpAndDie.vue';
 import ResponseCookies from '@/components/domain/Client/Response/ResponseCookies/ResponseCookies.vue';
-import ResponsePlainView from '@/components/domain/Client/Response/ResponsePlainView/ResponsePlainView.vue';
 import ResponseHeaders from '@/components/domain/Client/Response/ResponseHeaders/ResponseHeaders.vue';
+import ResponsePlainView from '@/components/domain/Client/Response/ResponsePlainView/ResponsePlainView.vue';
 import type { RequestLog } from '@/interfaces/history/logs';
 import { STATUS } from '@/interfaces/http';
 import { useRequestStore } from '@/stores';
