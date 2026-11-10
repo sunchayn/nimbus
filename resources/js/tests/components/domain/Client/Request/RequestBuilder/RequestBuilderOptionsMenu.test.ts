@@ -47,6 +47,7 @@ const createWrapper = (options = {}): VueWrapper => {
             plugins: [createPinia()],
             stubs: {
                 CurlExportDialog: true,
+                CodeExportDialog: true,
                 ShareableLinkDialog: true,
                 AppPopover: true,
                 AppPopoverContent: true,

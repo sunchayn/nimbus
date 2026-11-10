@@ -32,6 +32,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
     - [Auto-Fill Payloads](#auto-fill-payloads)
     - [Transaction Mode](#transaction-mode)
     - [Export to cURL](#export-to-curl)
+    - [Export as Code](#export-as-code)
     - [Shareable Links](#shareable-links)
     - [OpenAPI Support](#openapi-support)
     - [Routes Snapshot](#routes-snapshot)
@@ -612,6 +613,28 @@ Export configured requests as cURL commands for use in terminals or scripts.
 - Authentication credentials
 - Request body. Form Data uses `-F`, Form URL Encoded uses `--data-urlencode`, Binary uses `--data-binary` with the file name, and the other types use `-d`.
 - HTTP method
+
+### Export as Code
+
+Export configured requests as code samples. This is separate from the cURL export.
+
+**How to export:**
+1. Configure your request completely.
+2. Click the **Request Options** (sparkles) icon in the endpoint bar.
+3. Select **Export as code**.
+4. Pick a language in the list, then copy the code. Long lines scroll horizontally in the code box.
+
+**Languages:**
+- JavaScript with `fetch`
+- JavaScript with Axios
+- PHP with the Laravel `Http` facade
+- PHP with Guzzle
+- A Pest feature test
+- A PHPUnit feature test
+
+Environment variables and dynamic variables are resolved in the code. Secrets are replaced with placeholders such as `YOUR_TOKEN`. This covers Bearer and Basic authorization, and any header, query parameter or JSON field whose name contains `token`, `secret`, `password`, `api key`, `authorization`, `cookie` or `csrf`.
+
+The tests assert the status code of the last response, or 200 when there is none.
 
 ### Shareable Links
 
