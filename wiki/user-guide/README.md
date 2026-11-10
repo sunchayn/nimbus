@@ -368,6 +368,10 @@ Use the download button at the end of the response status bar to open the downlo
 
 _*This feature is only available for `application/json` responses._
 
+The shape follows what your resources do.
+- A resource collection built from `paginate()`, `simplePaginate()`, or `cursorPaginate()` gets the `data`, `links`, and `meta` envelope.
+- Resource keys added with `when()`, `whenLoaded()`, or `mergeWhen()` are optional.
+
 ![Download Responses](./assets/response-download.png)
 ---
 

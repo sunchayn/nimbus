@@ -156,4 +156,35 @@ describe('useResponseDownload', () => {
         const [, filename] = vi.mocked(triggerDownload).mock.calls[0];
         expect(filename).toBe('users.index.schema.json');
     });
+
+    it.each(['demo.', 'api.v1.'])(
+        'ignores the group prefix %s that an unnamed route gets as its name',
+        async groupPrefix => {
+            // Arrange
+
+            const log = createMockResponseLog('/_demo/responses/paginated');
+            log.request.routeDefinition = {
+                endpoint: '/_demo/responses/paginated',
+                method: 'GET',
+                shortEndpoint: 'paginated',
+                schema: { shape: {}, extractionErrors: null },
+                metadata: { name: groupPrefix },
+            };
+
+            const { downloadResponseShape } = useResponseDownload(computed(() => log));
+
+            vi.mocked(axios.post).mockResolvedValueOnce({
+                data: { shape: { type: 'object' } },
+            });
+
+            // Act
+
+            await downloadResponseShape();
+
+            // Assert
+
+            const [, filename] = vi.mocked(triggerDownload).mock.calls[0];
+            expect(filename).toBe('_demo.responses.paginated.schema.json');
+        },
+    );
 });

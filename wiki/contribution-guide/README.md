@@ -269,6 +269,11 @@ The system uses the Strategy pattern to inspect the controller and extract the s
 
 All schema properties built during the response shape extraction process are marked as required by default.
 
+#### Resource Details
+
+- **Pagination** - `PaginatedResourceCollectionStrategy` runs first. It reads `Resource::collection(...)` and `new ResourceCollection(...)` returns whose source calls `paginate`, `simplePaginate`, or `cursorPaginate`, directly or through a variable. It wraps the item schema in the `data`, `links`, and `meta` envelope, with the meta keys of that paginator. Collections that are not paginated keep the single resource shape.
+- **Conditional keys** - `InferSchemaFromResourceAstAction` marks a key as optional when its value is `$this->when()`, `whenLoaded()`, `whenNotNull()`, `whenHas()`, `whenCounted()`, or a resource wrapping one of them. Keys inside `mergeWhen()` are optional. Keys inside `merge()` are kept as they are. The type comes from the value given to the helper when there is one.
+
 ### Request Flow
 
 How user interactions translate to API calls through the relay system.

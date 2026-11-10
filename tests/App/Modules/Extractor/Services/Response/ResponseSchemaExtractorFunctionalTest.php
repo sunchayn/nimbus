@@ -11,6 +11,7 @@ use Sunchayn\Nimbus\Modules\Extractor\Actions\InferSchemaFromArrayAction;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\DataTransferObjects\ExtractableResponseData;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\ResponseSchemaExtractor;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\Strategies\JsonResourceStrategy;
+use Sunchayn\Nimbus\Modules\Extractor\Services\Response\Strategies\PaginatedResourceCollectionStrategy;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\Strategies\RawJsonResponseStrategy;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\Strategies\SpatieDataObjectResponseStrategy;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
@@ -20,6 +21,8 @@ use Sunchayn\Nimbus\Tests\TestCase;
 #[CoversClass(ResponseSchemaExtractor::class)]
 class ResponseSchemaExtractorFunctionalTest extends TestCase
 {
+    private PaginatedResourceCollectionStrategy|MockInterface $paginatedResourceCollectionStrategyMock;
+
     private JsonResourceStrategy|MockInterface $jsonResourceStrategyMock;
 
     private SpatieDataObjectResponseStrategy|MockInterface $spatieDataObjectResponseStrategyMock;
@@ -34,6 +37,7 @@ class ResponseSchemaExtractorFunctionalTest extends TestCase
     {
         parent::setUp();
 
+        $this->paginatedResourceCollectionStrategyMock = $this->mock(PaginatedResourceCollectionStrategy::class);
         $this->jsonResourceStrategyMock = $this->mock(JsonResourceStrategy::class);
         $this->spatieDataObjectResponseStrategyMock = $this->mock(SpatieDataObjectResponseStrategy::class);
         $this->rawJsonResponseStrategyMock = $this->mock(RawJsonResponseStrategy::class);
@@ -56,6 +60,13 @@ class ResponseSchemaExtractorFunctionalTest extends TestCase
 
         $routeMock
             ->shouldReceive('getControllerClass')
+            ->andReturn(null);
+
+        $this
+            ->paginatedResourceCollectionStrategyMock
+            ->shouldReceive('attempt')
+            ->with($data->route)
+            ->once()
             ->andReturn(null);
 
         $this
@@ -112,6 +123,12 @@ class ResponseSchemaExtractorFunctionalTest extends TestCase
         $fallbackSchema = new Schema([new StringSchemaProperty('name')]);
 
         // Anticipate
+
+        $this->paginatedResourceCollectionStrategyMock
+            ->shouldReceive('attempt')
+            ->with($routeMock)
+            ->once()
+            ->andReturn(null);
 
         $this->jsonResourceStrategyMock
             ->shouldReceive('attempt')
