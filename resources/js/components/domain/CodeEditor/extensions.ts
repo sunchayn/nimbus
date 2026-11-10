@@ -1,8 +1,15 @@
 import { jsonLinter } from '@/components/domain/CodeEditor/jsonLinter';
+import { dynamicAwareJsonSchema } from '@/components/domain/CodeEditor/jsonSchemaExtension';
 import {
     EnvVariableCheckStatus,
     PLACEHOLDER_PATTERN,
 } from '@/interfaces/common/env-vars';
+import {
+    findOpenPlaceholder,
+    getClosingLength,
+    getVariableSuggestions,
+} from '@/utils/variableSuggestions';
+import { autocompletion, type CompletionContext } from '@codemirror/autocomplete';
 import { json } from '@codemirror/lang-json';
 import { type Diagnostic, linter, lintGutter } from '@codemirror/lint';
 import { EditorState, type Extension, RangeSetBuilder } from '@codemirror/state';
@@ -13,7 +20,6 @@ import {
     ViewPlugin,
     type ViewUpdate,
 } from '@codemirror/view';
-import { jsonSchema } from 'codemirror-json-schema';
 import type { JSONSchema7 } from 'json-schema';
 
 // Keeps writing assistants such as Grammarly away from code editors.
@@ -33,7 +39,7 @@ export const jsonExtensions = (
     extensions.push(json());
 
     if (schema !== undefined) {
-        extensions.push(jsonSchema(schema));
+        extensions.push(...dynamicAwareJsonSchema(schema));
     }
 
     if (!readonly) {
@@ -107,10 +113,53 @@ const envVariableChips = (
     );
 };
 
+/**
+ * Suggests variables once {{ is typed and dynamic variables once {$ is typed.
+ */
+const variableCompletions = (getVariableNames: () => string[]): Extension =>
+    autocompletion({
+        override: [
+            (context: CompletionContext) => {
+                const line = context.state.doc.lineAt(context.pos);
+                const before = line.text.slice(0, context.pos - line.from);
+                const placeholder = findOpenPlaceholder(before, before.length);
+
+                if (!placeholder) {
+                    return null;
+                }
+
+                const after = line.text.slice(context.pos - line.from);
+
+                return {
+                    from: line.from + placeholder.from,
+                    // The closing braces typed or auto-closed after the caret are replaced.
+                    to: context.pos + getClosingLength(placeholder.kind, after),
+                    filter: false,
+                    options: getVariableSuggestions(
+                        placeholder.kind,
+                        placeholder.query,
+                        getVariableNames(),
+                    ).map(suggestion => ({
+                        label: suggestion.token,
+                        displayLabel: suggestion.name,
+                        detail: suggestion.sample ?? '',
+                        section: suggestion.group,
+                        type: suggestion.group === 'Dynamic' ? 'function' : 'variable',
+                    })),
+                };
+            },
+        ],
+    });
+
 export const envVariablesCheck = (
     getStatus: (value: string) => EnvVariableCheckStatus,
+    getVariableNames: () => string[] = () => [],
 ): Extension => {
-    return [envVariableChips(getStatus), envVariablesLinter(getStatus)];
+    return [
+        envVariableChips(getStatus),
+        envVariablesLinter(getStatus),
+        variableCompletions(getVariableNames),
+    ];
 };
 
 const envVariablesLinter = (

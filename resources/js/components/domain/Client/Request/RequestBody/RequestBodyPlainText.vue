@@ -33,7 +33,12 @@ const model = defineModel<string>({
 const environmentVariablesStore = useEnvironmentVariablesStore();
 
 const customExtensions = computed(() => {
-    return [envVariablesCheck(key => environmentVariablesStore.check(key))];
+    return [
+        envVariablesCheck(
+            key => environmentVariablesStore.check(key),
+            () => environmentVariablesStore.variableNames,
+        ),
+    ];
 });
 </script>
 

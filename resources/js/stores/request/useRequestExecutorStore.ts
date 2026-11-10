@@ -85,7 +85,7 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
                     apiUrl: environmentVariablesStore.baseUrl,
                     environment: environmentVariablesStore.activeEnvironment.id,
                     appBasePath: configStore.appBasePath,
-                    resolve: environmentVariablesStore.resolve,
+                    resolve: environmentVariablesStore.createSendResolver(),
                     signal: abortController.signal,
                 }),
                 timeoutPromise,
