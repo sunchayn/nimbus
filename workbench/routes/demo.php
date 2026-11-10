@@ -77,11 +77,11 @@ Route::prefix('authentication')->group(function () {
 });
 
 Route::prefix('verbs')->group(function () {
-    Route::get('/', [VerbsController::class, 'get'])
+    Route::get('/verbs', [VerbsController::class, 'get'])
         ->name('demo.verbs.get');
-    Route::post('/', [VerbsController::class, 'post'])
+    Route::post('/verbs', [VerbsController::class, 'post'])
         ->name('demo.verbs.post');
-    Route::patch('/', [VerbsController::class, 'patch'])
+    Route::patch('/verbs', [VerbsController::class, 'patch'])
         ->name('demo.verbs.patch');
 });
 
