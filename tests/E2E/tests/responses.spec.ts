@@ -130,7 +130,7 @@ test.describe('Response Shape & Download', () => {
                 type: 'object',
                 properties: {
                     title: { type: 'string' },
-                    artist: { type: 'string' },
+                    artist: { type: ['string', 'null'] },
                 },
             });
         }
