@@ -43,6 +43,12 @@ const icons: Record<DiagnosticStatus, string> = {
     failed: 'i-hugeicons-cancel-circle',
 };
 
+const iconColors: Record<DiagnosticStatus, string> = {
+    ok: 'text-success',
+    warning: 'text-warning',
+    failed: 'text-error',
+};
+
 /*
  * Methods.
  */
@@ -78,20 +84,24 @@ const run = async () => {
         @click="run"
     />
 
-    <AppDialog
-        v-model:open="open"
-        title="Diagnostics"
-        description="The same checks as the nimbus:doctor command."
-    >
+    <AppDialog v-model:open="open" title="Diagnostics">
         <template #body>
-            <p
+            <div
                 v-if="loading"
-                class="text-muted text-sm"
+                class="gap-base py-lg text-muted flex items-center text-sm"
                 data-testid="diagnostics-loading"
             >
-                Running the checks.
-            </p>
-            <p v-else-if="errorMessage" class="text-sm" data-testid="diagnostics-error">
+                <AppIcon
+                    name="i-hugeicons-loading-03"
+                    class="size-icon-md animate-spin"
+                />
+                <span>Running the checks.</span>
+            </div>
+            <p
+                v-else-if="errorMessage"
+                class="text-error text-sm"
+                data-testid="diagnostics-error"
+            >
                 {{ errorMessage }}
             </p>
             <ul v-else class="flex flex-col">
@@ -101,15 +111,21 @@ const run = async () => {
                     class="gap-base py-base border-default grid grid-cols-[auto_1fr] items-start border-b first:pt-0 last:border-b-0 last:pb-0"
                     :data-testid="`diagnostic-${check.status}`"
                 >
-                    <AppIcon :name="icons[check.status]" class="size-icon-sm" />
+                    <AppIcon
+                        :name="icons[check.status]"
+                        class="size-icon-sm"
+                        :class="iconColors[check.status]"
+                    />
                     <div class="gap-hair flex min-w-0 flex-col">
                         <span class="text-sm leading-none font-medium">
                             {{ check.name }}
                         </span>
+                        <!-- eslint-disable vue/no-v-html -->
                         <span
                             class="text-muted text-xs leading-4 break-words whitespace-pre-line"
                             v-html="check.message"
                         ></span>
+                        <!-- eslint-enable vue/no-v-html -->
                     </div>
                 </li>
             </ul>

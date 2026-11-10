@@ -24,7 +24,7 @@ const forwarded = useForwardedProps(props);
 </script>
 
 <template>
-    <UButton v-bind="forwarded">
+    <UButton v-bind="forwarded" class="no-underline">
         <template v-if="$slots.default" #default>
             <slot />
         </template>

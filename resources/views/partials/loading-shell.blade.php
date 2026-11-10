@@ -33,6 +33,7 @@
             <div class="max-xs:hidden gap-tight flex items-center">
                 <div class="{{ $block }} h-control-sm w-control-sm"></div>
                 <div class="{{ $block }} h-control-sm w-control-sm"></div>
+                <div class="{{ $block }} h-control-sm w-control-sm"></div>
             </div>
             <div class="border-default max-xs:hidden h-chip-sm border-l"></div>
             <div class="{{ $block }} h-control-sm w-control-sm"></div>
