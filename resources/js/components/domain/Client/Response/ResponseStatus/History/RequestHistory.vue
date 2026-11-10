@@ -13,6 +13,12 @@ import { useShortTimeAgo } from '@/composables/ui/useShortTimeAgo';
 import { type RequestLog } from '@/interfaces/history/logs';
 import { type Response } from '@/interfaces/http';
 import { useRequestsHistoryStore, useRequestStore } from '@/stores';
+import {
+    logMatchesQuery,
+    logMatchesStatusClasses,
+    STATUS_CLASSES,
+    type StatusClass,
+} from '@/utils/history/historyFilter';
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue';
 
 /*
@@ -28,6 +34,7 @@ const historyStore = useRequestsHistoryStore();
 
 const isOpen = shallowRef(false);
 const searchQuery = shallowRef('');
+const statusClasses = shallowRef<StatusClass[]>([]);
 const searchInputRef =
     useTemplateRef<InstanceType<typeof GeneratorInput>>('searchInputRef');
 const {
@@ -66,13 +73,25 @@ const logs = computed(() =>
         .reverse(),
 );
 
+// Pinned logs come first, and each group keeps the newest log on top.
 const filteredLogs = computed(() => {
-    const query = searchQuery.value.trim().toLowerCase();
+    const matching = logs.value.filter(
+        log =>
+            logMatchesQuery(log, searchQuery.value) &&
+            logMatchesStatusClasses(log, statusClasses.value),
+    );
 
-    return query
-        ? logs.value.filter(log => log.request.endpoint.toLowerCase().includes(query))
-        : logs.value;
+    return [
+        ...matching.filter(log => log.pinned),
+        ...matching.filter(log => !log.pinned),
+    ];
 });
+
+const toggleStatusClass = (statusClass: StatusClass) => {
+    statusClasses.value = statusClasses.value.includes(statusClass)
+        ? statusClasses.value.filter(item => item !== statusClass)
+        : [...statusClasses.value, statusClass];
+};
 
 const selectLog = (log: LogWithResponse) => {
     historyStore.setActiveLog(historyStore.allLogs.indexOf(log));
@@ -99,6 +118,7 @@ watch(isOpen, async open => {
         searchInputRef.value?.inputRef?.focus();
     } else {
         searchQuery.value = '';
+        statusClasses.value = [];
         cancelClearConfirmation();
     }
 });
@@ -137,7 +157,7 @@ watch(isOpen, async open => {
                     size="sm"
                     class="min-w-0 flex-1"
                     leading-icon="i-hugeicons-search-01"
-                    placeholder="Filter by endpoint..."
+                    placeholder="Search path, status or body..."
                     data-testid="history-search-input"
                 />
                 <AppButton
@@ -151,11 +171,33 @@ watch(isOpen, async open => {
                 />
             </div>
 
+            <div
+                class="border-default gap-tight p-tight flex items-center border-b text-xs"
+                data-testid="history-status-filters"
+            >
+                <button
+                    v-for="statusClass in STATUS_CLASSES"
+                    :key="statusClass"
+                    type="button"
+                    class="border-default px-tight py-tight rounded-sm border"
+                    :class="{
+                        'bg-elevated text-highlighted':
+                            statusClasses.includes(statusClass),
+                    }"
+                    :aria-pressed="statusClasses.includes(statusClass)"
+                    :data-testid="`history-filter-${statusClass}`"
+                    @click="toggleStatusClass(statusClass)"
+                >
+                    {{ statusClass }}
+                </button>
+            </div>
+
             <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
                 <ul v-if="filteredLogs.length" class="divide-default divide-y">
                     <li
                         v-for="log in filteredLogs"
                         :key="log.response.timestamp + log.request.endpoint"
+                        class="group relative"
                     >
                         <HistoryItem
                             :log="log"
@@ -165,6 +207,21 @@ watch(isOpen, async open => {
                             :data-method="log.request.method"
                             @click="selectLog(log)"
                         />
+                        <button
+                            type="button"
+                            class="end-base text-muted hover:text-highlighted bottom-base absolute focus-visible:opacity-100"
+                            :class="
+                                log.pinned
+                                    ? 'text-highlighted'
+                                    : 'opacity-0 group-hover:opacity-100'
+                            "
+                            :aria-label="log.pinned ? 'Unpin request' : 'Pin request'"
+                            :aria-pressed="!!log.pinned"
+                            data-testid="history-pin-toggle"
+                            @click.stop="historyStore.togglePin(log)"
+                        >
+                            <AppIcon name="i-hugeicons-pin" class="size-icon-xs" />
+                        </button>
                     </li>
                 </ul>
                 <div
