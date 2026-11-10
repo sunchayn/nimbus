@@ -82,7 +82,7 @@ const isLow = computed(() => percentage.value <= 20);
             <div v-else class="gap-base flex flex-col text-xs">
                 <p>
                     {{ rateLimit.remaining }} of {{ rateLimit.limit }} attempts left.
-                    <span class="block text-muted" v-if="rateLimit.retryAfter !== null">
+                    <span v-if="rateLimit.retryAfter !== null" class="text-muted block">
                         Try again in {{ rateLimit.retryAfter }} seconds.
                     </span>
                 </p>
