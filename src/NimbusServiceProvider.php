@@ -12,6 +12,7 @@ use Sunchayn\Nimbus\Console\Snapshot\ClearRoutesSnapshotCommand;
 use Sunchayn\Nimbus\Modules\Ast\Events\ClassFileResolved;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
+use Sunchayn\Nimbus\Modules\Magic\Listeners\TransactionModeListener;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\AutoDetectRoutesProcessor;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\OpenAPISchemaRoutesProcessor;
@@ -83,18 +84,7 @@ class NimbusServiceProvider extends PackageServiceProvider
 
         $this->tagAlongsideLaravelAssets();
 
-        // Handle transaction mode for requests
-        $this->app->get('events')->listen(RouteMatched::class, function (RouteMatched $routeMatched): void {
-            if ($routeMatched->request->header('X-Nimbus-Transaction-Mode') === '1') {
-                app('db')->beginTransaction();
-
-                app()->terminating(function (): void {
-                    if (app('db')->transactionLevel() > 0) {
-                        app('db')->rollBack();
-                    }
-                });
-            }
-        });
+        Event::listen(RouteMatched::class, TransactionModeListener::class);
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\Services\Authorization\Injectors;
+namespace Sunchayn\Nimbus\Tests\App\Modules\Magic\Injectors;
 
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -10,7 +10,7 @@ use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
-use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\TymonJwtTokenInjector;
+use Sunchayn\Nimbus\Modules\Magic\Injectors\TymonJwtTokenInjector;
 use Sunchayn\Nimbus\Tests\App\Modules\Relay\Authorization\Injectors\MockInterface;
 use Sunchayn\Nimbus\Tests\TestCase;
 

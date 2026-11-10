@@ -209,7 +209,7 @@ class ActiveApplicationResolverUnitTest extends TestCase
 
         // Act & Assert
 
-        $this->assertEquals(\Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\RememberMeCookieInjector::class, $resolver->getSpecialAuthInjector());
+        $this->assertEquals(\Sunchayn\Nimbus\Modules\Magic\Injectors\RememberMeCookieInjector::class, $resolver->getSpecialAuthInjector());
     }
 
     public function test_it_reconciles_tymon_jwt_injector_alias(): void
@@ -231,7 +231,7 @@ class ActiveApplicationResolverUnitTest extends TestCase
 
         // Act & Assert
 
-        $this->assertEquals(\Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Injectors\TymonJwtTokenInjector::class, $resolver->getSpecialAuthInjector());
+        $this->assertEquals(\Sunchayn\Nimbus\Modules\Magic\Injectors\TymonJwtTokenInjector::class, $resolver->getSpecialAuthInjector());
     }
 
     public function test_it_reconciles_route_processing_strategy(): void

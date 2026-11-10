@@ -78,6 +78,7 @@ src/
 ├── Intellisenses/         # TypeScript interface generation
 └── Modules/               # Core business logic
     ├── Config/            # Configuration enums and constants
+    ├── Magic/             # Code that runs inside the target request (listeners, user injectors)
     ├── Routes/            # Route extraction and normalization
     ├── Schemas/           # Schema generation and transformation
     └── Relay/             # HTTP request relay and authorization
@@ -86,6 +87,7 @@ src/
 **Module responsibilities:**
 
 - **Config** - Application configuration, enums, and constants.
+- **Magic** - Laravel aware behavior that acts inside the target request, such as transaction mode and the special authentication injectors.
 - **Routes** - Extract and normalize Laravel routes and validation rules.
 - **Schemas** - Transform validation rules into JSON schemas.
 - **Relay** - Forward HTTP requests and handle authentication.
