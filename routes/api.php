@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Sunchayn\Nimbus\Http\Api\Actors\ListActorsController;
 use Sunchayn\Nimbus\Http\Api\Doctor\DoctorController;
 use Sunchayn\Nimbus\Http\Api\Magic\LookupValuesController;
 use Sunchayn\Nimbus\Http\Api\Magic\SignedUrlController;
@@ -20,6 +21,10 @@ Route::group(
         Route::get('/routes', RoutesController::class)
             ->middleware('web')
             ->name('nimbus.api.routes');
+
+        Route::get('/actors', ListActorsController::class)
+            ->middleware('web')
+            ->name('nimbus.api.actors');
 
         Route::get('/doctor', DoctorController::class)
             ->middleware('web')

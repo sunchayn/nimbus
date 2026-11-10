@@ -13,6 +13,7 @@ export interface UseRequestAuthorizationResult {
     };
     updateAuthorizationType: (newValue: AuthorizationType) => void;
     updateCurrentAuthorizationValue: (newValue: AuthorizationContract['value']) => void;
+    updateCurrentAuthorizationGuard: (guard: string) => void;
     saveAuthorizationToStore: () => void;
 }
 
@@ -138,6 +139,16 @@ export const useRequestAuthorization = (): UseRequestAuthorizationResult => {
         } as AuthorizationContract);
     };
 
+    const updateCurrentAuthorizationGuard = (guard: string) => {
+        const currentAuth = requestStore.pendingRequestData?.authorization;
+
+        if (currentAuth?.type !== AuthorizationType.Impersonate) {
+            return;
+        }
+
+        requestStore.updateAuthorization({ ...currentAuth, guard });
+    };
+
     /**
      * Saves current authorization state to the request store.
      *
@@ -170,6 +181,7 @@ export const useRequestAuthorization = (): UseRequestAuthorizationResult => {
         // Actions
         updateAuthorizationType,
         updateCurrentAuthorizationValue,
+        updateCurrentAuthorizationGuard,
         saveAuthorizationToStore,
     };
 };

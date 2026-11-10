@@ -43,7 +43,7 @@ readonly class RequestRelayData
          *     headers?: array<array-key, array{key: string, value: string}>,
          *     method: string,
          *     endpoint: string,
-         *     authorization?: array{type: string, value?: string|array{username: string, password: string}|null},
+         *     authorization?: array{type: string, value?: string|array{username: string, password: string}|null, guard?: string|null},
          *     body: mixed,
          *     options?: array{follow_redirects?: bool, timeout?: int, verify_ssl?: bool},
          * } $data
@@ -80,6 +80,7 @@ readonly class RequestRelayData
                 ? new AuthorizationCredentials(
                     type: AuthorizationTypeEnum::from($data['authorization']['type']),
                     value: $data['authorization']['value'] ?? null,
+                    guard: $data['authorization']['guard'] ?? null,
                 )
                 : AuthorizationCredentials::none(),
             headers: $headers->all(),

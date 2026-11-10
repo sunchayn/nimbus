@@ -8,6 +8,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Client\PendingRequest;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
+use Sunchayn\Nimbus\Modules\Magic\Injectors\ActorHeaderInjector;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Concerns\UsesSpecialAuthenticationInjector;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Exceptions\InvalidAuthorizationValueException;
 
@@ -21,6 +22,7 @@ class ImpersonateUserAuthorizationHandler implements AuthorizationHandler
         public readonly int|string $userId,
         private readonly Container $container,
         private readonly ActiveApplicationResolver $projectManager,
+        private readonly ?string $guard = null,
     ) {
         if ($userId === '' || (is_int($userId) && $userId <= 0)) {
             throw InvalidAuthorizationValueException::becauseUserIsNotFound();
@@ -28,7 +30,7 @@ class ImpersonateUserAuthorizationHandler implements AuthorizationHandler
 
         $this->userProvider = $this
             ->container->get('auth')
-            ->guard(name: $this->projectManager->getAuthGuard())
+            ->guard(name: $this->guard ?? $this->projectManager->getAuthGuard())
             ->getProvider();
     }
 
@@ -44,8 +46,13 @@ class ImpersonateUserAuthorizationHandler implements AuthorizationHandler
             throw InvalidAuthorizationValueException::becauseUserIsNotFound();
         }
 
-        return $this
-            ->getInjector($this->container, $this->projectManager)
-            ->attach($pendingRequest, $user);
+        $specialAuthenticationInjectorContract = $this->getInjector($this->container, $this->projectManager);
+
+        // Only the actor header can act on a guard other than the configured one.
+        if ($specialAuthenticationInjectorContract instanceof ActorHeaderInjector && $this->guard !== null) {
+            $specialAuthenticationInjectorContract->forGuard($this->guard);
+        }
+
+        return $specialAuthenticationInjectorContract->attach($pendingRequest, $user);
     }
 }

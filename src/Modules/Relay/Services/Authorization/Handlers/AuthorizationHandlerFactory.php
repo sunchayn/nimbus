@@ -33,7 +33,7 @@ class AuthorizationHandlerFactory
 
         return match ($authorizationCredentials->type) {
             AuthorizationTypeEnum::CurrentUser => $this->buildCurrentUserHandler(),
-            AuthorizationTypeEnum::Impersonate => $this->buildImpersonateHandler($authorizationCredentials->value),
+            AuthorizationTypeEnum::Impersonate => $this->buildImpersonateHandler($authorizationCredentials->value, $authorizationCredentials->guard),
             AuthorizationTypeEnum::Bearer => $this->buildBearerHandler($authorizationCredentials->value),
             AuthorizationTypeEnum::Basic => $this->buildBasicHandler($authorizationCredentials->value),
             AuthorizationTypeEnum::None => $this->buildNoAuthorizationHandler(),
@@ -49,7 +49,7 @@ class AuthorizationHandlerFactory
     /**
      * @param  string|array{username: string, password: string}|null  $rawValue
      */
-    protected function buildImpersonateHandler(string|array|null $rawValue): ImpersonateUserAuthorizationHandler
+    protected function buildImpersonateHandler(string|array|null $rawValue, ?string $guard = null): ImpersonateUserAuthorizationHandler
     {
         if ($rawValue === null) {
             throw new \InvalidArgumentException('Impersonate user ID cannot be null.');
@@ -62,6 +62,7 @@ class AuthorizationHandlerFactory
         // Numeric keys stay integers, any other key type (UUID, ULID) is passed as written.
         return resolve(ImpersonateUserAuthorizationHandler::class, [
             'userId' => ctype_digit($rawValue) ? (int) $rawValue : $rawValue,
+            'guard' => $guard,
         ]);
     }
 

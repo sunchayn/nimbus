@@ -324,6 +324,8 @@ The lists stay in memory, autofill picks from them at random, and the store relo
 
 **Actor header.** The default special authentication injector, `ActorHeaderInjector`, adds `X-Nimbus-Actor` as `guard:key` to the relayed request. In the target application, `ActorHeaderListener` (Magic module) runs on `RouteMatched`, which fires before route middleware. It loads the user with the guard's provider and `retrieveById`, then calls `Auth::shouldUse()` and `setUser()`. The header is unsigned and trusted whenever Nimbus is active, so `allowed_envs` is the only gate. `NimbusHeaders` reads and validates the Nimbus headers in one place.
 
+**User picker.** The picker calls `GET /nimbus/api/actors?guard=&q=`. `ListActorsAction` (Magic module) reads the guard's Eloquent provider and returns at most 20 `ActorData` entries with the guards list. The chosen guard travels as `authorization.guard` in the relay payload and `ActorHeaderInjector::forGuard()` puts it in the actor header.
+
 ---
 
 ## Design Principles
