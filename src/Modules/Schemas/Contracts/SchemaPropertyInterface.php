@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sunchayn\Nimbus\Modules\Schemas\Contracts;
 
 use Sunchayn\Nimbus\Modules\Schemas\Enums\SchemaPropertyType;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\PropertyAnnotations;
 
 /**
  * Interface for all schema property types.
@@ -34,6 +35,11 @@ interface SchemaPropertyInterface
      * Check if the property is nullable.
      */
     public function isNullable(): bool;
+
+    /**
+     * Get the extra information that has no JSON Schema keyword of its own.
+     */
+    public function getAnnotations(): PropertyAnnotations;
 
     /**
      * Convert to standard JSON Schema format.

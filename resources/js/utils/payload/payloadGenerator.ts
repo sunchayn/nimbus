@@ -8,6 +8,7 @@ import type {
 import type { GeneratorContext } from '@/interfaces/ui';
 import { isComplexType, isPrimitiveType, SchemaType } from '@/types/schema';
 import { describeFileProperties, pickObjectFixture } from '@/utils/binaries/objectFile';
+import { generateFromPattern } from '@/utils/payload/patternGenerator';
 import { faker } from '@faker-js/faker/locale/en';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -81,20 +82,63 @@ function generateComplexType(
 }
 
 /**
+ * A nullable property has a type list such as ["string", "null"], the value follows the other type.
+ */
+function withoutNullType(schema: JSONSchema7): JSONSchema7 {
+    if (!Array.isArray(schema.type)) {
+        return schema;
+    }
+
+    return { ...schema, type: schema.type.find(type => type !== 'null') };
+}
+
+function isNullable(schema: JSONSchema7): boolean {
+    return Array.isArray(schema.type) && schema.type.includes('null');
+}
+
+/**
+ * An optional text field that does not accept an empty value is left out sometimes,
+ * because sending it empty would fail the validation.
+ */
+function shouldDropOptionalField(
+    schema: JSONSchema7,
+    isRequired: boolean,
+    isPlaceholder: boolean,
+): boolean {
+    const type = withoutNullType(schema).type;
+
+    if (isPlaceholder || isRequired || isNullable(schema) || type !== SchemaType.STRING) {
+        return false;
+    }
+
+    return (
+        schema.format !== 'binary' &&
+        Math.random() < PAYLOAD_GENERATOR_CONFIG.EMPTY_FIELD_PROBABILITY
+    );
+}
+
+/**
  * Generates a value with property context (name and required status).
  */
 function generateValue(
-    schema: JSONSchema7,
+    rawSchema: JSONSchema7,
     isPlaceholder: boolean,
     propertyName: string,
     isRequired: boolean,
 ): PayloadObject | PayloadObjectValue | PayloadObject[] {
+    const schema = withoutNullType(rawSchema);
+
     if (schema.enum && schema.enum.length > 0) {
         return generateEnumValue(schema, isPlaceholder);
     }
 
     if (schema.type && isPrimitiveType(schema.type)) {
-        return generatePrimitiveType(schema, isPlaceholder, propertyName, isRequired);
+        return generatePrimitiveType(
+            schema,
+            isPlaceholder,
+            propertyName,
+            isRequired || !isNullable(rawSchema),
+        );
     }
 
     if (schema.type && isComplexType(schema.type)) {
@@ -208,7 +252,16 @@ function generatePayload(
                 continue;
             }
 
+            // Fields the API forbids are left out of generated payloads.
+            if ((property as { skipAutofill?: boolean }).skipAutofill === true) {
+                continue;
+            }
+
             const isRequired = required.includes(key);
+
+            if (shouldDropOptionalField(property, isRequired, isPlaceholder)) {
+                continue;
+            }
 
             payload[key] = generateValue(property, isPlaceholder, key, isRequired);
         }
@@ -240,7 +293,7 @@ function generateString(
         return '<placeholder>';
     }
 
-    // Randomly return empty value for non-required fields
+    // Only a field that accepts an empty value is randomly sent empty.
     if (!isRequired && Math.random() < PAYLOAD_GENERATOR_CONFIG.EMPTY_FIELD_PROBABILITY) {
         return '';
     }
@@ -253,6 +306,12 @@ function generateString(
 
     if (schema.maxLength) {
         generatorContext.maxLength = schema.maxLength;
+    }
+
+    const { dateFormat } = schema as { dateFormat?: string };
+
+    if (dateFormat) {
+        generatorContext.dateFormat = dateFormat;
     }
 
     const generatedValue = generateFromMatchingGenerator(
@@ -324,11 +383,29 @@ function generateFromMatchingGenerator(
     shouldBeInteger: boolean = false,
 ): string | number | bigint | null {
     // Base64 content is selected through the byte format, whichever way the schema says it.
-    const format = schema.contentEncoding === 'base64' ? 'byte' : schema.format;
+    // A date format wins over the schema format, and both date generators follow it.
+    const format = schemaContext.dateFormat
+        ? 'date-time'
+        : schema.contentEncoding === 'base64'
+          ? 'byte'
+          : schema.format;
     const formatGenerator = format ? formatMatchers.get(format) : undefined;
 
     if (formatGenerator) {
         return formatGenerator.generate(schemaContext);
+    }
+
+    // A pattern is a hard rule, so it wins over the name of the property.
+    const fromPattern = schema.pattern
+        ? generateFromPattern(
+              schema.pattern,
+              schemaContext.maxLength,
+              schemaContext.minLength,
+          )
+        : null;
+
+    if (fromPattern !== null) {
+        return fromPattern;
     }
 
     for (const matcher of nameMatchers) {

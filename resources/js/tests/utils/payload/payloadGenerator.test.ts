@@ -519,4 +519,210 @@ describe('payloadGenerator', () => {
             expect(tags).toHaveLength(2);
         });
     });
+
+    describe('Rule coverage', () => {
+        it('generates a value for a nullable property', () => {
+            // Arrange
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                properties: {
+                    age: { type: ['integer', 'null'], minimum: 5, maximum: 5 },
+                    nickname: { type: ['string', 'null'] },
+                },
+            };
+
+            // Act
+
+            const payload = generateRandomPayload(schema);
+
+            // Assert
+
+            expect(payload.age).toBe(5);
+            expect(typeof payload.nickname).toBe('string');
+        });
+
+        it('leaves out a property marked to skip autofill', () => {
+            // Arrange
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                properties: {
+                    name: { type: 'string' },
+                    internal_note: {
+                        type: 'string',
+                        skipAutofill: true,
+                    } as JSONSchema7,
+                },
+                required: ['name'],
+            };
+
+            // Act
+
+            const random = generateRandomPayload(schema);
+            const placeholder = generatePlaceholderPayload(schema);
+
+            // Assert
+
+            expect(Object.keys(random)).toEqual(['name']);
+            expect(Object.keys(placeholder)).toEqual(['name']);
+        });
+
+        it('generates a date that follows the date format of a property', () => {
+            // Arrange
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                required: ['starts_at'],
+                properties: {
+                    starts_at: {
+                        type: 'string',
+                        format: 'date-time',
+                        dateFormat: 'Y-m-d H:i',
+                    } as JSONSchema7,
+                },
+            };
+
+            // Act
+
+            const payload = generateRandomPayload(schema);
+
+            // Assert
+
+            expect(payload.starts_at).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/);
+        });
+
+        it.each([
+            ['Y-m-d', undefined, /^\d{4}-\d{2}-\d{2}$/],
+            ['c', 'date-time', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+00:00$/],
+            [
+                'Y-m-d\\TH:i:s.v\\Z',
+                'date-time',
+                /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+            ],
+            ['d/m/Y', undefined, /^\d{2}\/\d{2}\/\d{4}$/],
+        ])('generates a date for the date format %s', (dateFormat, format, expected) => {
+            // Arrange
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                required: ['when'],
+                properties: {
+                    when: { type: 'string', format, dateFormat } as JSONSchema7,
+                },
+            };
+
+            // Act
+
+            const payload = generateRandomPayload(schema);
+
+            // Assert
+
+            expect(payload.when).toMatch(expected);
+        });
+
+        it('generates an ISO 8601 value for a date time property without a date format', () => {
+            // Arrange
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                required: ['when'],
+                properties: { when: { type: 'string', format: 'date-time' } },
+            };
+
+            // Act
+
+            const payload = generateRandomPayload(schema);
+
+            // Assert
+
+            expect(payload.when).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+        });
+
+        it('generates values that satisfy the pattern and the format of a property', () => {
+            // Arrange
+
+            const namePattern = String.raw`^[\p{L}\p{M}\p{N}_-]+$`;
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                required: ['name', 'pin', 'backup_ip'],
+                properties: {
+                    name: {
+                        type: 'string',
+                        pattern: namePattern,
+                        minLength: 2,
+                        maxLength: 40,
+                    },
+                    pin: { type: 'string', pattern: String.raw`^\d{4}$` },
+                    server_ip: { type: ['string', 'null'], format: 'ipv4' },
+                    backup_ip: { type: 'string', format: 'ipv6' },
+                },
+            };
+
+            // Act
+
+            const payloads = Array.from({ length: 30 }, () =>
+                generateRandomPayload(schema),
+            );
+
+            // Assert
+
+            for (const payload of payloads) {
+                expect(payload.name).toMatch(new RegExp(namePattern, 'u'));
+                expect(payload.pin).toMatch(/^\d{4}$/);
+                expect(payload.backup_ip).toMatch(/^[0-9a-f:]+$/i);
+
+                if (payload.server_ip !== '') {
+                    expect(payload.server_ip).toMatch(/^(\d{1,3}\.){3}\d{1,3}$/);
+                }
+            }
+        });
+
+        it('leaves out an optional property that cannot be empty instead of sending it empty', () => {
+            // Arrange
+
+            vi.spyOn(Math, 'random').mockReturnValue(0);
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                required: ['name'],
+                properties: {
+                    name: { type: 'string' },
+                    website: { type: 'string', format: 'uri' },
+                    nickname: { type: ['string', 'null'] },
+                },
+            };
+
+            // Act
+
+            const payload = generateRandomPayload(schema);
+
+            // Assert
+
+            expect(payload).not.toHaveProperty('website');
+            expect(payload.nickname).toBe('');
+            expect(payload.name).not.toBe('');
+        });
+
+        it('always sends a required property', () => {
+            // Arrange
+
+            vi.spyOn(Math, 'random').mockReturnValue(0);
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                required: ['website'],
+                properties: { website: { type: 'string', format: 'uri' } },
+            };
+
+            // Act
+
+            const payload = generateRandomPayload(schema);
+
+            // Assert
+
+            expect(payload.website).toMatch(/^https?:\/\//);
+        });
+    });
 });

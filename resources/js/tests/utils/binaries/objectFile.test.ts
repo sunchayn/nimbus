@@ -105,6 +105,27 @@ describe('objectFile', () => {
             expect(fields.file_name).toMatch(/\.png$/);
         });
 
+        it('describes a nullable mime type property', () => {
+            // Arrange
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                properties: {
+                    name: { type: 'string' },
+                    content: { type: 'string', contentEncoding: 'base64' },
+                    mime_type: { type: ['string', 'null'] },
+                },
+            };
+
+            // Act
+
+            const fields = describeFileProperties(schema, png);
+
+            // Assert
+
+            expect(fields.mime_type).toBe('image/png');
+        });
+
         it('leaves out a value that does not fit the length limit', () => {
             // Arrange
 

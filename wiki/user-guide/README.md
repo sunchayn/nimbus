@@ -210,6 +210,8 @@ Nimbus analyzes your Laravel validation rules to provide intelligent editing:
 - Validation errors shown in real-time.
 - Nested object and array support.
 
+Rules that Nimbus does not know never break the extraction. They are ignored.
+
 #### Uploading Files
 
 Send files from the **Form Data** body type. Each row is either text or a file.
@@ -248,6 +250,10 @@ Field names are cross-checked against a pre-defined set of patterns, common name
 - `uuid` fields → valid UUIDs
 - `date` fields → properly formatted dates
 - Numeric fields → values within min/max constraints
+- Fields with a `regex`, `digits`, `alpha` or `alpha_dash` rule → text that matches the pattern
+- Fields with an `ip`, `ipv4` or `ipv6` rule → a valid IP address
+
+Optional fields that cannot be empty are left out of the payload sometimes, instead of being sent empty.
 
 #### Request Options
 

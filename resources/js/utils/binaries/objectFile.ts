@@ -12,6 +12,13 @@ function asSchemaObject(property: JSONSchema7Definition | undefined): JSONSchema
     return property;
 }
 
+// A nullable string has a type list such as ["string", "null"].
+function isStringType(schema: JSONSchema7): boolean {
+    return Array.isArray(schema.type)
+        ? schema.type.includes('string')
+        : schema.type === 'string';
+}
+
 function isBase64Content(schema: JSONSchema7): boolean {
     return schema.contentEncoding === 'base64' || schema.format === 'byte';
 }
@@ -65,7 +72,7 @@ export function describeFileProperties(
     for (const [name, definition] of Object.entries(schema.properties ?? {})) {
         const property = asSchemaObject(definition);
 
-        if (property?.type !== 'string') {
+        if (!property || !isStringType(property)) {
             continue;
         }
 

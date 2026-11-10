@@ -21,6 +21,7 @@ class NumberSchemaProperty implements SchemaPropertyInterface
         private readonly bool $nullable = false,
         private readonly ?float $minimum = null,
         private readonly ?float $maximum = null,
+        private readonly PropertyAnnotations $propertyAnnotations = new PropertyAnnotations,
     ) {}
 
     public function getName(): string
@@ -36,6 +37,11 @@ class NumberSchemaProperty implements SchemaPropertyInterface
     public function isNullable(): bool
     {
         return $this->nullable;
+    }
+
+    public function getAnnotations(): PropertyAnnotations
+    {
+        return $this->propertyAnnotations;
     }
 
     public function getType(): SchemaPropertyType
@@ -57,6 +63,6 @@ class NumberSchemaProperty implements SchemaPropertyInterface
             $properties['maximum'] = $this->maximum;
         }
 
-        return $properties;
+        return $properties + $this->propertyAnnotations->toJsonSchema();
     }
 }

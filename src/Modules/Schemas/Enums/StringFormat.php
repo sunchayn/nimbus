@@ -25,6 +25,10 @@ enum StringFormat: string
 
     case BINARY = 'binary';
 
+    case IPV4 = 'ipv4';
+
+    case IPV6 = 'ipv6';
+
     /**
      * Map common validation rule names to their corresponding format.
      */
@@ -34,7 +38,7 @@ enum StringFormat: string
             'uuid' => self::UUID,
             'email' => self::EMAIL,
             'date' => self::DATE_TIME, // Laravel's 'date' rule often maps to date-time in schema context
-            'url' => self::URL,
+            'url', 'active_url' => self::URI,
             'file', 'image', 'mimes', 'mimetypes', 'extensions' => self::BINARY,
             default => null,
         };

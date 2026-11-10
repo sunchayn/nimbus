@@ -42,7 +42,7 @@ class StringFormatUnitTest extends TestCase
 
         yield 'url rule' => [
             'rule' => 'url',
-            'expected' => StringFormat::URL,
+            'expected' => StringFormat::URI,
         ];
 
         yield 'file rule' => [

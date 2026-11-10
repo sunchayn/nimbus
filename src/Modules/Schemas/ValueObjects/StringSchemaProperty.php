@@ -35,6 +35,7 @@ class StringSchemaProperty implements SchemaPropertyInterface
         private readonly ?string $pattern = null,
         private readonly mixed $const = null,
         private readonly ?string $contentEncoding = null,
+        private readonly PropertyAnnotations $propertyAnnotations = new PropertyAnnotations,
     ) {}
 
     public function getName(): string
@@ -50,6 +51,11 @@ class StringSchemaProperty implements SchemaPropertyInterface
     public function isNullable(): bool
     {
         return $this->nullable;
+    }
+
+    public function getAnnotations(): PropertyAnnotations
+    {
+        return $this->propertyAnnotations;
     }
 
     public function getType(): SchemaPropertyType
@@ -81,6 +87,7 @@ class StringSchemaProperty implements SchemaPropertyInterface
             pattern: $this->pattern,
             const: $this->const,
             contentEncoding: $contentEncoding,
+            propertyAnnotations: $this->propertyAnnotations,
         );
     }
 
@@ -118,6 +125,6 @@ class StringSchemaProperty implements SchemaPropertyInterface
             $properties['contentEncoding'] = $this->contentEncoding;
         }
 
-        return $properties;
+        return $properties + $this->propertyAnnotations->toJsonSchema();
     }
 }

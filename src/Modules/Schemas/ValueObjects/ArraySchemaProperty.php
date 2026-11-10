@@ -28,6 +28,8 @@ class ArraySchemaProperty implements SchemaPropertyInterface
         private readonly ?SchemaPropertyInterface $schemaProperty = null,
         private readonly ?int $minItems = null,
         private readonly ?int $maxItems = null,
+        private readonly bool $uniqueItems = false,
+        private readonly PropertyAnnotations $propertyAnnotations = new PropertyAnnotations,
     ) {}
 
     public function getName(): string
@@ -43,6 +45,11 @@ class ArraySchemaProperty implements SchemaPropertyInterface
     public function isNullable(): bool
     {
         return $this->nullable;
+    }
+
+    public function getAnnotations(): PropertyAnnotations
+    {
+        return $this->propertyAnnotations;
     }
 
     /**
@@ -61,6 +68,11 @@ class ArraySchemaProperty implements SchemaPropertyInterface
     public function getMaxItems(): ?int
     {
         return $this->maxItems;
+    }
+
+    public function hasUniqueItems(): bool
+    {
+        return $this->uniqueItems;
     }
 
     public function getType(): SchemaPropertyType
@@ -86,6 +98,10 @@ class ArraySchemaProperty implements SchemaPropertyInterface
             $properties['maxItems'] = $this->maxItems;
         }
 
-        return $properties;
+        if ($this->uniqueItems) {
+            $properties['uniqueItems'] = true;
+        }
+
+        return $properties + $this->propertyAnnotations->toJsonSchema();
     }
 }

@@ -13,6 +13,7 @@ use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\BooleanSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\IntegerSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\NumberSchemaProperty;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ObjectSchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\PropertyAnnotations;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
 
@@ -39,46 +40,69 @@ class PropertyBuilder
      */
     public function buildPropertyFromRules(string $field, array $rules): SchemaPropertyInterface
     {
-        $schemaMetadata = $this->ruleToSchemaMapper->convertRulesToBaseSchemaPropertyMetadata($rules);
+        $schemaMetadata = $this->ruleToSchemaMapper->convertRulesToBaseSchemaPropertyMetadata($rules, $field);
+
+        $nullable = $schemaMetadata['nullable'];
+
+        $propertyAnnotations = new PropertyAnnotations(
+            hints: $schemaMetadata['hints'],
+            lookup: $schemaMetadata['lookup'],
+            skipAutofill: $schemaMetadata['skipAutofill'],
+            dateFormat: $schemaMetadata['dateFormat'],
+        );
 
         return match ($schemaMetadata['type']) {
             SchemaPropertyType::STRING => new StringSchemaProperty(
                 name: $field,
                 required: $schemaMetadata['required'],
-                stringFormat: $this->extractFormat($rules),
+                nullable: $nullable,
+                stringFormat: StringFormat::tryFrom((string) $schemaMetadata['format']) ?? $this->extractFormat($rules),
                 enum: $schemaMetadata['enum'] ?? null,
                 minLength: $schemaMetadata['minimum'],
                 maxLength: $schemaMetadata['maximum'],
+                pattern: $schemaMetadata['pattern'],
                 contentEncoding: $this->extractContentEncoding($field, $rules),
+                propertyAnnotations: $propertyAnnotations,
             ),
             SchemaPropertyType::INTEGER => new IntegerSchemaProperty(
                 name: $field,
                 required: $schemaMetadata['required'],
+                nullable: $nullable,
                 minimum: $schemaMetadata['minimum'],
                 maximum: $schemaMetadata['maximum'],
                 enum: $schemaMetadata['enum'] ?? null,
+                propertyAnnotations: $propertyAnnotations,
             ),
             SchemaPropertyType::NUMBER => new NumberSchemaProperty(
                 name: $field,
                 required: $schemaMetadata['required'],
+                nullable: $nullable,
                 minimum: $schemaMetadata['minimum'],
                 maximum: $schemaMetadata['maximum'],
+                propertyAnnotations: $propertyAnnotations,
             ),
             SchemaPropertyType::BOOLEAN => new BooleanSchemaProperty(
                 name: $field,
                 required: $schemaMetadata['required'],
+                nullable: $nullable,
+                propertyAnnotations: $propertyAnnotations,
             ),
             SchemaPropertyType::ARRAY => new ArraySchemaProperty(
                 name: $field,
                 required: $schemaMetadata['required'],
+                nullable: $nullable,
                 // Items ($schemaProperty) will be set later by SchemaBuilder if needed.
                 minItems: $schemaMetadata['minimum'],
                 maxItems: $schemaMetadata['maximum'],
+                uniqueItems: $schemaMetadata['uniqueItems'],
+                propertyAnnotations: $propertyAnnotations,
             ),
             SchemaPropertyType::OBJECT => new ObjectSchemaProperty(
                 name: $field,
                 required: $schemaMetadata['required'],
+                nullable: $nullable,
                 schema: new Schema([]), // <- Properties will be set later by SchemaBuilder if needed.
+                propertyAnnotations: $propertyAnnotations,
             ),
         };
     }

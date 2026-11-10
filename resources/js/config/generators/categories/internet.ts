@@ -60,6 +60,7 @@ export const internet = defineCategory({
             description: 'Generate a random IP v4',
             icon: 'i-hugeicons-router-01',
             generate: context => withinLength(context, () => faker.internet.ipv4()),
+            typeRules: [{ format: 'ipv4' }],
             nameRules: [{ pattern: /^(ip|ip[-_]?v4)$/i }],
         },
         {
@@ -68,6 +69,7 @@ export const internet = defineCategory({
             description: 'Generate a random IP v6',
             icon: 'i-hugeicons-network',
             generate: context => withinLength(context, () => faker.internet.ipv6()),
+            typeRules: [{ format: 'ipv6' }],
             nameRules: [{ pattern: /^(ip[-_]?v6)$/i }],
         },
     ],
