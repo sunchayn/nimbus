@@ -10,6 +10,7 @@ use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
 use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentSourceEnum;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
+use Sunchayn\Nimbus\Modules\Magic\Injectors\ActorHeaderInjector;
 use Sunchayn\Nimbus\Modules\Magic\Injectors\RememberMeCookieInjector;
 use Sunchayn\Nimbus\Modules\Magic\Injectors\TymonJwtTokenInjector;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Contracts\SpecialAuthenticationInjectorContract;
@@ -176,6 +177,7 @@ class ActiveApplicationResolver
 
             /** @var class-string<SpecialAuthenticationInjectorContract> $mappedClass */
             $mappedClass = match ($normalized) {
+                'actor_header' => ActorHeaderInjector::class,
                 'remember_me_cookie' => RememberMeCookieInjector::class,
                 'tymon_jwt' => TymonJwtTokenInjector::class,
                 default => $rawInjector,

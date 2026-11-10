@@ -446,14 +446,23 @@ HTTP Basic Authentication with username and password.
 
 ### User Impersonation
 
-Make requests as any user in your system using their user ID.
+Make requests as any user in your system using their user key.
 
 **Use case:** Testing how endpoints behave for different users without logging in as them.
 
 **How it works:**
 1. Select "Impersonate User with ID" from authentication options.
-2. Enter the user ID.
+2. Enter the user key. Integer IDs, UUIDs, ULIDs, and custom keys all work.
 3. Nimbus authenticates the request as that user.
+
+By default Nimbus sends an `X-Nimbus-Actor` header with the guard name and the user key. A listener in your application reads it before route middleware runs and sets the user on that guard. So `auth` and `can` middleware see the user. No session, cookie, or remember token is created, and nothing is written to your database.
+
+**Limits:**
+- Guard events such as `Login` do not fire, because the user is set directly on the guard.
+- The header is not signed. In an environment listed in `allowed_envs`, any caller who can reach the application can act as any user. Keep `allowed_envs` limited to environments that outsiders cannot reach.
+- A header with an unknown guard or user is ignored and logged at debug level. The request continues as a guest.
+
+To use the cookie or JWT approach instead, set `auth.special.injector` to `'remember_me_cookie'` or `'tymon_jwt'`. The remember me injector may write a remember token to the user row.
 
 ---
 
@@ -682,7 +691,7 @@ Export configured requests as code samples. This is separate from the cURL expor
 
 Environment variables and dynamic variables are resolved in the code. Secrets are replaced with placeholders such as `YOUR_TOKEN`. This covers Bearer and Basic authorization, and any header, query parameter or JSON field whose name contains `token`, `secret`, `password`, `api key`, `authorization`, `cookie` or `csrf`.
 
-The tests assert the status code of the last response, or 200 when there is none.
+The tests assert the status code of the last response, or 200 when there is none. When the request acts as a user, the test calls `$this->actingAs(User::factory()->create())` with `App\Models\User`. Change the model if your app uses another one.
 
 ### Shareable Links
 
@@ -883,7 +892,7 @@ return [
 | **`applications.*.routes.openapi.files`** | Map of versions to OpenAPI file paths.<br /><br />Required when strategy is `'openapi'`.                                                                                                                         | `[]` | `['v1' => base_path('docs/v1.yaml')]` |
 | **`applications.*.routes.openapi.show_operation_id`** | Defines whether to show the Operation ID in the sidebar.                                                                                                                                              | `false` | `true` |
 | **`applications.*.auth.guard`** | The Laravel guard used for API request authentication.                                                                                                                                                | `'web'` | `'api'` |
-| **`applications.*.auth.special.injector`** | Injector alias or FQCN string used to attach authentication credentials. <br /><br />Supported values: `'remember_me_cookie'`, `'tymon_jwt'`, or a custom FQCN string.                            | `'remember_me_cookie'` | `'tymon_jwt'` |
+| **`applications.*.auth.special.injector`** | Injector alias or FQCN string used to attach authentication credentials. <br /><br />Supported values: `'actor_header'` (default), `'remember_me_cookie'`, `'tymon_jwt'`, or a custom FQCN string.                            | `'actor_header'` | `'tymon_jwt'` |
 | **`headers`** | Global headers applied to all outgoing requests.<br /><br />Supports static values or generator aliases (`'$uuid'`, `'$email'`, `'$string'`).                                                                    | `[]` | `['x-request-id' => '$uuid']` |
 
 ### Multi-Application Support
@@ -919,6 +928,7 @@ Nimbus comes with built-in authentication injection strategies:
 
 | Mode | Injector Alias | Description |
 |---|---|---|
+| **Actor Header** | `'actor_header'` | Default. Sends an unsigned `X-Nimbus-Actor` header. Works with any guard and key type and writes nothing to the database. See [User Impersonation](#user-impersonation). |
 | **RememberMe Cookie** | `'remember_me_cookie'` | Authenticates using Laravel's remember-me cookie for the current session. |
 | **JWT Token** | `'tymon_jwt'` | Injects a bearer token for JWT-authenticated APIs. |
 

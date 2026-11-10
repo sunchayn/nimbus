@@ -55,11 +55,14 @@ class AuthorizationHandlerFactory
             throw new \InvalidArgumentException('Impersonate user ID cannot be null.');
         }
 
-        if (! ctype_digit($rawValue)) {
-            throw new \InvalidArgumentException('Impersonate user ID must be an integer.');
+        if (! is_string($rawValue) || $rawValue === '') {
+            throw new \InvalidArgumentException('Impersonate user ID must be a non empty string.');
         }
 
-        return resolve(ImpersonateUserAuthorizationHandler::class, ['userId' => (int) $rawValue]);
+        // Numeric keys stay integers, any other key type (UUID, ULID) is passed as written.
+        return resolve(ImpersonateUserAuthorizationHandler::class, [
+            'userId' => ctype_digit($rawValue) ? (int) $rawValue : $rawValue,
+        ]);
     }
 
     /**

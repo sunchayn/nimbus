@@ -17,7 +17,9 @@ const buildTestCall = (model: ExportModel): string => {
     const verb = model.method.toLowerCase();
     const path = phpString(model.path);
     const body = model.body;
-    const start = '$this\n        ';
+    const start = model.actor
+        ? '$this->actingAs(User::factory()->create())\n        '
+        : '$this\n        ';
     const withHeaders =
         model.headers.length > 0
             ? `->withHeaders(${indentLines(phpHeaders(model.headers), 8)})\n        `
@@ -41,10 +43,14 @@ const buildTestCall = (model: ExportModel): string => {
     return `${prefix}->call(${phpString(model.method)}, ${path}, [], [], [], [], ${content})`;
 };
 
+const userImport = (model: ExportModel): string =>
+    model.actor ? 'use App\\Models\\User;\n' : '';
+
 export const generatePest: CodeGenerator = (model, expectedStatus) => {
+    const imports = model.actor ? `${userImport(model)}\n` : '';
     const title = `sends ${model.method} ${model.path.replace(/'/g, "\\'")}`;
 
-    return `it('${title}', function () {
+    return `${imports}it('${title}', function () {
     $response = ${buildTestCall(model)};
 
     $response->assertStatus(${expectedStatus});
@@ -53,7 +59,7 @@ export const generatePest: CodeGenerator = (model, expectedStatus) => {
 };
 
 export const generatePhpUnit: CodeGenerator = (model, expectedStatus) => {
-    const imports = 'use Tests\\TestCase;\n';
+    const imports = `${userImport(model)}use Tests\\TestCase;\n`;
     const className = `${model.method.charAt(0)}${model.method.slice(1).toLowerCase()}RequestTest`;
     const methodName = `test_${model.method.toLowerCase()}_${toSnakeCase(model.path) || 'root'}`;
 

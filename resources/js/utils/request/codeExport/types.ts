@@ -26,6 +26,8 @@ export interface ExportModel {
     path: string;
     headers: Header[];
     body: ExportBody;
+    // A user the request acts as. It becomes actingAs in a test.
+    actor: boolean;
 }
 
 /**
