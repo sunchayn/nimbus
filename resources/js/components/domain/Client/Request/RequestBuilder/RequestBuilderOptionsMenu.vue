@@ -15,6 +15,7 @@ import { useEnvironmentVariablesStore, useRequestStore, useTabsStore } from '@/s
 import { isProductionEnvironment } from '@/utils/environment';
 import { generateCurlCommand } from '@/utils/request';
 import { CODE_LANGUAGES, generateCode } from '@/utils/request/codeGenerators';
+import { isSignedRoute } from '@/utils/routes';
 import { computed, shallowRef } from 'vue';
 import CodeExportDialog from './CodeExportDialog.vue';
 import CurlExportDialog from './CurlExportDialog.vue';
@@ -78,6 +79,15 @@ const timeout = computed({
     },
 });
 
+const canSignUrl = computed(() =>
+    isSignedRoute(pendingRequestData.value?.routeDefinition),
+);
+
+const signUrl = computed({
+    get: () => pendingRequestData.value?.signUrl ?? false,
+    set: (value: boolean) => requestStore.updateSignUrl(value),
+});
+
 /**
  * Generates the cURL command for the current request.
  */
@@ -132,6 +142,15 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
             label: 'Transaction mode',
             onSelect: (event: Event) => event.preventDefault(),
         },
+        ...(canSignUrl.value
+            ? [
+                  {
+                      slot: 'sign',
+                      label: 'Sign URL',
+                      onSelect: (event: Event) => event.preventDefault(),
+                  },
+              ]
+            : []),
         {
             slot: 'redirects',
             label: 'Follow redirects',
@@ -228,6 +247,46 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
                     v-model="transactionMode"
                     size="sm"
                     aria-label="Transaction mode"
+                    @click.stop
+                />
+            </div>
+        </template>
+
+        <template #sign="{ item }">
+            <div
+                class="gap-loose flex w-full items-center justify-between"
+                data-testid="sign-url-option"
+            >
+                <div class="gap-tight flex items-center">
+                    <span>{{ item.label }}</span>
+                    <AppPopover :content="{ side: 'right', sideOffset: 5 }">
+                        <button
+                            type="button"
+                            aria-label="About signing the URL"
+                            class="-m-tight p-tight rounded-sm"
+                            @click.stop.prevent
+                        >
+                            <AppIcon
+                                name="i-hugeicons-help-circle"
+                                class="text-muted hover:text-highlighted size-icon-sm cursor-help"
+                            />
+                        </button>
+
+                        <template #content>
+                            <div class="gap-base flex flex-col">
+                                <h4 class="text-sm leading-none font-medium">Sign URL</h4>
+                                <p class="text-muted text-xs">
+                                    Signs the URL of this route right before the request
+                                    is sent, so it passes the signed middleware.
+                                </p>
+                            </div>
+                        </template>
+                    </AppPopover>
+                </div>
+                <AppSwitch
+                    v-model="signUrl"
+                    size="sm"
+                    aria-label="Sign URL"
                     @click.stop
                 />
             </div>

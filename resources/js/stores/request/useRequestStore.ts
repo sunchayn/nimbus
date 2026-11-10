@@ -61,6 +61,7 @@ export const useRequestStore = defineStore('request', () => {
         updateAuthorization: tabsStore.updateAuthorization,
         updateTransactionMode: tabsStore.updateTransactionMode,
         updateOptions: tabsStore.updateOptions,
+        updateSignUrl: tabsStore.updateSignUrl,
         getRequestUrl: tabsStore.getRequestUrl,
         resetRequest: tabsStore.resetRequest,
         restoreFromHistory: tabsStore.restoreFromHistory,

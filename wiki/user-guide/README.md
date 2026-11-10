@@ -226,6 +226,19 @@ A `GET` route has no body, so Nimbus reads the controller method to find the que
 - A key that already has validation rules keeps the type from those rules.
 - Only literal keys are read. Dotted keys and keys built at runtime are skipped.
 
+#### Signed Routes
+
+A route with the `signed` middleware only accepts a URL that carries a valid signature. When Nimbus sees this middleware, a **Sign URL** toggle appears in the request options menu.
+
+1. Fill the route parameters and the query parameters as usual.
+2. Turn on **Sign URL** in the request options menu and click **Send**.
+3. Nimbus asks your application to sign the URL and sends the request to the signed URL. The endpoint in the tab does not change.
+
+Notes:
+- The route must have a name. Nimbus refuses to sign a URL that matches no route, or a route without the `signed` middleware.
+- The signature is built for the host of the active environment, so the signed request is accepted by that host.
+- `signed:relative` routes get a relative signature.
+
 #### Uploading Files
 
 Send files from the **Form Data** body type. Each row is either text or a file.

@@ -14,6 +14,7 @@ const mockRequestStore = reactive({
     pendingRequestData: ref<PendingRequest | null>(null),
     updateTransactionMode: vi.fn(),
     updateOptions: vi.fn(),
+    updateSignUrl: vi.fn(),
 });
 
 const mockConfigStore = reactive({
@@ -111,5 +112,30 @@ describe('RequestBuilderOptionsMenu', () => {
             expect(mockRequestStore.updateOptions).toHaveBeenCalledWith({ timeout: 12 });
             expect(mockRequestStore.updateOptions).toHaveBeenCalledTimes(1);
         });
+    });
+
+    it('updates the sign option via computed property', () => {
+        const wrapper = createWrapper();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const vm = wrapper.vm as any;
+
+        vm.signUrl = true;
+
+        expect(mockRequestStore.updateSignUrl).toHaveBeenCalledWith(true);
+    });
+
+    it('exposes the sign option only for a signed route', () => {
+        const signedMiddleware = 'Illuminate\\Routing\\Middleware\\ValidateSignature';
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const vm = () => createWrapper().vm as any;
+
+        expect(vm().canSignUrl).toBe(false);
+
+        mockRequestStore.pendingRequestData = {
+            routeDefinition: { metadata: { middleware: [signedMiddleware] } },
+        } as unknown as PendingRequest;
+
+        expect(vm().canSignUrl).toBe(true);
     });
 });

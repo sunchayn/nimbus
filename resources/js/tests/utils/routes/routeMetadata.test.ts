@@ -1,5 +1,9 @@
 import type { RouteDefinition } from '@/interfaces/routes/routes';
-import { describeRouteParameter, describeThrottle } from '@/utils/routes/routeMetadata';
+import {
+    describeRouteParameter,
+    describeThrottle,
+    isSignedRoute,
+} from '@/utils/routes/routeMetadata';
 import { describe, expect, it } from 'vitest';
 
 const routeWith = (metadata: RouteDefinition['metadata']): RouteDefinition => ({
@@ -58,6 +62,31 @@ describe('routeMetadata', () => {
         it('returns null for an unknown parameter', () => {
             expect(describeRouteParameter(routeWith({}), 'product')).toBeNull();
             expect(describeRouteParameter(undefined, 'product')).toBeNull();
+        });
+    });
+
+    describe('isSignedRoute', () => {
+        it('detects the signed middleware', () => {
+            const route = routeWith({
+                middleware: ['Illuminate\\Routing\\Middleware\\ValidateSignature'],
+            });
+
+            expect(isSignedRoute(route)).toBe(true);
+        });
+
+        it('detects the signed middleware with an argument', () => {
+            const route = routeWith({
+                middleware: [
+                    'Illuminate\\Routing\\Middleware\\ValidateSignature:relative',
+                ],
+            });
+
+            expect(isSignedRoute(route)).toBe(true);
+        });
+
+        it('is false for other middleware and unknown routes', () => {
+            expect(isSignedRoute(routeWith({ middleware: ['auth'] }))).toBe(false);
+            expect(isSignedRoute(undefined)).toBe(false);
         });
     });
 });

@@ -94,6 +94,9 @@ export interface PendingRequest {
     /** Whether to execute the request in transaction mode (rollback on completion) */
     transactionMode?: boolean;
 
+    /** Whether the URL is signed right before the request is sent */
+    signUrl?: boolean;
+
     /** Per request relay options. A missing field means the default applies. */
     options?: RequestOptions;
 }

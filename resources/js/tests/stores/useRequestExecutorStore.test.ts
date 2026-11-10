@@ -12,6 +12,13 @@ import { nextTick, reactive } from 'vue';
 
 const executeRequest = vi.fn();
 
+const signRequestUrl = vi.fn();
+const signedMiddleware = 'Illuminate\\Routing\\Middleware\\ValidateSignature';
+
+vi.mock('@/utils/request/signRequestUrl', () => ({
+    signRequestUrl: (...args: unknown[]) => signRequestUrl(...args),
+}));
+
 vi.mock('@/utils/request/sendRelayRequest', () => ({
     sendRelayRequest: (...args: unknown[]) => executeRequest(...args),
 }));
@@ -100,6 +107,71 @@ describe('useRequestExecutorStore', () => {
             expect(mockRequestsHistoryStore.addLog).toHaveBeenCalledWith({
                 type: 'success',
             });
+        });
+
+        it('sends the signed copy of the request when the sign option is on', async () => {
+            // Arrange
+
+            const store = useRequestExecutorStore();
+            const signed = { ...request, endpoint: 'signed?signature=abc' };
+            signRequestUrl.mockResolvedValue(signed);
+            executeRequest.mockResolvedValue({
+                duration: 2000,
+                response: { status: 200 },
+            });
+
+            // Act
+
+            await store.executeRequestWithTiming({
+                ...request,
+                signUrl: true,
+                routeDefinition: { metadata: { middleware: [signedMiddleware] } },
+            } as unknown as PendingRequest);
+
+            // Assert
+
+            expect(signRequestUrl).toHaveBeenCalled();
+            expect(executeRequest.mock.calls[0][0]).toBe(signed);
+        });
+
+        it('does not sign a route that is not signed even when the option is on', async () => {
+            // Arrange
+
+            const store = useRequestExecutorStore();
+            executeRequest.mockResolvedValue({
+                duration: 2000,
+                response: { status: 200 },
+            });
+
+            // Act
+
+            await store.executeRequestWithTiming({
+                ...request,
+                signUrl: true,
+                routeDefinition: { metadata: { middleware: [] } },
+            } as unknown as PendingRequest);
+
+            // Assert
+
+            expect(signRequestUrl).not.toHaveBeenCalled();
+        });
+
+        it('does not sign when the sign option is off', async () => {
+            // Arrange
+
+            const store = useRequestExecutorStore();
+            executeRequest.mockResolvedValue({
+                duration: 2000,
+                response: { status: 200 },
+            });
+
+            // Act
+
+            await store.executeRequestWithTiming({ ...request });
+
+            // Assert
+
+            expect(signRequestUrl).not.toHaveBeenCalled();
         });
 
         it('logs errors using error log factory', async () => {

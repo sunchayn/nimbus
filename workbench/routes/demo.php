@@ -211,3 +211,7 @@ Route::prefix('v2')->group(function () {
     Route::get('/echo', [EchoController::class, 'echo'])
         ->name('demo.v2.echo');
 });
+
+Route::get('/signed/unsubscribe/{user}', [EchoController::class, 'echo'])
+    ->middleware('signed')
+    ->name('demo.signed.unsubscribe');
