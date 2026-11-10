@@ -128,6 +128,28 @@ export function searchRoutes(
 }
 
 /**
+ * Lists every route of every version, with the other methods of the same endpoint.
+ */
+export function listRoutes(
+    routes: { [key: string]: RoutesFolder[] } | null,
+): Array<{ route: RouteDefinition; siblings: RouteDefinition[] }> {
+    if (!routes) {
+        return [];
+    }
+
+    return Object.values(routes)
+        .flatMap(versionRoutes => flattenFolders(versionRoutes))
+        .flatMap(folder =>
+            folder.routes.map(route => ({
+                route,
+                siblings: folder.routes.filter(
+                    sibling => sibling.endpoint === route.endpoint,
+                ),
+            })),
+        );
+}
+
+/**
  * Calculates total route count across all versions and folders,
  * useful for statistics and UI indicators.
  */

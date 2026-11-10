@@ -71,6 +71,18 @@ This publishes:
 - `config/nimbus.php` - Configuration file
 - Frontend assets required for the interface
 
+#### Check the Setup
+
+Run the doctor command to find setup problems.
+
+```bash
+php artisan nimbus:doctor
+```
+
+It checks the config values, the routes snapshot folder, the app key, the authentication guard and its provider, the single threaded server problem, and whether the base URL can be reached.
+
+The same checks run from the **Diagnostics** button on the settings page.
+
 ### Accessing Nimbus
 
 Once installed, start your Laravel application using a real web server (Herd, Sail, Docker, Nginx, etc.) and navigate to:
@@ -94,6 +106,26 @@ The Nimbus interface consists of three main panels:
 The top bar gives you access to the **HTTP Client**, the **environment menu** (see [Environments](#environments)), the documentation, the GitHub repository, and the settings page.
 
 Every route you open gets its own request tab above the Request Builder. Use **New request** to start from a blank tab, and the sidebar toggle next to the tabs to hide or show the Route Explorer.
+
+#### Keyboard Shortcuts
+
+Press `?` at any time to see the list of shortcuts.
+The command icon in the top bar also opens the command palette and shows its key on hover.
+
+| Mac | Windows and Linux | Action |
+|---|---|---|
+| `Cmd+K` | `Ctrl+K` | Open the command palette |
+| `Cmd+Enter` | `Ctrl+Enter` | Send the request |
+| `Cmd+L` | `Ctrl+L` | Focus the endpoint |
+| `Cmd+B` | `Ctrl+B` | Show or hide the routes |
+| `Option+1` to `Option+9` | `Alt+1` to `Alt+9` | Switch to a tab by position |
+| `?` | `?` | Show the shortcuts |
+
+Some browsers keep `Cmd+L` or `Ctrl+L` for themselves.
+Use the command palette in that case.
+
+The command palette searches routes, open tabs, and environments, and runs actions.
+The actions are new tab, close tab, switch environment, switch application, toggle transaction mode, toggle theme, open settings, clear history, and copy as code.
 
 ---
 
@@ -793,7 +825,9 @@ These server options are single-threaded, meaning they can only handle one reque
 1. The relay endpoint receives the initial request from the browser
 2. The relay endpoint tries to make an HTTP request to your API
 3. The API request never completes because the same PHP process is busy serving the relay request
-4. The request hangs indefinitely
+4. The request hangs until it times out
+
+When the relay request times out and the target has the same host and port as the page, Nimbus shows an error with the value to set for `base_url` and a link to this section.
 
 **Workaround:**
 

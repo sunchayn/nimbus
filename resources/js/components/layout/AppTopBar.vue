@@ -8,6 +8,7 @@ import { AppDropdownMenu } from '@/components/base/dropdown-menu';
 import AppBrandIcon from '@/components/base/icons/AppBrandIcon.vue';
 import { AppTooltip } from '@/components/base/tooltip';
 import { useEnvironmentSwitch } from '@/composables/environment/useEnvironmentSwitch';
+import { useCommandPalette } from '@/composables/ui/useCommandPalette';
 import { useExplorerVisibility } from '@/composables/ui/useExplorerVisibility';
 import { useEnvironmentVariablesStore } from '@/stores';
 import { isProductionEnvironment } from '@/utils/environment';
@@ -23,6 +24,7 @@ const router = useRouter();
 const route = useRoute();
 const environmentStore = useEnvironmentVariablesStore();
 const { toggleExplorer } = useExplorerVisibility();
+const { isHelpOpen } = useCommandPalette();
 
 /*
  * Constants.
@@ -193,6 +195,18 @@ const settings = computed(() =>
                         variant="ghost"
                         size="sm"
                         @click="action.onClick"
+                    />
+                </AppTooltip>
+
+                <AppTooltip text="Keyboard shortcuts (?)">
+                    <AppButton
+                        aria-label="Keyboard shortcuts"
+                        icon="i-hugeicons-keyboard"
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        data-testid="shortcuts-button"
+                        @click="isHelpOpen = true"
                     />
                 </AppTooltip>
             </div>

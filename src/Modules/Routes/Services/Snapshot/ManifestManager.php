@@ -195,6 +195,11 @@ class ManifestManager
         @unlink($this->manifestPath());
     }
 
+    public function directory(): string
+    {
+        return base_path(self::DIRECTORY);
+    }
+
     public function clearAll(): void
     {
         $this->manifest = null;

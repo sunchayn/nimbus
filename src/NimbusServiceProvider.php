@@ -7,6 +7,7 @@ use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\Facades\Event;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Sunchayn\Nimbus\Console\Doctor\DoctorCommand;
 use Sunchayn\Nimbus\Console\Snapshot\ClearRoutesSnapshotCommand;
 use Sunchayn\Nimbus\Modules\Ast\Events\ClassFileResolved;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
@@ -39,7 +40,8 @@ class NimbusServiceProvider extends PackageServiceProvider
             ->hasViews('nimbus')
             ->hasAssets()
             ->hasRoutes(['api', 'web'])
-            ->hasCommand(ClearRoutesSnapshotCommand::class);
+            ->hasCommand(ClearRoutesSnapshotCommand::class)
+            ->hasCommand(DoctorCommand::class);
     }
 
     public function register(): void
