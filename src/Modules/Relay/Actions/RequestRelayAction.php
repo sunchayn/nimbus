@@ -150,6 +150,7 @@ class RequestRelayAction
                 function (PendingRequest $pendingRequest) use ($requestBody, $contentType) {
                     $body = match (true) {
                         is_string($requestBody) => $requestBody,
+                        str_starts_with(strtolower($contentType), 'application/x-www-form-urlencoded') => http_build_query($requestBody),
                         default => json_encode($requestBody) ?: throw new RuntimeException('Cannot parse body.'),
                     };
 

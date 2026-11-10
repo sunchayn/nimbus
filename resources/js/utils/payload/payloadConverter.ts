@@ -35,6 +35,7 @@ export const serializeSchemaPayload = (
             return convertPayloadToJson(payload);
         case RequestBodyTypeEnum.PLAIN_TEXT:
             return convertPayloadToPlainText(payload);
+        case RequestBodyTypeEnum.URLENCODED:
         case RequestBodyTypeEnum.FORM_DATA:
             return convertPayloadToFormData(payload, true);
         default:

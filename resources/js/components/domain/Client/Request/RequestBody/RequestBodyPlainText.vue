@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * @component RequestBodyPlainText
- * @description Plain text editor for request bodies.
+ * @description Plain text editor for request bodies, also used for HTML and XML.
  */
 import CodeEditor from '@/components/domain/CodeEditor/CodeEditor.vue';
 import { envVariablesCheck } from '@/components/domain/CodeEditor/extensions';
@@ -12,13 +12,19 @@ import { computed } from 'vue';
  * Types & Interfaces.
  */
 
-export interface RequestBodyPlainTextProps {}
+export interface RequestBodyPlainTextProps {
+    placeholder?: string;
+    wrapKey?: string;
+}
 
 /*
  * Component Setup.
  */
 
-defineProps<RequestBodyPlainTextProps>();
+withDefaults(defineProps<RequestBodyPlainTextProps>(), {
+    placeholder: 'Your Plain Text Content',
+    wrapKey: 'request-plain-text',
+});
 
 const model = defineModel<string>({
     default: '',
@@ -36,9 +42,9 @@ const customExtensions = computed(() => {
         v-model="model"
         language="plain"
         wrappable
-        wrap-key="request-plain-text"
+        :wrap-key="wrapKey"
         :readonly="false"
-        placeholder="Your Plain Text Content"
+        :placeholder="placeholder"
         :custom-extensions="customExtensions"
     />
 </template>

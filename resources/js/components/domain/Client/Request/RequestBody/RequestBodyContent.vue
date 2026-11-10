@@ -6,6 +6,7 @@
 import { AppScrollArea } from '@/components/base/scroll-area';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
 import type { JSONSchema7 } from 'json-schema';
+import RequestBodyBinary from './RequestBodyBinary.vue';
 import RequestBodyFormData from './RequestBodyFormData.vue';
 import RequestBodyFormNone from './RequestBodyFormNone.vue';
 import RequestBodyJson from './RequestBodyJson.vue';
@@ -52,6 +53,31 @@ const updatePayload = (value: FormData | string | null | undefined) => {
         />
         <RequestBodyFormData
             v-else-if="payloadType === RequestBodyTypeEnum.FORM_DATA"
+            :model-value="payload as FormData"
+            @update:model-value="updatePayload"
+        />
+        <RequestBodyFormData
+            v-else-if="payloadType === RequestBodyTypeEnum.URLENCODED"
+            :model-value="payload as FormData"
+            :free-form-types="false"
+            @update:model-value="updatePayload"
+        />
+        <RequestBodyPlainText
+            v-else-if="payloadType === RequestBodyTypeEnum.HTML"
+            :model-value="payload as string"
+            placeholder="Your HTML Content"
+            wrap-key="request-html"
+            @update:model-value="updatePayload"
+        />
+        <RequestBodyPlainText
+            v-else-if="payloadType === RequestBodyTypeEnum.XML"
+            :model-value="payload as string"
+            placeholder="Your XML Content"
+            wrap-key="request-xml"
+            @update:model-value="updatePayload"
+        />
+        <RequestBodyBinary
+            v-else-if="payloadType === RequestBodyTypeEnum.BINARY"
             :model-value="payload as FormData"
             @update:model-value="updatePayload"
         />

@@ -8,8 +8,12 @@ import type {
     RequestOptions,
     Response,
 } from '@/interfaces/http';
+import { RequestBodyTypeEnum } from '@/interfaces/http';
 import { getStatusGroup } from '@/utils/http';
-import { generateContentTypeHeader } from '@/utils/request/contentTypeHeaderGenerator';
+import {
+    generateContentTypeHeader,
+    getMimeTypeForRequest,
+} from '@/utils/request/contentTypeHeaderGenerator';
 import { buildRequestUrl } from '@/utils/request/requestUrlBuilder';
 
 export type ResolveEnvironmentVariables = ResolverFn;
@@ -19,7 +23,7 @@ export interface RelayPayload {
     method: string;
     headers: HttpHeaders[];
     authorization: AuthorizationContract;
-    body: FormData | string | null;
+    body: FormData | File | string | null;
     environment?: string;
     options?: Record<string, number>;
 }
@@ -69,6 +73,24 @@ export const getMemoizedBody = (
     }
 
     return resolve(body as string);
+};
+
+/**
+ * A binary body is sent as the file itself, so the relay can read its raw bytes.
+ */
+const getRelayBody = (
+    request: PendingRequest,
+    resolve: ResolveEnvironmentVariables,
+): FormData | File | string | null => {
+    const body = getMemoizedBody(request, resolve);
+
+    if (request.payloadType !== RequestBodyTypeEnum.BINARY) {
+        return body;
+    }
+
+    const file = body instanceof FormData ? body.get('file') : null;
+
+    return file instanceof File && file.size > 0 ? file : null;
 };
 
 export const buildRelayAuthorization = (
@@ -140,6 +162,7 @@ export const createRelayPayload = (
                     value: resolve(parameter.value),
                 }),
             ),
+        getMimeTypeForRequest(request),
     );
 
     const options = buildRelayOptions(request.options);
@@ -149,7 +172,7 @@ export const createRelayPayload = (
         method: request.method,
         headers: headersWithContentType,
         authorization: buildRelayAuthorization(request.authorization, resolve),
-        body: getMemoizedBody(request, resolve),
+        body: getRelayBody(request, resolve),
         ...(environment ? { environment } : {}),
         ...(options ? { options } : {}),
     };
