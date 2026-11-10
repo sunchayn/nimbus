@@ -10,7 +10,7 @@ const selectPayloadType = async (page: Page, current: RegExp, next: RegExp) => {
 
 const openFormBody = async (page: Page) => {
     await page.getByRole('tab', { name: 'Body' }).click();
-    await selectPayloadType(page, /Empty|JSON|Plain Text|Form/, /Form/);
+    await selectPayloadType(page, /Empty|JSON|Plain Text|Form/, /^Form Data$/);
 };
 
 const addFileRow = async (page: Page, index: number, key: string, name: string) => {

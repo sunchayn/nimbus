@@ -10,7 +10,7 @@ const selectPayloadType = async (page: Page, current: RegExp, next: RegExp) => {
 
 const openFormBody = async (page: Page) => {
     await page.getByRole('tab', { name: 'Body' }).click();
-    await selectPayloadType(page, /Empty|JSON|Plain Text|Form/, /Form/);
+    await selectPayloadType(page, /Empty|JSON|Plain Text|Form/, /^Form Data$/);
 };
 
 test('Form body keeps the enabled flag when the payload type is switched', async ({
@@ -34,7 +34,7 @@ test('Form body keeps the enabled flag when the payload type is switched', async
     await expect(toggle).not.toBeChecked();
 
     await selectPayloadType(page, /Form/, /JSON/);
-    await selectPayloadType(page, /JSON/, /Form/);
+    await selectPayloadType(page, /JSON/, /^Form Data$/);
 
     // Assert
 
