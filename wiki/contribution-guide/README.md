@@ -326,6 +326,8 @@ The lists stay in memory, autofill picks from them at random, and the store relo
 
 **User picker.** The picker calls `GET /nimbus/api/actors?guard=&q=`. `ListActorsAction` (Magic module) reads the guard's Eloquent provider and returns at most 20 `ActorData` entries with the guards list. The chosen guard travels as `authorization.guard` in the relay payload and `ActorHeaderInjector::forGuard()` puts it in the actor header.
 
+**Time travel.** The frontend sends `X-Nimbus-Time-Travel` to the relay, and the relay forwards it to the target request. `TimeTravelListener` (Magic module) parses it on `RouteMatched`, calls `setTestNow()` on `Carbon` and `CarbonImmutable`, and restores both on terminate.
+
 ---
 
 ## Design Principles

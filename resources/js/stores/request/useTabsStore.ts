@@ -218,6 +218,7 @@ export const useTabsStore = defineStore(
                 durationInMs: 0,
                 transactionMode: activeRequest.value?.transactionMode ?? false,
                 signUrl: activeRequest.value?.signUrl ?? false,
+                timeTravel: activeRequest.value?.timeTravel ?? '',
                 options: activeRequest.value?.options
                     ? { ...activeRequest.value.options }
                     : undefined,
@@ -486,6 +487,12 @@ export const useTabsStore = defineStore(
             }
         }
 
+        function updateTimeTravel(timeTravel: string) {
+            if (activeRequest.value) {
+                activeRequest.value.timeTravel = timeTravel;
+            }
+        }
+
         const resetRequest = () => {
             if (activeTabId.value) {
                 closeTab(activeTabId.value);
@@ -684,6 +691,7 @@ export const useTabsStore = defineStore(
             updateTransactionMode,
             updateOptions,
             updateSignUrl,
+            updateTimeTravel,
             resetRequest,
             restoreFromHistory,
             restoreFromSharedPayload,

@@ -96,6 +96,7 @@ const pendingRequestToRequestLogEntry = function (request: PendingRequest): Requ
         routeDefinition: { ...request.routeDefinition },
         transactionMode: request.transactionMode,
         options: request.options ? { ...request.options } : undefined,
+        timeTravel: request.timeTravel,
     };
 };
 

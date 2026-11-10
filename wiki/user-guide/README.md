@@ -31,6 +31,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
     - [Environments](#environments)
     - [Auto-Fill Payloads](#auto-fill-payloads)
     - [Transaction Mode](#transaction-mode)
+    - [Time Travel](#time-travel)
     - [Export to cURL](#export-to-curl)
     - [Export as Code](#export-as-code)
     - [Shareable Links](#shareable-links)
@@ -652,6 +653,19 @@ Transaction Mode allows you to execute requests without affecting your database.
 ![Transaction Mode](./assets/transaction-mode.png)
 
 **Note:** Only database operations are rolled back. External side effects like sending emails, making external API calls, or file system changes will still occur.
+
+### Time Travel
+
+Time Travel runs one request while your application believes it is another date and time. It is useful for expiring tokens, trial periods, scheduled content, and anything else that depends on the current time.
+
+**How it works:**
+1. Click the **Request Options** icon in the endpoint bar.
+2. Select **Set current time**. A dialog opens.
+3. Choose one of two ways to set the time.
+   - **Relative to now**: pick a quick pick such as `+1d`, or type your own such as `+1h`, `-2d` or `+1w 3d`. The units are `s`, `m`, `h`, `d`, `w`, `mo` and `y`. Each amount is a whole number from 1 to 9999. Parts without a sign use the sign before them.
+   - **Exact date and time**: pick a date and time with the picker.
+4. Check the preview under the fields, then select **Apply**. The button stays disabled until the value is valid.
+5. Execute your request.
 
 ### Export to cURL
 

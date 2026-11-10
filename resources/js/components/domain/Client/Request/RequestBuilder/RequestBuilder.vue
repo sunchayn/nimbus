@@ -11,6 +11,7 @@ import {
     RequestHeaders,
     RequestParameters,
 } from '@/components/domain/Client/Request';
+import RequestTimeTravelIndicator from '@/components/domain/Client/Request/RequestBuilder/RequestTimeTravelIndicator.vue';
 import { useRequestStore } from '@/stores';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
@@ -73,7 +74,10 @@ const tabs = computed(() => [
         class="gap-pane relative flex h-full max-h-full flex-1 flex-col"
         data-testid="request-builder-root"
     >
-        <RequestBuilderEndpoint />
+        <div class="gap-pane flex shrink-0 items-stretch">
+            <RequestBuilderEndpoint class="min-w-0 flex-1" />
+            <RequestTimeTravelIndicator />
+        </div>
         <AppTabs
             v-model="tab"
             :items="tabs"

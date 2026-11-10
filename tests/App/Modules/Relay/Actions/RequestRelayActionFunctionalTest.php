@@ -651,6 +651,55 @@ class RequestRelayActionFunctionalTest extends TestCase
         );
     }
 
+    public function test_it_relays_time_travel_header(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'POST',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [
+                'Content-Type' => 'application/json',
+            ],
+            body: ['test' => 'data'],
+            cookies: new ParameterBag,
+            timeTravel: '+31 days',
+        );
+
+        // Anticipate
+
+        Http::fake(function (Request $request) {
+            return Http::response([
+                'receivedHeaders' => $request->headers(),
+            ], 200);
+        });
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertEquals(200, $response->statusCode);
+
+        $this->assertArrayHasKey(
+            'x-nimbus-time-travel',
+            $response->body->body['receivedHeaders'],
+            'The time travel header should be present in the relayed request.',
+        );
+
+        $this->assertEquals(
+            '+31 days',
+            $response->body->body['receivedHeaders']['x-nimbus-time-travel'][0],
+            'The time travel header should keep its value.',
+        );
+    }
+
     public function test_it_auto_injects_csrf_token_header_when_missing(): void
     {
         // Arrange

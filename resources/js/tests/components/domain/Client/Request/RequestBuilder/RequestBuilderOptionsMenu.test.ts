@@ -1,7 +1,8 @@
 import RequestBuilderOptionsMenu from '@/components/domain/Client/Request/RequestBuilder/RequestBuilderOptionsMenu.vue';
+import TimeTravelDialog from '@/components/domain/Client/Request/RequestBuilder/TimeTravelDialog.vue';
 import type { PendingRequest } from '@/interfaces/http';
 import type { VueWrapper } from '@vue/test-utils';
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { reactive, ref } from 'vue';
@@ -15,6 +16,7 @@ const mockRequestStore = reactive({
     updateTransactionMode: vi.fn(),
     updateOptions: vi.fn(),
     updateSignUrl: vi.fn(),
+    updateTimeTravel: vi.fn(),
 });
 
 const mockConfigStore = reactive({
@@ -137,5 +139,36 @@ describe('RequestBuilderOptionsMenu', () => {
         } as unknown as PendingRequest;
 
         expect(vm().canSignUrl).toBe(true);
+    });
+
+    it('saves the time chosen in the time travel dialog', () => {
+        const wrapper = createWrapper();
+
+        wrapper.findComponent(TimeTravelDialog).vm.$emit('save', '+31 days');
+
+        expect(mockRequestStore.updateTimeTravel).toHaveBeenCalledWith('+31 days');
+    });
+
+    it('opens the time travel dialog from the menu item', async () => {
+        // Arrange
+
+        const wrapper = createWrapper({ attachTo: document.body });
+        await wrapper
+            .find('[data-testid="request-options-button"]')
+            .trigger('keydown', { key: 'ArrowDown' });
+        await flushPromises();
+
+        // Act
+
+        document
+            .querySelector<HTMLElement>('[data-testid="time-travel-option"]')!
+            .click();
+        await flushPromises();
+
+        // Assert
+
+        expect(wrapper.findComponent(TimeTravelDialog).props('open')).toBe(true);
+
+        wrapper.unmount();
     });
 });

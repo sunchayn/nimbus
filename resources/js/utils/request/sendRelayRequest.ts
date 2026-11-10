@@ -45,6 +45,12 @@ export const sendRelayRequest = (
             headers['X-Nimbus-Transaction-Mode'] = '1';
         }
 
+        const timeTravel = request.timeTravel?.trim();
+
+        if (timeTravel) {
+            headers['X-Nimbus-Time-Travel'] = timeTravel;
+        }
+
         axios
             .post(url, formData, {
                 headers,
