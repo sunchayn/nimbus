@@ -38,7 +38,7 @@ class PropertyBuilder
     /**
      * @param  NormalizedRulesShape  $rules
      */
-    public function buildPropertyFromRules(string $field, array $rules): SchemaPropertyInterface
+    public function buildPropertyFromRules(string $field, array $rules, ?string $label = null): SchemaPropertyInterface
     {
         $schemaMetadata = $this->ruleToSchemaMapper->convertRulesToBaseSchemaPropertyMetadata($rules, $field);
 
@@ -49,6 +49,7 @@ class PropertyBuilder
             lookup: $schemaMetadata['lookup'],
             skipAutofill: $schemaMetadata['skipAutofill'],
             dateFormat: $schemaMetadata['dateFormat'],
+            title: $label,
         );
 
         return match ($schemaMetadata['type']) {

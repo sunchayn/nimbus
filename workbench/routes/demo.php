@@ -33,6 +33,9 @@ Route::prefix('shapes')->group(function () {
 
     Route::post('/rule-coverage', [\Workbench\App\Http\Controllers\Demo\ShapesController::class, 'ruleCoverage'])
         ->name('demo.shapes.rule-coverage');
+
+    Route::post('/rule-objects', [\Workbench\App\Http\Controllers\Demo\ShapesController::class, 'ruleObjects'])
+        ->name('demo.shapes.rule-objects');
 });
 
 Route::prefix('responses')->group(function () {

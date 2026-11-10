@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sunchayn\Nimbus\Tests\App\Modules\Schemas\Services\RulesMapper;
 
 use Generator;
+use Illuminate\Validation\Rule;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -334,6 +335,40 @@ class RuleCoverageUnitTest extends TestCase
         $this->assertSame(['object', 'null'], $schema['properties']['profile']['type']);
     }
 
+    public function test_it_maps_rule_objects(): void
+    {
+        // Act
+
+        $schema = $this->buildSchema([
+            'a' => ['required', Rule::in(['x', 'y'])],
+            'b' => [Rule::requiredIf(true)],
+            'c' => [Rule::requiredIf(false)],
+            'd' => [Rule::prohibitedIf(true)],
+            'e' => [Rule::when(false, ['required'], ['nullable', 'string'])],
+            'f' => [Rule::requiredIf(fn (): bool => true)],
+            'g' => [Rule::exists('users', 'id')],
+            'h' => [Rule::unique('users')],
+            'i' => [Rule::dimensions()->minWidth(10)],
+            'j' => [fn (): bool => true],
+        ]);
+
+        // Assert
+
+        $properties = $schema['properties'];
+
+        $this->assertSame(['x', 'y'], $properties['a']['enum']);
+        $this->assertContains('b', $schema['required']);
+        $this->assertNotContains('c', $schema['required']);
+        $this->assertTrue($properties['d']['skipAutofill']);
+        $this->assertSame(['string', 'null'], $properties['e']['type']);
+        $this->assertStringContainsString('required if a closure passes', $properties['f']['description']);
+        $this->assertSame(['table' => 'users', 'column' => 'id'], $properties['g']['lookup']);
+        $this->assertArrayNotHasKey('lookup', $properties['h']);
+        $this->assertSame('binary', $properties['i']['format']);
+        $this->assertStringContainsString('custom closure rule', $properties['j']['description']);
+    }
+
+    /**
     /**
      * @param  array<string, mixed>  $rules
      * @return array<string, mixed>

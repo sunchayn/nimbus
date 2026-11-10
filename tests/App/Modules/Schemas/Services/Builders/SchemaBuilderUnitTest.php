@@ -289,7 +289,7 @@ class SchemaBuilderUnitTest extends TestCase
             ],
             'expectedSchema' => new Schema(
                 properties: [
-                    new StringSchemaProperty(name: 'photo', required: true, contentEncoding: 'base64'),
+                    new StringSchemaProperty(name: 'photo', required: true, contentEncoding: 'base64', propertyAnnotations: new PropertyAnnotations(hints: ['custom rule Base64RuleStub'])),
                 ],
                 extractionError: null,
             ),

@@ -20,7 +20,8 @@ class LookupRuleProcessor
         }
 
         $table = $params[0];
-        $column = ($params[1] ?? '') !== '' ? $params[1] : (string) $field;
+        // Rule objects print NULL when no column is given.
+        $column = in_array($params[1] ?? '', ['', 'NULL'], true) ? (string) $field : $params[1];
 
         $hint = sprintf('%s in %s.%s', $name === 'exists' ? 'must exist' : 'must be unique', $table, $column);
 

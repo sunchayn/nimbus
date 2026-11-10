@@ -35,20 +35,42 @@ use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
  */
 class SchemaBuilder
 {
+    /**
+     * Field labels by full field path, set only while a schema is being built.
+     *
+     * @var array<string, string>
+     */
+    private array $labels = [];
+
+    private string $currentField = '';
+
     public function __construct(
         private readonly PropertyBuilder $propertyBuilder,
         private readonly BinaryContentInferrer $binaryContentInferrer,
     ) {}
 
+    /**
+     * @param  array<string, string>  $labels  Labels by field path, for example from attributes().
+     * @param  string[]  $hints
+     */
     public function buildSchemaFromRuleset(
         Ruleset $ruleset,
-        ?RulesExtractionError $rulesExtractionError = null
+        ?RulesExtractionError $rulesExtractionError = null,
+        array $labels = [],
+        array $hints = [],
     ): Schema {
-        $properties = $this->buildProperties($ruleset);
+        $this->labels = $labels;
+
+        try {
+            $properties = $this->buildProperties($ruleset);
+        } finally {
+            $this->labels = [];
+        }
 
         return new Schema(
             properties: $this->binaryContentInferrer->infer($properties),
             extractionError: $rulesExtractionError,
+            hints: $hints,
         );
     }
 
@@ -65,6 +87,8 @@ class SchemaBuilder
                 function (array $properties, array $rules, string $fieldName): array {
                     $fieldPath = FieldPath::fromString($fieldName);
 
+                    $this->currentField = $fieldName;
+
                     if ($fieldPath->type === RulesFieldType::ARRAY_OF_PRIMITIVES) {
                         return $this->addSimpleArrayProperty($fieldPath, $rules, $properties);
                     }
@@ -74,7 +98,7 @@ class SchemaBuilder
                     }
 
                     // Builds a root-level property (e.g., "name", "email").
-                    $properties[$fieldName] = $this->propertyBuilder->buildPropertyFromRules($fieldName, $rules);
+                    $properties[$fieldName] = $this->propertyBuilder->buildPropertyFromRules($fieldName, $rules, $this->labels[$fieldName] ?? null);
 
                     return $this->addConfirmationProperty($fieldName, $rules, $properties);
                 },
@@ -159,6 +183,7 @@ class SchemaBuilder
             // Note: this also helps to make the payload generator more realistic in the FE.
             field: Str::singular($arrayName),
             rules: $rules,
+            label: $this->labels[$this->currentField] ?? null,
         );
 
         $properties[$arrayName] = new ArraySchemaProperty(
@@ -313,7 +338,7 @@ class SchemaBuilder
 
         // If this is a leaf, build the final property with rules.
         if ($pathSegment->isLeaf) {
-            $newProperty = $this->propertyBuilder->buildPropertyFromRules($propertyName, $rules);
+            $newProperty = $this->propertyBuilder->buildPropertyFromRules($propertyName, $rules, $this->labels[$this->currentField] ?? null);
 
             $properties->put($newProperty->getName(), $newProperty);
 

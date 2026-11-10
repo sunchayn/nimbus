@@ -26,10 +26,12 @@ class Schema implements Arrayable
 
     /**
      * @param  SchemaPropertyInterface[]  $properties
+     * @param  string[]  $hints  Notes about the whole schema, shown as its description.
      */
     public function __construct(
         array $properties,
         public readonly ?RulesExtractionError $extractionError = null,
+        public readonly array $hints = [],
     ) {
         $this->properties = array_values($properties);
     }
@@ -119,6 +121,6 @@ class Schema implements Arrayable
             'properties' => $this->toPropertiesArray(),
             'required' => $this->getRequiredProperties(),
             'additionalProperties' => false,
-        ];
+        ] + ($this->hints === [] ? [] : ['description' => implode('. ', $this->hints)]);
     }
 }

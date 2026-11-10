@@ -11,6 +11,8 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Modules\Ast\Actions\LoadClassAstAction;
+use Sunchayn\Nimbus\Modules\Extractor\Actions\ReadFormRequestHooksAction;
+use Sunchayn\Nimbus\Modules\Extractor\DataTransferObjects\FormRequestHooksData;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Request\Strategies\FormRequestStrategy;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
 use Sunchayn\Nimbus\Modules\Schemas\Services\Builders\SchemaBuilder;
@@ -37,7 +39,10 @@ class FormRequestStrategyFunctionalTest extends TestCase
         $this->schemaBuilderMock = $this->mock(SchemaBuilder::class);
         $this->loadClassAstActionMock = $this->mock(LoadClassAstAction::class);
 
-        $this->strategy = new FormRequestStrategy($this->schemaBuilderMock);
+        $hooksActionMock = $this->mock(ReadFormRequestHooksAction::class);
+        $hooksActionMock->shouldReceive('execute')->andReturn(new FormRequestHooksData);
+
+        $this->strategy = new FormRequestStrategy($this->schemaBuilderMock, $hooksActionMock);
     }
 
     #[DataProvider('attemptMatchingProvider')]

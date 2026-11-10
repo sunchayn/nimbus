@@ -9,6 +9,7 @@ use Illuminate\Routing\Route;
 use ReflectionNamedType;
 use ReflectionParameter;
 use Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery;
+use Sunchayn\Nimbus\Modules\Extractor\Actions\ReadFormRequestHooksAction;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Request\Contracts\RequestSchemaStrategyContract;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Request\Strategies\Concerns\ResolvesRouteParameters;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
@@ -26,6 +27,7 @@ class FormRequestStrategy implements RequestSchemaStrategyContract
 
     public function __construct(
         private readonly SchemaBuilder $schemaBuilder,
+        private readonly ReadFormRequestHooksAction $readFormRequestHooksAction,
     ) {}
 
     public function attempt(Route $route): ?Schema
@@ -60,10 +62,31 @@ class FormRequestStrategy implements RequestSchemaStrategyContract
             $error = new RulesExtractionError($throwable);
         }
 
-        $schema = $this->schemaBuilder->buildSchemaFromRuleset($rules, $error);
+        $formRequestHooksData = $this->readFormRequestHooksAction->execute($requestClassName);
+
+        $schema = $this->schemaBuilder->buildSchemaFromRuleset(
+            $this->makeMergedKeysOptional($rules, $formRequestHooksData->mergedKeys),
+            $error,
+            labels: $formRequestHooksData->labels,
+            hints: $formRequestHooksData->authorizeReturnsFalse ? ['authorize() always returns false, so this request is rejected'] : [],
+        );
 
         return $schema->isEmpty() ? null : $schema;
 
+    }
+
+    /**
+     * A key added by prepareForValidation() is filled by the request itself.
+     *
+     * @param  string[]  $mergedKeys
+     */
+    private function makeMergedKeysOptional(Ruleset $rules, array $mergedKeys): Ruleset
+    {
+        return $rules->map(
+            fn (array $fieldRules, string $field): array => in_array($field, $mergedKeys, true)
+                ? [...$fieldRules, 'sometimes']
+                : $fieldRules,
+        );
     }
 
     /**

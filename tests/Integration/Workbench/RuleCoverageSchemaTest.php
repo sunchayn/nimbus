@@ -44,6 +44,29 @@ class RuleCoverageSchemaTest extends TestCase
         $this->assertSame('binary', $properties['avatar']['format']);
     }
 
+    public function test_it_extracts_rule_objects_and_form_request_hooks(): void
+    {
+        // Act
+
+        $schema = $this->extractSchema('demo/shapes/rule-objects');
+
+        // Assert
+
+        $properties = $schema['properties'];
+
+        $this->assertSame('Post title', $properties['title']['title']);
+        $this->assertNotContains('slug', $schema['required']);
+        $this->assertSame(['admin', 'member'], $properties['role']['enum']);
+        $this->assertContains('company', $schema['required']);
+        $this->assertTrue($properties['discount']['skipAutofill']);
+        $this->assertContains('phone', $schema['required']);
+        $this->assertSame(['table' => 'users', 'column' => 'id'], $properties['author_id']['lookup']);
+        $this->assertArrayNotHasKey('lookup', $properties['email']);
+        $this->assertSame('binary', $properties['banner']['format']);
+        $this->assertStringContainsString('custom closure rule', $properties['code']['description']);
+        $this->assertStringContainsString('authorize', $schema['description']);
+    }
+
     /**
      * @return array<string, mixed>
      */
