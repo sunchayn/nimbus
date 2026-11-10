@@ -699,6 +699,14 @@ export default {
             thumb: "shadow-control duration-spring ease-elastic! group-active/switch:scale-x-125 motion-reduce:group-active/switch:scale-x-100 motion-reduce:transition-none data-[state=checked]:origin-right data-[state=unchecked]:origin-left",
         },
         variants: {
+            // The xs switch is smaller than the Nuxt UI default so it sits well next to small text.
+            size: {
+                xs: {
+                    base: "w-6",
+                    container: "h-3",
+                    thumb: "size-2 data-[state=checked]:translate-x-3 data-[state=checked]:rtl:-translate-x-3",
+                },
+            },
             disabled: disabledToggle,
         },
         defaultVariants: {

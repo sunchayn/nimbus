@@ -13,7 +13,7 @@ import { EditorView } from '@codemirror/view';
 import UCheckbox from '@nuxt/ui/components/Checkbox.vue';
 import { useStorage } from '@vueuse/core';
 import type { JSONSchema7 } from 'json-schema';
-import { computed, type HTMLAttributes, ref } from 'vue';
+import { computed, type HTMLAttributes, ref, shallowRef } from 'vue';
 import { Codemirror } from 'vue-codemirror';
 
 /*
@@ -93,6 +93,11 @@ const extensions = computed(() => {
 const updateModel = (value: string) => {
     model.value = value;
 };
+
+// The view lets a parent run editor commands, such as the response search.
+const view = shallowRef<EditorView | null>(null);
+
+defineExpose({ view });
 </script>
 
 <template>
@@ -106,6 +111,7 @@ const updateModel = (value: string) => {
             :model-value="model"
             :disabled="disabled"
             @change="updateModel"
+            @ready="payload => (view = payload.view)"
         />
         <label
             v-if="wrappable && (wrap || overflowing)"

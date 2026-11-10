@@ -4,16 +4,15 @@
  * @description Renders the successful response details, including body, headers, and cookies.
  */
 import { AppBadge } from '@/components/base/badge';
-import { AppScrollArea } from '@/components/base/scroll-area';
 import { AppTabs } from '@/components/base/tabs';
 import { AppTooltip } from '@/components/base/tooltip';
-import ResponseBody from '@/components/domain/Client/Response/ResponseBody/ResponseBody.vue';
 import ResponseDownload from '@/components/domain/Client/Response/ResponseBody/ResponseDownload.vue';
 import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDumpAndDie.vue';
 import ResponseNotice from '@/components/domain/Client/Response/ResponseBody/ResponseNotice.vue';
 import ResponseCookies from '@/components/domain/Client/Response/ResponseCookies/ResponseCookies.vue';
 import ResponseHeaders from '@/components/domain/Client/Response/ResponseHeaders/ResponseHeaders.vue';
 import ResponsePlainView from '@/components/domain/Client/Response/ResponsePlainView/ResponsePlainView.vue';
+import ResponseBodyViewer from '@/components/domain/Client/Response/ResponseTools/ResponseBodyViewer.vue';
 import type { RequestLog } from '@/interfaces/history/logs';
 import { STATUS } from '@/interfaces/http';
 import { useRequestStore } from '@/stores';
@@ -141,15 +140,12 @@ const pendingRequestData = computed(() => requestStore.pendingRequestData);
                     :download="lastLog.response.download"
                 />
 
-                <AppScrollArea
-                    v-else-if="lastLog?.response?.status !== STATUS.DUMP_AND_DIE"
-                    class="min-h-0 flex-1"
-                >
-                    <ResponseBody
-                        class="min-h-0"
-                        :content="lastLog?.response?.body ?? ''"
-                    />
-                </AppScrollArea>
+                <ResponseBodyViewer
+                    v-else-if="
+                        lastLog && lastLog.response?.status !== STATUS.DUMP_AND_DIE
+                    "
+                    :log="lastLog"
+                />
 
                 <ResponseDumpAndDie
                     v-else
