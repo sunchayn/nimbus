@@ -68,12 +68,15 @@ export const useRequestStore = defineStore('request', () => {
         restoreFromHistory: tabsStore.restoreFromHistory,
 
         // Request Execution Actions (delegated to executor store)
-        executeCurrentRequest: () => {
+        executeCurrentRequest: (options: { resetLimiter?: boolean } = {}) => {
             if (!tabsStore.pendingRequestData) {
                 return;
             }
 
-            return executorStore.executeRequestWithTiming(tabsStore.pendingRequestData);
+            return executorStore.executeRequestWithTiming(
+                tabsStore.pendingRequestData,
+                options,
+            );
         },
         cancelCurrentRequest: executorStore.cancelCurrentRequest,
 

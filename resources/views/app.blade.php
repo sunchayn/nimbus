@@ -78,6 +78,7 @@
             'guards' => json_encode($guards ?? []),
             'defaultGuard' => $defaultGuard ?? null,
             'tokenGuards' => json_encode($tokenGuards ?? []),
+            'ephemeralRateLimiter' => $ephemeralRateLimiter ?? false,
             'applications' => $activeApplicationResolver->getAvailableApplications(),
             'activeApplication' => $activeApplicationResolver->getActiveApplicationKey(),
             'sharedState' => isset($sharedState) ? $sharedState : null,

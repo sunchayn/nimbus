@@ -336,6 +336,20 @@ The response body has these tools.
 - **Search**: Press `Cmd+F` on macOS or `Ctrl+F` on Windows and Linux while the pointer is over the response body, or while it has focus. A search box opens in the top right corner of the body and highlights the matches. The counter shows the current match and the total. Use the arrows or Enter to move between matches. The current match is centered in the viewer. Press `Esc` to close it.
 - **Pretty and Raw tabs**: A JSON body has two tabs. **Pretty** shows the formatted body and **Raw** shows it as one compact line.
 
+#### Rate Limit Meter
+
+When a response has `X-RateLimit-Limit` and `X-RateLimit-Remaining` headers, the status bar shows a small meter with the remaining attempts.
+Select the meter to see the seconds left until the next attempt, when the server sends `Retry-After`.
+
+Use **Reset limiter and resend** to clear the limiter of the route for the current actor and send the request again.
+The reset works on the current host with the Laravel `throttle` middleware.
+It does not work with the Redis throttle middleware.
+The limiter needs a cache store that keeps its data between requests.
+With the `array` or `null` cache store every request starts from a full limit, so a count would be misleading.
+Nimbus checks the `cache.limiter` store, or the default store when that is not set.
+When the store forgets its hits, the meter shows **No rate limit** with a warning icon instead of a count, and the reset action is hidden.
+Switch to a persistent store such as `file`, `database`, or `redis` to see real values.
+
 #### Cookie Inspection
 
 View and decrypt Laravel session cookies with ease.

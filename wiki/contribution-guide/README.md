@@ -89,7 +89,7 @@ src/
 - **Config** - Application configuration, enums, and constants.
 - **Magic** - Laravel aware behavior that acts inside the target request, such as transaction mode, the special authentication injectors, and URL signing for routes with the `signed` middleware.
 
-- **Magic** - Laravel aware behavior that acts inside the target request, such as transaction mode and the special authentication injectors. The `Toolbox` folder holds the Actions behind the toolbox dialog.
+- **Magic** - Laravel aware behavior that acts inside the target request, such as transaction mode and the special authentication injectors. The `Toolbox` folder holds the Actions behind the toolbox dialog. The rate limit helpers are the limiter reset listener and `DetectEphemeralRateLimiterAction`, which tells the UI when the limiter cache forgets its hits.
 - **Routes** - Extract and normalize Laravel routes and validation rules.
 - **Schemas** - Transform validation rules into JSON schemas.
 - **Relay** - Forward HTTP requests and handle authentication.

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Vite;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\DataTransferObjects\EnvironmentData;
 use Sunchayn\Nimbus\Modules\Export\Services\ShareableLinkProcessorService;
+use Sunchayn\Nimbus\Modules\Magic\Actions\DetectEphemeralRateLimiterAction;
 use Sunchayn\Nimbus\Modules\Magic\Actions\ListActorsAction;
 use Sunchayn\Nimbus\Modules\Routes\Actions;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\RoutesProcessorContract;
@@ -25,6 +26,7 @@ class NimbusIndexController
         ActiveApplicationResolver $activeApplicationResolver,
         ShareableLinkProcessorService $shareableLinkProcessorService,
         ListActorsAction $listActorsAction,
+        DetectEphemeralRateLimiterAction $detectEphemeralRateLimiterAction,
     ): Renderable|RedirectResponse {
         $incomingShareableLinkPayload = $this->processShareableLink($shareableLinkProcessorService, $activeApplicationResolver);
 
@@ -48,6 +50,7 @@ class NimbusIndexController
             'guards' => $listActorsAction->guards(),
             'defaultGuard' => $activeApplicationResolver->getAuthGuard(),
             'tokenGuards' => $listActorsAction->tokenGuards(),
+            'ephemeralRateLimiter' => $detectEphemeralRateLimiterAction->execute(),
             'primaryProcessorName' => $routesProcessorContract->getName()->value,
             'showOperationId' => $activeApplicationResolver->showOperationId(),
         ]);

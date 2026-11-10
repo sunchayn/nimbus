@@ -13,6 +13,7 @@ interface NimbusConfig {
     showOperationId: boolean | null;
     globalException: string | null;
     environments?: string | null;
+    ephemeralRateLimiter?: boolean;
     guards?: string | null;
     defaultGuard?: string | null;
     tokenGuards?: string | null;

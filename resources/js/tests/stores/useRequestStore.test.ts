@@ -144,6 +144,28 @@ describe('useRequestStore', () => {
 
             expect(mockExecutorStore.executeRequestWithTiming).toHaveBeenCalledWith(
                 mockRequestData,
+                {},
+            );
+        });
+
+        it('should pass the reset limiter option to the executor store', () => {
+            // Arrange
+
+            const mockRequestData = {
+                endpoint: '/api/users',
+            } as unknown as PendingRequest;
+            mockTabsStore.pendingRequestData = mockRequestData;
+            const store = useRequestStore();
+
+            // Act
+
+            store.executeCurrentRequest({ resetLimiter: true });
+
+            // Assert
+
+            expect(mockExecutorStore.executeRequestWithTiming).toHaveBeenCalledWith(
+                mockRequestData,
+                { resetLimiter: true },
             );
         });
 

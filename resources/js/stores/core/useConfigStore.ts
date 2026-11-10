@@ -42,6 +42,7 @@ export const useConfigStore = defineStore('config', () => {
     const tokenGuards: string[] = window.Nimbus?.tokenGuards
         ? JSON.parse(window.Nimbus.tokenGuards as string)
         : [];
+    const isRateLimiterEphemeral = window.Nimbus?.ephemeralRateLimiter === true;
     const activeApplication = window.Nimbus?.activeApplication || null;
     const primaryProcessorName =
         (window.Nimbus?.primaryProcessorName as RoutesProcessingStrategy) ||
@@ -65,6 +66,7 @@ export const useConfigStore = defineStore('config', () => {
         isLoggedIn,
         userId,
         applications,
+        isRateLimiterEphemeral,
         guards,
         defaultGuard,
         tokenGuards,

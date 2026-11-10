@@ -735,6 +735,35 @@ class RequestRelayActionFunctionalTest extends TestCase
         resolve(RequestRelayAction::class)->execute($requestData);
     }
 
+    public function test_it_forwards_the_reset_limiter_header(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'get',
+            endpoint: 'https://example.test/api/limited',
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: [],
+            cookies: new ParameterBag,
+            resetLimiter: true,
+        );
+
+        // Anticipate
+
+        Http::fake(fn (Request $request) => Http::response(['receivedHeaders' => $request->headers()], 200));
+
+        $this->mockAuthorizationHandler();
+
+        // Act
+
+        $response = resolve(RequestRelayAction::class)->execute($requestData);
+
+        // Assert
+
+        $this->assertSame('1', $response->body->body['receivedHeaders']['x-nimbus-reset-limiter'][0]);
+    }
+
     public function test_it_auto_injects_csrf_token_header_when_missing(): void
     {
         // Arrange

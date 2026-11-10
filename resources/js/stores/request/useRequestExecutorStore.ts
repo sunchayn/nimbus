@@ -68,7 +68,11 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
     // The response belongs to the tab that sent the request, so leaving that tab cancels it.
     watch(() => tabsStore.activeTabId, cancelCurrentRequest);
 
-    const executeRequest = async (request: PendingRequest, sign: boolean) => {
+    const executeRequest = async (
+        request: PendingRequest,
+        sign: boolean,
+        resetLimiter = false,
+    ) => {
         // Prevent concurrent requests to avoid race conditions.
         if (abortController) {
             throw new Error('Request already in progress');
@@ -106,6 +110,7 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
                             appBasePath,
                             resolve,
                             signal,
+                            resetLimiter,
                         },
                     ))(),
                 timeoutPromise,
@@ -121,7 +126,10 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
      * Manages the complete request lifecycle including timing measurement,
      * state updates, and history logging for both success and error cases.
      */
-    const executeRequestWithTiming = async (requestData: PendingRequest) => {
+    const executeRequestWithTiming = async (
+        requestData: PendingRequest,
+        options: { resetLimiter?: boolean } = {},
+    ) => {
         if (!canExecute.value(requestData)) {
             return;
         }
@@ -154,6 +162,7 @@ export const useRequestExecutorStore = defineStore('_requestExecutor', () => {
                 requestData,
                 requestData.signUrl === true &&
                     isSignedRoute(requestData.routeDefinition),
+                options.resetLimiter,
             );
 
             if (result === null || !senderTabIsActive()) {

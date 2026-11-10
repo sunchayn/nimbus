@@ -83,6 +83,8 @@ class NimbusIndexTest extends TestCase
 
         $response->assertViewHas('currentUser', ['::current-user::']);
 
+        $response->assertViewHas('ephemeralRateLimiter', true);
+
         $response->assertViewHas('guards', ['web']);
 
         $response->assertViewHas('defaultGuard', 'web');
