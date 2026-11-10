@@ -191,5 +191,6 @@ export const transformRelayResponse = (relayResponse: RelayProxyResponse): Respo
         })),
         timestamp: relayResponse.timestamp,
         download,
+        sent: relayResponse.sent ?? null,
     };
 };

@@ -28,6 +28,7 @@ class RelayResponseResource extends JsonResource
             'duration' => $this->resource->durationMs,
             'timestamp' => $this->resource->timestamp,
             'download' => $this->resource->download?->toArray(),
+            'sent' => $this->resource->sent?->toArray(),
         ];
     }
 

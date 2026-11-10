@@ -26,6 +26,7 @@ use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\AuthorizationH
 use Sunchayn\Nimbus\Modules\Relay\Services\VarDumpParser\DataTransferObjects\ParseResultDto;
 use Sunchayn\Nimbus\Modules\Relay\Services\VarDumpParser\VarDumpParser;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
+use Sunchayn\Nimbus\Modules\Relay\ValueObjects\SentRequest;
 use Sunchayn\Nimbus\Tests\TestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -1072,5 +1073,69 @@ class RequestRelayActionFunctionalTest extends TestCase
 
             return true;
         });
+    }
+
+    public function test_it_returns_the_request_as_sent(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'post',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: ['x-custom' => 'yes'],
+            body: ['name' => 'Ada'],
+            cookies: new ParameterBag,
+            queryParameters: ['page' => '2'],
+        );
+
+        // Anticipate
+
+        Http::fake();
+
+        $this->mockAuthorizationHandler();
+
+        // Act
+
+        $result = resolve(RequestRelayAction::class)->execute($requestData);
+
+        // Assert
+
+        $sent = $result->sent;
+
+        $this->assertSame('POST', $sent->method);
+        $this->assertSame(self::ENDPOINT.'?page=2', $sent->url);
+        $this->assertSame('{"name":"Ada"}', $sent->body);
+        $this->assertFalse($sent->bodyTruncated);
+        $this->assertContains(['key' => 'x-custom', 'value' => 'yes'], $sent->headers);
+    }
+
+    public function test_it_truncates_a_large_sent_body(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'post',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: str_repeat('a', SentRequest::MAX_BODY_BYTES + 10),
+            cookies: new ParameterBag,
+        );
+
+        // Anticipate
+
+        Http::fake();
+
+        $this->mockAuthorizationHandler();
+
+        // Act
+
+        $sent = resolve(RequestRelayAction::class)->execute($requestData)->sent;
+
+        // Assert
+
+        $this->assertSame(SentRequest::MAX_BODY_BYTES, strlen($sent->body));
+        $this->assertTrue($sent->bodyTruncated);
     }
 }

@@ -7,6 +7,7 @@ namespace Sunchayn\Nimbus\Modules\Relay\DataTransferObjects;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\DownloadResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
+use Sunchayn\Nimbus\Modules\Relay\ValueObjects\SentRequest;
 
 class RelayedRequestResponseData
 {
@@ -23,5 +24,6 @@ class RelayedRequestResponseData
         public readonly int $timestamp,
         public readonly array $cookies,
         public readonly ?DownloadResponseBody $download = null,
+        public readonly ?SentRequest $sent = null,
     ) {}
 }

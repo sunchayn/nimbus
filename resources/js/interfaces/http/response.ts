@@ -12,6 +12,15 @@ export interface RelayProxyDownload extends ResponseDownload {
     content: string;
 }
 
+export interface SentRequest {
+    method: string;
+    url: string;
+    protocolVersion: string;
+    headers: { key: string; value: string }[];
+    body: string;
+    bodyTruncated: boolean;
+}
+
 export interface Response {
     status: STATUS;
     statusCode: number;
@@ -22,6 +31,7 @@ export interface Response {
     cookies: ResponseCookie[];
     timestamp: number;
     download?: ResponseDownload | null;
+    sent?: SentRequest | null;
 }
 
 export interface ErrorPlainResponse {
@@ -39,6 +49,7 @@ export interface RelayProxyResponse {
     duration: number;
     timestamp: number;
     download?: RelayProxyDownload | null;
+    sent?: SentRequest | null;
 }
 
 export interface ResponseBody {

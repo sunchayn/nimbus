@@ -5,6 +5,7 @@ namespace Sunchayn\Nimbus\Modules\Relay\Actions;
 use Carbon\CarbonImmutable;
 use GuzzleHttp\Cookie\SetCookie;
 use GuzzleHttp\Psr7\MultipartStream;
+use GuzzleHttp\TransferStats;
 use Illuminate\Container\Container;
 use Illuminate\Cookie\CookieValuePrefix;
 use Illuminate\Http\Client\PendingRequest;
@@ -22,6 +23,7 @@ use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\AuthorizationH
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\DownloadResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
+use Sunchayn\Nimbus\Modules\Relay\ValueObjects\SentRequest;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Throwable;
 
@@ -52,6 +54,14 @@ class RequestRelayAction
 
         $pendingRequest = $authorizationHandler->authorize($pendingRequest);
 
+        $sentRequest = null;
+
+        $pendingRequest = $pendingRequest->withOptions([
+            'on_stats' => function (TransferStats $stats) use (&$sentRequest): void {
+                $sentRequest = SentRequest::fromPsrRequest($stats->getRequest());
+            },
+        ]);
+
         $start = hrtime(true);
 
         $response = $this->sendPendingRequest($pendingRequest, $requestRelayData);
@@ -72,6 +82,7 @@ class RequestRelayAction
             timestamp: CarbonImmutable::now()->getTimestamp(),
             cookies: $this->processCookies($response->toPsrResponse()->getHeader('Set-Cookie'), $requestRelayData->isCurrentHost),
             download: $download,
+            sent: $sentRequest,
         );
     }
 

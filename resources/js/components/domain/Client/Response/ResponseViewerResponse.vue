@@ -12,6 +12,7 @@ import ResponseDownload from '@/components/domain/Client/Response/ResponseBody/R
 import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody/ResponseDumpAndDie.vue';
 import ResponseCookies from '@/components/domain/Client/Response/ResponseCookies/ResponseCookies.vue';
 import ResponseHeaders from '@/components/domain/Client/Response/ResponseHeaders/ResponseHeaders.vue';
+import ResponsePlainView from '@/components/domain/Client/Response/ResponsePlainView/ResponsePlainView.vue';
 import type { RequestLog } from '@/interfaces/history/logs';
 import { STATUS } from '@/interfaces/http';
 import { useRequestStore } from '@/stores';
@@ -68,6 +69,7 @@ const tabs = computed(() => [
         slot: 'response-cookies',
         badge: countBadge(props.response?.response?.cookies.length),
     },
+    { label: 'Plain', value: 'response-plain-view', slot: 'response-plain-view' },
 ]);
 
 /*
@@ -148,6 +150,13 @@ const pendingRequestData = computed(() => requestStore.pendingRequestData);
             </template>
             <template #response-cookies>
                 <ResponseCookies :cookies="lastLog?.response?.cookies ?? []" />
+            </template>
+            <template #response-plain-view>
+                <ResponsePlainView
+                    v-if="lastLog?.response"
+                    :response="lastLog.response"
+                    :duration-in-ms="lastLog.durationInMs"
+                />
             </template>
         </AppTabs>
     </div>
