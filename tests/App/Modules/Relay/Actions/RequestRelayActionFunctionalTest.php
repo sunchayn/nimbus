@@ -1004,4 +1004,73 @@ class RequestRelayActionFunctionalTest extends TestCase
 
         $this->assertTrue($capturedVerify);
     }
+
+    public function test_it_applies_request_options(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'get',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: [],
+            cookies: new ParameterBag,
+            followRedirects: false,
+            timeout: 7,
+            verifySsl: true,
+        );
+
+        $capturedOptions = [];
+
+        // Anticipate
+
+        Http::fake(function (Request $request, array $options) use (&$capturedOptions) {
+            $capturedOptions = $options;
+
+            return Http::response([]);
+        });
+
+        // Act
+
+        resolve(RequestRelayAction::class)->execute($requestData);
+
+        // Assert
+
+        $this->assertFalse($capturedOptions['allow_redirects']);
+        $this->assertSame(7, $capturedOptions['timeout']);
+        $this->assertTrue($capturedOptions['verify']);
+    }
+
+    public function test_it_recognizes_multipart_content_type_with_parameters(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'post',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: ['content-type' => 'Multipart/Form-Data; charset=utf-8'],
+            body: ['title' => 'Holiday'],
+            cookies: new ParameterBag,
+        );
+
+        // Anticipate
+
+        Http::fake();
+
+        $this->mockAuthorizationHandler();
+
+        // Act
+
+        resolve(RequestRelayAction::class)->execute($requestData);
+
+        // Assert
+
+        Http::assertSent(function (Request $request): bool {
+            $this->assertStringStartsWith('multipart/form-data; boundary=', $request->header('Content-Type')[0]);
+
+            return true;
+        });
+    }
 }

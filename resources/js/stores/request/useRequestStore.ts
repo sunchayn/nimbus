@@ -60,6 +60,7 @@ export const useRequestStore = defineStore('request', () => {
         updateQueryParameters: tabsStore.updateQueryParameters,
         updateAuthorization: tabsStore.updateAuthorization,
         updateTransactionMode: tabsStore.updateTransactionMode,
+        updateOptions: tabsStore.updateOptions,
         getRequestUrl: tabsStore.getRequestUrl,
         resetRequest: tabsStore.resetRequest,
         restoreFromHistory: tabsStore.restoreFromHistory,

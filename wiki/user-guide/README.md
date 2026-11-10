@@ -15,6 +15,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
 - [Using Nimbus](#using-nimbus)
     - [Route Explorer](#route-explorer)
     - [Request Builder](#request-builder)
+        - [Request Options](#request-options)
     - [Response Viewer](#response-viewer)
         - [Cookie Inspection](#cookie-inspection)
         - [Dump and Die Responses](#dump-and-die-responses)
@@ -242,6 +243,14 @@ Field names are cross-checked against a pre-defined set of patterns, common name
 - `uuid` fields → valid UUIDs
 - `date` fields → properly formatted dates
 - Numeric fields → values within min/max constraints
+
+#### Request Options
+
+The **Request Options** menu in the endpoint bar holds settings that apply to the current request.
+
+- **Follow redirects**: On by default. Turn it off to see the redirect response itself.
+- **Verify SSL**: Starts On for production targets and Off for other targets, so self-signed certificates work. Turn it On or Off to override this for the request.
+- **Timeout (seconds)**: 30 by default. Accepts 1 to 300.
 
 ### Response Viewer
 

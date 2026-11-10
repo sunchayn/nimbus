@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
 
 class NimbusRelayRequest extends FormRequest
@@ -39,6 +40,10 @@ class NimbusRelayRequest extends FormRequest
             ],
             'authorization.value' => 'sometimes',
             'body' => 'sometimes',
+            'options' => 'sometimes|array',
+            'options.follow_redirects' => 'sometimes|boolean',
+            'options.timeout' => 'sometimes|integer|min:1|max:'.RequestRelayData::MAX_TIMEOUT,
+            'options.verify_ssl' => 'sometimes|boolean',
             'headers' => 'sometimes',
             'headers.*.key' => 'required|string',
             'headers.*.value' => 'required',

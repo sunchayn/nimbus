@@ -100,6 +100,8 @@ Route::get('/status/{code}', [ContentController::class, 'status'])->whereNumber(
 Route::prefix('echo')->group(function () {
     Route::match(['get', 'post', 'put', 'patch', 'delete'], '/', [EchoController::class, 'echo']);
     Route::post('/plain-text', [EchoController::class, 'text']);
+    Route::get('/redirect', [EchoController::class, 'redirect']);
+    Route::get('/slow', [EchoController::class, 'slow']);
 });
 
 Route::prefix('uploads')->group(function () {

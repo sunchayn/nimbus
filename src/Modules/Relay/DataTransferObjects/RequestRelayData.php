@@ -11,6 +11,10 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 
 readonly class RequestRelayData
 {
+    public const DEFAULT_TIMEOUT = 30;
+
+    public const MAX_TIMEOUT = 300;
+
     /**
      * @param  array<string, string>  $headers
      * @param  array<string, mixed>|string  $body
@@ -27,6 +31,9 @@ readonly class RequestRelayData
         public bool $transactionMode = false,
         public string $environment = EnvironmentIdEnum::Current->value,
         public bool $isCurrentHost = true,
+        public bool $followRedirects = true,
+        public int $timeout = self::DEFAULT_TIMEOUT,
+        public ?bool $verifySsl = null,
     ) {}
 
     public static function fromRelayApiRequest(NimbusRelayRequest $nimbusRelayRequest): self
@@ -38,6 +45,7 @@ readonly class RequestRelayData
          *     endpoint: string,
          *     authorization?: array{type: string, value?: string|array{username: string, password: string}|null},
          *     body: mixed,
+         *     options?: array{follow_redirects?: bool, timeout?: int, verify_ssl?: bool},
          * } $data
          **/
         $data = $nimbusRelayRequest->validated();
@@ -81,6 +89,9 @@ readonly class RequestRelayData
             transactionMode: $transactionMode,
             environment: $nimbusRelayRequest->environmentId(),
             isCurrentHost: $nimbusRelayRequest->isCurrentHost(),
+            followRedirects: $data['options']['follow_redirects'] ?? true,
+            timeout: $data['options']['timeout'] ?? self::DEFAULT_TIMEOUT,
+            verifySsl: $data['options']['verify_ssl'] ?? null,
         );
     }
 

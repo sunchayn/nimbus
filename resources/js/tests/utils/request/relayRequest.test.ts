@@ -104,6 +104,26 @@ describe('relayRequest', () => {
     });
 
     describe('createRelayPayload', () => {
+        it('maps the set options and omits the unset ones', () => {
+            const request = createMockPendingRequest({
+                options: { followRedirects: false, timeout: 5 },
+            });
+
+            const payload = createRelayPayload(request, 'https://a.test', resolve);
+
+            expect(payload.options).toEqual({ follow_redirects: 0, timeout: 5 });
+        });
+
+        it('sends no options when none are set', () => {
+            const payload = createRelayPayload(
+                createMockPendingRequest(),
+                'https://a.test',
+                resolve,
+            );
+
+            expect(payload).not.toHaveProperty('options');
+        });
+
         it('builds the endpoint from the given base URL and sends the environment id', () => {
             const request = createMockPendingRequest({ endpoint: 'users' });
 

@@ -6,6 +6,7 @@ use Generator;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Foundation\Http\Middleware\TrimStrings;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -524,6 +525,35 @@ class NimbusRelayTest extends TestCase
             'duration',
             'timestamp',
         ]);
+    }
+
+    public function test_it_sends_the_query_string_as_built(): void
+    {
+        // Arrange
+
+        Http::fake();
+
+        // Act
+
+        $response = $this->postJson(
+            route('nimbus.api.relay'),
+            [
+                'method' => 'GET',
+                'endpoint' => '/test-endpoint?flag&filter=a=b&ids[]=1&ids[]=2',
+            ],
+        );
+
+        // Assert
+
+        $response->assertOk();
+
+        Http::assertSent(function (Request $request): bool {
+            parse_str((string) parse_url($request->url(), PHP_URL_QUERY), $query);
+
+            $this->assertSame(['flag' => '', 'filter' => 'a=b', 'ids' => ['1', '2']], $query);
+
+            return true;
+        });
     }
 
     public function test_it_rolls_back_database_changes_when_transaction_mode_is_enabled(): void

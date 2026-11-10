@@ -5,6 +5,7 @@ import type {
     HttpHeaders,
     PendingRequest,
     RelayProxyResponse,
+    RequestOptions,
     Response,
 } from '@/interfaces/http';
 import { getStatusGroup } from '@/utils/http';
@@ -20,6 +21,7 @@ export interface RelayPayload {
     authorization: AuthorizationContract;
     body: FormData | string | null;
     environment?: string;
+    options?: Record<string, number>;
 }
 
 /**
@@ -94,6 +96,29 @@ export const buildRelayAuthorization = (
     }
 };
 
+/**
+ * Maps the set options to relay fields. Booleans go as 1 or 0 because they travel in form data.
+ */
+export const buildRelayOptions = (
+    options: RequestOptions | undefined,
+): Record<string, number> | undefined => {
+    const mapped: Record<string, number> = {};
+
+    if (options?.followRedirects !== undefined) {
+        mapped.follow_redirects = options.followRedirects ? 1 : 0;
+    }
+
+    if (options?.timeout !== undefined) {
+        mapped.timeout = options.timeout;
+    }
+
+    if (options?.verifySsl !== undefined) {
+        mapped.verify_ssl = options.verifySsl ? 1 : 0;
+    }
+
+    return Object.keys(mapped).length > 0 ? mapped : undefined;
+};
+
 export const createRelayPayload = (
     request: PendingRequest,
     apiUrl: string,
@@ -117,6 +142,8 @@ export const createRelayPayload = (
             ),
     );
 
+    const options = buildRelayOptions(request.options);
+
     return {
         endpoint: buildUrlFromRequest(request, apiUrl, resolve),
         method: request.method,
@@ -124,6 +151,7 @@ export const createRelayPayload = (
         authorization: buildRelayAuthorization(request.authorization, resolve),
         body: getMemoizedBody(request, resolve),
         ...(environment ? { environment } : {}),
+        ...(options ? { options } : {}),
     };
 };
 
