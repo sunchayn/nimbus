@@ -5,7 +5,7 @@ return [
     'default_application' => 'main',
     'allowed_envs' => ['testing', 'local', 'staging', 'production'],
     'nested_folders' => true,
-    'snapshot' => false,
+    'snapshot' => (bool) env('NIMBUS_SNAPSHOT', false),
 
     // Base URL of the current host environment.
     'base_url' => env('NIMBUS_RELAY_ENDPOINT'),
