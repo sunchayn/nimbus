@@ -8,15 +8,34 @@ import type {
 import type { GeneratorContext } from '@/interfaces/ui';
 import { isComplexType, isPrimitiveType, SchemaType } from '@/types/schema';
 import { describeFileProperties, pickObjectFixture } from '@/utils/binaries/objectFile';
+import { type Lookup } from '@/utils/payload/lookups';
 import { generateFromPattern } from '@/utils/payload/patternGenerator';
 import { faker } from '@faker-js/faker/locale/en';
 import type { JSONSchema7 } from 'json-schema';
 
 /**
- * Generates random data based on schema
+ * Returns an existing value for a table and column, or undefined to generate one instead.
  */
-export function generateRandomPayload(schema: JSONSchema7): PayloadObject {
-    return generatePayload(schema, false);
+export type LookupPicker = (lookup: Lookup) => string | number | undefined;
+
+// Set for the duration of one random generation, so the recursive helpers stay unchanged.
+let activeLookupPicker: LookupPicker | null = null;
+
+/**
+ * Generates random data based on schema.
+ * A property with a lookup uses a picked existing value when the picker has one.
+ */
+export function generateRandomPayload(
+    schema: JSONSchema7,
+    lookupPicker: LookupPicker | null = null,
+): PayloadObject {
+    activeLookupPicker = lookupPicker;
+
+    try {
+        return generatePayload(schema, false);
+    } finally {
+        activeLookupPicker = null;
+    }
 }
 
 /**
@@ -127,6 +146,16 @@ function generateValue(
     isRequired: boolean,
 ): PayloadObject | PayloadObjectValue | PayloadObject[] {
     const schema = withoutNullType(rawSchema);
+
+    const lookup = (schema as { lookup?: Lookup }).lookup;
+    const existing =
+        !isPlaceholder && lookup && activeLookupPicker
+            ? activeLookupPicker(lookup)
+            : undefined;
+
+    if (existing !== undefined) {
+        return existing;
+    }
 
     if (schema.enum && schema.enum.length > 0) {
         return generateEnumValue(schema, isPlaceholder);

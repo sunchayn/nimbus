@@ -283,6 +283,14 @@ Field names are cross-checked against a pre-defined set of patterns, common name
 
 Optional fields that cannot be empty are left out of the payload sometimes, instead of being sent empty.
 
+**Existing records (`exists` rules):**
+Fields with an `exists:table,column` rule are filled with a real value from your database, so the request passes validation.
+- When a request becomes active, Nimbus reads up to 20 values for each of its `exists` rules in one call, and keeps them in memory.
+- Each Auto Fill picks one of them at random. If a list is empty or not loaded yet, Auto Fill uses a generated value.
+- The lists are loaded again when you switch the environment and after a write request (anything but GET, HEAD, or OPTIONS).
+- A database icon next to **Auto Fill** opens a list titled **Existing records**. Use it to choose a specific value for a field.
+- Only the tables and columns named by the route's own rules are read.
+
 #### Request Options
 
 The **Request Options** menu in the endpoint bar holds settings that apply to the current request.

@@ -726,3 +726,26 @@ describe('payloadGenerator', () => {
         });
     });
 });
+
+describe('generateRandomPayload with a lookup picker', () => {
+    const shape = {
+        type: 'object',
+        properties: {
+            author_id: { type: 'integer', lookup: { table: 'users', column: 'id' } },
+        },
+    } as JSONSchema7;
+
+    it('uses the picked value', () => {
+        expect(generateRandomPayload(shape, () => 42)).toEqual({ author_id: 42 });
+    });
+
+    it('generates a value when the picker has none', () => {
+        const payload = generateRandomPayload(shape, () => undefined);
+
+        expect(typeof payload.author_id).toBe('number');
+    });
+
+    it('does not use the picker for placeholders', () => {
+        expect(generatePlaceholderPayload(shape).author_id).not.toBe(42);
+    });
+});

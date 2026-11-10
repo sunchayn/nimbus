@@ -1,6 +1,10 @@
 import type { ParameterContract, PendingRequest } from '@/interfaces';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
-import { useEnvironmentVariablesStore, useRequestStore } from '@/stores';
+import {
+    useEnvironmentVariablesStore,
+    useLookupValuesStore,
+    useRequestStore,
+} from '@/stores';
 import {
     generatePlaceholderPayload,
     generateRandomPayload,
@@ -38,6 +42,7 @@ export const useRequestBody = (): UseRequestBodyResult => {
 
     const requestStore = useRequestStore();
     const environmentVariablesStore = useEnvironmentVariablesStore();
+    const lookupValuesStore = useLookupValuesStore();
 
     /*
      * Computed.
@@ -173,7 +178,10 @@ export const useRequestBody = (): UseRequestBodyResult => {
             return;
         }
 
-        const generatedPayload = generateRandomPayload(schemaShape);
+        const generatedPayload = generateRandomPayload(
+            schemaShape,
+            lookupValuesStore.pick,
+        );
         const serializedPayload = serializeSchemaPayload(
             generatedPayload,
             payloadType.value,

@@ -10,5 +10,10 @@ export {
     useSharedStateStore,
 } from './core';
 export { useGeneratorCommandStore } from './generators';
-export { useRequestStore, useRequestsHistoryStore, useTabsStore } from './request';
+export {
+    useLookupValuesStore,
+    useRequestStore,
+    useRequestsHistoryStore,
+    useTabsStore,
+} from './request';
 export { useRoutesStore } from './routes';

@@ -2,6 +2,9 @@ import { RequestBodyTypeEnum } from '@/interfaces/http';
 import type { PayloadObject } from '@/interfaces/schema/payload';
 import { convertPayloadToFormData } from '@/utils/http';
 
+// The indentation of every generated JSON body, so edits to a body keep the same look.
+export const JSON_BODY_INDENT = 2;
+
 /**
  * Convert payload to JSON format with proper indentation.
  */
@@ -10,7 +13,7 @@ export const convertPayloadToJson = (payload: PayloadObject): string => {
     return JSON.stringify(
         payload,
         (_key, value) => (value instanceof Blob ? '' : value),
-        3,
+        JSON_BODY_INDENT,
     );
 };
 
