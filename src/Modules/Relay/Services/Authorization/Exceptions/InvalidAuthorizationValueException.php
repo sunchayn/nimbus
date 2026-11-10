@@ -16,6 +16,16 @@ class InvalidAuthorizationValueException extends RuntimeException
 
     public const TYPE_IS_CURRENT_HOST_ONLY = 5;
 
+    public const USER_CANNOT_HAVE_TOKENS = 6;
+
+    public static function becauseUserCannotHaveTokens(): self
+    {
+        return new self(
+            message: 'The user model cannot create tokens. Use the `HasApiTokens` trait of Sanctum or Passport.',
+            code: self::USER_CANNOT_HAVE_TOKENS,
+        );
+    }
+
     public static function becauseTypeIsCurrentHostOnly(): self
     {
         return new self(

@@ -18,6 +18,7 @@ use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\BearerAuthoriz
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\CurrentUserAuthorizationHandler;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\ImpersonateUserAuthorizationHandler;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\NoAuthorizationHandler;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\TokenForUserAuthorizationHandler;
 use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(AuthorizationHandlerFactory::class)]
@@ -88,6 +89,12 @@ class AuthorizationHandlerFactoryUnitTest extends TestCase
             'checkIsValid' => fn (AuthorizationCredentials $credentials, ImpersonateUserAuthorizationHandler $handler): bool => $handler->userId === 22,
         ];
 
+        yield 'Token handler' => [
+            'authorizationCredentials' => new AuthorizationCredentials(AuthorizationTypeEnum::Token, value: '22', abilities: ['posts:read']),
+            'expectedAuthorizationHandler' => TokenForUserAuthorizationHandler::class,
+            'checkIsValid' => fn (AuthorizationCredentials $credentials, TokenForUserAuthorizationHandler $handler): bool => $handler->userId === 22 && $handler->abilities === ['posts:read'],
+        ];
+
         yield 'Current User handler' => [
             'authorizationCredentials' => new AuthorizationCredentials(AuthorizationTypeEnum::CurrentUser, value: 22),
             'expectedAuthorizationHandler' => CurrentUserAuthorizationHandler::class,
@@ -129,6 +136,11 @@ class AuthorizationHandlerFactoryUnitTest extends TestCase
         yield 'Impersonate handler doesnt allow arrays`' => [
             'authorizationCredentials' => new AuthorizationCredentials(AuthorizationTypeEnum::Impersonate, value: ['username' => 'foo', 'password' => 'bar']),
             'expectedError' => 'Impersonate user ID must be a non empty string.',
+        ];
+
+        yield 'Token handler doesnt allow `nulls`' => [
+            'authorizationCredentials' => new AuthorizationCredentials(AuthorizationTypeEnum::Token, value: null),
+            'expectedError' => 'Token user ID must be a non empty string.',
         ];
 
         yield 'Bearer handler doesnt allow `nulls`' => [

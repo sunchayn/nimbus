@@ -35,6 +35,13 @@ export const useConfigStore = defineStore('config', () => {
     const applications: Record<string, string> = window.Nimbus?.applications
         ? JSON.parse(window.Nimbus.applications as string)
         : {};
+    const guards: string[] = window.Nimbus?.guards
+        ? JSON.parse(window.Nimbus.guards as string)
+        : [];
+    const defaultGuard = window.Nimbus?.defaultGuard || null;
+    const tokenGuards: string[] = window.Nimbus?.tokenGuards
+        ? JSON.parse(window.Nimbus.tokenGuards as string)
+        : [];
     const activeApplication = window.Nimbus?.activeApplication || null;
     const primaryProcessorName =
         (window.Nimbus?.primaryProcessorName as RoutesProcessingStrategy) ||
@@ -58,6 +65,9 @@ export const useConfigStore = defineStore('config', () => {
         isLoggedIn,
         userId,
         applications,
+        guards,
+        defaultGuard,
+        tokenGuards,
         activeApplication,
         primaryProcessorName,
         showOperationId,

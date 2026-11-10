@@ -5,3 +5,4 @@ export { default as RequestAuthorizationCurrentUser } from './RequestAuthorizati
 export { default as RequestAuthorizationImpersonateUser } from './RequestAuthorizationImpersonateUser.vue';
 export { default as RequestAuthorizationNone } from './RequestAuthorizationNone.vue';
 export { default as RequestAuthorizationSelector } from './RequestAuthorizationSelector.vue';
+export { default as RequestAuthorizationTokenForUser } from './RequestAuthorizationTokenForUser.vue';

@@ -44,7 +44,7 @@ readonly class RequestRelayData
          *     headers?: array<array-key, array{key: string, value: string}>,
          *     method: string,
          *     endpoint: string,
-         *     authorization?: array{type: string, value?: string|array{username: string, password: string}|null, guard?: string|null},
+         *     authorization?: array{type: string, value?: string|array{username: string, password: string}|null, guard?: string|null, abilities?: string|null},
          *     body: mixed,
          *     options?: array{follow_redirects?: bool, timeout?: int, verify_ssl?: bool},
          * } $data
@@ -82,6 +82,7 @@ readonly class RequestRelayData
                     type: AuthorizationTypeEnum::from($data['authorization']['type']),
                     value: $data['authorization']['value'] ?? null,
                     guard: $data['authorization']['guard'] ?? null,
+                    abilities: self::parseAbilities($data['authorization']['abilities'] ?? null),
                 )
                 : AuthorizationCredentials::none(),
             headers: $headers->all(),
@@ -103,6 +104,20 @@ readonly class RequestRelayData
         $value = $nimbusRelayRequest->header('X-Nimbus-Time-Travel');
 
         return is_string($value) && trim($value) !== '' ? trim($value) : null;
+    }
+
+    /**
+     * Abilities arrive as one comma separated string.
+     *
+     * @return list<string>
+     */
+    private static function parseAbilities(mixed $abilities): array
+    {
+        if (! is_string($abilities)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map(trim(...), explode(',', $abilities)), fn (string $ability): bool => $ability !== ''));
     }
 
     /**

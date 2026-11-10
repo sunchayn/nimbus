@@ -14,4 +14,5 @@ enum AuthorizationTypeEnum: string
     case Bearer = 'bearer';
     case Basic = 'basic';
     case Impersonate = 'impersonate';
+    case Token = 'token';
 }

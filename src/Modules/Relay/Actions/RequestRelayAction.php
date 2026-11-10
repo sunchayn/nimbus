@@ -20,6 +20,7 @@ use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
 use Sunchayn\Nimbus\Modules\Relay\Responses\DumpAndDieResponse;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\AuthorizationHandlerFactory;
+use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\RevokesAfterResponse;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\DownloadResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
@@ -64,7 +65,14 @@ class RequestRelayAction
 
         $start = hrtime(true);
 
-        $response = $this->sendPendingRequest($pendingRequest, $requestRelayData);
+        try {
+            $response = $this->sendPendingRequest($pendingRequest, $requestRelayData);
+        } finally {
+            // A token made for this request must not outlive it, even when sending fails.
+            if ($authorizationHandler instanceof RevokesAfterResponse) {
+                $authorizationHandler->revoke();
+            }
+        }
 
         $durationInMs = $this->calculateDuration($start);
 

@@ -147,6 +147,7 @@ function buildAuthHeader(
         case AuthorizationType.None:
         case AuthorizationType.CurrentUser:
         case AuthorizationType.Impersonate:
+        case AuthorizationType.Token:
             return null;
 
         default:
@@ -264,13 +265,15 @@ function buildBinaryParts(formData: FormData): string[] {
         : [];
 }
 
+const SPECIAL_AUTHORIZATION_TYPES: AuthorizationType[] = [
+    AuthorizationType.CurrentUser,
+    AuthorizationType.Impersonate,
+    AuthorizationType.Token,
+];
+
 /**
  * Checks if authorization requires special handling (not standard HTTP headers).
  */
 function requiresSpecialAuthorization(authorization: AuthorizationContract): boolean {
-    if (authorization.type === AuthorizationType.CurrentUser) {
-        return true;
-    }
-
-    return authorization.type === AuthorizationType.Impersonate;
+    return SPECIAL_AUTHORIZATION_TYPES.includes(authorization.type);
 }

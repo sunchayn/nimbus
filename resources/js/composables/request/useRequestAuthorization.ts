@@ -14,6 +14,7 @@ export interface UseRequestAuthorizationResult {
     updateAuthorizationType: (newValue: AuthorizationType) => void;
     updateCurrentAuthorizationValue: (newValue: AuthorizationContract['value']) => void;
     updateCurrentAuthorizationGuard: (guard: string) => void;
+    updateCurrentAuthorizationAbilities: (abilities: string) => void;
     saveAuthorizationToStore: () => void;
 }
 
@@ -55,6 +56,11 @@ export const useRequestAuthorization = (): UseRequestAuthorizationResult => {
         [AuthorizationType.Impersonate]: {
             type: AuthorizationType.Impersonate,
             value: 0,
+        },
+        [AuthorizationType.Token]: {
+            type: AuthorizationType.Token,
+            value: 0,
+            abilities: '*',
         },
     } as const;
 
@@ -142,11 +148,24 @@ export const useRequestAuthorization = (): UseRequestAuthorizationResult => {
     const updateCurrentAuthorizationGuard = (guard: string) => {
         const currentAuth = requestStore.pendingRequestData?.authorization;
 
-        if (currentAuth?.type !== AuthorizationType.Impersonate) {
+        if (
+            currentAuth?.type !== AuthorizationType.Impersonate &&
+            currentAuth?.type !== AuthorizationType.Token
+        ) {
             return;
         }
 
         requestStore.updateAuthorization({ ...currentAuth, guard });
+    };
+
+    const updateCurrentAuthorizationAbilities = (abilities: string) => {
+        const currentAuth = requestStore.pendingRequestData?.authorization;
+
+        if (currentAuth?.type !== AuthorizationType.Token) {
+            return;
+        }
+
+        requestStore.updateAuthorization({ ...currentAuth, abilities });
     };
 
     /**
@@ -182,6 +201,7 @@ export const useRequestAuthorization = (): UseRequestAuthorizationResult => {
         updateAuthorizationType,
         updateCurrentAuthorizationValue,
         updateCurrentAuthorizationGuard,
+        updateCurrentAuthorizationAbilities,
         saveAuthorizationToStore,
     };
 };

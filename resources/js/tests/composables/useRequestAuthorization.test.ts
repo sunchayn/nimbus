@@ -117,6 +117,24 @@ describe('useRequestAuthorization', () => {
             });
         });
 
+        it('keeps the chosen guard for a token authorization', async () => {
+            const {
+                authorization,
+                updateAuthorizationType,
+                updateCurrentAuthorizationGuard,
+            } = useRequestAuthorization();
+
+            updateAuthorizationType(AuthorizationType.Token);
+            await nextTick();
+            updateCurrentAuthorizationGuard('api');
+            await nextTick();
+
+            expect(authorization.value).toMatchObject({
+                type: AuthorizationType.Token,
+                guard: 'api',
+            });
+        });
+
         it('persists authorization back to the request store via actions', async () => {
             // Arrange
 

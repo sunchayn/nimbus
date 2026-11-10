@@ -22,6 +22,10 @@ export const authorizationConfig = {
                 id: AuthorizationType.Impersonate,
                 label: 'Impersonate User with ID',
             },
+            {
+                id: AuthorizationType.Token,
+                label: 'Token for user',
+            },
         ],
 
         /**

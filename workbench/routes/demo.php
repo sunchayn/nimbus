@@ -190,6 +190,8 @@ Route::prefix('auth')->group(function () {
         ->name('demo.auth.bearer');
     Route::get('/admin', [AuthController::class, 'admin'])
         ->name('demo.auth.admin');
+    Route::get('/token', [AuthController::class, 'token'])
+        ->name('demo.auth.token');
     Route::get('/basic', [AuthController::class, 'basic'])
         ->name('demo.auth.basic');
     Route::get('/session', [AuthController::class, 'session'])

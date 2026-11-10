@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Sunchayn\Nimbus\Modules\Magic\DataTransferObjects\ActorData;
 use Sunchayn\Nimbus\Modules\Magic\DataTransferObjects\ListActorsData;
+use Throwable;
 
 /** @final */
 class ListActorsAction
@@ -20,6 +21,26 @@ class ListActorsAction
     private const SEARCH_COLUMNS = ['name', 'email'];
 
     public function __construct(private readonly Factory $factory) {}
+
+    /**
+     * Lists every configured guard.
+     *
+     * @return list<string>
+     */
+    public function guards(): array
+    {
+        return array_map(strval(...), array_keys((array) config('auth.guards', [])));
+    }
+
+    /**
+     * Lists the guards whose user model can create personal access tokens.
+     *
+     * @return list<string>
+     */
+    public function tokenGuards(): array
+    {
+        return array_values(array_filter($this->guards(), $this->canCreateTokens(...)));
+    }
 
     /**
      * Lists the users of the guard's provider. Only Eloquent providers are supported.
@@ -81,6 +102,19 @@ class ListActorsAction
                 $group->orWhere($column, 'like', $like);
             }
         });
+    }
+
+    private function canCreateTokens(string $name): bool
+    {
+        try {
+            $guard = $this->factory->guard($name);
+        } catch (Throwable) {
+            return false;
+        }
+
+        $provider = method_exists($guard, 'getProvider') ? $guard->getProvider() : null;
+
+        return $provider instanceof EloquentUserProvider && method_exists($provider->getModel(), 'createToken');
     }
 
     /**

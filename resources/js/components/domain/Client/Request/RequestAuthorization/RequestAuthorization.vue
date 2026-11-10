@@ -9,6 +9,7 @@ import RequestAuthorizationCurrentUser from '@/components/domain/Client/Request/
 import RequestAuthorizationImpersonateUser from '@/components/domain/Client/Request/RequestAuthorization/RequestAuthorizationImpersonateUser.vue';
 import RequestAuthorizationNone from '@/components/domain/Client/Request/RequestAuthorization/RequestAuthorizationNone.vue';
 import RequestAuthorizationSelector from '@/components/domain/Client/Request/RequestAuthorization/RequestAuthorizationSelector.vue';
+import RequestAuthorizationTokenForUser from '@/components/domain/Client/Request/RequestAuthorization/RequestAuthorizationTokenForUser.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import { useRequestAuthorization } from '@/composables/request/useRequestAuthorization';
 import { AuthorizationType } from '@/interfaces/generated';
@@ -35,6 +36,7 @@ const {
     types,
     updateCurrentAuthorizationValue,
     updateCurrentAuthorizationGuard,
+    updateCurrentAuthorizationAbilities,
 } = useRequestAuthorization();
 </script>
 
@@ -56,6 +58,15 @@ const {
                 :guard="authorization.guard"
                 @update:guard="value => updateCurrentAuthorizationGuard(value)"
                 @update:model-value="value => updateCurrentAuthorizationValue(value)"
+            />
+            <RequestAuthorizationTokenForUser
+                v-else-if="authorization.type === AuthorizationType.Token"
+                :model-value="String(authorization.value)"
+                :abilities="authorization.abilities ?? ''"
+                :guard="authorization.guard"
+                @update:guard="value => updateCurrentAuthorizationGuard(value)"
+                @update:model-value="value => updateCurrentAuthorizationValue(value)"
+                @update:abilities="value => updateCurrentAuthorizationAbilities(value)"
             />
             <RequestAuthorizationBearer
                 v-else-if="authorization.type === AuthorizationType.Bearer"

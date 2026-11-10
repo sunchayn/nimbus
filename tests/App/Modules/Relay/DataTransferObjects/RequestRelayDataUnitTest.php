@@ -254,6 +254,38 @@ class RequestRelayDataUnitTest extends TestCase
         $this->assertSame('+31 days', $result->timeTravel);
     }
 
+    public function test_it_splits_the_token_abilities(): void
+    {
+        // Arrange
+
+        $mockRequest = Mockery::mock(NimbusRelayRequest::class);
+        $mockRequest->shouldReceive('validated')->andReturn([
+            'method' => 'GET',
+            'endpoint' => '/api/test',
+            'authorization' => [
+                'type' => AuthorizationTypeEnum::Token->value,
+                'value' => '4',
+                'abilities' => ' posts:read, ,posts:write ',
+            ],
+            'body' => [],
+        ]);
+        $mockRequest->shouldReceive('userAgent')->andReturnNull();
+        $mockRequest->shouldReceive('getBody')->andReturn([]);
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Transaction-Mode')->andReturnNull();
+        $mockRequest->shouldReceive('header')->with('X-Nimbus-Time-Travel')->andReturn(null);
+        $mockRequest->shouldReceive('environmentId')->andReturn('current');
+        $mockRequest->shouldReceive('isCurrentHost')->andReturnTrue();
+        $mockRequest->cookies = new InputBag;
+
+        // Act
+
+        $result = RequestRelayData::fromRelayApiRequest($mockRequest);
+
+        // Assert
+
+        $this->assertSame(['posts:read', 'posts:write'], $result->authorization->abilities);
+    }
+
     public static function relayRequestDataDataProvider(): Generator
     {
         yield 'simple path without params' => [

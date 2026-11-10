@@ -6,25 +6,21 @@ describe('useActors', () => {
         vi.unstubAllGlobals();
     });
 
-    it('stores the actors and guards of a search', async () => {
+    it('stores the actors of a search', async () => {
         const fetchMock = vi.fn().mockResolvedValue({
             ok: true,
             json: async () => ({
-                guard: 'web',
-                guards: ['web', 'api'],
                 actors: [{ id: '1', label: 'Ada', model: 'User' }],
             }),
         });
         vi.stubGlobal('fetch', fetchMock);
 
-        const { actors, guards, defaultGuard, search } = useActors();
+        const { actors, search } = useActors();
 
         await search('api', 'ada');
 
         expect(fetchMock.mock.calls[0][0]).toContain('/api/actors?guard=api&q=ada');
         expect(actors.value).toHaveLength(1);
-        expect(guards.value).toEqual(['web', 'api']);
-        expect(defaultGuard.value).toBe('web');
     });
 
     it('flags a failed search and clears the actors', async () => {
@@ -53,8 +49,6 @@ describe('useActors', () => {
         const body = (id: string) => ({
             ok: true,
             json: async () => ({
-                guard: 'web',
-                guards: ['web'],
                 actors: [{ id, label: id, model: 'User' }],
             }),
         });
@@ -65,5 +59,26 @@ describe('useActors', () => {
         await first;
 
         expect(actors.value[0].id).toBe('new');
+    });
+
+    it('loads the list without a search once per guard', async () => {
+        const fetchMock = vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => ({ actors: [{ id: '1', label: 'Ada', model: 'User' }] }),
+        });
+        vi.stubGlobal('fetch', fetchMock);
+
+        const first = useActors();
+        await first.search('cached', '');
+
+        const second = useActors();
+        await second.search('cached', '');
+
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(second.actors.value).toHaveLength(1);
+
+        await second.search('cached', 'ada');
+
+        expect(fetchMock).toHaveBeenCalledTimes(2);
     });
 });
