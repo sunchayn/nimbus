@@ -132,7 +132,8 @@ const pendingRequestData = computed(() => requestStore.pendingRequestData);
                     indicator-class="text-warning"
                     class="m-panel"
                 >
-                    Only the first 256KB of this response was kept. Send the request again to see the full body.
+                    Only the first 256KB of this response was kept. Send the request again
+                    to see the full body.
                 </ResponseNotice>
 
                 <ResponseDownload
