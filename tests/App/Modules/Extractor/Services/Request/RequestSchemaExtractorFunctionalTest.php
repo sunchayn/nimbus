@@ -42,6 +42,7 @@ class RequestSchemaExtractorFunctionalTest extends TestCase
         // Arrange
 
         $route = $this->mock(Route::class);
+        $route->shouldReceive('methods')->andReturn(['POST']);
 
         $schema = new Schema([new StringSchemaProperty('name')]);
 
@@ -73,6 +74,7 @@ class RequestSchemaExtractorFunctionalTest extends TestCase
         // Arrange
 
         $route = $this->mock(Route::class);
+        $route->shouldReceive('methods')->andReturn(['POST']);
 
         // Anticipate
 

@@ -38,6 +38,9 @@ Route::prefix('shapes')->group(function () {
         ->name('demo.shapes.rule-objects');
 });
 
+Route::get('/query-parameters', [\Workbench\App\Http\Controllers\Demo\QueryParametersController::class, 'index'])
+    ->name('demo.query-parameters.index');
+
 Route::prefix('responses')->group(function () {
     Route::get('/error-responses', [DemoController::class, 'errorResponses'])
         ->name('demo.responses.error-responses');

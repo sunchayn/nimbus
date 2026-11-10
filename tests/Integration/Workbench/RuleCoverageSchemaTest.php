@@ -67,6 +67,22 @@ class RuleCoverageSchemaTest extends TestCase
         $this->assertStringContainsString('authorize', $schema['description']);
     }
 
+    public function test_it_adds_the_query_keys_a_get_controller_reads(): void
+    {
+        // Act
+
+        $schema = $this->extractSchema('demo/query-parameters');
+
+        // Assert
+
+        $properties = $schema['properties'];
+
+        $this->assertEqualsCanonicalizing(['per_page', 'search', 'featured', 'status', 'author'], array_keys($properties));
+        $this->assertSame('integer', $properties['per_page']['type']);
+        $this->assertSame('string', $properties['search']['type']);
+        $this->assertSame([], $schema['required']);
+    }
+
     /**
      * @return array<string, mixed>
      */
