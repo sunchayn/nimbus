@@ -121,4 +121,59 @@ describe('ResponseViewerResponse', () => {
         const dropdown = wrapper.findComponent({ name: 'ResponseDownloadDropdown' });
         expect(dropdown.exists()).toBe(false);
     });
+
+    describe('insight tab', () => {
+        const insight = {
+            queries: [
+                {
+                    sql: 'select 1',
+                    bindings: [],
+                    time_ms: 1,
+                    connection: 'sqlite',
+                    offset_ms: 0,
+                },
+            ],
+            logs: [{ level: 'info', message: 'hi', context: {} }],
+            gates: [],
+            cache: [],
+            jobs: [],
+            mail: [],
+            notifications: [],
+            http: [],
+            events: [{ name: 'App\\Events\\Foo' }],
+            exception: null,
+            peak_memory: 0,
+            duration_ms: 10,
+            dropped: {
+                queries: 0,
+                logs: 0,
+                cache: 0,
+                jobs: 0,
+                mail: 0,
+                notifications: 0,
+                http: 0,
+                events: 0,
+            },
+            truncated: false,
+        };
+
+        const withInsight = (value: unknown) => {
+            const base = (createWrapper().props() as { response: RequestLog }).response;
+
+            return createWrapper({
+                response: { ...base, response: { ...base.response, insight: value } },
+            });
+        };
+
+        it('is hidden when the response has no insight', () => {
+            expect(withInsight(null).text()).not.toContain('Insight');
+        });
+
+        it('is shown with the count of recorded items', () => {
+            const text = withInsight(insight).text();
+
+            expect(text).toContain('Insight');
+            expect(text).toContain('3');
+        });
+    });
 });

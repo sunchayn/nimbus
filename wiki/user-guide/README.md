@@ -18,6 +18,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
         - [Request Options](#request-options)
     - [Response Viewer](#response-viewer)
         - [Cookie Inspection](#cookie-inspection)
+        - [Insight](#insight)
         - [Dump and Die Responses](#dump-and-die-responses)
         - [Request History](#request-history)
 - [Authentication](#authentication)
@@ -363,6 +364,39 @@ The raw values as observed in the `Set-Cookie` headers from the response.
 
 **Decrypted Cookies:**
 Automatic decryption of Laravel encrypted cookies.
+
+#### Insight
+
+When you send a request to your own app, Nimbus adds an **Insight** tab to the Response Viewer.
+It shows what Laravel did to answer that request, such as the queries it ran, the logs it wrote, and the mail it sent.
+
+The tab is not shown for other hosts, or when the app returned nothing to show.
+
+Inside the Insight tab you get one tab per kind of information.
+
+**Tabs:**
+- **Exception**: appears only when the request threw an exception. It shows the class, the message, where it happened, and the stack trace. It opens first.
+- **Timeline**: shows the request on a time axis. Each query and HTTP call is a bar placed where it started, so you can see what was slow and what ran in parallel to what. Hover a bar to see the full SQL. Click a bar to jump to that query or call.
+- **Queries**: groups the queries that share the same shape. Open a group to see each run with its bindings. Click a bar on the timeline to jump to its query here.
+- **Logs**: the log entries written during the request, with their context.
+- **Gates**: the gate and policy checks that ran. Denied checks come first.
+- **Cache**: hits, misses, writes, and forgets, with their keys.
+- **Jobs**: the jobs that were dispatched, with their queue and connection.
+- **Mail**: the mail that was sent, with its subject and recipients.
+- **Notifications**: the notifications that were sent, with their channel.
+- **HTTP**: the calls made with the HTTP client, with the method, URL, status, and duration. The query string is left out of the URL.
+- **Events**: the events your app dispatched. Framework events are left out.
+
+**Spotting problems:**
+
+Nimbus flags a group of 5 or more queries with the same shape as an **N+1**, and any query that took 100 ms or more as **slow**.
+On the timeline, only slow queries are colored, and the other queries of an N+1 group are nested under the first one.
+Use the N+1 and Slow toggles in the Queries tab to list only those groups.
+
+Values bound to sensitive columns, such as passwords and tokens, are hidden when the app runs in production.
+
+Very large requests are trimmed to keep the page fast.
+Nimbus keeps up to 500 queries, 200 logs, and 200 items of each other kind, and tells you how many were left out.
 
 #### Dump and Die Responses
 

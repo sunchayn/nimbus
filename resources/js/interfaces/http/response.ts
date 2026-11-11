@@ -1,5 +1,6 @@
 import type { HttpHeadersArray, ResponseCookie } from '@/interfaces/http';
 import type { ResponseHeader } from '@/interfaces/http/headers';
+import type { Insight } from '@/interfaces/http/insight';
 import type { STATUS } from '@/interfaces/http/status';
 
 export interface ResponseDownload {
@@ -34,6 +35,7 @@ export interface Response {
     timestamp: number;
     download?: ResponseDownload | null;
     sent?: SentRequest | null;
+    insight?: Insight | null;
 }
 
 export interface ErrorPlainResponse {
@@ -52,6 +54,7 @@ export interface RelayProxyResponse {
     timestamp: number;
     download?: RelayProxyDownload | null;
     sent?: SentRequest | null;
+    insight?: Insight | null;
 }
 
 export interface ResponseBody {
