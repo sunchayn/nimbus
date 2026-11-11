@@ -1,0 +1,50 @@
+name: intellisense
+
+on:
+  push:
+    branches: [ base ]
+  pull_request:
+
+jobs:
+  intellisense:
+    name: Intellisense is up to date
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            intellisense:
+              - '**.php'
+              - '**.stub'
+              - 'resources/js/interfaces/generated/**'
+              - '.github/workflows/intellisense.yml'
+              - 'composer.json'
+              - 'composer.lock'
+
+      - name: Setup PHP
+        if: steps.filter.outputs.intellisense == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Install composer dependencies
+        if: steps.filter.outputs.intellisense == 'true'
+        uses: ramsey/composer-install@v3
+
+      - name: Generate intellisense
+        if: steps.filter.outputs.intellisense == 'true'
+        run: php bin/intellisense
+
+      - name: Fail when generated files are out of date
+        if: steps.filter.outputs.intellisense == 'true'
+        run: |
+          git add --intent-to-add resources/js/interfaces/generated
+          git diff --exit-code -- resources/js/interfaces/generated \
+            || { echo "::error::Intellisense is out of date. Run 'php bin/intellisense' and commit the result."; exit 1; }
