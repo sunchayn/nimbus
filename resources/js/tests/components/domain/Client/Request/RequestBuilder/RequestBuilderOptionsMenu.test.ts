@@ -1,6 +1,7 @@
 import RequestBuilderOptionsMenu from '@/components/domain/Client/Request/RequestBuilder/RequestBuilderOptionsMenu.vue';
 import TimeTravelDialog from '@/components/domain/Client/Request/RequestBuilder/TimeTravelDialog.vue';
 import type { PendingRequest } from '@/interfaces/http';
+import { useTabsStore, useWorkspaceStore } from '@/stores';
 import type { VueWrapper } from '@vue/test-utils';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
@@ -21,6 +22,7 @@ const mockRequestStore = reactive({
 });
 
 const mockConfigStore = reactive({
+    workspaceEnabled: true,
     apiUrl: 'http://localhost',
     activeApplication: 'main',
     appBasePath: '/nimbus',
@@ -235,5 +237,75 @@ describe('RequestBuilderOptionsMenu', () => {
         expect(wrapper.findComponent(TimeTravelDialog).props('open')).toBe(true);
 
         wrapper.unmount();
+    });
+
+    describe('workspace items', () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const findItem = (wrapper: VueWrapper, testId: string): any =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (wrapper.vm as any).items.flat().find((item: any) => item.testId === testId);
+
+        it('offers a save item when the workspace is enabled', () => {
+            const wrapper = createWrapper();
+
+            expect(findItem(wrapper, 'save-request-option')).toBeDefined();
+        });
+
+        it('omits the workspace items when the workspace is disabled', () => {
+            mockConfigStore.workspaceEnabled = false;
+            const wrapper = createWrapper();
+
+            expect(findItem(wrapper, 'save-request-option')).toBeUndefined();
+            expect(findItem(wrapper, 'save-as-option')).toBeUndefined();
+
+            mockConfigStore.workspaceEnabled = true;
+        });
+
+        const setActiveTab = (workspace: object | undefined) => {
+            const tabsStore = useTabsStore();
+
+            tabsStore.tabs = [
+                { id: 'tab-1', request: {}, workspace },
+            ] as unknown as typeof tabsStore.tabs;
+            tabsStore.activeTabId = 'tab-1';
+        };
+
+        it('offers to save to the workspace when the active tab is not saved yet', () => {
+            const wrapper = createWrapper();
+            const workspaceStore = useWorkspaceStore();
+            const openSpy = vi.spyOn(workspaceStore, 'openSaveDialog');
+            setActiveTab(undefined);
+
+            const item = findItem(wrapper, 'save-request-option');
+            item.onSelect();
+
+            expect(item.label).toBe('Save to workspace');
+            expect(findItem(wrapper, 'save-as-option')).toBeUndefined();
+            expect(openSpy).toHaveBeenCalledWith();
+        });
+
+        it('saves changes directly when the active tab is a workspace file', () => {
+            const wrapper = createWrapper();
+            const workspaceStore = useWorkspaceStore();
+            const saveSpy = vi.spyOn(workspaceStore, 'save').mockResolvedValue(true);
+            setActiveTab({ id: 'a', name: 'A', hash: 'h', saved: 'old' });
+
+            const item = findItem(wrapper, 'save-request-option');
+            item.onSelect();
+
+            expect(item.label).toBe('Save changes');
+            expect(saveSpy).toHaveBeenCalled();
+        });
+
+        it('offers save as for a workspace file', () => {
+            const wrapper = createWrapper();
+            const workspaceStore = useWorkspaceStore();
+            const openSpy = vi.spyOn(workspaceStore, 'openSaveDialog');
+            setActiveTab({ id: 'a', name: 'A', hash: 'h', saved: 'old' });
+
+            findItem(wrapper, 'save-as-option').onSelect();
+
+            expect(openSpy).toHaveBeenCalledWith(true);
+        });
     });
 });

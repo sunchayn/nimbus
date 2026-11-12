@@ -81,18 +81,18 @@ src/
     ├── Magic/             # Code that runs inside the target request (listeners, user injectors) and the toolbox tools
     ├── Routes/            # Route extraction and normalization
     ├── Schemas/           # Schema generation and transformation
-    └── Relay/             # HTTP request relay and authorization
+    ├── Relay/             # HTTP request relay and authorization
+    └── Workspace/         # Request files saved in the host repository
 ```
 
 **Module responsibilities:**
 
 - **Config** - Application configuration, enums, and constants.
 - **Magic** - Laravel aware behavior that acts inside the target request, such as transaction mode, the special authentication injectors, and URL signing for routes with the `signed` middleware.
-
-- **Magic** - Laravel aware behavior that acts inside the target request, such as transaction mode and the special authentication injectors. The `Toolbox` folder holds the Actions behind the toolbox dialog. The rate limit helpers are the limiter reset listener and `DetectEphemeralRateLimiterAction`, which tells the UI when the limiter cache forgets its hits.
 - **Routes** - Extract and normalize Laravel routes and validation rules.
 - **Schemas** - Transform validation rules into JSON schemas.
 - **Relay** - Forward HTTP requests and handle authentication.
+- **Workspace** - Read and write request files in the host repository. It is made of value objects, DTOs and actions, with no service. See [Workspace Flow](#workspace-flow).
 - **Intellisenses** - Generate TypeScript interfaces for backend entities.
 
 #### Frontend Structure
@@ -346,6 +346,90 @@ Limits are 500 queries, 200 entries for every other list, and 1 MB. Excess is co
 
 The frontend types come from `InsightIntellisense`, which reads the `@phpstan-type` aliases of the result classes and the return type of `InsightData::toArray()`.
 After a change there, run `php bin/intellisense`. CI fails a PR when a generated file is stale.
+
+#### Workspace Flow
+
+When the workspace is on, saving and opening requests use the `nimbus/api/workspace` routes. The disk is the source of truth for what exists. `nimbus.json` only stores the order.
+
+**Reading**
+
+`ScanWorkspaceAction` walks the disk once and returns a `WorkspaceScanResult`. Every read comes from it. It never follows links, and it reconciles each folder with the saved order. If the result differs from `nimbus.json`, it saves the manifest. It uses `TryLockWorkspaceAction` for that save, so a busy lock or a failed write never fails a read.
+
+**Writing**
+
+`SaveRequestFileAction` is the only write path for a request, so save and move share it. Every mutation follows the same order.
+
+1. Take the lock with `LockWorkspaceAction`. It waits for other processes and can be entered again by the same process.
+2. Scan once with `ScanWorkspaceAction`. A request that waited for the lock sees what the earlier request wrote, so it never works on stale state.
+3. Check the hash. A mismatch returns 409.
+4. Change the disk. Files are written to a temporary file and renamed, and folders are never deleted through a link.
+5. Edit the manifest from that scan and save it. There is no second scan. An action never rebuilds the manifest by hand. It calls a method of `ManifestFile` that returns a changed copy, and writes the copy with `WriteWorkspaceFileData::fromManifest()`.
+6. Release the lock.
+
+The lock is an exclusive `flock` on a file in the system temp directory, one per workspace. It stays out of the repository. A nested call in the same process passes straight through, so an action can call another action that locks. `TryLockWorkspaceAction` never waits and returns false when another process holds the lock.
+
+**Manifest**
+
+`nimbus.json` is a `ManifestFile` with two flat maps. `folders` maps a parent path to the ordered names of its folders, and the empty path is the root. `requests` maps a folder path to the ordered request ids.
+
+```json
+{
+  "folders": { "": ["users", "billing"], "users": ["admin"] },
+  "requests": { "": ["id-1"], "users": ["id-3", "id-2"] }
+}
+```
+
+The scan reconciles each folder with the disk using three rules.
+
+- Entries the manifest lists keep their place.
+- Entries it does not list go to the end by name.
+- Entries that are gone from the disk are dropped.
+
+Reordering replaces one key. Renaming a folder rewrites the keys under it and its name in its parent list, so it keeps its place. The folder of a request is the directory of its file, whatever the file says.
+
+`ManifestFile` is immutable. These methods return a new copy.
+
+| Method | Effect |
+| --- | --- |
+| `addFolder()` / `removeFolder()` | Add a folder and the folders above it at the end, or remove a folder with everything inside it |
+| `withFolderRenamed()` | Rename a folder in place and rewrite the keys under it |
+| `addRequest()` / `removeRequest()` | Add a request at the end of its folder, or remove it from its folder |
+| `entryIdentities()` | List the identities of the folders and requests it holds, in the saved order |
+
+`ManifestFile::fromEntries()` builds the manifest from entries that are already in the order to save, which is how the reorder actions write it.
+
+**Routes**
+
+The routes live in `routes/api.php` under the `workspace` prefix. A request id must match `[A-Za-z0-9_-]{8,64}`, which keeps `order` from being read as an id.
+
+| Route | Action |
+| --- | --- |
+| `GET /workspace` | List the folders and request summaries in order |
+| `GET /workspace/requests/{id}` | Read one request |
+| `PUT /workspace/requests/{id}` | Save a request with its last known hash |
+| `PATCH /workspace/requests/{id}/move` | Move or rename a request with its last known hash |
+| `DELETE /workspace/requests/{id}` | Delete a request |
+| `PUT /workspace/requests/order` | Save the order of the requests in one folder |
+| `POST /workspace/folders` | Create a folder |
+| `PATCH /workspace/folders` | Rename a folder without moving it |
+| `DELETE /workspace/folders` | Delete a folder and its requests |
+| `PUT /workspace/folders/order` | Save the folder order from a list of folder paths |
+
+```mermaid
+sequenceDiagram
+    participant VueFrontend as Vue Frontend
+    participant LaravelBackend as Laravel Backend
+    participant Disk as .nimbus folder
+
+    VueFrontend->>LaravelBackend: PUT /workspace/requests/{id} with the last known hash
+    LaravelBackend->>LaravelBackend: Validate the shape, take the lock
+    LaravelBackend->>Disk: Scan once and compare the hash
+    LaravelBackend->>Disk: Write a temporary file, rename it, save nimbus.json
+    LaravelBackend->>VueFrontend: Return the request and the new hash
+    VueFrontend->>LaravelBackend: GET /workspace and GET /workspace/requests/{id}
+    LaravelBackend->>Disk: Scan, and save nimbus.json if it drifted
+    LaravelBackend->>VueFrontend: Return summaries or one request
+```
 
 ---
 

@@ -11,6 +11,7 @@ interface NimbusConfig {
     sharedState: SharedState | null;
     primaryProcessorName: string | null;
     showOperationId: boolean | null;
+    workspaceEnabled?: boolean | null;
     globalException: string | null;
     environments?: string | null;
     ephemeralRateLimiter?: boolean;

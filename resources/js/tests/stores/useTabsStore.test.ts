@@ -674,4 +674,165 @@ describe('useTabsStoreUnitTest', () => {
             expect(store.activeRequest?.endpoint).toEqual('shared-route');
         });
     });
+
+    /*
+     * Workspace.
+     */
+
+    describe('Saved requests', () => {
+        const file = {
+            id: 'request-1234',
+            name: 'Create post',
+            method: 'POST',
+            endpoint: 'posts',
+            route: 'posts.store',
+            headers: [{ key: 'Accept', value: 'application/json', enabled: false }],
+            query: [{ key: 'page', value: '2', enabled: true }],
+            body: { type: 'json' as const, content: '{"title":"{{title}}"}' },
+            authorization: { type: AuthorizationType.Bearer, value: '{{token}}' },
+        };
+
+        it('opens a tab linked to the file', () => {
+            // Arrange
+
+            const store = useTabsStore();
+
+            // Act
+
+            store.openSavedRequest({ request: file, hash: 'hash-1' });
+
+            // Assert
+
+            expect(store.tabs).toHaveLength(1);
+            expect(store.activeTabId).toBe(store.tabs[0].id);
+            expect(store.activeRequest).toMatchObject({
+                method: 'POST',
+                endpoint: 'posts',
+                payloadType: RequestBodyTypeEnum.JSON,
+                authorization: { type: AuthorizationType.Bearer, value: '{{token}}' },
+            });
+            expect(store.activeRequest?.headers).toHaveLength(1);
+            expect(store.activeRequest?.body.POST?.[RequestBodyTypeEnum.JSON]).toBe(
+                '{"title":"{{title}}"}',
+            );
+            expect(store.tabs[0].workspace).toMatchObject({
+                id: 'request-1234',
+                name: 'Create post',
+                hash: 'hash-1',
+            });
+        });
+
+        it('connects the file to its route by name', () => {
+            // Arrange
+
+            const routesStore = useRoutesStore();
+
+            routesStore.routes = {
+                v1: [
+                    {
+                        name: 'posts',
+                        path: 'posts',
+                        children: [],
+                        routes: [
+                            {
+                                ...secondRoute,
+                                endpoint: 'blog/posts',
+                                metadata: { name: 'posts.store' },
+                            },
+                        ],
+                    },
+                ],
+            };
+
+            const store = useTabsStore();
+
+            // Act
+
+            store.openSavedRequest({ request: file, hash: 'hash-1' });
+
+            // Assert
+
+            expect(store.activeRequest?.routeDefinition.endpoint).toBe('blog/posts');
+            expect(store.activeRequest?.endpoint).toBe('posts');
+        });
+
+        it('activates the tab that is already open for the file', () => {
+            // Arrange
+
+            const store = useTabsStore();
+
+            store.openSavedRequest({ request: file, hash: 'hash-1' });
+            store.openTab(baseRoute, [baseRoute]);
+
+            // Act
+
+            store.openSavedRequest({ request: file, hash: 'hash-1' });
+
+            // Assert
+
+            expect(store.tabs).toHaveLength(2);
+            expect(store.activeTabId).toBe(store.tabs[0].id);
+        });
+
+        it('replaces the content of the open tab when it reloads the file', () => {
+            // Arrange
+
+            const store = useTabsStore();
+
+            store.openSavedRequest({ request: file, hash: 'hash-1' });
+
+            store.tabs[0].request.endpoint = 'changed';
+
+            // Act
+
+            store.reloadSavedRequest({
+                request: { ...file, endpoint: 'posts/new' },
+                hash: 'hash-2',
+            });
+
+            // Assert
+
+            expect(store.tabs).toHaveLength(1);
+            expect(store.activeRequest?.endpoint).toBe('posts/new');
+            expect(store.tabs[0].workspace?.hash).toBe('hash-2');
+        });
+
+        it('does not change the active tab when it reloads another tab', () => {
+            // Arrange
+
+            const store = useTabsStore();
+
+            store.openSavedRequest({ request: file, hash: 'hash-1' });
+            const savedTabId = store.tabs[0].id;
+            store.openSavedRequest({
+                request: { ...file, id: 'request-5678' },
+                hash: 'hash-3',
+            });
+
+            // Act
+
+            store.reloadSavedRequest({ request: file, hash: 'hash-2' });
+
+            // Assert
+
+            expect(store.tabs.find(tab => tab.id === savedTabId)?.workspace?.hash).toBe(
+                'hash-2',
+            );
+            expect(store.activeTabId).not.toBe(savedTabId);
+        });
+
+        it('leaves the tabs alone when it reloads a file that is not open', () => {
+            // Arrange
+
+            const store = useTabsStore();
+
+            // Act
+
+            store.reloadSavedRequest({ request: file, hash: 'hash-1' });
+
+            // Assert
+
+            expect(store.tabs).toHaveLength(0);
+        });
+    });
 });

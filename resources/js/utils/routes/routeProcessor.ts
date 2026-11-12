@@ -187,3 +187,25 @@ export function findRoutesByEndpoint(
         .flatMap(folder => folder.routes)
         .filter(route => route.endpoint === endpoint);
 }
+
+/**
+ * Finds the route that has the given Laravel route name and HTTP method.
+ */
+export function findRouteByName(
+    routes: { [key: string]: RoutesFolder[] } | null,
+    name: string | null | undefined,
+    method: string,
+): RouteDefinition | undefined {
+    if (!routes || !name) {
+        return undefined;
+    }
+
+    return Object.values(routes)
+        .flatMap(versionRoutes => flattenFolders(versionRoutes))
+        .flatMap(folder => folder.routes)
+        .find(
+            route =>
+                route.metadata?.name === name &&
+                route.method.toUpperCase() === method.toUpperCase(),
+        );
+}

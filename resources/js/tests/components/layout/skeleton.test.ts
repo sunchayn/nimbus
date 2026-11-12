@@ -1,9 +1,10 @@
 import RouteExplorer from '@/components/domain/RoutesExplorer/RouteExplorer.vue';
+import MainPageSkeleton from '@/components/layout/skeleton/MainPageSkeleton.vue';
 import RoutesListSkeleton from '@/components/layout/skeleton/RoutesListSkeleton.vue';
 import { flushPromises, mount } from '@vue/test-utils';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { createPinia } from 'pinia';
+import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 /*
@@ -21,6 +22,31 @@ describe('Loading skeleton', () => {
 
     afterEach(() => {
         vi.useRealTimers();
+    });
+
+    describe('MainPageSkeleton', () => {
+        it.each([
+            [true, 1],
+            [false, 0],
+        ])(
+            'draws the sidebar tabs placeholder only when the workspace is %s',
+            (workspaceEnabled, count) => {
+                // Arrange
+
+                window.Nimbus = { ...window.Nimbus, workspaceEnabled } as never;
+                setActivePinia(createPinia());
+
+                // Act
+
+                const wrapper = mount(MainPageSkeleton);
+
+                // Assert
+
+                expect(
+                    wrapper.findAll('[data-testid="skeleton-sidebar-tabs"]'),
+                ).toHaveLength(count);
+            },
+        );
     });
 
     describe('RoutesListSkeleton', () => {
