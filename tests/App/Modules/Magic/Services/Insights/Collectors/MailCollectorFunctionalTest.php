@@ -2,6 +2,7 @@
 
 namespace Sunchayn\Nimbus\Tests\App\Modules\Magic\Services\Insights\Collectors;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Mail;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -40,6 +41,10 @@ class MailCollectorFunctionalTest extends TestCase
 
     public function test_it_records_the_class_of_a_mailable(): void
     {
+        if (version_compare(Application::VERSION, '11.0.0', '<')) {
+            $this->markTestSkipped('Laravel 10 does not expose the mailable class to the sending event.');
+        }
+
         // Arrange
 
         $collector = resolve(MailCollector::class);

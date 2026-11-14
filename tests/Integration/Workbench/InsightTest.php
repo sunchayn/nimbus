@@ -3,6 +3,7 @@
 namespace Sunchayn\Nimbus\Tests\Integration\Workbench;
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Foundation\Application;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
@@ -81,7 +82,11 @@ class InsightTest extends TestCase
         $this->assertSame(SyncInventoryJob::class, $insight['jobs'][0]['job']);
         $this->assertSame('database', $insight['jobs'][0]['connection']);
         $this->assertSame('Your order receipt', $insight['mail'][0]['subject']);
-        $this->assertSame(OrderReceiptMail::class, $insight['mail'][0]['mailable']);
+
+        if (version_compare(Application::VERSION, '11.0.0', '>=')) {
+            $this->assertSame(OrderReceiptMail::class, $insight['mail'][0]['mailable']);
+        }
+
         $this->assertSame(OrderReceiptNotification::class, $insight['notifications'][0]['notification']);
         $this->assertSame('mail', $insight['notifications'][0]['channel']);
         $this->assertSame('GET', $insight['http'][0]['method']);
