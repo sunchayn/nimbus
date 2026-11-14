@@ -9,6 +9,7 @@ use Illuminate\Http\Client\PendingRequest;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Contracts\SpecialAuthenticationInjectorContract;
+use Tymon\JWTAuth\JWTGuard;
 
 class TymonJwtTokenInjector implements SpecialAuthenticationInjectorContract
 {
@@ -21,7 +22,7 @@ class TymonJwtTokenInjector implements SpecialAuthenticationInjectorContract
         private readonly ActiveApplicationResolver $activeApplicationResolver,
         private readonly Container $container,
     ) {
-        if (! class_exists(\Tymon\JWTAuth\JWTGuard::class)) {
+        if (! class_exists(JWTGuard::class)) {
             throw MisconfiguredValueException::becauseOfMissingDependency(dependency: 'tymon/jwt-auth');
         }
 
@@ -29,7 +30,7 @@ class TymonJwtTokenInjector implements SpecialAuthenticationInjectorContract
             ->container->make('auth')
             ->guard(name: $this->activeApplicationResolver->getAuthGuard());
 
-        if (! $this->guard instanceof \Tymon\JWTAuth\JWTGuard) {
+        if (! $this->guard instanceof JWTGuard) {
             throw MisconfiguredValueException::becauseOfInvalidGuardInjectorCombination("Please use a `\Tymon\JWTAuth\JWTGuard` guard.");
         }
     }

@@ -43,7 +43,7 @@ class CurrentUserAuthorizationHandler implements AuthorizationHandler
     {
         $user = $this->getAuthenticatedUser();
 
-        if (! $user instanceof \Illuminate\Contracts\Auth\Authenticatable) {
+        if (! $user instanceof Authenticatable) {
             return $pendingRequest;
         }
 
@@ -113,7 +113,7 @@ class CurrentUserAuthorizationHandler implements AuthorizationHandler
      * Laravel’s session cookie is formatted as "payload|signature", where the
      * payload contains the encrypted session identifier.
      *
-     * @throws \Illuminate\Contracts\Encryption\DecryptException
+     * @throws DecryptException
      */
     private function extractSessionIdFromCookie(string $cookieValue): string
     {

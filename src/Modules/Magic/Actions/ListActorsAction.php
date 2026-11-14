@@ -85,7 +85,7 @@ class ListActorsAction
     /**
      * A typed ID matches the key. Other text matches the name or email columns that exist.
      *
-     * @param  Builder<Model>  $query
+     * @param  Builder<covariant Model>  $query
      * @param  list<string>  $columns
      */
     private function applySearch(Builder $query, Model $model, array $columns, string $search): void

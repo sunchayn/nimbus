@@ -2,6 +2,7 @@
 
 namespace Sunchayn\Nimbus\Tests\App\Modules\Magic\Injectors;
 
+use Illuminate\Auth\AuthManager;
 use Illuminate\Auth\SessionGuard;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -365,7 +366,7 @@ class RememberMeCookieInjectorUnitTest extends TestCase
             ->shouldReceive('getAuthGuard')
             ->andReturn('web');
 
-        $authManagerMock = Mockery::mock(\Illuminate\Auth\AuthManager::class);
+        $authManagerMock = Mockery::mock(AuthManager::class);
         $authManagerMock
             ->shouldReceive('guard')
             ->with('web')

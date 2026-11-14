@@ -40,7 +40,7 @@ class RequestSchemaExtractor
 
     public function extract(?Route $route): Schema
     {
-        if (! $route instanceof \Illuminate\Routing\Route) {
+        if (! $route instanceof Route) {
             return Schema::empty();
         }
 

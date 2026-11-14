@@ -2,7 +2,9 @@
 
 namespace Sunchayn\Nimbus\Tests\App\Modules\Routes\Actions;
 
+use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\GlobalHeaderGeneratorTypeEnum;
 use Sunchayn\Nimbus\Modules\Routes\Actions\BuildGlobalHeadersAction;
 use Sunchayn\Nimbus\Tests\TestCase;
@@ -21,7 +23,7 @@ class BuildGlobalHeadersActionFunctionalTest extends TestCase
             'X-Custom-Header' => '::value::',
         ];
 
-        $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class, function (\Mockery\MockInterface $mock) use ($globalHeadersConfig) {
+        $this->mock(ActiveApplicationResolver::class, function (MockInterface $mock) use ($globalHeadersConfig) {
             $mock->shouldReceive('getHeaders')->andReturn($globalHeadersConfig);
         });
 
@@ -64,7 +66,7 @@ class BuildGlobalHeadersActionFunctionalTest extends TestCase
     {
         // Arrange
 
-        $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class, function (\Mockery\MockInterface $mock) {
+        $this->mock(ActiveApplicationResolver::class, function (MockInterface $mock) {
             $mock->shouldReceive('getHeaders')->andReturn([]);
         });
 
@@ -90,7 +92,7 @@ class BuildGlobalHeadersActionFunctionalTest extends TestCase
             'X-Custom-Header' => '::value::',
         ];
 
-        $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class, function (\Mockery\MockInterface $mock) use ($globalHeadersConfig) {
+        $this->mock(ActiveApplicationResolver::class, function (MockInterface $mock) use ($globalHeadersConfig) {
             $mock->shouldReceive('getHeaders')->andReturn($globalHeadersConfig);
         });
 

@@ -68,7 +68,7 @@ class InferSchemaFromArrayAstAction
     /**
      * Resolves type definitions from AST expressions.
      */
-    private function resolveTypeFromExpression(Node\Expr $expr, string $key, VariablesContext $context): SchemaPropertyInterface|Schema
+    private function resolveTypeFromExpression(Expr $expr, string $key, VariablesContext $context): SchemaPropertyInterface|Schema
     {
         if ($expr instanceof Array_) {
             if ($this->isListArray($expr)) {
@@ -109,7 +109,7 @@ class InferSchemaFromArrayAstAction
         return null;
     }
 
-    private function attemptGettingTypeFromScalar(Node\Expr $expr, string $key): ?SchemaPropertyInterface
+    private function attemptGettingTypeFromScalar(Expr $expr, string $key): ?SchemaPropertyInterface
     {
         $phpType = $this->getPhpTypeFromAstScalarAction->execute($expr);
 

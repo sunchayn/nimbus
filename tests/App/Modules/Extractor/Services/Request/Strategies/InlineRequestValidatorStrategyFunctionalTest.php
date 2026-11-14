@@ -7,6 +7,7 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Extractor\Services\Request\Strategie
 use Generator;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Validator;
 use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -339,7 +340,7 @@ class InlineValidationControllerStub
 {
     public function withValidatorMakeFacade(Request $request): void
     {
-        \Illuminate\Support\Facades\Validator::make($request->all(), [
+        Validator::make($request->all(), [
             'current_password' => ['required', 'string', 'current_password:web'],
             'password' => $this->passwordRules(),
         ], [

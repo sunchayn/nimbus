@@ -27,12 +27,12 @@ class GetPhpTypeFromAstScalarAction
             $expr instanceof Node\Scalar\Int_ => 'integer',
             $expr instanceof Node\Scalar\Float_ => 'number',
             // Constants (true, false, null) are encoded as ConstFetch nodes.
-            $expr instanceof Node\Expr\ConstFetch => $this->resolveConstFetchType($expr),
+            $expr instanceof Expr\ConstFetch => $this->resolveConstFetchType($expr),
             default => null,
         };
     }
 
-    private function resolveConstFetchType(Node\Expr\ConstFetch $constFetch): ?string
+    private function resolveConstFetchType(Expr\ConstFetch $constFetch): ?string
     {
         $name = $constFetch->name->toLowerString();
 

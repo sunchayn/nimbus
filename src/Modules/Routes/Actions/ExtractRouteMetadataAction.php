@@ -5,8 +5,13 @@ declare(strict_types=1);
 namespace Sunchayn\Nimbus\Modules\Routes\Actions;
 
 use Closure;
+use Illuminate\Auth\Middleware\Authenticate;
+use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
+use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Routing\Middleware\ThrottleRequestsWithRedis;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Str;
@@ -28,23 +33,23 @@ class ExtractRouteMetadataAction
         'auth',
         'auth.basic',
         'auth.session',
-        \Illuminate\Auth\Middleware\Authenticate::class,
-        \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        Authenticate::class,
+        AuthenticateWithBasicAuth::class,
     ];
 
     private const AUTH_HINT_NAMES = [
         'can',
         'ability',
         'abilities',
-        \Illuminate\Auth\Middleware\Authorize::class,
+        Authorize::class,
         'Laravel\Sanctum\Http\Middleware\CheckAbilities',
         'Laravel\Sanctum\Http\Middleware\CheckForAnyAbility',
     ];
 
     private const THROTTLE_NAMES = [
         'throttle',
-        \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        \Illuminate\Routing\Middleware\ThrottleRequestsWithRedis::class,
+        ThrottleRequests::class,
+        ThrottleRequestsWithRedis::class,
     ];
 
     public function __construct(

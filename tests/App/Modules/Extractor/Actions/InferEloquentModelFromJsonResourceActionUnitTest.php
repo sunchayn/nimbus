@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace Sunchayn\Nimbus\Tests\App\Modules\Extractor\Actions {
+    use App\Models\User;
     use Generator;
     use Mockery;
     use PHPUnit\Framework\Attributes\CoversClass;
@@ -66,7 +67,7 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Extractor\Actions {
             yield 'resolves via name convention' => [
                 'docBlock' => '/** Nothing */',
                 'className' => 'UserResource',
-                'expectedModel' => \App\Models\User::class,
+                'expectedModel' => User::class,
             ];
 
             yield 'returns null when property class does not exist' => [

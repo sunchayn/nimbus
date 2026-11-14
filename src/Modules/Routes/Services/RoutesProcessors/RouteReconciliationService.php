@@ -43,7 +43,7 @@ class RouteReconciliationService
 
             $matchingRouteInApplication = $this->findMatchingRoute($routeSignatures, $lookup);
 
-            $isMatching = $matchingRouteInApplication instanceof \Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
+            $isMatching = $matchingRouteInApplication instanceof ExtractedRoute;
 
             $signatures = [...$signatures, ...array_values($routeSignatures)];
 

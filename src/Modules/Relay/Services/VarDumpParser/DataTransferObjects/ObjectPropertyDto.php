@@ -7,7 +7,11 @@ namespace Sunchayn\Nimbus\Modules\Relay\Services\VarDumpParser\DataTransferObjec
 use Illuminate\Contracts\Support\Arrayable;
 
 /**
- * @implements Arrayable<string, string|array>
+ * @phpstan-import-type ParsedValueShape from ParsedValueDto
+ *
+ * @phpstan-type ObjectPropertyShape array{visibility: string, value: ParsedValueShape}
+ *
+ * @implements Arrayable<string, string|ParsedValueShape>
  */
 readonly class ObjectPropertyDto implements Arrayable
 {
@@ -16,6 +20,9 @@ readonly class ObjectPropertyDto implements Arrayable
         public ParsedValueDto $value,
     ) {}
 
+    /**
+     * @return ObjectPropertyShape
+     */
     public function toArray(): array
     {
         return [

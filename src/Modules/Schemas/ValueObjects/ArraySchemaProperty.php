@@ -86,7 +86,7 @@ class ArraySchemaProperty implements SchemaPropertyInterface
             'type' => $this->nullable ? [$this->getType()->value, 'null'] : $this->getType()->value,
         ];
 
-        if ($this->schemaProperty instanceof \Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface) {
+        if ($this->schemaProperty instanceof SchemaPropertyInterface) {
             $properties['items'] = $this->schemaProperty->toJsonSchema();
         }
 

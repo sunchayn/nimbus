@@ -18,7 +18,7 @@ class InRuleProcessor
     public static function process(In $in): array
     {
         /** @var array<array-key, scalar|object> $rawValues */
-        $rawValues = invade($in)->values; // @phpstan-ignore-line
+        $rawValues = invade($in)->values;
 
         // Normalize the values into primitives.
         $values = array_map(

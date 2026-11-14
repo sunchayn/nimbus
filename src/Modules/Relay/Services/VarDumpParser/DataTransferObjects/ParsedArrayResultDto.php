@@ -7,7 +7,7 @@ namespace Sunchayn\Nimbus\Modules\Relay\Services\VarDumpParser\DataTransferObjec
 use Illuminate\Contracts\Support\Arrayable;
 
 /**
- * @implements Arrayable<string, int|array>
+ * @implements Arrayable<string, array<string, mixed>|int|bool>
  */
 readonly class ParsedArrayResultDto implements Arrayable
 {
@@ -19,6 +19,9 @@ readonly class ParsedArrayResultDto implements Arrayable
         public bool $numericallyIndexed,
     ) {}
 
+    /**
+     * @return array{items: array<string, mixed>, length: int, numericallyIndexed: bool}
+     */
     public function toArray(): array
     {
         return [

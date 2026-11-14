@@ -124,7 +124,7 @@ class PropertyBuilder
 
             $format = $this->detectFormatFromRule($rule);
 
-            if ($format instanceof \Sunchayn\Nimbus\Modules\Schemas\Enums\StringFormat) {
+            if ($format instanceof StringFormat) {
                 return $format;
             }
         }

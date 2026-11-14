@@ -18,7 +18,7 @@ class EnumRuleProcessor
     public static function process(Enum $rule): array
     {
         /** @var class-string<UnitEnum> $enumClass */
-        $enumClass = invade($rule)->type; // @phpstan-ignore-line
+        $enumClass = invade($rule)->type;
 
         if (! enum_exists($enumClass)) {
             return ['type' => SchemaPropertyType::STRING, 'enum' => null];

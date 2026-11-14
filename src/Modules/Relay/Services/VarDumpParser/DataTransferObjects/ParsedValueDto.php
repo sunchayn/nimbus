@@ -6,7 +6,9 @@ use Illuminate\Contracts\Support\Arrayable;
 use Sunchayn\Nimbus\Modules\Relay\Services\VarDumpParser\Enums\DumpValueTypeEnum;
 
 /**
- * @implements Arrayable<string, string|float|int|bool|null|array>
+ * @phpstan-type ParsedValueShape array{type: string, value: array<string, mixed>|string|float|int|bool|null}
+ *
+ * @implements Arrayable<string, string|array<string, mixed>|float|int|bool|null>
  */
 readonly class ParsedValueDto implements Arrayable
 {
@@ -15,6 +17,9 @@ readonly class ParsedValueDto implements Arrayable
         public ParsedArrayResultDto|ParsedObjectResultDto|ParsedClosureResultDto|string|float|int|bool|null $value,
     ) {}
 
+    /**
+     * @return ParsedValueShape
+     */
     public function toArray(): array
     {
         return [

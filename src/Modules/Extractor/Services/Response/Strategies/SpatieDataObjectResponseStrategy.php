@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sunchayn\Nimbus\Modules\Extractor\Services\Response\Strategies;
 
 use Illuminate\Routing\Route;
+use Spatie\LaravelData\Data;
 use Sunchayn\Nimbus\Modules\Ast\Actions\ResolveClassReturnTypeAction;
 use Sunchayn\Nimbus\Modules\Extractor\Actions\InferSchemaFromSpatieDataObjectAction;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\Contracts\ResponseSchemaStrategyContract;
@@ -23,7 +24,7 @@ class SpatieDataObjectResponseStrategy implements ResponseSchemaStrategyContract
     public function attempt(Route $route): ?Schema
     {
         // @codeCoverageIgnoreStart
-        if (! class_exists(\Spatie\LaravelData\Data::class)) {
+        if (! class_exists(Data::class)) {
             return null;
         }
 
@@ -43,7 +44,7 @@ class SpatieDataObjectResponseStrategy implements ResponseSchemaStrategyContract
         );
 
         // @phpstan-ignore-next-line class-string is same as string (what is expected in is_subclass_of).
-        if (! is_subclass_of($returnType, \Spatie\LaravelData\Data::class)) {
+        if (! is_subclass_of($returnType, Data::class)) {
             return null;
         }
 

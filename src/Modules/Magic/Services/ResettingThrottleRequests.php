@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sunchayn\Nimbus\Modules\Magic\Services;
 
 use Closure;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
@@ -14,7 +15,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 class ResettingThrottleRequests extends ThrottleRequests
 {
     /**
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @param  array<int, object{key: string}>  $limits
      */
     protected function handleRequest($request, Closure $next, array $limits)

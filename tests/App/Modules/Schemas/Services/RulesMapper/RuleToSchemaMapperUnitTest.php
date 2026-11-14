@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Sunchayn\Nimbus\Tests\App\Modules\Schemas\RulesMapper;
 
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Sunchayn\Nimbus\Modules\Schemas\Enums\SchemaPropertyType;
 use Sunchayn\Nimbus\Modules\Schemas\Services\RulesMapper\Processors\EnumRuleProcessor;
 use Sunchayn\Nimbus\Modules\Schemas\Services\RulesMapper\Processors\InRuleProcessor;
 use Sunchayn\Nimbus\Modules\Schemas\Services\RulesMapper\RuleToSchemaMapper;
+use Sunchayn\Nimbus\Tests\App\Modules\Schemas\Services\Builders\Stubs\StatusEnumStub;
 
 #[CoversClass(RuleToSchemaMapper::class)]
 #[CoversClass(EnumRuleProcessor::class)]
@@ -76,9 +78,9 @@ class RuleToSchemaMapperUnitTest extends TestCase
     {
         // Arrange
 
-        $validEnumRule = Rule::enum(\Sunchayn\Nimbus\Tests\App\Modules\Schemas\Services\Builders\Stubs\StatusEnumStub::class);
-        $invalidEnumRule = new \Illuminate\Validation\Rules\Enum('NonExistentEnumClass');
-        $emptyEnumRule = new \Illuminate\Validation\Rules\Enum(\Sunchayn\Nimbus\Tests\App\Modules\Schemas\RulesMapper\EmptyUnitEnum::class);
+        $validEnumRule = Rule::enum(StatusEnumStub::class);
+        $invalidEnumRule = new Enum('NonExistentEnumClass');
+        $emptyEnumRule = new Enum(EmptyUnitEnum::class);
 
         // Act
 

@@ -8,6 +8,9 @@ use Generator;
 use Illuminate\Routing\Route;
 use Mockery;
 use Mockery\MockInterface;
+use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor\NameResolver;
+use PhpParser\ParserFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Modules\Ast\Actions\LoadClassAstAction;
@@ -152,7 +155,7 @@ class FormRequestStrategyFunctionalTest extends TestCase
 
         $responseSchemaStub = new Schema([new StringSchemaProperty('fallback')]);
 
-        $parser = (new \PhpParser\ParserFactory)->createForNewestSupportedVersion();
+        $parser = (new ParserFactory)->createForNewestSupportedVersion();
 
         $stmts = $parser->parse(<<<'PHP'
             <?php
@@ -164,8 +167,8 @@ class FormRequestStrategyFunctionalTest extends TestCase
             }
             PHP);
 
-        $traverser = new \PhpParser\NodeTraverser;
-        $traverser->addVisitor(new \PhpParser\NodeVisitor\NameResolver);
+        $traverser = new NodeTraverser;
+        $traverser->addVisitor(new NameResolver);
         $stmts = $traverser->traverse($stmts);
 
         // Anticipate

@@ -9,7 +9,6 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
-use PhpParser\Node\VariadicPlaceholder;
 use ReflectionException;
 use ReflectionMethod;
 use Sunchayn\Nimbus\Modules\Ast\Contracts\AstContextValueContract;
@@ -56,13 +55,13 @@ class GetConcreteValueFromAstExprAction
             $node instanceof Node\Scalar\String_ => new ScalarAstContextValue(value: $node->value, variableName: $this->variableName),
             $node instanceof Node\Scalar\Int_ => new ScalarAstContextValue(value: $node->value, variableName: $this->variableName),
             $node instanceof Node\Scalar\Float_ => new ScalarAstContextValue(value: $node->value, variableName: $this->variableName),
-            $node instanceof Node\Expr\Array_ => new ArrayAstContextValue(value: $this->resolveArray($node), variableName: $this->variableName),
-            $node instanceof Node\Expr\Variable => $this->resolveVariable($node),
+            $node instanceof Expr\Array_ => new ArrayAstContextValue(value: $this->resolveArray($node), variableName: $this->variableName),
+            $node instanceof Expr\Variable => $this->resolveVariable($node),
             $node instanceof Expr\MethodCall => $this->resolveMethodCall($node),
-            $node instanceof Node\Expr\StaticCall => $this->resolveStaticCall($node),
+            $node instanceof Expr\StaticCall => $this->resolveStaticCall($node),
             $node instanceof Expr\New_ => $this->resolveNewInstance($node),
-            $node instanceof Node\Expr\ConstFetch => new ScalarAstContextValue(value: $this->resolveConstant($node), variableName: $this->variableName),
-            $node instanceof Node\Expr\BinaryOp\Concat => new ScalarAstContextValue(value: $this->resolveConcatenation($node), variableName: $this->variableName),
+            $node instanceof Expr\ConstFetch => new ScalarAstContextValue(value: $this->resolveConstant($node), variableName: $this->variableName),
+            $node instanceof Expr\BinaryOp\Concat => new ScalarAstContextValue(value: $this->resolveConcatenation($node), variableName: $this->variableName),
             $node instanceof Node\Scalar\InterpolatedString => new ScalarAstContextValue(value: $this->resolveInterpolatedString($node), variableName: $this->variableName),
             $node instanceof Node\InterpolatedStringPart => new ScalarAstContextValue(value: $node->value, variableName: $this->variableName),
             $node instanceof Expr\ClassConstFetch && $node->class instanceof Name => new ScalarAstContextValue(value: $node->class->name, variableName: $this->variableName),
@@ -73,7 +72,7 @@ class GetConcreteValueFromAstExprAction
     /**
      * @return array<array-key, mixed>
      */
-    private function resolveArray(Node\Expr\Array_ $array): array
+    private function resolveArray(Expr\Array_ $array): array
     {
         $result = [];
 
@@ -96,7 +95,7 @@ class GetConcreteValueFromAstExprAction
         return $result;
     }
 
-    private function resolveVariable(Node\Expr\Variable $variable): AstContextValueContract
+    private function resolveVariable(Expr\Variable $variable): AstContextValueContract
     {
         $varName = $variable->name;
 
@@ -111,12 +110,12 @@ class GetConcreteValueFromAstExprAction
         return $this->variablesContext->get($varName) ?? new ScalarAstContextValue(value: null, variableName: $this->variableName);
     }
 
-    private function resolveStaticCall(Node\Expr\StaticCall $staticCall): AstContextValueContract
+    private function resolveStaticCall(Expr\StaticCall $staticCall): AstContextValueContract
     {
         $arguments = array_filter(
             array_map(
-                function (Arg|VariadicPlaceholder $argNode): mixed {
-                    if ($argNode instanceof VariadicPlaceholder) {
+                function (Node $argNode): mixed {
+                    if (! $argNode instanceof Arg) {
                         return null;
                     }
 
@@ -161,12 +160,12 @@ class GetConcreteValueFromAstExprAction
         return new ObjectAstContextValue(className: $new->class->toString(), variableName: $this->variableName);
     }
 
-    private function resolveConstant(Node\Expr\ConstFetch $constFetch): mixed
+    private function resolveConstant(Expr\ConstFetch $constFetch): mixed
     {
         return constant($constFetch->name->toString());
     }
 
-    private function resolveConcatenation(Node\Expr\BinaryOp\Concat $concat): string
+    private function resolveConcatenation(Expr\BinaryOp\Concat $concat): string
     {
         return $this->process($concat->left)->getValue().$this->process($concat->right)->getValue();
     }

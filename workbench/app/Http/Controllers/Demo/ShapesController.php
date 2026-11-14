@@ -9,6 +9,7 @@ use Workbench\App\Http\Requests\Demo\ArrayOfPrimitivesRequest;
 use Workbench\App\Http\Requests\Demo\NestedObjectRequest;
 use Workbench\App\Http\Requests\Demo\RuleCoverageRequest;
 use Workbench\App\Http\Requests\Demo\RuleObjectsRequest;
+use Workbench\App\Http\Requests\Demo\UnresolvableRulesRequest;
 
 /**
  * Request shapes that need a FormRequest, and cookies set by the response.
@@ -62,7 +63,7 @@ class ShapesController
         ], 201);
     }
 
-    public function unresolvableRules(\Workbench\App\Http\Requests\Demo\UnresolvableRulesRequest $request): JsonResponse
+    public function unresolvableRules(UnresolvableRulesRequest $request): JsonResponse
     {
         return response()->json(['message' => 'Never reached.']);
     }

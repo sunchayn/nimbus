@@ -13,7 +13,7 @@ class BuildGlobalHeadersAction
     ) {}
 
     /**
-     * @return array<array-key, scalar|null>
+     * @return list<array{header: string, type: string, value: scalar|null}>
      */
     public function execute(): array
     {
@@ -26,7 +26,7 @@ class BuildGlobalHeadersAction
                 function (mixed $value, string $header): array {
                     $generator = GlobalHeaderGeneratorTypeEnum::tryFromAlias($value);
 
-                    if ($generator instanceof \Sunchayn\Nimbus\Modules\Config\GlobalHeaderGeneratorTypeEnum) {
+                    if ($generator instanceof GlobalHeaderGeneratorTypeEnum) {
                         return [
                             'header' => $header,
                             'type' => 'generator',

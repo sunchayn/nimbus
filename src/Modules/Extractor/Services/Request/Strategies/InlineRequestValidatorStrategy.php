@@ -6,6 +6,7 @@ namespace Sunchayn\Nimbus\Modules\Extractor\Services\Request\Strategies;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Validator;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Identifier;
@@ -105,7 +106,7 @@ class InlineRequestValidatorStrategy implements RequestSchemaStrategyContract
     private function collectValidatorStaticNodes(MethodQuery $routeActionMethod): array
     {
         $calls = $routeActionMethod->findStaticCalls(
-            targetClasses: ['Validator', \Illuminate\Support\Facades\Validator::class],
+            targetClasses: ['Validator', Validator::class],
             methodNames: ['make'],
         );
 
