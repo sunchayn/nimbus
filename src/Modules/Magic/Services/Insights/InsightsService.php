@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sunchayn\Nimbus\Modules\Magic\Services\Insights;
 
+use Closure;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Foundation\Http\Events\RequestHandled;
 use Sunchayn\Nimbus\Modules\Magic\DataTransferObjects\InsightData;
@@ -12,6 +13,8 @@ use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Support\InsightClock;
 
 /**
  * Runs every collector strategy during one request and writes the result to the insight store when the request is handled.
+ *
+ * @phpstan-import-type Sandbox from InsightData
  */
 class InsightsService
 {
@@ -20,6 +23,8 @@ class InsightsService
     public const COLLECTORS_TAG = 'nimbus.insight-collectors';
 
     private string $id = '';
+
+    private ?Closure $sandboxCapture = null;
 
     /**
      * @param  iterable<InsightCollectorContract>  $collectors
@@ -30,6 +35,14 @@ class InsightsService
         private readonly InsightClock $insightClock,
         private readonly iterable $collectors,
     ) {}
+
+    /**
+     * @param  Closure(): Sandbox  $capture
+     */
+    public function captureSandbox(Closure $capture): void
+    {
+        $this->sandboxCapture = $capture;
+    }
 
     public function start(string $id): void
     {
@@ -58,6 +71,7 @@ class InsightsService
             results: $results,
             peakMemory: memory_get_peak_usage(true),
             durationMs: $this->insightClock->elapsedMs(),
+            sandbox: $this->sandboxCapture instanceof Closure ? ($this->sandboxCapture)() : [],
         );
 
         $this->insightStore->write(

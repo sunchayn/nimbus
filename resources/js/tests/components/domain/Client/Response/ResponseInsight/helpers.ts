@@ -33,6 +33,7 @@ export const makeInsight = (overrides: Partial<Insight> = {}): Insight => ({
         events: 0,
     },
     truncated: false,
+    sandbox: {},
     ...overrides,
 });
 

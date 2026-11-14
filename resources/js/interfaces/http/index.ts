@@ -37,5 +37,6 @@ export type {
     InsightMailEntry,
     InsightNotificationEntry,
     InsightQuery,
+    InsightSandbox,
 } from './insight';
 export { STATUS } from './status';

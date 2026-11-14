@@ -56,6 +56,36 @@ class InsightDataUnitTest extends TestCase
         $this->assertSame($data->toArray(), $rebuilt->toArray());
     }
 
+    public function test_it_keeps_the_sandbox_when_it_is_rebuilt_halved_or_stripped_of_its_exception(): void
+    {
+        // Arrange
+
+        $query = ['sql' => 's', 'bindings' => [], 'time_ms' => 1.0, 'connection' => 'c'];
+        $sandbox = ['notifications' => [['notification' => 'App\\Notice', 'notifiable' => 'App\\User#1', 'channels' => ['mail']]]];
+
+        $data = InsightData::fromResults(
+            [new QueriesResult([$query, $query])],
+            peakMemory: 1,
+            durationMs: 1.0,
+            sandbox: $sandbox,
+        );
+
+        // Act & Assert
+
+        $this->assertSame($sandbox, $data->toArray()['sandbox']);
+        $this->assertSame($sandbox, InsightData::fromArray($data->toArray())->toArray()['sandbox']);
+        $this->assertSame($sandbox, $data->halved()?->toArray()['sandbox']);
+        $this->assertSame($sandbox, $data->withoutException()->toArray()['sandbox']);
+    }
+
+    public function test_it_has_an_empty_sandbox_by_default(): void
+    {
+        // Act & Assert
+
+        $this->assertSame([], (new InsightData)->toArray()['sandbox']);
+        $this->assertSame([], InsightData::fromArray([])->toArray()['sandbox']);
+    }
+
     public function test_it_halves_the_larger_list_and_counts_what_it_dropped(): void
     {
         // Arrange

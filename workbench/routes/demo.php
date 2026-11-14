@@ -232,4 +232,5 @@ Route::get('/rate-limit', fn () => response()->json(['ok' => true]))->middleware
 Route::prefix('insight')->group(function () {
     Route::get('/activity', [InsightController::class, 'activity']);
     Route::get('/failure', [InsightController::class, 'failure']);
+    Route::get('/sandbox', [InsightController::class, 'sandbox']);
 });

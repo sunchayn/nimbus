@@ -6,6 +6,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Mail;
 use PHPUnit\Framework\Attributes\CoversClass;
+use Sunchayn\Nimbus\Modules\Magic\Listeners\SandboxModeListener;
 use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\MailCollector;
 use Sunchayn\Nimbus\Tests\TestCase;
 
@@ -37,6 +38,27 @@ class MailCollectorFunctionalTest extends TestCase
         $this->assertSame('Welcome', $result->entries[0]['subject']);
         $this->assertSame(['ada@example.com', 'grace@example.com'], $result->entries[0]['to']);
         $this->assertNull($result->entries[0]['mailable']);
+    }
+
+    public function test_it_ignores_mail_that_sandbox_mode_holds_back(): void
+    {
+        // Arrange
+
+        config([
+            'mail.mailers.'.SandboxModeListener::MAILER => ['transport' => 'array'],
+            'mail.default' => SandboxModeListener::MAILER,
+        ]);
+
+        $collector = resolve(MailCollector::class);
+        $collector->start();
+
+        // Act
+
+        Mail::raw('Hello', fn ($message) => $message->to('ada@example.com')->subject('Welcome'));
+
+        // Assert
+
+        $this->assertSame([], $collector->collect()->entries);
     }
 
     public function test_it_records_the_class_of_a_mailable(): void

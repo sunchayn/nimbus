@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Queue;
 use RuntimeException;
 use Workbench\App\Events\InventorySynced;
 use Workbench\App\Jobs\SyncInventoryJob;
@@ -54,6 +55,23 @@ class InsightController
 
         Mail::to('demo@example.com')->send(new OrderReceiptMail);
         Notification::route('mail', 'demo@example.com')->notify(new OrderReceiptNotification);
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function sandbox(): JsonResponse
+    {
+        Mail::html('<p>Hello from the sandbox demo.</p>', fn ($message) => $message->to('demo@example.com')->subject('Sandbox demo'));
+
+        Notification::route('mail', 'demo@example.com')->notify(new class extends \Illuminate\Notifications\Notification
+        {
+            public function via(): array
+            {
+                return ['mail'];
+            }
+        });
+
+        Queue::push(fn () => null);
 
         return response()->json(['ok' => true]);
     }

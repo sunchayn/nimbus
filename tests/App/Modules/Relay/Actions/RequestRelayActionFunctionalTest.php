@@ -1027,6 +1027,55 @@ class RequestRelayActionFunctionalTest extends TestCase
         );
     }
 
+    public function test_it_relays_sandbox_header(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'POST',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [
+                'Content-Type' => 'application/json',
+            ],
+            body: ['test' => 'data'],
+            cookies: new ParameterBag,
+            sandbox: 'mail,queue',
+        );
+
+        // Anticipate
+
+        Http::fake(function (Request $request) {
+            return Http::response([
+                'receivedHeaders' => $request->headers(),
+            ], 200);
+        });
+
+        $this->mockAuthorizationHandler();
+
+        $requestRelayAction = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $requestRelayAction->execute($requestData);
+
+        // Assert
+
+        $this->assertEquals(200, $response->statusCode);
+
+        $this->assertArrayHasKey(
+            'x-nimbus-sandbox',
+            $response->body->body['receivedHeaders'],
+            'The sandbox header should be present in the relayed request.',
+        );
+
+        $this->assertEquals(
+            'mail,queue',
+            $response->body->body['receivedHeaders']['x-nimbus-sandbox'][0],
+            'The sandbox header should carry the chosen options.',
+        );
+    }
+
     /*
      * Helpers.
      */

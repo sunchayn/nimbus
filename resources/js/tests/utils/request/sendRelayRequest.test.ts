@@ -119,6 +119,27 @@ describe('sendRelayRequest', () => {
             expect(sentHeaders[1]['X-Nimbus-Reset-Limiter']).toBe('1');
         });
 
+        it('should send the chosen sandbox options as a header', async () => {
+            // Arrange
+
+            mockedAxios.post.mockResolvedValue({
+                data: JSON.stringify(createMockRelayProxyResponse({})),
+            });
+
+            // Act
+
+            await sendRelayRequest(
+                createMockPendingRequest({ sandbox: ['mail', 'queue'] }),
+                options,
+            );
+
+            // Assert
+
+            expect(mockedAxios.post.mock.calls[0][2]?.headers).toMatchObject({
+                'X-Nimbus-Sandbox': 'mail,queue',
+            });
+        });
+
         it('should forward a download once and keep only its metadata', async () => {
             // Arrange
 

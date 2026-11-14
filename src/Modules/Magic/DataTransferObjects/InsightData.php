@@ -31,9 +31,16 @@ use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Results\QueriesResult;
  * @phpstan-import-type ExceptionInfo from ExceptionResult
  *
  * @phpstan-type Dropped array{queries: int, logs: int, cache: int, jobs: int, mail: int, notifications: int, http: int, events: int}
+ * @phpstan-type SandboxMail array{subject: string, to: list<string>, body: string}
+ * @phpstan-type SandboxNotification array{notification: string, notifiable: string, channels: list<string>}
+ * @phpstan-type SandboxJob array{job: string, queue: string}
+ * @phpstan-type Sandbox array{mail?: list<SandboxMail>, notifications?: list<SandboxNotification>, jobs?: list<SandboxJob>}
  */
 class InsightData
 {
+    /**
+     * @param  Sandbox  $sandbox
+     */
     public function __construct(
         public readonly QueriesResult $queries = new QueriesResult,
         public readonly LogsResult $logs = new LogsResult,
@@ -48,14 +55,16 @@ class InsightData
         public readonly int $peakMemory = 0,
         public readonly float $durationMs = 0.0,
         public readonly bool $truncated = false,
+        public readonly array $sandbox = [],
     ) {}
 
     /**
      * Places each result in its slot. A slot without a result stays empty.
      *
      * @param  iterable<InsightCollectorResult>  $results
+     * @param  Sandbox  $sandbox
      */
-    public static function fromResults(iterable $results, int $peakMemory, float $durationMs): self
+    public static function fromResults(iterable $results, int $peakMemory, float $durationMs, array $sandbox = []): self
     {
         return new self(
             queries: self::pick($results, QueriesResult::class),
@@ -70,6 +79,7 @@ class InsightData
             exception: self::pick($results, ExceptionResult::class),
             peakMemory: $peakMemory,
             durationMs: $durationMs,
+            sandbox: $sandbox,
         );
     }
 
@@ -94,6 +104,7 @@ class InsightData
             peakMemory: (int) ($data['peak_memory'] ?? 0),
             durationMs: (float) ($data['duration_ms'] ?? 0),
             truncated: (bool) ($data['truncated'] ?? false),
+            sandbox: $data['sandbox'] ?? [],
         );
     }
 
@@ -145,6 +156,7 @@ class InsightData
      *     duration_ms: float,
      *     dropped: Dropped,
      *     truncated: bool,
+     *     sandbox: Sandbox,
      * }
      */
     public function toArray(): array
@@ -173,6 +185,7 @@ class InsightData
                 'events' => $this->events->dropped,
             ],
             'truncated' => $this->truncated,
+            'sandbox' => $this->sandbox,
         ];
     }
 

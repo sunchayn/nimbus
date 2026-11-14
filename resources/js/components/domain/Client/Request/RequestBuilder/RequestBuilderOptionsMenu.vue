@@ -90,6 +90,24 @@ const signUrl = computed({
     set: (value: boolean) => requestStore.updateSignUrl(value),
 });
 
+const SANDBOX_OPTIONS: { value: string; label: string; help?: string }[] = [
+    { value: 'mail', label: 'Mail' },
+    { value: 'notifications', label: 'Notifications' },
+    { value: 'queue', label: 'Queued jobs' },
+    {
+        value: 'events',
+        label: 'Events',
+        help: 'Also stops model events, so observers and listeners do not run.',
+    },
+];
+
+const toggleSandbox = (value: string, enabled: boolean) => {
+    const current = pendingRequestData.value?.sandbox ?? [];
+    const next = enabled ? [...current, value] : current.filter(item => item !== value);
+
+    requestStore.updateSandbox([...new Set(next)]);
+};
+
 /**
  * Generates the cURL command for the current request.
  */
@@ -177,6 +195,20 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
                 showTimeTravelDialog.value = true;
             },
         },
+        {
+            label: 'Sandbox',
+            icon: 'i-hugeicons-shield-01',
+            testId: 'sandbox-option',
+            children: SANDBOX_OPTIONS.map(option => ({
+                type: 'checkbox' as const,
+                label: option.label,
+                help: option.help,
+                checked: pendingRequestData.value?.sandbox?.includes(option.value),
+                onUpdateChecked: (checked: boolean) =>
+                    toggleSandbox(option.value, checked),
+                onSelect: (event: Event) => event.preventDefault(),
+            })),
+        },
     ],
     [
         { label: 'Export', type: 'label' },
@@ -215,8 +247,36 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
             square
         />
 
+        <template #content-top="{ sub }">
+            <div
+                v-if="sub"
+                class="text-muted px-base py-tight w-48 border-b text-xs"
+                data-testid="sandbox-intro"
+            >
+                <strong>Sandbox</strong>
+                <p class="">Pick side effects to fake</p>
+            </div>
+        </template>
+
         <template #item-label="{ item }">
             <span :data-testid="item.testId">{{ item.label }}</span>
+            <AppPopover v-if="item.help" :content="{ side: 'right', sideOffset: 5 }">
+                <button
+                    type="button"
+                    :aria-label="`About ${item.label}`"
+                    class="-m-tight p-tight ms-tight rounded-sm align-middle"
+                    @click.stop.prevent
+                >
+                    <AppIcon
+                        name="i-hugeicons-help-circle"
+                        class="text-muted hover:text-highlighted size-icon-sm cursor-help"
+                    />
+                </button>
+
+                <template #content>
+                    <p class="text-muted text-xs">{{ item.help }}</p>
+                </template>
+            </AppPopover>
         </template>
 
         <template #transaction="{ item }">

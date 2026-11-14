@@ -15,4 +15,8 @@ export type {
     InsightMailEntry,
     InsightNotificationEntry,
     InsightQuery,
+    InsightSandbox,
+    InsightSandboxJob,
+    InsightSandboxMail,
+    InsightSandboxNotification,
 } from '@/interfaces/generated/insight';

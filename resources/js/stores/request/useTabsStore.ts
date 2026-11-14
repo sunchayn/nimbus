@@ -222,6 +222,7 @@ export const useTabsStore = defineStore(
                 options: activeRequest.value?.options
                     ? { ...activeRequest.value.options }
                     : undefined,
+                sandbox: [...(activeRequest.value?.sandbox ?? [])],
             };
 
             syncGlobalHeadersForRequest(request);
@@ -493,6 +494,12 @@ export const useTabsStore = defineStore(
             }
         }
 
+        function updateSandbox(sandbox: string[]) {
+            if (activeRequest.value) {
+                activeRequest.value.sandbox = sandbox;
+            }
+        }
+
         const resetRequest = () => {
             if (activeTabId.value) {
                 closeTab(activeTabId.value);
@@ -692,6 +699,7 @@ export const useTabsStore = defineStore(
             updateOptions,
             updateSignUrl,
             updateTimeTravel,
+            updateSandbox,
             resetRequest,
             restoreFromHistory,
             restoreFromSharedPayload,

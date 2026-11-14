@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\InsightCollectorListener;
+use Sunchayn\Nimbus\Modules\Magic\Listeners\SandboxModeListener;
 use Sunchayn\Nimbus\Modules\Magic\Services\Insights\InsightsService;
 use Sunchayn\Nimbus\Modules\Magic\Services\Insights\InsightStore;
 use Sunchayn\Nimbus\Tests\TestCase;
@@ -21,6 +22,7 @@ use Workbench\App\Notifications\OrderReceiptNotification;
 #[CoversClass(InsightCollectorListener::class)]
 #[CoversClass(InsightsService::class)]
 #[CoversClass(InsightController::class)]
+#[CoversClass(SandboxModeListener::class)]
 class InsightTest extends TestCase
 {
     private const ID = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
@@ -133,5 +135,75 @@ class InsightTest extends TestCase
         // Assert
 
         $this->assertNull(resolve(InsightStore::class)->pull('../bad'));
+    }
+
+    public function test_it_captures_mail_notifications_and_jobs_in_sandbox_mode(): void
+    {
+        // Act
+
+        $this->getJson('demo/insight/sandbox', [
+            InsightStore::HEADER => self::ID,
+            SandboxModeListener::HEADER => 'mail, notifications, queue',
+        ])->assertOk();
+
+        $insight = resolve(InsightStore::class)->pull(self::ID);
+
+        // Assert
+
+        $this->assertIsArray($insight);
+        $this->assertSame([], $insight['mail']);
+        $this->assertSame('Sandbox demo', $insight['sandbox']['mail'][0]['subject']);
+        $this->assertSame(['demo@example.com'], $insight['sandbox']['mail'][0]['to']);
+        $this->assertStringContainsString('Hello from the sandbox demo.', $insight['sandbox']['mail'][0]['body']);
+        $this->assertSame(['mail'], $insight['sandbox']['notifications'][0]['channels']);
+        $this->assertStringEndsWith('@anonymous', $insight['sandbox']['notifications'][0]['notification']);
+        $this->assertSame('Illuminate\\Notifications\\AnonymousNotifiable', $insight['sandbox']['notifications'][0]['notifiable']);
+        $this->assertSame('default', $insight['sandbox']['jobs'][0]['queue']);
+        $this->assertSame('Illuminate\\Queue\\CallQueuedClosure', $insight['sandbox']['jobs'][0]['job']);
+    }
+
+    public function test_it_lists_a_sandboxed_kind_that_captured_nothing(): void
+    {
+        // Act
+
+        $this->getJson('demo/rate-limit', [
+            InsightStore::HEADER => self::ID,
+            SandboxModeListener::HEADER => 'mail, queue',
+        ])->assertOk();
+
+        $insight = resolve(InsightStore::class)->pull(self::ID);
+
+        // Assert
+
+        $this->assertIsArray($insight);
+        $this->assertSame(['mail' => [], 'jobs' => []], $insight['sandbox']);
+    }
+
+    public function test_it_captures_nothing_without_the_sandbox_header(): void
+    {
+        // Act
+
+        $this->getJson('demo/insight/activity', [InsightStore::HEADER => self::ID])->assertOk();
+
+        $insight = resolve(InsightStore::class)->pull(self::ID);
+
+        // Assert
+
+        $this->assertIsArray($insight);
+        $this->assertSame([], $insight['sandbox']);
+    }
+
+    public function test_it_keeps_the_insight_working_when_events_are_faked(): void
+    {
+        // Act
+
+        $this->getJson('demo/insight/activity', [
+            InsightStore::HEADER => self::ID,
+            SandboxModeListener::HEADER => 'events',
+        ])->assertOk();
+
+        // Assert
+
+        $this->assertIsArray(resolve(InsightStore::class)->pull(self::ID));
     }
 }
