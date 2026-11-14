@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sunchayn\Nimbus\Tests\App\Modules\Ast\Queries;
 
 use Generator;
+use Illuminate\Http\Request;
 use PhpParser\Node;
 use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
@@ -155,7 +156,7 @@ class MethodQueryUnitTest extends TestCase
                     public function run(\Illuminate\Http\Request $request) {}
                 }
                 PHP,
-            'type' => \Illuminate\Http\Request::class,
+            'type' => Request::class,
             'expectedParameterName' => 'request',
         ];
 
@@ -177,7 +178,7 @@ class MethodQueryUnitTest extends TestCase
                     public function run(string|int $request) {}
                 }
                 PHP,
-            'type' => \Illuminate\Http\Request::class,
+            'type' => Request::class,
             'expectedParameterName' => null,
         ];
     }
@@ -236,7 +237,7 @@ class MethodQueryUnitTest extends TestCase
                     }
                 }
                 PHP,
-            'type' => \Illuminate\Http\Request::class,
+            'type' => Request::class,
             'methodNames' => ['validate'],
             'expectedCallNames' => ['validate'],
         ];
@@ -251,7 +252,7 @@ class MethodQueryUnitTest extends TestCase
                     }
                 }
                 PHP,
-            'type' => \Illuminate\Http\Request::class,
+            'type' => Request::class,
             'methodNames' => ['validate', 'validateWithBag'],
             'expectedCallNames' => ['validate', 'validateWithBag'],
         ];

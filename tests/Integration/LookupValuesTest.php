@@ -8,6 +8,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Http\Api\Magic\LookupValuesController;
 use Sunchayn\Nimbus\Http\Api\Magic\LookupValuesRequest;
@@ -105,7 +106,7 @@ class LookupValuesTest extends TestCase
     /**
      * @param  array<int, array{table: string, column: string}>  $pairs
      */
-    private function lookup(array $pairs, string $endpoint = 'demo/shapes/rule-coverage'): \Illuminate\Testing\TestResponse
+    private function lookup(array $pairs, string $endpoint = 'demo/shapes/rule-coverage'): TestResponse
     {
         return $this->postJson(route('nimbus.api.magic.lookup-values'), [
             'method' => 'POST',

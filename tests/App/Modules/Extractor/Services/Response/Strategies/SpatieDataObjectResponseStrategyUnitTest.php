@@ -8,6 +8,7 @@ use Illuminate\Routing\Route;
 use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Spatie\LaravelData\Data;
 use Sunchayn\Nimbus\Modules\Ast\Actions\ResolveClassReturnTypeAction;
 use Sunchayn\Nimbus\Modules\Extractor\Actions\InferSchemaFromSpatieDataObjectAction;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\Strategies\SpatieDataObjectResponseStrategy;
@@ -131,4 +132,4 @@ class SpatieDataObjectResponseStrategyUnitTest extends TestCase
     }
 }
 
-class SomeDummyData extends \Spatie\LaravelData\Data {}
+class SomeDummyData extends Data {}

@@ -4,6 +4,7 @@ namespace Workbench\App\Http\Controllers\Demo;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Spatie\LaravelData\Resolvers\DataValidationRulesResolver;
 use Spatie\LaravelData\Support\Validation\DataRules;
@@ -104,7 +105,7 @@ class DemoController
      */
     public function validatorMakeValidation(Request $request): JsonResponse
     {
-        $validated = \Illuminate\Support\Facades\Validator::make($request->all(), [
+        $validated = Validator::make($request->all(), [
             'current_password' => ['required', 'string', 'current_password:web'],
             'password' => $this->passwordRules(),
         ], [

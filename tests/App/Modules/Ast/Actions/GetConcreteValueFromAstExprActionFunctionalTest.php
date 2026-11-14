@@ -200,7 +200,7 @@ class GetConcreteValueFromAstExprActionFunctionalTest extends TestCase
             }
             PHP);
 
-        $classQuery = new \Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery('DummyController', $classAst);
+        $classQuery = new ClassQuery('DummyController', $classAst);
 
         $actionNode = (new NodeFinder)->findFirstInstanceOf($classAst, Node\Stmt\ClassMethod::class);
 
@@ -259,7 +259,7 @@ class GetConcreteValueFromAstExprActionFunctionalTest extends TestCase
             }
             PHP);
 
-        $classQuery = new \Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery('DummyController', $ast);
+        $classQuery = new ClassQuery('DummyController', $ast);
 
         $actionNode = (new NodeFinder)->findFirstInstanceOf($ast, Node\Stmt\ClassMethod::class);
 
@@ -297,7 +297,7 @@ class GetConcreteValueFromAstExprActionFunctionalTest extends TestCase
             }
             PHP);
 
-        $classQuery = new \Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery('DummyController', $ast);
+        $classQuery = new ClassQuery('DummyController', $ast);
 
         $actionNode = (new NodeFinder)->findFirstInstanceOf($ast, Node\Stmt\ClassMethod::class);
 
@@ -333,7 +333,7 @@ class GetConcreteValueFromAstExprActionFunctionalTest extends TestCase
             }
             PHP);
 
-        $classQuery = new \Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery('DummyController', $ast);
+        $classQuery = new ClassQuery('DummyController', $ast);
 
         $actionNode = (new NodeFinder)->findFirstInstanceOf($ast, Node\Stmt\ClassMethod::class);
 
@@ -371,7 +371,7 @@ class GetConcreteValueFromAstExprActionFunctionalTest extends TestCase
             }
             PHP);
 
-        $classQuery = new \Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery('DummyController', $ast);
+        $classQuery = new ClassQuery('DummyController', $ast);
 
         $actionNode = (new NodeFinder)->findFirstInstanceOf($ast, Node\Stmt\ClassMethod::class);
 
@@ -406,7 +406,7 @@ class GetConcreteValueFromAstExprActionFunctionalTest extends TestCase
             }
             PHP);
 
-        $classQuery = new \Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery(DummyControllerForDynamicTest::class, $ast);
+        $classQuery = new ClassQuery(DummyControllerForDynamicTest::class, $ast);
 
         $actionNode = (new NodeFinder)->findFirstInstanceOf($ast, Node\Stmt\ClassMethod::class);
 
@@ -465,7 +465,7 @@ class GetConcreteValueFromAstExprActionFunctionalTest extends TestCase
             }
             PHP);
 
-        $classQuery = new \Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery(ControllerWithTraitStub::class, $ast);
+        $classQuery = new ClassQuery(ControllerWithTraitStub::class, $ast);
 
         $actionNode = (new NodeFinder)->findFirstInstanceOf($ast, Node\Stmt\ClassMethod::class);
 

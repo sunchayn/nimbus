@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sunchayn\Nimbus\Tests\App\Modules\Doctor\Actions;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Doctor\Actions\RunDiagnosticsAction;
@@ -86,7 +87,7 @@ class RunDiagnosticsActionFunctionalTest extends TestCase
     {
         // Arrange
 
-        Http::fake(['*' => fn () => throw new \Illuminate\Http\Client\ConnectionException('Connection refused')]);
+        Http::fake(['*' => fn () => throw new ConnectionException('Connection refused')]);
 
         $action = resolve(RunDiagnosticsAction::class);
 

@@ -13,6 +13,7 @@ use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
 use Sunchayn\Nimbus\Modules\Magic\Injectors\TymonJwtTokenInjector;
 use Sunchayn\Nimbus\Tests\App\Modules\Relay\Authorization\Injectors\MockInterface;
 use Sunchayn\Nimbus\Tests\TestCase;
+use Tymon\JWTAuth\JWTGuard;
 
 #[CoversClass(TymonJwtTokenInjector::class)]
 class TymonJwtTokenInjectorUnitTest extends TestCase
@@ -33,7 +34,7 @@ class TymonJwtTokenInjectorUnitTest extends TestCase
     {
         // Arrange
 
-        if (class_exists(\Tymon\JWTAuth\JWTGuard::class)) {
+        if (class_exists(JWTGuard::class)) {
             $this->markTestSkipped('Tymon JWT Auth is installed, cannot test missing dependency scenario');
         }
 

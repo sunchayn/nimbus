@@ -1,11 +1,14 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Workbench\App\Http\Controllers\Demo\AuthController;
 use Workbench\App\Http\Controllers\Demo\ContentController;
 use Workbench\App\Http\Controllers\Demo\DemoController;
 use Workbench\App\Http\Controllers\Demo\DumpAndDieController;
 use Workbench\App\Http\Controllers\Demo\EchoController;
+use Workbench\App\Http\Controllers\Demo\QueryParametersController;
+use Workbench\App\Http\Controllers\Demo\ResponseDemoController;
 use Workbench\App\Http\Controllers\Demo\RouteMetadataController;
 use Workbench\App\Http\Controllers\Demo\ShapesController;
 use Workbench\App\Http\Controllers\Demo\UploadsController;
@@ -25,20 +28,20 @@ Route::prefix('inline-validation')->group(function () {
 });
 
 Route::prefix('shapes')->group(function () {
-    Route::post('/nested-object', [\Workbench\App\Http\Controllers\Demo\ShapesController::class, 'nestedObject'])
+    Route::post('/nested-object', [ShapesController::class, 'nestedObject'])
         ->name('demo.shapes.nested-object');
 
-    Route::post('/array-of-primitives', [\Workbench\App\Http\Controllers\Demo\ShapesController::class, 'arrayOfPrimitives'])
+    Route::post('/array-of-primitives', [ShapesController::class, 'arrayOfPrimitives'])
         ->name('demo.shapes.array-of-primitives');
 
-    Route::post('/rule-coverage', [\Workbench\App\Http\Controllers\Demo\ShapesController::class, 'ruleCoverage'])
+    Route::post('/rule-coverage', [ShapesController::class, 'ruleCoverage'])
         ->name('demo.shapes.rule-coverage');
 
-    Route::post('/rule-objects', [\Workbench\App\Http\Controllers\Demo\ShapesController::class, 'ruleObjects'])
+    Route::post('/rule-objects', [ShapesController::class, 'ruleObjects'])
         ->name('demo.shapes.rule-objects');
 });
 
-Route::get('/query-parameters', [\Workbench\App\Http\Controllers\Demo\QueryParametersController::class, 'index'])
+Route::get('/query-parameters', [QueryParametersController::class, 'index'])
     ->name('demo.query-parameters.index');
 
 Route::prefix('responses')->group(function () {
@@ -48,23 +51,23 @@ Route::prefix('responses')->group(function () {
     Route::get('/success-responses', [DemoController::class, 'successResponses'])
         ->name('demo.responses.success-responses');
 
-    Route::get('/json-resource', [\Workbench\App\Http\Controllers\Demo\ResponseDemoController::class, 'jsonResource'])
+    Route::get('/json-resource', [ResponseDemoController::class, 'jsonResource'])
         ->name('demo.responses.json-resource');
-    Route::get('/nested-json', [\Workbench\App\Http\Controllers\Demo\ResponseDemoController::class, 'nestedJson'])
+    Route::get('/nested-json', [ResponseDemoController::class, 'nestedJson'])
         ->name('demo.responses.nested-json');
-    Route::get('/spatie-data', [\Workbench\App\Http\Controllers\Demo\ResponseDemoController::class, 'spatieData'])
+    Route::get('/spatie-data', [ResponseDemoController::class, 'spatieData'])
         ->name('demo.responses.spatie-data');
-    Route::get('/inline-json', [\Workbench\App\Http\Controllers\Demo\ResponseDemoController::class, 'inlineJson'])
+    Route::get('/inline-json', [ResponseDemoController::class, 'inlineJson'])
         ->name('demo.responses.inline-json');
-    Route::get('/paginated', [\Workbench\App\Http\Controllers\Demo\ResponseDemoController::class, 'paginated'])
+    Route::get('/paginated', [ResponseDemoController::class, 'paginated'])
         ->name('demo.responses.paginated');
-    Route::get('/simple-paginated', [\Workbench\App\Http\Controllers\Demo\ResponseDemoController::class, 'simplePaginated'])
+    Route::get('/simple-paginated', [ResponseDemoController::class, 'simplePaginated'])
         ->name('demo.responses.simple-paginated');
-    Route::get('/cursor-paginated', [\Workbench\App\Http\Controllers\Demo\ResponseDemoController::class, 'cursorPaginated'])
+    Route::get('/cursor-paginated', [ResponseDemoController::class, 'cursorPaginated'])
         ->name('demo.responses.cursor-paginated');
-    Route::get('/optional-keys', [\Workbench\App\Http\Controllers\Demo\ResponseDemoController::class, 'resourceWithOptionalKeys'])
+    Route::get('/optional-keys', [ResponseDemoController::class, 'resourceWithOptionalKeys'])
         ->name('demo.responses.optional-keys');
-    Route::get('/raw-payload', [\Workbench\App\Http\Controllers\Demo\ResponseDemoController::class, 'rawPayload'])
+    Route::get('/raw-payload', [ResponseDemoController::class, 'rawPayload'])
         ->name('demo.responses.raw-payload');
 });
 
@@ -74,7 +77,7 @@ Route::prefix('spatie-data')->group(function () {
 });
 
 Route::prefix('authentication')->group(function () {
-    Route::get('/show-logged-in-user', fn (\Illuminate\Http\Request $request) => response()->json([
+    Route::get('/show-logged-in-user', fn (Request $request) => response()->json([
         'user_id' => $request->user()->id ?? '<not logged in>',
         'user_agent' => $request->userAgent(),
         'login_url' => config('app.url').'/login',

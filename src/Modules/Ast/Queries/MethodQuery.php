@@ -164,8 +164,8 @@ class MethodQuery
             // Skip method calls, static calls, and new instance assignments to avoid side effects or unresolvable AST expressions.
             if (
                 $assignment->expr instanceof MethodCall ||
-                $assignment->expr instanceof Node\Expr\StaticCall ||
-                $assignment->expr instanceof Node\Expr\New_
+                $assignment->expr instanceof Expr\StaticCall ||
+                $assignment->expr instanceof Expr\New_
             ) {
                 continue;
             }

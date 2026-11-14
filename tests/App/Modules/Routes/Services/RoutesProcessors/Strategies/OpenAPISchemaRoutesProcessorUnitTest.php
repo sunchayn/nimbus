@@ -13,6 +13,7 @@ use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Routes\Actions\ExtractOpenApiRoutesAction;
 use Sunchayn\Nimbus\Modules\Routes\Collections\ExtractedRoutesCollection;
 use Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
+use Sunchayn\Nimbus\Modules\Routes\Exceptions\OpenApiPackageNotInstalledException;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\OpenApiParsingException;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\RouteReconciliationService;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\AutoDetectRoutesProcessor;
@@ -245,7 +246,7 @@ class OpenAPISchemaRoutesProcessorUnitTest extends TestCase
 
         self::$simulateMissingOpenApiPackage = true;
 
-        $this->expectException(\Sunchayn\Nimbus\Modules\Routes\Exceptions\OpenApiPackageNotInstalledException::class);
+        $this->expectException(OpenApiPackageNotInstalledException::class);
 
         // Act
 
@@ -356,11 +357,12 @@ class OpenAPISchemaRoutesProcessorUnitTest extends TestCase
 
 namespace Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies;
 
+use cebe\openapi\Reader;
 use Sunchayn\Nimbus\Tests\App\Modules\Routes\Services\RoutesProcessors\Strategies\OpenAPISchemaRoutesProcessorUnitTest;
 
 function class_exists(string $class, bool $autoload = true): bool
 {
-    if ($class === \cebe\openapi\Reader::class && OpenAPISchemaRoutesProcessorUnitTest::$simulateMissingOpenApiPackage) {
+    if ($class === Reader::class && OpenAPISchemaRoutesProcessorUnitTest::$simulateMissingOpenApiPackage) {
         return false;
     }
 

@@ -43,7 +43,7 @@ class NimbusIndexTest extends TestCase
         // Arrange
 
         if ($applicationCookie) {
-            $this->withCookie(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME, $applicationCookie);
+            $this->withCookie(ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME, $applicationCookie);
         }
 
         $disableThirdPartyUiActionSpy = $this->spy(DisableThirdPartyUiAction::class);
@@ -183,7 +183,7 @@ class NimbusIndexTest extends TestCase
         $response->assertRedirect(route('nimbus.index').'?');
 
         $response->assertCookie(
-            \Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME,
+            ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME,
             'new-app',
         );
     }
@@ -327,7 +327,7 @@ class NimbusIndexTest extends TestCase
         $response->assertRedirect();
 
         $response->assertCookie(
-            \Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME,
+            ActiveApplicationResolver::CURRENT_APPLICATION_COOKIE_NAME,
             'other-app',
         );
     }

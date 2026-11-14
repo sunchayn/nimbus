@@ -10,8 +10,11 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
+use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
 use Sunchayn\Nimbus\Modules\Magic\Injectors\ActorHeaderInjector;
+use Sunchayn\Nimbus\Modules\Magic\Injectors\RememberMeCookieInjector;
+use Sunchayn\Nimbus\Modules\Magic\Injectors\TymonJwtTokenInjector;
 use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(ActiveApplicationResolver::class)]
@@ -210,7 +213,7 @@ class ActiveApplicationResolverUnitTest extends TestCase
 
         // Act & Assert
 
-        $this->assertEquals(\Sunchayn\Nimbus\Modules\Magic\Injectors\RememberMeCookieInjector::class, $resolver->getSpecialAuthInjector());
+        $this->assertEquals(RememberMeCookieInjector::class, $resolver->getSpecialAuthInjector());
     }
 
     public function test_it_reconciles_tymon_jwt_injector_alias(): void
@@ -232,7 +235,7 @@ class ActiveApplicationResolverUnitTest extends TestCase
 
         // Act & Assert
 
-        $this->assertEquals(\Sunchayn\Nimbus\Modules\Magic\Injectors\TymonJwtTokenInjector::class, $resolver->getSpecialAuthInjector());
+        $this->assertEquals(TymonJwtTokenInjector::class, $resolver->getSpecialAuthInjector());
     }
 
     public function test_it_reconciles_actor_header_injector_alias(): void
@@ -276,7 +279,7 @@ class ActiveApplicationResolverUnitTest extends TestCase
 
         // Act & Assert
 
-        $this->assertEquals(\Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum::AutoDetect, $resolver->getRouteExtractionStrategy());
+        $this->assertEquals(RoutesProcessingStrategyEnum::AutoDetect, $resolver->getRouteExtractionStrategy());
     }
 
     public function test_it_throws_exception_on_invalid_route_processing_strategy(): void

@@ -208,7 +208,7 @@ class ActiveApplicationResolver
 
         $strategy = RoutesProcessingStrategyEnum::tryFromAlias($rawStrategy);
 
-        if (! $strategy instanceof \Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum) {
+        if (! $strategy instanceof RoutesProcessingStrategyEnum) {
             throw MisconfiguredValueException::becauseRouteProcessingStrategyIsInvalid($rawStrategy);
         }
 

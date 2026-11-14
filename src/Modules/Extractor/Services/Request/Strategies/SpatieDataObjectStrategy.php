@@ -7,6 +7,7 @@ namespace Sunchayn\Nimbus\Modules\Extractor\Services\Request\Strategies;
 use Illuminate\Routing\Route;
 use ReflectionNamedType;
 use ReflectionParameter;
+use Spatie\LaravelData\Data;
 use Sunchayn\Nimbus\Modules\Extractor\Actions\InferSchemaFromSpatieDataObjectAction;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Request\Contracts\RequestSchemaStrategyContract;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Request\Strategies\Concerns\ResolvesRouteParameters;
@@ -26,7 +27,7 @@ class SpatieDataObjectStrategy implements RequestSchemaStrategyContract
     public function attempt(Route $route): ?Schema
     {
         // @codeCoverageIgnoreStart
-        if (! class_exists(\Spatie\LaravelData\Data::class)) {
+        if (! class_exists(Data::class)) {
             return null;
         }
 
@@ -56,6 +57,6 @@ class SpatieDataObjectStrategy implements RequestSchemaStrategyContract
      */
     private function findSpatieDataParameter(array $parameters): ?ReflectionParameter
     {
-        return $this->findChildOf($parameters, \Spatie\LaravelData\Data::class);
+        return $this->findChildOf($parameters, Data::class);
     }
 }

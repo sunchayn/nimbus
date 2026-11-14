@@ -8,6 +8,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Scalar\String_;
+use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeFinder;
 use Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery;
 
@@ -30,7 +31,7 @@ class ReadRequestQueryKeysAction
     {
         $methodNode = ClassQuery::from($controllerClass)->method($method)?->methodNode;
 
-        if (! $methodNode instanceof \PhpParser\Node\Stmt\ClassMethod) {
+        if (! $methodNode instanceof ClassMethod) {
             return [];
         }
 

@@ -68,7 +68,7 @@ class StringSchemaProperty implements SchemaPropertyInterface
      */
     public function isUnconstrainedText(): bool
     {
-        return ! $this->stringFormat instanceof \Sunchayn\Nimbus\Modules\Schemas\Enums\StringFormat
+        return ! $this->stringFormat instanceof StringFormat
             && ($this->enum === null || $this->enum === [])
             && $this->const === null
             && $this->contentEncoding === null;
@@ -97,7 +97,7 @@ class StringSchemaProperty implements SchemaPropertyInterface
             'type' => $this->nullable ? [$this->getType()->value, 'null'] : $this->getType()->value,
         ];
 
-        if ($this->stringFormat instanceof \Sunchayn\Nimbus\Modules\Schemas\Enums\StringFormat) {
+        if ($this->stringFormat instanceof StringFormat) {
             $properties['format'] = $this->stringFormat->value;
         }
 

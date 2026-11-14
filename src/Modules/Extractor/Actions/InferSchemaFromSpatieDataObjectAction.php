@@ -6,6 +6,10 @@ namespace Sunchayn\Nimbus\Modules\Extractor\Actions;
 
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Resolvers\DataValidationRulesResolver;
+use Spatie\LaravelData\Support\Validation\DataRules;
+use Spatie\LaravelData\Support\Validation\ValidationPath;
 use Sunchayn\Nimbus\Modules\Schemas\Collections\Ruleset;
 use Sunchayn\Nimbus\Modules\Schemas\Services\Builders\SchemaBuilder;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\RulesExtractionError;
@@ -30,7 +34,7 @@ class InferSchemaFromSpatieDataObjectAction
     public function execute(string $spatieDataClass): Schema
     {
         // @codeCoverageIgnoreStart
-        if (! class_exists(\Spatie\LaravelData\Data::class)) {
+        if (! class_exists(Data::class)) {
             return Schema::empty();
         }
 
@@ -61,12 +65,12 @@ class InferSchemaFromSpatieDataObjectAction
     {
         return $this
             ->container
-            ->make(\Spatie\LaravelData\Resolvers\DataValidationRulesResolver::class)
+            ->make(DataValidationRulesResolver::class)
             ->execute(
                 class: $spatieDataClass,
                 fullPayload: [],
-                path: \Spatie\LaravelData\Support\Validation\ValidationPath::create(),
-                dataRules: \Spatie\LaravelData\Support\Validation\DataRules::create()
+                path: ValidationPath::create(),
+                dataRules: DataRules::create()
             );
     }
 }

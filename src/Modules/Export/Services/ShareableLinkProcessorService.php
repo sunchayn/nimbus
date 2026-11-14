@@ -177,7 +177,7 @@ class ShareableLinkProcessorService
 
     private function routeExistsInCurrentApplication(string $method, string $endpoint): bool
     {
-        return $this->findMatchingRoute($method, $endpoint) instanceof \Illuminate\Routing\Route;
+        return $this->findMatchingRoute($method, $endpoint) instanceof Route;
     }
 
     private function searchRouteInOtherApplications(string $method, string $endpoint): void
@@ -188,7 +188,7 @@ class ShareableLinkProcessorService
         foreach ($applications as $applicationKey => $appConfig) {
             $prefix = $appConfig['routes']['prefix'] ?? 'api';
 
-            if ($this->findMatchingRoute($method, $endpoint, $prefix) instanceof \Illuminate\Routing\Route) {
+            if ($this->findMatchingRoute($method, $endpoint, $prefix) instanceof Route) {
                 $this->targetApplication = $applicationKey;
 
                 return;

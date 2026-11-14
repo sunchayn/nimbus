@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route as RouteFacade;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use RuntimeException;
+use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Request\RequestSchemaExtractor;
 use Sunchayn\Nimbus\Modules\Routes\Actions\ExtractApplicationRoutesAction;
 use Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
@@ -28,7 +29,7 @@ class ExtractApplicationRoutesActionFunctionalTest extends TestCase
     {
         // Anticipate
 
-        $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class, function (MockInterface $mock) {
+        $this->mock(ActiveApplicationResolver::class, function (MockInterface $mock) {
             $mock->shouldReceive('getRoutesPrefix')->andReturn('api');
             $mock->shouldReceive('isVersioned')->andReturn($this->isVersioned = fake()->boolean());
         });
@@ -201,7 +202,7 @@ class ExtractApplicationRoutesActionFunctionalTest extends TestCase
         RouteFacade::post('/custom/test', fn () => response()->json(['test' => true]))
             ->name('custom.test');
 
-        $activeApplicationResolverMock = $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class);
+        $activeApplicationResolverMock = $this->mock(ActiveApplicationResolver::class);
 
         $routeExtractorService = resolve(ExtractApplicationRoutesAction::class);
 
@@ -232,7 +233,7 @@ class ExtractApplicationRoutesActionFunctionalTest extends TestCase
     {
         // Anticipate
 
-        $this->mock(\Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver::class, function (MockInterface $mock) {
+        $this->mock(ActiveApplicationResolver::class, function (MockInterface $mock) {
             $mock->shouldReceive('getRoutesPrefix')->andReturn('api');
             $mock->shouldReceive('isVersioned')->andReturn(fake()->boolean());
         });

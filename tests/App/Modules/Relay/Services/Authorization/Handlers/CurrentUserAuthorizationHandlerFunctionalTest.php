@@ -12,6 +12,7 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
+use Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Exceptions\InvalidAuthorizationValueException;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\CurrentUserAuthorizationHandler;
 use Sunchayn\Nimbus\Tests\App\Modules\Relay\Services\Authorization\Handlers\Shared\HandlesRecallerCookies;
@@ -299,8 +300,8 @@ class CurrentUserAuthorizationHandlerFunctionalTest extends TestCase
 
         // Anticipate
 
-        $this->expectException(\Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException::class);
-        $this->expectExceptionCode(\Sunchayn\Nimbus\Modules\Config\Exceptions\MisconfiguredValueException::SPECIAL_AUTHENTICATION_INJECTOR);
+        $this->expectException(MisconfiguredValueException::class);
+        $this->expectExceptionCode(MisconfiguredValueException::SPECIAL_AUTHENTICATION_INJECTOR);
 
         // Act
 

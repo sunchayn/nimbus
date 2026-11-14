@@ -8,6 +8,7 @@ use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
+use Spatie\LaravelData\Data;
 use Sunchayn\Nimbus\Modules\Ast\ValueObjects\ObjectAstContextValue;
 use Sunchayn\Nimbus\Modules\Ast\ValueObjects\VariablesContext;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
@@ -76,10 +77,10 @@ class InferSchemaFromSpatieDataObjectAstAction
      */
     private function isSpatieDataSubclass(mixed $classStr): bool
     {
-        if (! is_string($classStr) || ! class_exists($classStr) || ! class_exists(\Spatie\LaravelData\Data::class)) {
+        if (! is_string($classStr) || ! class_exists($classStr) || ! class_exists(Data::class)) {
             return false;
         }
 
-        return is_subclass_of($classStr, \Spatie\LaravelData\Data::class) || $classStr === \Spatie\LaravelData\Data::class;
+        return is_subclass_of($classStr, Data::class) || $classStr === Data::class;
     }
 }

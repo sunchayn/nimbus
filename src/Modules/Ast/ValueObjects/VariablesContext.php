@@ -76,7 +76,7 @@ readonly class VariablesContext
     public function toArray(): array
     {
         return array_map(
-            fn (\Sunchayn\Nimbus\Modules\Ast\Contracts\AstContextValueContract $variable): mixed => $variable->getValue(),
+            fn (AstContextValueContract $variable): mixed => $variable->getValue(),
             $this->items,
         );
     }

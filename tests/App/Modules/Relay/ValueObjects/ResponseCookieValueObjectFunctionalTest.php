@@ -5,9 +5,10 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\ValueObjects;
 use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
+use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(ResponseCookieValueObject::class)]
-class ResponseCookieValueObjectFunctionalTest extends \Sunchayn\Nimbus\Tests\TestCase
+class ResponseCookieValueObjectFunctionalTest extends TestCase
 {
     public function test_it_computes_decrypted_value(): void
     {

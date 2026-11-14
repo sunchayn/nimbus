@@ -7,6 +7,7 @@ namespace Sunchayn\Nimbus\Modules\Extractor\Actions;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeFinder;
 use Sunchayn\Nimbus\Modules\Ast\Queries\ClassQuery;
 use Sunchayn\Nimbus\Modules\Extractor\DataTransferObjects\FormRequestHooksData;
@@ -32,7 +33,7 @@ class ReadFormRequestHooksAction
         $attributes = $classQuery->method('attributes')?->getConcreteReturnValue();
 
         return new FormRequestHooksData(
-            mergedKeys: $prepare instanceof \PhpParser\Node\Stmt\ClassMethod ? $this->findMergedKeys($prepare) : [],
+            mergedKeys: $prepare instanceof ClassMethod ? $this->findMergedKeys($prepare) : [],
             labels: is_array($attributes) ? $this->onlyStringLabels($attributes) : [],
             authorizeReturnsFalse: $authorizeReturn instanceof ConstFetch && strtolower($authorizeReturn->name->toString()) === 'false',
         );
@@ -41,7 +42,7 @@ class ReadFormRequestHooksAction
     /**
      * @return string[]
      */
-    private function findMergedKeys(Node\Stmt\ClassMethod $method): array
+    private function findMergedKeys(ClassMethod $method): array
     {
         $calls = (new NodeFinder)->find(
             $method->stmts ?? [],

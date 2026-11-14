@@ -2,6 +2,7 @@
 
 namespace Sunchayn\Nimbus\Tests\Integration;
 
+use Illuminate\Config\Repository;
 use Illuminate\Foundation\Application;
 use Illuminate\Routing\Events\RouteMatched;
 use Mockery;
@@ -45,7 +46,7 @@ class NimbusServiceProviderTest extends TestCase
 
         $app = new Application(__DIR__);
         $app['env'] = 'production';
-        $app['config'] = new \Illuminate\Config\Repository([
+        $app['config'] = new Repository([
             'nimbus' => ['allowed_envs' => ['local']],
         ]);
 
