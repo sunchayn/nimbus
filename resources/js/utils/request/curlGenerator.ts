@@ -4,8 +4,8 @@ import type { ResolverFn } from '@/interfaces/common/env-vars';
 import { AuthorizationType } from '@/interfaces/generated';
 import type { PendingRequest } from '@/interfaces/http';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
-import { buildRequestUrl } from '@/utils';
 import { getMimeTypeForRequest } from '@/utils/request/contentTypeHeaderGenerator';
+import { buildRequestUrl } from '@/utils/request/requestUrlBuilder';
 
 /**
  * Result of cURL command generation.

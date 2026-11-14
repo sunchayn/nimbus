@@ -5,7 +5,7 @@
  */
 import { AppInput } from '@/components/base/input';
 import { EnvironmentSource } from '@/interfaces/generated';
-import { useEnvironmentVariablesStore } from '@/stores';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
 import { isValidBaseUrl } from '@/utils/environment';
 import { computed, shallowRef, watch } from 'vue';
 

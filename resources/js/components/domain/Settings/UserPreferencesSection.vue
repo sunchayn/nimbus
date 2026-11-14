@@ -12,8 +12,8 @@ import { useAppToast } from '@/components/base/toast';
 import ThemePreview from '@/components/domain/Settings/ThemePreview.vue';
 import { AuthorizationType } from '@/interfaces/generated'; // eslint-disable-line @typescript-eslint/consistent-type-imports
 import { RequestBodyTypeEnum } from '@/interfaces/http'; // eslint-disable-line @typescript-eslint/consistent-type-imports
-import { useSettingsStore } from '@/stores';
 import type { UserPreferences } from '@/stores/core/useSettingsStore';
+import { useSettingsStore } from '@/stores/core/useSettingsStore';
 import { computed } from 'vue';
 
 /*

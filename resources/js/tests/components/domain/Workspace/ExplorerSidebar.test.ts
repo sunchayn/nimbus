@@ -1,5 +1,5 @@
 import ExplorerSidebar from '@/components/domain/Workspace/ExplorerSidebar.vue';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import { createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

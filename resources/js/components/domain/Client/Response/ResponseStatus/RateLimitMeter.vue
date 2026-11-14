@@ -6,7 +6,7 @@
 import { AppButton } from '@/components/base/button';
 import { AppPopover } from '@/components/base/popover';
 import RateLimitEphemeralWarningContent from '@/components/domain/Client/Response/ResponseStatus/RateLimitEphemeralWarningContent.vue';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import type { RateLimit } from '@/utils/response/rateLimit';
 import { computed } from 'vue';
 

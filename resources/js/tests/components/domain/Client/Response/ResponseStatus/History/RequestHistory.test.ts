@@ -26,15 +26,13 @@ const mockRequestsHistoryStore = reactive({
     clearLogs: vi.fn(),
 });
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
+vi.mock('@/stores/request/useRequestStore', () => ({
+    useRequestStore: () => mockRequestStore,
+}));
 
-    return {
-        ...actual,
-        useRequestStore: () => mockRequestStore,
-        useRequestsHistoryStore: () => mockRequestsHistoryStore,
-    };
-});
+vi.mock('@/stores/request/useRequestsHistoryStore', () => ({
+    useRequestsHistoryStore: () => mockRequestsHistoryStore,
+}));
 
 vi.mock(
     '@/components/domain/Client/Response/ResponseStatus/History/HistoryItem.vue',

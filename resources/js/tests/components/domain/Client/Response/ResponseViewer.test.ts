@@ -39,9 +39,12 @@ const mockTabsStore = reactive({
     activeResponse: ref(null) as Ref<RequestLog | null>,
 });
 
-vi.mock('@/stores', () => ({
+vi.mock('@/stores/request/useTabsStore', () => ({
     useTabsStore: () => mockTabsStore,
-    useRequestsHistoryStore: () => ({ allLogs: [], lastLog: null }), // Mock legacy if needed or just empty
+}));
+
+vi.mock('@/stores/request/useRequestsHistoryStore', () => ({
+    useRequestsHistoryStore: () => ({ allLogs: [], lastLog: null }),
 }));
 
 /**

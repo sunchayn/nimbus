@@ -10,7 +10,7 @@ import { AppPopover } from '@/components/base/popover';
 import { AppSelect } from '@/components/base/select';
 import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import { useActors, type Actor } from '@/composables/request/useActors';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import { useDebounceFn } from '@vueuse/core';
 import {
     computed,

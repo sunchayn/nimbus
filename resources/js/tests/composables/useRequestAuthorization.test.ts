@@ -1,6 +1,6 @@
 import { useRequestAuthorization } from '@/composables/request/useRequestAuthorization';
 import { AuthorizationType } from '@/interfaces/generated';
-import { useRequestStore } from '@/stores';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import { createTestingPinia } from '@pinia/testing';
 import { setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

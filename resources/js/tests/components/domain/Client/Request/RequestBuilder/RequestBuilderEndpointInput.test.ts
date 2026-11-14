@@ -17,15 +17,16 @@ const mockRequestStore = reactive({
     executeCurrentRequest: vi.fn(),
 });
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
+vi.mock('@/stores/request/useRequestStore', () => ({
+    useRequestStore: () => mockRequestStore,
+}));
 
-    return {
-        ...actual,
-        useRequestStore: () => mockRequestStore,
-        useEnvironmentVariablesStore: () => ({ baseUrl: 'https://api.test' }),
-    };
-});
+vi.mock('@/stores/core/useEnvironmentVariablesStore', () => ({
+    useEnvironmentVariablesStore: () => ({
+        baseUrl: 'https://api.test',
+        getSegments: (text: string) => [{ isEnvVariable: false, text }],
+    }),
+}));
 
 vi.mock('@/composables/request/useRouteSegmentSelection', () => ({
     useRouteSegmentSelection: () => ({

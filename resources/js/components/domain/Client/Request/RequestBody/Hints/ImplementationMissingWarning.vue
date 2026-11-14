@@ -7,7 +7,7 @@ import { AppButton } from '@/components/base/button';
 import { AppDialog } from '@/components/base/dialog';
 import { AppIcon } from '@/components/base/icons';
 import CopyButton from '@/components/common/CopyButton.vue';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import { useClipboard } from '@vueuse/core';
 
 const configStore = useConfigStore();

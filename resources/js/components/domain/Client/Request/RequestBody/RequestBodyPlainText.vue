@@ -5,7 +5,7 @@
  */
 import CodeEditor from '@/components/domain/CodeEditor/CodeEditor.vue';
 import { envVariablesCheck } from '@/components/domain/CodeEditor/extensions';
-import { useEnvironmentVariablesStore } from '@/stores';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
 import { computed } from 'vue';
 
 /*

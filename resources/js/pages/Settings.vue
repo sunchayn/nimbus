@@ -15,7 +15,7 @@ import ConfigReadonlySection from '@/components/domain/Settings/ConfigReadonlySe
 import DiagnosticsDialog from '@/components/domain/Settings/DiagnosticsDialog.vue';
 import UserPreferencesSection from '@/components/domain/Settings/UserPreferencesSection.vue';
 import PageLayout from '@/components/layout/PageLayout.vue';
-import { useSettingsStore } from '@/stores';
+import { useSettingsStore } from '@/stores/core/useSettingsStore';
 import { useClipboard } from '@vueuse/core';
 
 defineOptions({

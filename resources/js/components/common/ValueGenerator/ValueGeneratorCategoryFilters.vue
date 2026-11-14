@@ -6,7 +6,7 @@
 import { AppIcon } from '@/components/base/icons';
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
 import { getGeneratorCategories } from '@/config/generators';
-import { useGeneratorCommandStore } from '@/stores';
+import { useGeneratorCommandStore } from '@/stores/generators/useGeneratorCommandStore';
 
 /*
  * Types & Interfaces.

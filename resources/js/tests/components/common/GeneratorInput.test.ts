@@ -11,16 +11,11 @@ import { nextTick } from 'vue';
 
 const openCommand = vi.fn();
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
-
-    return {
-        ...actual,
-        useGeneratorCommandStore: () => ({
-            openCommand,
-        }),
-    };
-});
+vi.mock('@/stores/generators/useGeneratorCommandStore', () => ({
+    useGeneratorCommandStore: () => ({
+        openCommand,
+    }),
+}));
 
 describe('GeneratorInput', () => {
     beforeEach(() => {

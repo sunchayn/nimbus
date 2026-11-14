@@ -4,7 +4,7 @@
  * @description Global command palette for value generation across the application.
  */
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
-import { useGeneratorCommandStore } from '@/stores';
+import { useGeneratorCommandStore } from '@/stores/generators/useGeneratorCommandStore';
 import { generateValue } from '@/utils/value-generator/generateValue';
 import { ref, useTemplateRef, watch } from 'vue';
 import ValueGeneratorCategoryFilters from './ValueGeneratorCategoryFilters.vue';

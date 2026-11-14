@@ -1,5 +1,5 @@
 import { ValueGeneratorCommandOpenMethod } from '@/interfaces/ui';
-import { useGeneratorCommandStore } from '@/stores';
+import { useGeneratorCommandStore } from '@/stores/generators/useGeneratorCommandStore';
 
 const SHIFT_PRESS_THRESHOLD_MS = 500;
 

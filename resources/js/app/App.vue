@@ -11,7 +11,7 @@ import MainPageSkeleton from '@/components/layout/skeleton/MainPageSkeleton.vue'
 import PageSkeleton from '@/components/layout/skeleton/PageSkeleton.vue';
 import { useGlobalShortcuts } from '@/composables/ui/useGlobalShortcuts';
 import { useThemePreference } from '@/composables/ui/useThemePreference';
-import { useSettingsStore } from '@/stores';
+import { useSettingsStore } from '@/stores/core/useSettingsStore';
 import UApp from '@nuxt/ui/components/App.vue';
 import { computed, shallowRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';

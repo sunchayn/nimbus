@@ -1,4 +1,4 @@
-import { useEnvironmentVariablesStore } from '@/stores';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
 import {
     applySuggestion,
     findOpenPlaceholder,

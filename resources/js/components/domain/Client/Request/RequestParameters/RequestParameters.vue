@@ -7,7 +7,7 @@ import CopyButton from '@/components/common/CopyButton.vue';
 import KeyValueParametersBuilder from '@/components/common/KeyValueParameters/KeyValueParameters.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import { type ParameterContract } from '@/interfaces/ui';
-import { useRequestStore } from '@/stores';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import { useClipboard } from '@vueuse/core';
 import { computed } from 'vue';
 

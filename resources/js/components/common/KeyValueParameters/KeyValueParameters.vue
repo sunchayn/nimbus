@@ -14,7 +14,7 @@ import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import { useKeyValueParameters } from '@/composables/ui/useKeyValueParameters';
 import { type ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
-import { useGeneratorCommandStore } from '@/stores';
+import { useGeneratorCommandStore } from '@/stores/generators/useGeneratorCommandStore';
 import { cn } from '@/utils/ui';
 import { useTimeoutFn } from '@vueuse/core';
 import { computed, type HTMLAttributes, ref, shallowRef } from 'vue';

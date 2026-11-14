@@ -12,7 +12,7 @@ import {
     RequestParameters,
 } from '@/components/domain/Client/Request';
 import RequestTimeTravelIndicator from '@/components/domain/Client/Request/RequestBuilder/RequestTimeTravelIndicator.vue';
-import { useRequestStore } from '@/stores';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
 import { computed } from 'vue';

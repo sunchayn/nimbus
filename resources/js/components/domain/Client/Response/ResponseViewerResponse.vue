@@ -16,7 +16,7 @@ import ResponsePlainView from '@/components/domain/Client/Response/ResponsePlain
 import ResponseBodyViewer from '@/components/domain/Client/Response/ResponseTools/ResponseBodyViewer.vue';
 import type { RequestLog } from '@/interfaces/history/logs';
 import { STATUS } from '@/interfaces/http';
-import { useRequestStore } from '@/stores';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import { insightCount } from '@/utils/insight';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';

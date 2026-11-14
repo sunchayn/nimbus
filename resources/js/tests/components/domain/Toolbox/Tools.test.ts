@@ -35,8 +35,11 @@ vi.mock('@/composables/toolbox/useToolRequest', async () => {
     };
 });
 
-vi.mock('@/stores', () => ({
+vi.mock('@/stores/core/useConfigStore', () => ({
     useConfigStore: () => reactive({ appBasePath: '' }),
+}));
+
+vi.mock('@/stores/routes/useRoutesStore', () => ({
     useRoutesStore: () => ({
         routes: {
             v1: [

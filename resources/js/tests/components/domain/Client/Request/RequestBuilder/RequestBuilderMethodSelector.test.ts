@@ -15,14 +15,9 @@ const mockRequestStore = reactive({
     updateRequestMethod: vi.fn(),
 });
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
-
-    return {
-        ...actual,
-        useRequestStore: () => mockRequestStore,
-    };
-});
+vi.mock('@/stores/request/useRequestStore', () => ({
+    useRequestStore: () => mockRequestStore,
+}));
 
 /**
  * Factory function to create a mounted wrapper with sensible defaults.

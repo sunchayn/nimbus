@@ -1,5 +1,6 @@
 import WorkspaceExplorer from '@/components/domain/Workspace/Explorer/WorkspaceExplorer.vue';
-import { useTabsStore, useWorkspaceStore } from '@/stores';
+import { useTabsStore } from '@/stores/request/useTabsStore';
+import { useWorkspaceStore } from '@/stores/workspace/useWorkspaceStore';
 import { createTestingPinia } from '@pinia/testing';
 import { flushPromises, mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';

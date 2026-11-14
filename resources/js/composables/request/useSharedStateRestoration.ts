@@ -1,12 +1,10 @@
 import { useAppToast } from '@/components/base/toast';
 import type { RequestLog } from '@/interfaces/history/logs';
 import type { ShareableLinkPayload, SharedState } from '@/interfaces/share';
-import {
-    useRequestsHistoryStore,
-    useRoutesStore,
-    useSharedStateStore,
-    useTabsStore,
-} from '@/stores';
+import { useSharedStateStore } from '@/stores/core/useSharedStateStore';
+import { useRequestsHistoryStore } from '@/stores/request/useRequestsHistoryStore';
+import { useTabsStore } from '@/stores/request/useTabsStore';
+import { useRoutesStore } from '@/stores/routes/useRoutesStore';
 import { createSynthesizedLog } from '@/utils/shareableRestore';
 import { whenever } from '@vueuse/core';
 import { onMounted } from 'vue';

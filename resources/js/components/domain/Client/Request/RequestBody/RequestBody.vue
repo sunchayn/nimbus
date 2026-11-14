@@ -9,7 +9,8 @@ import {
 } from '@/components/domain/Client/Request';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import { useRequestBody } from '@/composables/request/useRequestBody';
-import { useRequestStore, useRoutesStore } from '@/stores';
+import { useRequestStore } from '@/stores/request/useRequestStore';
+import { useRoutesStore } from '@/stores/routes/useRoutesStore';
 import { computed } from 'vue';
 import ImplementationMissingWarning from './Hints/ImplementationMissingWarning.vue';
 import RouteAbsentInPrimarySourceInfo from './Hints/MissingRouteInPrimarySourceInfo.vue';

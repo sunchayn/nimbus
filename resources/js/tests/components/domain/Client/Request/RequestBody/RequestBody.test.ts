@@ -18,8 +18,11 @@ vi.mock('@/composables/request/useRequestBody', () => ({
     }),
 }));
 
-vi.mock('@/stores', () => ({
+vi.mock('@/stores/request/useRequestStore', () => ({
     useRequestStore: () => ({ pendingRequestData: null }),
+}));
+
+vi.mock('@/stores/routes/useRoutesStore', () => ({
     useRoutesStore: () => ({
         isMissingImplementation: () => false,
         isUndocumented: () => false,

@@ -11,7 +11,7 @@ import RateLimitMeter from '@/components/domain/Client/Response/ResponseStatus/R
 import ResponseStatusCode from '@/components/domain/Client/Response/ResponseStatus/ResponseStatusCode.vue';
 import type { RequestLog } from '@/interfaces/history/logs';
 import { type PendingRequest, STATUS } from '@/interfaces/http';
-import { useRequestStore } from '@/stores';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import { parseRateLimit } from '@/utils/response/rateLimit';
 import { cn } from '@/utils/ui';
 import prettyBytes from 'pretty-bytes';

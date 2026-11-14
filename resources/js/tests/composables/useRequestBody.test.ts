@@ -14,14 +14,9 @@ const requestStore = reactive({
     pendingRequestData: null as unknown as PendingRequest | null,
 });
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
-
-    return {
-        ...actual,
-        useRequestStore: () => requestStore,
-    };
-});
+vi.mock('@/stores/request/useRequestStore', () => ({
+    useRequestStore: () => requestStore,
+}));
 
 const payloadMocks = vi.hoisted(() => ({
     generatePlaceholderPayload: vi.fn(() => ({ placeholder: true })),

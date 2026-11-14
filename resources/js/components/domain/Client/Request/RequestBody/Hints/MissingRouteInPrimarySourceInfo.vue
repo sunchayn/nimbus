@@ -7,7 +7,7 @@ import { AppButton } from '@/components/base/button';
 import { AppDialog } from '@/components/base/dialog';
 import { AppIcon } from '@/components/base/icons';
 import DocumentationLinkButton from '@/components/domain/DocumentationLinkButton.vue';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 
 const configStore = useConfigStore();
 </script>

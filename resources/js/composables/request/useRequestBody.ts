@@ -1,10 +1,8 @@
 import type { ParameterContract, PendingRequest } from '@/interfaces';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
-import {
-    useEnvironmentVariablesStore,
-    useLookupValuesStore,
-    useRequestStore,
-} from '@/stores';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
+import { useLookupValuesStore } from '@/stores/request/useLookupValuesStore';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import {
     generatePlaceholderPayload,
     generateRandomPayload,

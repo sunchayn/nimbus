@@ -18,13 +18,31 @@ const route = (method: string, endpoint: string) => ({
 
 const stores = vi.hoisted(() => ({}) as Record<string, any> /* eslint-disable-line */);
 
-vi.mock('@/stores', () => ({
+vi.mock('@/stores/routes/useRoutesStore', () => ({
     useRoutesStore: () => stores.routes,
+}));
+
+vi.mock('@/stores/request/useTabsStore', () => ({
     useTabsStore: () => stores.tabs,
+}));
+
+vi.mock('@/stores/request/useRequestStore', () => ({
     useRequestStore: () => stores.request,
+}));
+
+vi.mock('@/stores/core/useConfigStore', () => ({
     useConfigStore: () => stores.config,
+}));
+
+vi.mock('@/stores/core/useSettingsStore', () => ({
     useSettingsStore: () => stores.settings,
+}));
+
+vi.mock('@/stores/request/useRequestsHistoryStore', () => ({
     useRequestsHistoryStore: () => stores.history,
+}));
+
+vi.mock('@/stores/core/useEnvironmentVariablesStore', () => ({
     useEnvironmentVariablesStore: () => stores.environments,
 }));
 

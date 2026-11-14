@@ -2,7 +2,7 @@ import { AuthorizationType } from '@/interfaces/generated';
 import type { PendingRequest } from '@/interfaces/http';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
 import { ParameterType } from '@/interfaces/ui';
-import { generateCurlCommand } from '@/utils/request';
+import { generateCurlCommand } from '@/utils/request/curlGenerator';
 import { describe, expect, it } from 'vitest';
 
 const requestBase: PendingRequest = {

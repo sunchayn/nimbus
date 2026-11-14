@@ -9,7 +9,8 @@ import { AppScrollArea } from '@/components/base/scroll-area';
 import WorkspaceConfirmDialog from '@/components/domain/Workspace/Dialogs/WorkspaceConfirmDialog.vue';
 import WorkspaceFolder from '@/components/domain/Workspace/Tree/WorkspaceFolder.vue';
 import type { WorkspaceFolderNode, WorkspaceSummary } from '@/interfaces/workspace';
-import { useTabsStore, useWorkspaceStore } from '@/stores';
+import { useTabsStore } from '@/stores/request/useTabsStore';
+import { useWorkspaceStore } from '@/stores/workspace/useWorkspaceStore';
 import {
     buildWorkspaceTree,
     isTabDirty,

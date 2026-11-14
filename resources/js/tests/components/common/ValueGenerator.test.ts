@@ -22,11 +22,9 @@ const mockStore = reactive({
     restoreCommandState: vi.fn(),
 });
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
-
-    return { ...actual, useGeneratorCommandStore: () => mockStore };
-});
+vi.mock('@/stores/generators/useGeneratorCommandStore', () => ({
+    useGeneratorCommandStore: () => mockStore,
+}));
 
 const generateValue = vi.hoisted(() => vi.fn());
 

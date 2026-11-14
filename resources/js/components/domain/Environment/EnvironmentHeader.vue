@@ -10,7 +10,7 @@ import { AppTooltip } from '@/components/base/tooltip';
 import { useConfirmationAction } from '@/composables/ui/useConfirmationAction';
 import { environmentConfig } from '@/config';
 import { EnvironmentSource } from '@/interfaces/generated';
-import { useEnvironmentVariablesStore } from '@/stores';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue';
 
 /*

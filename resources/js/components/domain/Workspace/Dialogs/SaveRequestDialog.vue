@@ -7,7 +7,8 @@ import { AppButton } from '@/components/base/button';
 import { AppDialog } from '@/components/base/dialog';
 import { AppInput } from '@/components/base/input';
 import { AppLabel } from '@/components/base/label';
-import { useTabsStore, useWorkspaceStore } from '@/stores';
+import { useTabsStore } from '@/stores/request/useTabsStore';
+import { useWorkspaceStore } from '@/stores/workspace/useWorkspaceStore';
 import { shallowRef, watch } from 'vue';
 
 const open = defineModel<boolean>('open', { required: true });

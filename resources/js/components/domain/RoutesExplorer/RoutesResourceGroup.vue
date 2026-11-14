@@ -11,7 +11,7 @@ import RoutesListItem from '@/components/domain/RoutesExplorer/RoutesList/Routes
 import { useShowingSearchResults } from '@/components/domain/RoutesExplorer/showingSearchResults';
 import { useExplorerVisibility } from '@/composables/ui/useExplorerVisibility';
 import type { RouteDefinition, RoutesFolder } from '@/interfaces/routes/routes';
-import { useRequestStore } from '@/stores';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
 import { computed } from 'vue';

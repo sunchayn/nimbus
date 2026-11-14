@@ -1,5 +1,5 @@
 import UserPreferencesSection from '@/components/domain/Settings/UserPreferencesSection.vue';
-import { useSettingsStore } from '@/stores';
+import { useSettingsStore } from '@/stores/core/useSettingsStore';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';

@@ -6,8 +6,8 @@
 import { AppBadge } from '@/components/base/badge';
 import { AppSwitch } from '@/components/base/switch';
 import { EnvironmentSource } from '@/interfaces/generated';
-import { useEnvironmentVariablesStore } from '@/stores';
 import type { Environment } from '@/stores/core/useEnvironmentVariablesStore';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
 
 /*
  * Stores & Dependencies.

@@ -8,7 +8,7 @@ import type * as VueRouter from 'vue-router';
  * Fixtures.
  */
 
-vi.mock('@/stores', () => ({
+vi.mock('@/stores/core/useEnvironmentVariablesStore', () => ({
     useEnvironmentVariablesStore: () => ({
         enabledEnvironments: [],
         activeEnvironment: { id: 'a', name: 'Local' },

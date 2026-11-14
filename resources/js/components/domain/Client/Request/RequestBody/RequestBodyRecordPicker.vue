@@ -6,7 +6,7 @@
 import { AppButton } from '@/components/base/button';
 import { AppPopover } from '@/components/base/popover';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
-import { useLookupValuesStore } from '@/stores';
+import { useLookupValuesStore } from '@/stores/request/useLookupValuesStore';
 import { collectLookupFields, setJsonPayloadField } from '@/utils/payload/lookups';
 import type { JSONSchema7 } from 'json-schema';
 import { computed } from 'vue';

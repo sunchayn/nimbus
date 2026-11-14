@@ -7,18 +7,19 @@ import { reactive } from 'vue';
 
 const environment = reactive({ isCurrentHost: true });
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
+vi.mock('@/stores/core/useEnvironmentVariablesStore', () => ({
+    useEnvironmentVariablesStore: () => environment,
+}));
 
-    return {
-        ...actual,
-        useEnvironmentVariablesStore: () => environment,
-        useRequestStore: () => ({ pendingRequestData: null }),
-        useSettingsStore: () => ({
-            preferences: { defaultAuthorizationType: AuthorizationType.None },
-        }),
-    };
-});
+vi.mock('@/stores/request/useRequestStore', () => ({
+    useRequestStore: () => ({ pendingRequestData: null }),
+}));
+
+vi.mock('@/stores/core/useSettingsStore', () => ({
+    useSettingsStore: () => ({
+        preferences: { defaultAuthorizationType: AuthorizationType.None },
+    }),
+}));
 
 const types = {
     special: [

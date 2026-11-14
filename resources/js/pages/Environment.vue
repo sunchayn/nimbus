@@ -10,7 +10,7 @@ import {
     EnvironmentVariablesEditor,
 } from '@/components/domain/Environment';
 import PageLayout from '@/components/layout/PageLayout.vue';
-import { useEnvironmentVariablesStore } from '@/stores';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
 
 defineOptions({
     name: 'EnvironmentPage',

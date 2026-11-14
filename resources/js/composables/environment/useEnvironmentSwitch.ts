@@ -1,6 +1,7 @@
 import { useAppToast } from '@/components/base/toast';
 import { AuthorizationType } from '@/interfaces/generated';
-import { useEnvironmentVariablesStore, useTabsStore } from '@/stores';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
+import { useTabsStore } from '@/stores/request/useTabsStore';
 import { HOST_ONLY_AUTHORIZATION_TYPES } from '@/utils/environment';
 
 /**

@@ -9,7 +9,7 @@ import { AppInputPopover } from '@/components/base/popover';
 import { useFolderDrag } from '@/composables/workspace/useFolderDrag';
 import { FOLDER_DRAG_TYPE, REQUEST_DRAG_TYPE } from '@/config/workspace';
 import type { WorkspaceFolderNode, WorkspaceSummary } from '@/interfaces/workspace';
-import { useWorkspaceStore } from '@/stores';
+import { useWorkspaceStore } from '@/stores/workspace/useWorkspaceStore';
 import { computed, shallowRef } from 'vue';
 import DropIndicator from './DropIndicator.vue';
 import WorkspaceRequestItem from './WorkspaceRequestItem.vue';

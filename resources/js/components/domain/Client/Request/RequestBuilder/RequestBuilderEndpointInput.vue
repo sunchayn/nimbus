@@ -10,7 +10,8 @@ import EnvironmentAwareInput from '@/components/common/EnvironmentAwareInput.vue
 
 import { useRouteParameterParsing } from '@/composables/request/useRouteParameterParsing';
 import { useRouteSegmentSelection } from '@/composables/request/useRouteSegmentSelection';
-import { useEnvironmentVariablesStore, useRequestStore } from '@/stores';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import { computed, shallowRef } from 'vue';
 import RequestBuilderEndpointParameterWarningContent from './RequestBuilderEndpointParameterWarningContent.vue';
 import RequestBuilderEndpointUrlWarningContent from './RequestBuilderEndpointUrlWarningContent.vue';

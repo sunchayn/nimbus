@@ -70,6 +70,12 @@ const mockActiveVariables = ref([
 
 vi.mock('@/stores/core/useEnvironmentVariablesStore', () => ({
     useEnvironmentVariablesStore: () => ({
+        activeCollection: {
+            variables: mockActiveVariables.value,
+        },
+        variables: new Map(
+            mockActiveVariables.value.filter(v => v.enabled).map(v => [v.key, v.value]),
+        ),
         resolve: vi.fn(val => val),
         getSegments: vi.fn(val => {
             if (val === '{{resolvedKey}}') {
@@ -96,29 +102,12 @@ vi.mock('@/stores/core/useEnvironmentVariablesStore', () => ({
     }),
 }));
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
-
-    return {
-        ...actual,
-        useGeneratorCommandStore: () => ({
-            openCommand,
-            closeCommand,
-        }),
-        useEnvironmentVariablesStore: () => {
-            const variablesEntries: [string, string][] = mockActiveVariables.value
-                .filter(v => v.enabled)
-                .map(v => [v.key, v.value]);
-
-            return {
-                activeCollection: {
-                    variables: mockActiveVariables.value,
-                },
-                variables: new Map(variablesEntries),
-            };
-        },
-    };
-});
+vi.mock('@/stores/generators/useGeneratorCommandStore', () => ({
+    useGeneratorCommandStore: () => ({
+        openCommand,
+        closeCommand,
+    }),
+}));
 
 /**
  * Factory function to create a mounted wrapper with sensible defaults.

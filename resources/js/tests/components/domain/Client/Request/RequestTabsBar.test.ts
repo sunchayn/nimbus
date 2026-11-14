@@ -1,5 +1,5 @@
 import RequestTabsBar from '@/components/domain/Client/Request/RequestTabsBar.vue';
-import { useTabsStore } from '@/stores';
+import { useTabsStore } from '@/stores/request/useTabsStore';
 import { type TestingPinia, createTestingPinia } from '@pinia/testing';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

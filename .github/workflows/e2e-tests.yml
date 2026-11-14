@@ -30,6 +30,7 @@ jobs:
           php-version: 8.4
           extensions: curl, mbstring, pcntl, intl, fileinfo, sodium, opcache
           ini-values: opcache.enable_cli=1
+          coverage: none
 
       - name: Cache Composer dependencies
         uses: actions/cache@v3

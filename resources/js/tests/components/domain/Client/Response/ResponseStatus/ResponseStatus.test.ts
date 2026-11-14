@@ -29,18 +29,19 @@ const mockRequestsHistoryStore = reactive({
     setActiveLog: vi.fn(),
 });
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
+vi.mock('@/stores/request/useRequestStore', () => ({
+    useRequestStore: () => mockRequestStore,
+}));
 
-    return {
-        ...actual,
-        useRequestStore: () => mockRequestStore,
-        useRequestsHistoryStore: () => mockRequestsHistoryStore,
-        useTabsStore: vi.fn(() => ({
-            activeTab: null,
-        })),
-    };
-});
+vi.mock('@/stores/request/useRequestsHistoryStore', () => ({
+    useRequestsHistoryStore: () => mockRequestsHistoryStore,
+}));
+
+vi.mock('@/stores/request/useTabsStore', () => ({
+    useTabsStore: vi.fn(() => ({
+        activeTab: null,
+    })),
+}));
 
 /**
  * Factory function to create a mounted wrapper with sensible defaults.

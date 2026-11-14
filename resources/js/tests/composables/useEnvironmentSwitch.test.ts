@@ -13,13 +13,14 @@ vi.mock('@/components/base/toast', () => ({
     useAppToast: () => ({ warning }),
 }));
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
+vi.mock('@/stores/request/useTabsStore', () => ({
+    useTabsStore: () => ({ tabs }),
+}));
+
+vi.mock('@/stores/core/useEnvironmentVariablesStore', () => {
     const state = { isCurrentHost: true };
 
     return {
-        ...actual,
-        useTabsStore: () => ({ tabs }),
         useEnvironmentVariablesStore: () => ({
             select: (id: string) => (state.isCurrentHost = id === 'current'),
             get isCurrentHost() {

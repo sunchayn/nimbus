@@ -14,20 +14,19 @@ import type { ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui';
 import type { Tab } from '@/interfaces/ui/tabs';
 import type { StoredWorkspaceRequest } from '@/interfaces/workspace';
-import {
-    useConfigStore,
-    useEnvironmentVariablesStore,
-    useRoutesStore,
-    useSettingsStore,
-} from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
+import { useSettingsStore } from '@/stores/core/useSettingsStore';
+import { useRoutesStore } from '@/stores/routes/useRoutesStore';
 import { HOST_ONLY_AUTHORIZATION_TYPES } from '@/utils/environment';
-import { buildRequestUrl, getDefaultPayloadTypeForRoute } from '@/utils/request';
 import {
     cloneParameters,
     createDefaultAuthorization,
     createRequestFromShareableLinkPayload,
     restoreResponseBody,
 } from '@/utils/request/pendingRequestBuilders';
+import { buildRequestUrl } from '@/utils/request/requestUrlBuilder';
+import { getDefaultPayloadTypeForRoute } from '@/utils/request/requestUtils';
 import { findRouteByName, findRoutesByEndpoint } from '@/utils/routes';
 import { formDataSerializer } from '@/utils/stores/formDataSerializer';
 import { generateValue } from '@/utils/value-generator/generateValue';

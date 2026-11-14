@@ -7,7 +7,7 @@ import KeyValueParametersBuilder from '@/components/common/KeyValueParameters/Ke
 import EnvironmentFields from '@/components/domain/Environment/EnvironmentFields.vue';
 import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 import type { ParameterContract } from '@/interfaces';
-import { useEnvironmentVariablesStore } from '@/stores';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
 
 /*
  * Stores & Dependencies.

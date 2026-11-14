@@ -21,15 +21,13 @@ const mockConfigStore = reactive({
     appBasePath: '/nimbus',
 });
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
+vi.mock('@/stores/request/useRequestStore', () => ({
+    useRequestStore: () => mockRequestStore,
+}));
 
-    return {
-        ...actual,
-        useRequestStore: () => mockRequestStore,
-        useConfigStore: () => mockConfigStore,
-    };
-});
+vi.mock('@/stores/core/useConfigStore', () => ({
+    useConfigStore: () => mockConfigStore,
+}));
 
 const createWrapper = (props = {}): VueWrapper => {
     return mount(ResponseViewerResponse, {
