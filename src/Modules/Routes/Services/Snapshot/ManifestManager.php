@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Sunchayn\Nimbus\Modules\Routes\Services\Snapshot;
 
 use Illuminate\Contracts\Config\Repository;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\File;
@@ -120,12 +119,9 @@ class ManifestManager
 
         $path = $this->manifestPath();
 
-        $manifest = null;
-
-        try {
-            $manifest = @unserialize(File::get($path));
-        } catch (FileNotFoundException) {
-        }
+        $manifest = File::exists($path)
+            ? @unserialize(File::get($path))
+            : null;
 
         $this->isLoaded = true;
 

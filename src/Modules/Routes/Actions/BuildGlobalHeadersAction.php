@@ -13,7 +13,7 @@ class BuildGlobalHeadersAction
     ) {}
 
     /**
-     * @return array<array-key, scalar|null>
+     * @return list<array{header: string, type: string, value: scalar|null}>
      */
     public function execute(): array
     {

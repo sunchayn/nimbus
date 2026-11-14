@@ -5,7 +5,9 @@ namespace Sunchayn\Nimbus\Modules\Relay\Services\VarDumpParser\DataTransferObjec
 use Illuminate\Contracts\Support\Arrayable;
 
 /**
- * @implements Arrayable<string, string|array>
+ * @phpstan-import-type ParsedValueShape from ParsedValueDto
+ *
+ * @implements Arrayable<string, string|null|array<int, ParsedValueShape>>
  */
 class ParseResultDto implements Arrayable
 {
@@ -25,6 +27,9 @@ class ParseResultDto implements Arrayable
         );
     }
 
+    /**
+     * @return array{source: ?string, dumps: array<int, ParsedValueShape>}
+     */
     public function toArray(): array
     {
         return [

@@ -9,7 +9,6 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
-use PhpParser\Node\VariadicPlaceholder;
 use ReflectionException;
 use ReflectionMethod;
 use Sunchayn\Nimbus\Modules\Ast\Contracts\AstContextValueContract;
@@ -115,8 +114,8 @@ class GetConcreteValueFromAstExprAction
     {
         $arguments = array_filter(
             array_map(
-                function (Arg|VariadicPlaceholder $argNode): mixed {
-                    if ($argNode instanceof VariadicPlaceholder) {
+                function (Node $argNode): mixed {
+                    if (! $argNode instanceof Arg) {
                         return null;
                     }
 
