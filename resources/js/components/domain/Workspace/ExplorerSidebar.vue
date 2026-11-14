@@ -8,7 +8,7 @@ import RouteExplorer, {
     type RouteExplorerProps,
 } from '@/components/domain/RoutesExplorer/RouteExplorer.vue';
 import WorkspaceExplorer from '@/components/domain/Workspace/Explorer/WorkspaceExplorer.vue';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
 

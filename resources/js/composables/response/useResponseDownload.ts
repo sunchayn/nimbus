@@ -1,6 +1,6 @@
 import type { RequestLog } from '@/interfaces/history/logs';
 import type { Request, Response } from '@/interfaces/http';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import { getMimeTypeInfo } from '@/utils/http';
 import { triggerDownload } from '@/utils/ui/download';
 import axios from 'axios';

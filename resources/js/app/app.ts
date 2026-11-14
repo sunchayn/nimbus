@@ -25,7 +25,8 @@ import { createApp } from 'vue';
  * Application Components & Configuration.
  */
 
-import { useErrorStore, useRoutesStore } from '@/stores';
+import { useErrorStore } from '@/stores/core/useErrorStore';
+import { useRoutesStore } from '@/stores/routes/useRoutesStore';
 import { quotaSafeStorage } from '@/utils/stores/quotaSafeStorage';
 import { createPersistedState } from 'pinia-plugin-persistedstate';
 import App from './App.vue';

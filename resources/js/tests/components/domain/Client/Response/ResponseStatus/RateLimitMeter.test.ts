@@ -1,5 +1,5 @@
 import RateLimitMeter from '@/components/domain/Client/Response/ResponseStatus/RateLimitMeter.vue';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';

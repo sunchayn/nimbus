@@ -11,7 +11,7 @@ import ToolboxDialog from '@/components/domain/Toolbox/ToolboxDialog.vue';
 import { useEnvironmentSwitch } from '@/composables/environment/useEnvironmentSwitch';
 import { useCommandPalette } from '@/composables/ui/useCommandPalette';
 import { useExplorerVisibility } from '@/composables/ui/useExplorerVisibility';
-import { useEnvironmentVariablesStore } from '@/stores';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
 import { isProductionEnvironment } from '@/utils/environment';
 import { useEventListener } from '@vueuse/core';
 import { computed } from 'vue';

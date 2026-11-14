@@ -1,5 +1,5 @@
 import { useCommandPalette } from '@/composables/ui/useCommandPalette';
-import { useTabsStore } from '@/stores';
+import { useTabsStore } from '@/stores/request/useTabsStore';
 import { useEventListener } from '@vueuse/core';
 
 const isTyping = (target: EventTarget | null): boolean => {

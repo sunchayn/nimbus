@@ -1,4 +1,4 @@
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import axios from 'axios';
 import { shallowRef, type ShallowRef } from 'vue';
 

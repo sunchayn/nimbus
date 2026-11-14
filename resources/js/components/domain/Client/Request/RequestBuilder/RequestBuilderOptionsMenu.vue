@@ -13,16 +13,14 @@ import { AppSwitch } from '@/components/base/switch';
 import SaveRequestDialog from '@/components/domain/Workspace/Dialogs/SaveRequestDialog.vue';
 import WorkspaceConflictDialog from '@/components/domain/Workspace/Dialogs/WorkspaceConflictDialog.vue';
 import { useShareableLink } from '@/composables/request/useShareableLink';
-import {
-    useConfigStore,
-    useEnvironmentVariablesStore,
-    useRequestStore,
-    useTabsStore,
-    useWorkspaceStore,
-} from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
+import { useRequestStore } from '@/stores/request/useRequestStore';
+import { useTabsStore } from '@/stores/request/useTabsStore';
+import { useWorkspaceStore } from '@/stores/workspace/useWorkspaceStore';
 import { isProductionEnvironment } from '@/utils/environment';
-import { generateCurlCommand } from '@/utils/request';
 import { CODE_LANGUAGES, generateCode } from '@/utils/request/codeGenerators';
+import { generateCurlCommand } from '@/utils/request/curlGenerator';
 import { isSignedRoute } from '@/utils/routes';
 import { isTabDirty } from '@/utils/workspace';
 import { computed, shallowRef } from 'vue';

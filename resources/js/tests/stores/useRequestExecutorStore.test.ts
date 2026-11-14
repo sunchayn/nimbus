@@ -27,14 +27,9 @@ const mockRequestsHistoryStore = reactive({
     addLog: vi.fn(),
 });
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
-
-    return {
-        ...actual,
-        useRequestsHistoryStore: () => mockRequestsHistoryStore,
-    };
-});
+vi.mock('@/stores/request/useRequestsHistoryStore', () => ({
+    useRequestsHistoryStore: () => mockRequestsHistoryStore,
+}));
 
 const requestUtilsMocks = vi.hoisted(() => ({
     createRequestTimer: vi.fn(() => ({
@@ -44,7 +39,7 @@ const requestUtilsMocks = vi.hoisted(() => ({
     generateErrorRequestLog: vi.fn(() => ({ type: 'error' })),
 }));
 
-vi.mock('@/utils/request', async importOriginal => {
+vi.mock('@/utils/request/requestUtils', async importOriginal => {
     const actual = await importOriginal<object>();
 
     return {

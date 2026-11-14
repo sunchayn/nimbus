@@ -5,7 +5,7 @@
  */
 import { AppSelect } from '@/components/base/select';
 import { type RouteDefinition } from '@/interfaces/routes/routes';
-import { useRequestStore } from '@/stores';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import { getHttpVerbColorClass, getHttpVerbShortLabel } from '@/utils/http';
 import { computed } from 'vue';
 

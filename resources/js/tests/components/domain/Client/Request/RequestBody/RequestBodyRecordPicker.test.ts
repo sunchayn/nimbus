@@ -13,8 +13,7 @@ const mockLookupValuesStore = {
     valuesFor: vi.fn(() => [3, 8]),
 };
 
-vi.mock('@/stores', async importOriginal => ({
-    ...(await importOriginal<object>()),
+vi.mock('@/stores/request/useLookupValuesStore', () => ({
     useLookupValuesStore: () => mockLookupValuesStore,
 }));
 

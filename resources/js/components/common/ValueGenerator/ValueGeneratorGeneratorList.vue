@@ -6,7 +6,7 @@
 import { AppCommand } from '@/components/base/command';
 import { getGeneratorCategories } from '@/config/generators';
 import { type ValueGenerator } from '@/interfaces/ui';
-import { useGeneratorCommandStore } from '@/stores';
+import { useGeneratorCommandStore } from '@/stores/generators/useGeneratorCommandStore';
 import { computed, reactive, useTemplateRef, watch } from 'vue';
 
 /*

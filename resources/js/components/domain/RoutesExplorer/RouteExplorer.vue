@@ -14,7 +14,7 @@ import { showingSearchResultsKey } from '@/components/domain/RoutesExplorer/show
 import RoutesListSkeleton from '@/components/layout/skeleton/RoutesListSkeleton.vue';
 import { useTabVerticalScroll } from '@/composables/ui/useTabVerticalScroll';
 import { type RoutesFolder } from '@/interfaces/routes/routes';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import {
     collectMethods,
     collectMiddleware,

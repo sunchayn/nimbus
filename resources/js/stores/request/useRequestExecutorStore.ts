@@ -1,17 +1,15 @@
 import { httpClientConfig } from '@/config';
 import type { ErrorPlainResponse, PendingRequest } from '@/interfaces/http';
-import {
-    useConfigStore,
-    useEnvironmentVariablesStore,
-    useLookupValuesStore,
-    useRequestsHistoryStore,
-    useTabsStore,
-} from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
+import { useLookupValuesStore } from '@/stores/request/useLookupValuesStore';
+import { useRequestsHistoryStore } from '@/stores/request/useRequestsHistoryStore';
+import { useTabsStore } from '@/stores/request/useTabsStore';
 import {
     createRequestTimer,
     generateErrorRequestLog,
     generateSuccessRequestLog,
-} from '@/utils/request';
+} from '@/utils/request/requestUtils';
 import { sendRelayRequest } from '@/utils/request/sendRelayRequest';
 import { signRequestUrl } from '@/utils/request/signRequestUrl';
 import { isSignedRoute } from '@/utils/routes';

@@ -5,7 +5,7 @@
  */
 import { AppIcon } from '@/components/base/icons';
 import { AppLabel } from '@/components/base/label';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import { computed } from 'vue';
 
 /*

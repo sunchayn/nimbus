@@ -15,7 +15,7 @@ const mockConfigStore = {
     appBasePath: '/nimbus',
 };
 
-vi.mock('@/stores', () => ({
+vi.mock('@/stores/core/useConfigStore', () => ({
     useConfigStore: () => mockConfigStore,
 }));
 

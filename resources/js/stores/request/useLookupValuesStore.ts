@@ -1,5 +1,7 @@
 import type { PendingRequest } from '@/interfaces/http';
-import { useConfigStore, useEnvironmentVariablesStore, useTabsStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
+import { useTabsStore } from '@/stores/request/useTabsStore';
 import { collectLookups, lookupKey, type Lookup } from '@/utils/payload/lookups';
 import axios from 'axios';
 import { defineStore } from 'pinia';

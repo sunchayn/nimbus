@@ -1,7 +1,8 @@
 import RequestBuilderOptionsMenu from '@/components/domain/Client/Request/RequestBuilder/RequestBuilderOptionsMenu.vue';
 import TimeTravelDialog from '@/components/domain/Client/Request/RequestBuilder/TimeTravelDialog.vue';
 import type { PendingRequest } from '@/interfaces/http';
-import { useTabsStore, useWorkspaceStore } from '@/stores';
+import { useTabsStore } from '@/stores/request/useTabsStore';
+import { useWorkspaceStore } from '@/stores/workspace/useWorkspaceStore';
 import type { VueWrapper } from '@vue/test-utils';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
@@ -22,6 +23,7 @@ const mockRequestStore = reactive({
 });
 
 const mockConfigStore = reactive({
+    environments: [],
     workspaceEnabled: true,
     apiUrl: 'http://localhost',
     activeApplication: 'main',
@@ -32,16 +34,17 @@ const mockHistoryStore = reactive({
     lastLog: null,
 });
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
+vi.mock('@/stores/request/useRequestStore', () => ({
+    useRequestStore: () => mockRequestStore,
+}));
 
-    return {
-        ...actual,
-        useRequestStore: () => mockRequestStore,
-        useConfigStore: () => mockConfigStore,
-        useRequestsHistoryStore: () => mockHistoryStore,
-    };
-});
+vi.mock('@/stores/core/useConfigStore', () => ({
+    useConfigStore: () => mockConfigStore,
+}));
+
+vi.mock('@/stores/request/useRequestsHistoryStore', () => ({
+    useRequestsHistoryStore: () => mockHistoryStore,
+}));
 
 /**
  * Factory function to create a mounted wrapper with sensible defaults.

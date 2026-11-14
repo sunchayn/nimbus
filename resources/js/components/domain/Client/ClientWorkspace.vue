@@ -11,7 +11,8 @@ import GlobalErrorRenderer from '@/components/domain/Errors/GlobalErrorRenderer.
 import RouteExtractorExceptionRenderer from '@/components/domain/Errors/RouteExtractorExceptionRenderer.vue';
 import { useResponsiveResizable } from '@/composables/ui/useResponsiveResizable';
 import type { GlobalException, RouteExtractorException } from '@/interfaces';
-import { useErrorStore, useRoutesStore } from '@/stores';
+import { useErrorStore } from '@/stores/core/useErrorStore';
+import { useRoutesStore } from '@/stores/routes/useRoutesStore';
 import type { TemplateRef } from 'vue';
 import { useTemplateRef } from 'vue';
 

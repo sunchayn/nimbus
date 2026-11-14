@@ -9,7 +9,7 @@ import { AppSelectMenu } from '@/components/base/select';
 import { AppTabs } from '@/components/base/tabs';
 import { AppTextarea } from '@/components/base/textarea';
 import { useToolRequest } from '@/composables/toolbox/useToolRequest';
-import { useRoutesStore } from '@/stores';
+import { useRoutesStore } from '@/stores/routes/useRoutesStore';
 import { listRoutes } from '@/utils/routes';
 import { computed, shallowRef } from 'vue';
 import ToolResult from './ToolResult.vue';

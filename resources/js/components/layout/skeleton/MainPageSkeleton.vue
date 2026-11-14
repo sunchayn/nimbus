@@ -7,7 +7,7 @@
 import { AppSkeleton } from '@/components/base/skeleton';
 import RoutesListSkeleton from '@/components/layout/skeleton/RoutesListSkeleton.vue';
 import WorkspaceSkeleton from '@/components/layout/skeleton/WorkspaceSkeleton.vue';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 
 const configStore = useConfigStore();
 </script>

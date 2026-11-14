@@ -13,7 +13,7 @@ const tabsStore = reactive({
     setActiveTab: vi.fn(),
 });
 
-vi.mock('@/stores', () => ({
+vi.mock('@/stores/request/useTabsStore', () => ({
     useTabsStore: () => tabsStore,
 }));
 

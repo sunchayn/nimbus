@@ -5,7 +5,8 @@
  */
 import { AppButton } from '@/components/base/button';
 import { AppDialog } from '@/components/base/dialog';
-import { useTabsStore, useWorkspaceStore } from '@/stores';
+import { useTabsStore } from '@/stores/request/useTabsStore';
+import { useWorkspaceStore } from '@/stores/workspace/useWorkspaceStore';
 
 const tabsStore = useTabsStore();
 const workspaceStore = useWorkspaceStore();

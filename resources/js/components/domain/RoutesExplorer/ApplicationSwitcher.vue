@@ -4,7 +4,7 @@
  * @description A dropdown component for switching between different applications in a multi-app setup.
  */
 import { AppSelect } from '@/components/base/select';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import { switchApplication } from '@/utils/applications';
 import { computed } from 'vue';
 

@@ -32,8 +32,7 @@ const mockExecutorStore = reactive({
     cancelCurrentRequest: vi.fn(),
 });
 
-vi.mock('@/stores', async importOriginal => ({
-    ...(await importOriginal<object>()),
+vi.mock('@/stores/request/useTabsStore', () => ({
     useTabsStore: () => mockTabsStore,
 }));
 

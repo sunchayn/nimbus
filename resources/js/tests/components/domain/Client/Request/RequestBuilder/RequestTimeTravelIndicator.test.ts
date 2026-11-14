@@ -9,7 +9,9 @@ const store = reactive({
     updateTimeTravel: vi.fn(),
 });
 
-vi.mock('@/stores', () => ({ useRequestStore: () => store }));
+vi.mock('@/stores/request/useRequestStore', () => ({
+    useRequestStore: () => store,
+}));
 
 const mountIndicator = () =>
     mount(RequestTimeTravelIndicator, {

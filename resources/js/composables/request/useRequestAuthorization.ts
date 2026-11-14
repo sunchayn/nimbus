@@ -1,7 +1,7 @@
 import { authorizationConfig } from '@/config';
 import type { AuthorizationContract } from '@/interfaces/auth/authorization';
 import { AuthorizationType, type AuthorizationTypeItem } from '@/interfaces/generated';
-import { useRequestStore } from '@/stores';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import { type DeepReadonly, type Ref, computed, readonly, watch } from 'vue';
 
 export interface UseRequestAuthorizationResult {

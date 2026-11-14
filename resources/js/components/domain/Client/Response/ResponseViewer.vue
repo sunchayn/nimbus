@@ -8,7 +8,7 @@ import ResponseStatus from '@/components/domain/Client/Response/ResponseStatus/R
 import ResponseViewerEmptyState from '@/components/domain/Client/Response/ResponseViewerEmptyState.vue';
 import ResponseViewerInternalError from '@/components/domain/Client/Response/ResponseViewerErrorState.vue';
 import ResponseViewerResponse from '@/components/domain/Client/Response/ResponseViewerResponse.vue';
-import { useTabsStore } from '@/stores';
+import { useTabsStore } from '@/stores/request/useTabsStore';
 import { cn } from '@/utils/ui';
 import { computed, type HTMLAttributes } from 'vue';
 

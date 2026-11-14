@@ -5,7 +5,7 @@
  */
 import type { UninitializedDump } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
 import { styles } from '@/components/domain/Client/Response/ResponseBody/DumpRenderer/index';
-import { cn } from '@/utils';
+import { cn } from '@/utils/ui/tailwind';
 
 interface PropsShape {
     dump: UninitializedDump;

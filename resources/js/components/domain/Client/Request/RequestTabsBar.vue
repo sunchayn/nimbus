@@ -10,7 +10,7 @@ import HttpVerbLabel from '@/components/domain/HttpVerbLabel/HttpVerbLabel.vue';
 import ExplorerToggleButton from '@/components/domain/RoutesExplorer/ExplorerToggleButton.vue';
 import { useShareableLink } from '@/composables/request/useShareableLink';
 import type { Tab } from '@/interfaces/ui/tabs';
-import { useTabsStore } from '@/stores';
+import { useTabsStore } from '@/stores/request/useTabsStore';
 import { useScroll, useTimeoutFn } from '@vueuse/core';
 import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import draggable from 'vuedraggable';

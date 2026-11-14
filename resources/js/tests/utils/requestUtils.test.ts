@@ -7,7 +7,7 @@ import {
     generateErrorRequestLog,
     generateSuccessRequestLog,
     getDefaultPayloadTypeForRoute,
-} from '@/utils/request';
+} from '@/utils/request/requestUtils';
 import { describe, expect, it, vi } from 'vitest';
 
 describe('requestUtils', () => {

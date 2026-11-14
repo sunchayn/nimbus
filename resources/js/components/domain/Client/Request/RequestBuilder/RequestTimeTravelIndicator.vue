@@ -6,7 +6,7 @@
  */
 import { AppButton } from '@/components/base/button';
 import { AppPopover } from '@/components/base/popover';
-import { useRequestStore } from '@/stores';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import { computed, shallowRef } from 'vue';
 import TimeTravelDialog from './TimeTravelDialog.vue';
 

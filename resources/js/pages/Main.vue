@@ -10,7 +10,7 @@ import ExplorerSidebar from '@/components/domain/Workspace/ExplorerSidebar.vue';
 import WorkspaceSkeleton from '@/components/layout/skeleton/WorkspaceSkeleton.vue';
 import { useSharedStateRestoration } from '@/composables/request/useSharedStateRestoration';
 import { useExplorerVisibility } from '@/composables/ui/useExplorerVisibility';
-import { useRoutesStore } from '@/stores';
+import { useRoutesStore } from '@/stores/routes/useRoutesStore';
 import type { TemplateRef } from 'vue';
 import { computed, useTemplateRef, watch } from 'vue';
 

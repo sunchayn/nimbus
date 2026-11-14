@@ -1,10 +1,8 @@
 import { useAppToast } from '@/components/base/toast';
-import {
-    useConfigStore,
-    useEnvironmentVariablesStore,
-    useRequestsHistoryStore,
-    useRequestStore,
-} from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
+import { useRequestsHistoryStore } from '@/stores/request/useRequestsHistoryStore';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import { buildShareableUrl, encodeShareablePayload } from '@/utils/shareableLinks';
 import { shallowRef, type ShallowRef } from 'vue';
 

@@ -1,5 +1,5 @@
 import WorkspaceConflictDialog from '@/components/domain/Workspace/Dialogs/WorkspaceConflictDialog.vue';
-import { useWorkspaceStore } from '@/stores';
+import { useWorkspaceStore } from '@/stores/workspace/useWorkspaceStore';
 import { createTestingPinia } from '@pinia/testing';
 import type { VueWrapper } from '@vue/test-utils';
 import { flushPromises, mount } from '@vue/test-utils';

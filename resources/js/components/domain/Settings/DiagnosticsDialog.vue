@@ -6,7 +6,7 @@
 import { AppButton } from '@/components/base/button';
 import { AppDialog } from '@/components/base/dialog';
 import { AppIcon } from '@/components/base/icons';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import axios from 'axios';
 import { shallowRef } from 'vue';
 

@@ -15,6 +15,7 @@ import { nextTick, reactive, ref } from 'vue';
  */
 
 const mockConfigStore = reactive({
+    environments: [],
     headers: [
         { header: 'X-Global', type: 'raw', value: 'foo' },
         { header: 'X-Generated', type: 'generator', value: GeneratorType.Email },
@@ -30,15 +31,13 @@ const mockRequestStore = reactive({
 
 vi.mock('@/utils/value-generator/generateValue', () => ({ generateValue }));
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
+vi.mock('@/stores/request/useRequestStore', () => ({
+    useRequestStore: () => mockRequestStore,
+}));
 
-    return {
-        ...actual,
-        useRequestStore: () => mockRequestStore,
-        useConfigStore: () => mockConfigStore,
-    };
-});
+vi.mock('@/stores/core/useConfigStore', () => ({
+    useConfigStore: () => mockConfigStore,
+}));
 
 const setPendingRequest = (request: PendingRequest | null) => {
     mockRequestStore.pendingRequestData = request;

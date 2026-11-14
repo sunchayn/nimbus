@@ -10,7 +10,7 @@ import {
     AppPanelHeader,
     AppPanelTitle,
 } from '@/components/base/panel';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 
 /*
  * Types & Interfaces.

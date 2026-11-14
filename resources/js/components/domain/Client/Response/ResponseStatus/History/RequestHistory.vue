@@ -12,7 +12,8 @@ import { useConfirmationAction } from '@/composables/ui/useConfirmationAction';
 import { useShortTimeAgo } from '@/composables/ui/useShortTimeAgo';
 import { type RequestLog } from '@/interfaces/history/logs';
 import { type Response } from '@/interfaces/http';
-import { useRequestsHistoryStore, useRequestStore } from '@/stores';
+import { useRequestsHistoryStore } from '@/stores/request/useRequestsHistoryStore';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import {
     logMatchesQuery,
     logMatchesStatusClasses,

@@ -1,4 +1,4 @@
-import { useTabsStore } from '@/stores';
+import { useTabsStore } from '@/stores/request/useTabsStore';
 import { defineStore } from 'pinia';
 import { computed } from 'vue';
 import { useRequestExecutorStore } from './useRequestExecutorStore';

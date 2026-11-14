@@ -9,17 +9,15 @@ import { useAppToast } from '@/components/base/toast';
 import { useEnvironmentSwitch } from '@/composables/environment/useEnvironmentSwitch';
 import { useCommandPalette } from '@/composables/ui/useCommandPalette';
 import { useConfirmationAction } from '@/composables/ui/useConfirmationAction';
-import {
-    useConfigStore,
-    useEnvironmentVariablesStore,
-    useRequestsHistoryStore,
-    useRequestStore,
-    useRoutesStore,
-    useSettingsStore,
-    useTabsStore,
-} from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
+import { useSettingsStore } from '@/stores/core/useSettingsStore';
+import { useRequestsHistoryStore } from '@/stores/request/useRequestsHistoryStore';
+import { useRequestStore } from '@/stores/request/useRequestStore';
+import { useTabsStore } from '@/stores/request/useTabsStore';
+import { useRoutesStore } from '@/stores/routes/useRoutesStore';
 import { switchApplication } from '@/utils/applications';
-import { generateCurlCommand } from '@/utils/request';
+import { generateCurlCommand } from '@/utils/request/curlGenerator';
 import { listRoutes } from '@/utils/routes';
 import { useClipboard } from '@vueuse/core';
 import { computed, shallowRef, watch } from 'vue';

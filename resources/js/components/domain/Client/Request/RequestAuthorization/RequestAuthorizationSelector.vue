@@ -5,11 +5,9 @@
  */
 import { AppSelect } from '@/components/base/select';
 import { AuthorizationType, type AuthorizationTypeItem } from '@/interfaces/generated';
-import {
-    useEnvironmentVariablesStore,
-    useRequestStore,
-    useSettingsStore,
-} from '@/stores';
+import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
+import { useSettingsStore } from '@/stores/core/useSettingsStore';
+import { useRequestStore } from '@/stores/request/useRequestStore';
 import { HOST_ONLY_AUTHORIZATION_TYPES } from '@/utils/environment';
 import { watchOnce } from '@vueuse/core';
 import { computed, type ModelRef, watch } from 'vue';

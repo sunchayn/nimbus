@@ -11,7 +11,7 @@ import {
     AppPanelTitle,
 } from '@/components/base/panel';
 import GeneratorInput from '@/components/common/GeneratorInput.vue';
-import { useConfigStore } from '@/stores';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import RequestAuthorizationImpersonateUser from './RequestAuthorizationImpersonateUser.vue';
 
 /*

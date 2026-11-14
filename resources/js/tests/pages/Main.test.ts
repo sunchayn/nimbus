@@ -49,6 +49,7 @@ const mockErrorStore = reactive({
 });
 
 const mockConfigStore = {
+    environments: [],
     apiUrl: 'https://api.example.com',
     headers: [],
     applications: {},
@@ -61,17 +62,21 @@ const mockCommandStore = {
     closeCommand: vi.fn(),
 };
 
-vi.mock('@/stores', async () => {
-    const original: object = await vi.importActual('@/stores');
+vi.mock('@/stores/routes/useRoutesStore', () => ({
+    useRoutesStore: () => mockRoutesStore,
+}));
 
-    return {
-        ...original,
-        useRoutesStore: () => mockRoutesStore,
-        useConfigStore: () => mockConfigStore,
-        useErrorStore: () => mockErrorStore,
-        useGeneratorCommandStore: () => mockCommandStore,
-    };
-});
+vi.mock('@/stores/core/useConfigStore', () => ({
+    useConfigStore: () => mockConfigStore,
+}));
+
+vi.mock('@/stores/core/useErrorStore', () => ({
+    useErrorStore: () => mockErrorStore,
+}));
+
+vi.mock('@/stores/generators/useGeneratorCommandStore', () => ({
+    useGeneratorCommandStore: () => mockCommandStore,
+}));
 
 /**
  * Factory function to create a mounted wrapper with sensible defaults.

@@ -33,32 +33,33 @@ vi.mock('@/utils/value-generator/generateValue', () => ({
     generateValue: (type: string) => `generated-${type}`,
 }));
 
-vi.mock('@/stores', async importOriginal => {
-    const actual = await importOriginal<object>();
+vi.mock('@/stores/core/useSettingsStore', () => ({
+    useSettingsStore: () => ({ preferences }),
+}));
 
-    return {
-        ...actual,
-        useSettingsStore: () => ({ preferences }),
-        useConfigStore: () => ({
-            get apiUrl() {
-                return apiUrl;
-            },
-            get activeApplication() {
-                return activeApplication;
-            },
-            get headers() {
-                return headers;
-            },
-        }),
-        useEnvironmentVariablesStore: () => ({
-            isCurrentHost: true,
-            get baseUrl() {
-                return apiUrl;
-            },
-            resolve: (value: string) => value,
-        }),
-    };
-});
+vi.mock('@/stores/core/useConfigStore', () => ({
+    useConfigStore: () => ({
+        get apiUrl() {
+            return apiUrl;
+        },
+        get activeApplication() {
+            return activeApplication;
+        },
+        get headers() {
+            return headers;
+        },
+    }),
+}));
+
+vi.mock('@/stores/core/useEnvironmentVariablesStore', () => ({
+    useEnvironmentVariablesStore: () => ({
+        isCurrentHost: true,
+        get baseUrl() {
+            return apiUrl;
+        },
+        resolve: (value: string) => value,
+    }),
+}));
 
 const baseRoute: RouteDefinition = {
     method: 'GET',
