@@ -3,12 +3,12 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Sunchayn\Nimbus\Commands\Intellisense\GenerateIntellisenseCommand;
+use Sunchayn\Nimbus\Console\Intellisense\GenerateIntellisenseCommand;
 use Symfony\Component\Console\Application;
 
 $application = new Application();
 
-$application->add(new GenerateIntellisenseCommand());
+$application->addCommand(new GenerateIntellisenseCommand());
 
 $application
     ->setDefaultCommand('generate-intellisense')

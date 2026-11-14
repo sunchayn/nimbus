@@ -70,6 +70,12 @@ class GenerateIntellisenseCommand extends SymfonyCommand
 
                 $this->createDirectoryIfItDoesntExist(dirname($targetPath));
 
+                if ($this->isUpToDate($targetPath, $content)) {
+                    $output->writeln('<info>✓ Up to date.</info>');
+
+                    continue;
+                }
+
                 file_put_contents($targetPath, $content);
 
                 $output->writeln('<info>✓ Generated.</info>');
@@ -109,6 +115,20 @@ class GenerateIntellisenseCommand extends SymfonyCommand
         }
 
         mkdir($directory, 0755, true);
+    }
+
+    /**
+     * A file is up to date when only its generation time differs.
+     */
+    private function isUpToDate(string $targetPath, string $content): bool
+    {
+        if (! is_file($targetPath)) {
+            return false;
+        }
+
+        $withoutDate = fn (string $text): string => (string) preg_replace('/Generated at: .*/', '', $text);
+
+        return $withoutDate((string) file_get_contents($targetPath)) === $withoutDate($content);
     }
 
     private function getFileHeader(): string
