@@ -7,6 +7,7 @@ use Workbench\App\Http\Controllers\Demo\ContentController;
 use Workbench\App\Http\Controllers\Demo\DemoController;
 use Workbench\App\Http\Controllers\Demo\DumpAndDieController;
 use Workbench\App\Http\Controllers\Demo\EchoController;
+use Workbench\App\Http\Controllers\Demo\InsightController;
 use Workbench\App\Http\Controllers\Demo\QueryParametersController;
 use Workbench\App\Http\Controllers\Demo\ResponseDemoController;
 use Workbench\App\Http\Controllers\Demo\RouteMetadataController;
@@ -227,3 +228,8 @@ Route::get('/time', fn () => response()->json([
 ]))->name('demo.time');
 
 Route::get('/rate-limit', fn () => response()->json(['ok' => true]))->middleware('throttle:5,1');
+
+Route::prefix('insight')->group(function () {
+    Route::get('/activity', [InsightController::class, 'activity']);
+    Route::get('/failure', [InsightController::class, 'failure']);
+});

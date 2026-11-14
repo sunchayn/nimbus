@@ -332,6 +332,21 @@ The lists stay in memory, autofill picks from them at random, and the store relo
 
 **Time travel.** The frontend sends `X-Nimbus-Time-Travel` to the relay, and the relay forwards it to the target request. `TimeTravelListener` (Magic module) parses it on `RouteMatched`, calls `setTestNow()` on `Carbon` and `CarbonImmutable`, and restores both on terminate.
 
+**Insight collection.** Insight shows what Laravel did while it handled a relayed request.
+
+1. For a current host request, `RequestRelayAction` adds an `X-Nimbus-Insight` header with a new UUID.
+2. In the target request, `InsightCollectorListener` starts `InsightsService` on `RouteMatched`, but only for a valid id.
+3. `InsightsService` runs the collectors (queries, logs, exceptions, gates, cache, jobs, mail, notifications, HTTP calls, and events). Each collector returns a typed result that extends `InsightCollectorResult`. Queries and HTTP calls also report `offset_ms`, measured from the start of the request with `InsightClock`.
+4. The results fill `InsightData`. Its `toArray()` builds the shape sent to the frontend.
+5. On `RequestHandled`, `InsightStore` writes one JSON file under `vendor/sunchayn/nimbus/storage/insight`. This runs before the response is sent.
+6. `PullInsightAction` reads and deletes the file. The relay returns it as `insight`, or null when there is no file. Files that are never read are removed after ten minutes.
+
+Limits are 500 queries, 200 entries for every other list, and 1 MB. Excess is counted in `dropped`.
+`SecretBindingMasker` hides bindings of columns named like `password`, `token`, or `secret`. It runs only in production.
+
+The frontend types come from `InsightIntellisense`, which reads the `@phpstan-type` aliases of the result classes and the return type of `InsightData::toArray()`.
+After a change there, run `php bin/intellisense`. CI fails a PR when a generated file is stale.
+
 ---
 
 ## Design Principles

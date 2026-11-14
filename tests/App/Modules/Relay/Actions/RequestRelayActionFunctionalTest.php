@@ -16,6 +16,9 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestWith;
 use Ramsey\Uuid\Uuid;
+use Sunchayn\Nimbus\Modules\Magic\Actions\PullInsightAction;
+use Sunchayn\Nimbus\Modules\Magic\DataTransferObjects\InsightData;
+use Sunchayn\Nimbus\Modules\Magic\Services\Insights\InsightStore;
 use Sunchayn\Nimbus\Modules\Relay\Actions\RequestRelayAction;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
@@ -917,6 +920,111 @@ class RequestRelayActionFunctionalTest extends TestCase
         $this->assertSame('application/zip', $response->download?->mimeType);
         $this->assertSame(strlen($binary), $response->download?->sizeInBytes);
         $this->assertSame(base64_encode($binary), $response->download?->content);
+    }
+
+    public function test_it_asks_the_current_host_for_insight_and_returns_it(): void
+    {
+        // Arrange
+
+        $insight = new InsightData(peakMemory: 123);
+
+        $pullInsightActionSpy = $this->spy(PullInsightAction::class);
+        $pullInsightActionSpy->shouldReceive('execute')->andReturn($insight);
+
+        $this->mockAuthorizationHandler();
+
+        $sentId = null;
+
+        Http::fake(function (Request $request) use (&$sentId) {
+            $sentId = $request->header(strtolower(PullInsightAction::HEADER))[0] ?? null;
+
+            return Http::response(['ok' => true], 200);
+        });
+
+        $action = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $action->execute($this->relayData(isCurrentHost: true));
+
+        // Assert
+
+        $this->assertTrue(InsightStore::isValidId($sentId));
+        $this->assertSame($insight, $response->insight);
+
+        $pullInsightActionSpy
+            ->shouldHaveReceived('execute')
+            ->once()
+            ->withArgs(function (string $id) use ($sentId): bool {
+                $this->assertSame($sentId, $id);
+
+                return true;
+            });
+    }
+
+    public function test_it_returns_no_insight_when_the_target_request_left_none(): void
+    {
+        // Arrange
+
+        $pullInsightActionSpy = $this->spy(PullInsightAction::class);
+        $pullInsightActionSpy->shouldReceive('execute')->andReturn(null);
+
+        $this->mockAuthorizationHandler();
+
+        Http::fake(['*' => Http::response(['ok' => true], 200)]);
+
+        $action = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $action->execute($this->relayData(isCurrentHost: true));
+
+        // Assert
+
+        $this->assertNull($response->insight);
+    }
+
+    public function test_it_does_not_ask_other_hosts_for_insight(): void
+    {
+        // Arrange
+
+        $pullInsightActionSpy = $this->spy(PullInsightAction::class);
+
+        $this->mockAuthorizationHandler();
+
+        $headerSent = true;
+
+        Http::fake(function (Request $request) use (&$headerSent) {
+            $headerSent = $request->hasHeader(PullInsightAction::HEADER);
+
+            return Http::response(['ok' => true], 200);
+        });
+
+        $action = resolve(RequestRelayAction::class);
+
+        // Act
+
+        $response = $action->execute($this->relayData(isCurrentHost: false));
+
+        // Assert
+
+        $this->assertFalse($headerSent);
+        $this->assertNull($response->insight);
+
+        $pullInsightActionSpy->shouldNotHaveReceived('execute');
+    }
+
+    private function relayData(bool $isCurrentHost): RequestRelayData
+    {
+        return new RequestRelayData(
+            method: 'GET',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: [],
+            cookies: new ParameterBag,
+            isCurrentHost: $isCurrentHost,
+        );
     }
 
     /*

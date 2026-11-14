@@ -10,6 +10,7 @@ use Sunchayn\Nimbus\Modules\Intellisense\Contracts\IntellisenseContract;
 use Sunchayn\Nimbus\Modules\Intellisense\DumpValueTypeIntellisense;
 use Sunchayn\Nimbus\Modules\Intellisense\EnvironmentIdIntellisense;
 use Sunchayn\Nimbus\Modules\Intellisense\EnvironmentSourceIntellisense;
+use Sunchayn\Nimbus\Modules\Intellisense\InsightIntellisense;
 use Sunchayn\Nimbus\Modules\Intellisense\RandomValueGeneratorIntellisense;
 use Sunchayn\Nimbus\Modules\Intellisense\RoutesProcessingStrategyIntellisense;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
@@ -30,6 +31,7 @@ class GenerateIntellisenseCommand extends SymfonyCommand
         RoutesProcessingStrategyIntellisense::class,
         EnvironmentIdIntellisense::class,
         EnvironmentSourceIntellisense::class,
+        InsightIntellisense::class,
     ];
 
     const TARGET_BASE_PATH = '/resources/js/interfaces/generated/';

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sunchayn\Nimbus\Modules\Relay\DataTransferObjects;
 
+use Sunchayn\Nimbus\Modules\Magic\DataTransferObjects\InsightData;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\DownloadResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;
 use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
@@ -25,5 +26,6 @@ class RelayedRequestResponseData
         public readonly array $cookies,
         public readonly ?DownloadResponseBody $download = null,
         public readonly ?SentRequest $sent = null,
+        public readonly ?InsightData $insight = null,
     ) {}
 }

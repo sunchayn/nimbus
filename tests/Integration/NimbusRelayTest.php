@@ -15,6 +15,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayController;
 use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayRequest;
 use Sunchayn\Nimbus\Http\Api\Relay\RelayResponseResource;
+use Sunchayn\Nimbus\Modules\Magic\DataTransferObjects\InsightData;
 use Sunchayn\Nimbus\Modules\Relay\Actions\RequestRelayAction;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
@@ -302,6 +303,51 @@ class NimbusRelayTest extends TestCase
             'sizeInBytes' => strlen($binary),
             'content' => base64_encode($binary),
         ]);
+    }
+
+    public function test_it_serializes_the_insight(): void
+    {
+        // Arrange
+
+        $requestRelayActionSpy = $this->spy(RequestRelayAction::class);
+        $requestRelayActionSpy
+            ->shouldReceive('execute')
+            ->andReturn($this->makeRelayedRequestResponseDataObject(new InsightData(peakMemory: 99, durationMs: 1.5)));
+
+        // Act
+
+        $response = $this->postJson(route('nimbus.api.relay'), ['method' => 'GET', 'endpoint' => '/test']);
+
+        // Assert
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('insight.peak_memory', 99)
+            ->assertJsonPath('insight.duration_ms', 1.5)
+            ->assertJsonPath('insight.queries', [])
+            ->assertJsonPath('insight.exception', null)
+            ->assertJsonPath('insight.dropped', ['queries' => 0, 'logs' => 0, 'cache' => 0, 'jobs' => 0, 'mail' => 0, 'notifications' => 0, 'http' => 0, 'events' => 0])
+            ->assertJsonPath('insight.truncated', false);
+    }
+
+    public function test_it_returns_null_when_there_is_no_insight(): void
+    {
+        // Arrange
+
+        $requestRelayActionSpy = $this->spy(RequestRelayAction::class);
+        $requestRelayActionSpy
+            ->shouldReceive('execute')
+            ->andReturn($this->makeRelayedRequestResponseDataObject(null));
+
+        // Act
+
+        $response = $this->postJson(route('nimbus.api.relay'), ['method' => 'GET', 'endpoint' => '/test']);
+
+        // Assert
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('insight', null);
     }
 
     public static function relayRequestProvider(): Generator
@@ -629,5 +675,23 @@ class NimbusRelayTest extends TestCase
         // Assert
 
         $response->assertOk();
+    }
+
+    /*
+     * Helpers.
+     */
+
+    private function makeRelayedRequestResponseDataObject(?InsightData $insight): RelayedRequestResponseData
+    {
+        return new RelayedRequestResponseData(
+            statusCode: 200,
+            statusText: 'OK',
+            body: new PrintableResponseBody(''),
+            headers: [],
+            durationMs: 1.5,
+            timestamp: 1_700_000_000,
+            cookies: [],
+            insight: $insight,
+        );
     }
 }

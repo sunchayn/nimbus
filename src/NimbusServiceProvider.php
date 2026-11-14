@@ -13,9 +13,22 @@ use Sunchayn\Nimbus\Modules\Ast\Events\ClassFileResolved;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\ActorHeaderListener;
+use Sunchayn\Nimbus\Modules\Magic\Listeners\InsightCollectorListener;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\ResetRateLimiterListener;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\TimeTravelListener;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\TransactionModeListener;
+use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\CacheCollector;
+use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\EventsCollector;
+use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\ExceptionCollector;
+use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\GatesCollector;
+use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\HttpCollector;
+use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\JobsCollector;
+use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\LogsCollector;
+use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\MailCollector;
+use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\NotificationsCollector;
+use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\QueriesCollector;
+use Sunchayn\Nimbus\Modules\Magic\Services\Insights\InsightsService;
+use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Support\InsightClock;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\AutoDetectRoutesProcessor;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\OpenAPISchemaRoutesProcessor;
@@ -67,6 +80,26 @@ class NimbusServiceProvider extends PackageServiceProvider
             fn (): IgnoredRoutesService => new IgnoredRoutesService,
         );
 
+        $this->app->singleton(InsightClock::class);
+
+        $this->app->tag(
+            [
+                QueriesCollector::class,
+                LogsCollector::class,
+                ExceptionCollector::class,
+                GatesCollector::class,
+                CacheCollector::class,
+                JobsCollector::class,
+                MailCollector::class,
+                NotificationsCollector::class,
+                HttpCollector::class,
+                EventsCollector::class,
+            ],
+            InsightsService::COLLECTORS_TAG,
+        );
+
+        $this->app->when(InsightsService::class)->needs('$collectors')->giveTagged(InsightsService::COLLECTORS_TAG);
+
         $this->app->bind(RoutesProcessorContract::class, function (Container $container) {
             $routesProcessingStrategyEnum = $container->make(ActiveApplicationResolver::class)->getRouteExtractionStrategy();
 
@@ -91,6 +124,7 @@ class NimbusServiceProvider extends PackageServiceProvider
         Event::listen(RouteMatched::class, TransactionModeListener::class);
         Event::listen(RouteMatched::class, TimeTravelListener::class);
         Event::listen(RouteMatched::class, ResetRateLimiterListener::class);
+        Event::listen(RouteMatched::class, InsightCollectorListener::class);
     }
 
     /**
