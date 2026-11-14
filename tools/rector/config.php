@@ -20,21 +20,13 @@ return static function (RectorConfig $rectorConfig): void {
         TypedPropertyFromStrictConstructorRector::class,
     ]);
 
-    $rectorConfig->sets([
-        SetList::PHP_82,
-        SetList::CODE_QUALITY,
-        SetList::DEAD_CODE,
-        SetList::CODING_STYLE,
-        SetList::NAMING,
-        SetList::PRIVATIZATION,
-        SetList::TYPE_DECLARATION,
-    ]);
-
-    $rectorConfig->skip([
-        \Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector::class => [
-            __DIR__.'/../../src/Modules/Relay/Responses/DumpAndDieResponse.php', // <- has a breaking change BC fix.
-        ],
-        \Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector::class,
-    ]);
-
+    $rectorConfig
+        ->sets([
+            SetList::PHP_82,
+            SetList::CODE_QUALITY,
+            SetList::DEAD_CODE,
+            SetList::CODING_STYLE,
+            SetList::PRIVATIZATION,
+            SetList::TYPE_DECLARATION,
+        ]);
 };
