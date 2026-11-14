@@ -3,6 +3,7 @@
 namespace Sunchayn\Nimbus;
 
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\Facades\Event;
 use Spatie\LaravelPackageTools\Package;
@@ -35,6 +36,8 @@ use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\AutoDete
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\OpenAPISchemaRoutesProcessor;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\RoutesProcessorContract;
 use Sunchayn\Nimbus\Modules\Routes\Services\Snapshot\ManifestManager;
+use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\WorkspaceConfig;
+use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\WorkspaceLockFile;
 
 class NimbusServiceProvider extends PackageServiceProvider
 {
@@ -74,6 +77,13 @@ class NimbusServiceProvider extends PackageServiceProvider
 
         $this->app->singleton(ManifestManager::class);
         $this->app->singleton(InsightsService::class);
+
+        $this->app->bind(
+            WorkspaceConfig::class,
+            fn (Container $container): WorkspaceConfig => WorkspaceConfig::fromConfig($container->make(Repository::class)),
+        );
+
+        $this->app->singleton(WorkspaceLockFile::class);
 
         Event::listen(ClassFileResolved::class, [ManifestManager::class, 'trackFile']);
 

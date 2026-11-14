@@ -120,6 +120,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Workspace
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, requests can be saved as small JSON files inside your
+    | repository and opened again from the Workspace tab. The files can be
+    | committed and shared with your team. It is off by default, so nothing
+    | is written to disk until you turn it on.
+    |
+    | The path is relative to your application root, so the folder always lives
+    | inside your application. Requests are saved as you typed them, so use
+    | variables for secrets such as tokens and passwords.
+    |
+    */
+
+    'workspace' => [
+        'enabled' => false,
+        'path' => '.nimbus',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Configurations
     |--------------------------------------------------------------------------
     |

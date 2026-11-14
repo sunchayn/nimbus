@@ -13,6 +13,7 @@ import type { ShareableLinkPayload } from '@/interfaces/share';
 import type { ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui';
 import type { Tab } from '@/interfaces/ui/tabs';
+import type { StoredWorkspaceRequest } from '@/interfaces/workspace';
 import {
     useConfigStore,
     useEnvironmentVariablesStore,
@@ -27,10 +28,11 @@ import {
     createRequestFromShareableLinkPayload,
     restoreResponseBody,
 } from '@/utils/request/pendingRequestBuilders';
-import { findRoutesByEndpoint } from '@/utils/routes';
+import { findRouteByName, findRoutesByEndpoint } from '@/utils/routes';
 import { formDataSerializer } from '@/utils/stores/formDataSerializer';
 import { generateValue } from '@/utils/value-generator/generateValue';
 import { generateValueFromType } from '@/utils/value-generator/generateValueFromType';
+import { fromRequestFile, serializeRequestFile, toRequestFile } from '@/utils/workspace';
 import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
 import { computed, ref, shallowRef, watch } from 'vue';
@@ -601,6 +603,118 @@ export const useTabsStore = defineStore(
             activeTabId.value = id;
         };
 
+        /**
+         * Builds the pending request that a request file describes.
+         */
+        const buildRequestFromFile = (file: StoredWorkspaceRequest['request']) => {
+            const restored = fromRequestFile(file);
+
+            // The route name reconnects the file to its schema even when the URL changed.
+            const namedRoute = findRouteByName(
+                routesStore.routes,
+                file.route,
+                restored.method,
+            );
+            const supportedRoutes = findRoutesByEndpoint(
+                routesStore.routes,
+                namedRoute?.endpoint ?? file.endpoint,
+            );
+            const route = namedRoute ??
+                supportedRoutes.find(
+                    (supported: RouteDefinition) =>
+                        supported.method.toUpperCase() === restored.method,
+                ) ?? {
+                    endpoint: file.endpoint,
+                    method: restored.method,
+                    schema: { shape: {}, extractionErrors: null },
+                    shortEndpoint: file.endpoint,
+                };
+
+            const pendingRequest = createPendingRequest(
+                route,
+                supportedRoutes.length ? supportedRoutes : [route],
+            );
+
+            const request: PendingRequest = {
+                ...pendingRequest,
+                method: restored.method,
+                endpoint: restored.endpoint,
+                headers: restored.headers,
+                queryParameters: restored.queryParameters,
+                payloadType: restored.payloadType,
+                body: restoreResponseBody(
+                    pendingRequest.body,
+                    restored.method,
+                    restored.payloadType,
+                    restored.body,
+                ),
+                authorization: restored.authorization,
+            };
+
+            return {
+                request,
+                method: restored.method,
+                title: route.shortEndpoint || route.endpoint,
+            };
+        };
+
+        /**
+         * Opens a tab for a request file of the workspace.
+         * The tab already open for the same file is activated instead.
+         */
+        const openSavedRequest = ({ request: file, hash }: StoredWorkspaceRequest) => {
+            const openTab = tabs.value.find(tab => tab.workspace?.id === file.id);
+
+            if (openTab) {
+                activeTabId.value = openTab.id;
+
+                return;
+            }
+
+            const { request, method, title } = buildRequestFromFile(file);
+
+            const id = uuidv4();
+
+            tabs.value.push({
+                id,
+                title,
+                method,
+                request,
+                response: null,
+                workspace: {
+                    id: file.id,
+                    name: file.name,
+                    hash,
+                    saved: serializeRequestFile(toRequestFile(request, file.name)),
+                },
+            });
+            activeTabId.value = id;
+        };
+
+        /**
+         * Replaces the content of the tab of a request file with the file as it is on disk.
+         * A file with no open tab is left alone, and the active tab does not change.
+         */
+        const reloadSavedRequest = (stored: StoredWorkspaceRequest) => {
+            const { request: file, hash } = stored;
+            const openTab = tabs.value.find(tab => tab.workspace?.id === file.id);
+
+            if (!openTab) {
+                return;
+            }
+
+            const { request, method } = buildRequestFromFile(file);
+
+            openTab.request = request;
+            openTab.method = method;
+            openTab.workspace = {
+                id: file.id,
+                name: file.name,
+                hash,
+                saved: serializeRequestFile(toRequestFile(request, file.name)),
+            };
+        };
+
         const restoreFromSharedPayload = (payload: ShareableLinkPayload) => {
             const newRequest = createRequestFromShareableLinkPayload(payload);
 
@@ -702,6 +816,8 @@ export const useTabsStore = defineStore(
             updateSandbox,
             resetRequest,
             restoreFromHistory,
+            openSavedRequest,
+            reloadSavedRequest,
             restoreFromSharedPayload,
             syncGlobalHeadersWhenApplicable,
             discardUnusableTabs,

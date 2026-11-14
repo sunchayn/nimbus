@@ -10,12 +10,21 @@ import { AppIcon } from '@/components/base/icons';
 import { AppInput } from '@/components/base/input';
 import { AppPopover } from '@/components/base/popover';
 import { AppSwitch } from '@/components/base/switch';
+import SaveRequestDialog from '@/components/domain/Workspace/Dialogs/SaveRequestDialog.vue';
+import WorkspaceConflictDialog from '@/components/domain/Workspace/Dialogs/WorkspaceConflictDialog.vue';
 import { useShareableLink } from '@/composables/request/useShareableLink';
-import { useEnvironmentVariablesStore, useRequestStore, useTabsStore } from '@/stores';
+import {
+    useConfigStore,
+    useEnvironmentVariablesStore,
+    useRequestStore,
+    useTabsStore,
+    useWorkspaceStore,
+} from '@/stores';
 import { isProductionEnvironment } from '@/utils/environment';
 import { generateCurlCommand } from '@/utils/request';
 import { CODE_LANGUAGES, generateCode } from '@/utils/request/codeGenerators';
 import { isSignedRoute } from '@/utils/routes';
+import { isTabDirty } from '@/utils/workspace';
 import { computed, shallowRef } from 'vue';
 import CodeExportDialog from './CodeExportDialog.vue';
 import CurlExportDialog from './CurlExportDialog.vue';
@@ -30,6 +39,8 @@ const { showShareableLinkDialog, shareableLink, openShareableLinkDialog } =
     useShareableLink();
 const requestStore = useRequestStore();
 const environmentVariablesStore = useEnvironmentVariablesStore();
+const configStore = useConfigStore();
+const workspaceStore = useWorkspaceStore();
 const tabsStore = useTabsStore();
 
 /*
@@ -156,6 +167,10 @@ const populateCodeExporterDialog = () => {
 
 const timeTravel = computed(() => pendingRequestData.value?.timeTravel ?? '');
 
+const savedTab = computed(() =>
+    tabsStore.activeTab?.workspace ? tabsStore.activeTab : null,
+);
+
 const items = computed<AppDropdownMenuItem[][]>(() => [
     [
         { label: 'Options', type: 'label' },
@@ -210,6 +225,38 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
             })),
         },
     ],
+    ...(configStore.workspaceEnabled
+        ? [
+              [
+                  { label: 'Workspace', type: 'label' as const },
+                  ...(savedTab.value
+                      ? [
+                            {
+                                label: 'Save changes',
+                                icon: 'i-hugeicons-floppy-disk',
+                                disabled: !isTabDirty(savedTab.value),
+                                testId: 'save-request-option',
+                                onSelect: () => workspaceStore.save(),
+                            },
+                            {
+                                label: 'Save as...',
+                                icon: 'i-hugeicons-floppy-disk',
+                                testId: 'save-as-option',
+                                onSelect: () => workspaceStore.openSaveDialog(true),
+                            },
+                        ]
+                      : [
+                            {
+                                label: 'Save to workspace',
+                                icon: 'i-hugeicons-floppy-disk',
+                                disabled: !tabsStore.activeTab,
+                                testId: 'save-request-option',
+                                onSelect: () => workspaceStore.openSaveDialog(),
+                            },
+                        ]),
+              ],
+          ]
+        : []),
     [
         { label: 'Export', type: 'label' },
         {
@@ -443,4 +490,10 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
         :value="timeTravel"
         @save="requestStore.updateTimeTravel"
     />
+    <SaveRequestDialog
+        v-if="configStore.workspaceEnabled"
+        v-model:open="workspaceStore.isSaveDialogOpen"
+    />
+
+    <WorkspaceConflictDialog v-if="configStore.workspaceEnabled" />
 </template>

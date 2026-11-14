@@ -7,6 +7,12 @@ return [
     'nested_folders' => true,
     'snapshot' => (bool) env('NIMBUS_SNAPSHOT', false),
 
+    // Requests are saved under the Testbench base path.
+    'workspace' => [
+        'enabled' => true,
+        'path' => '.nimbus',
+    ],
+
     // Base URL of the current host environment.
     'base_url' => env('NIMBUS_RELAY_ENDPOINT'),
 

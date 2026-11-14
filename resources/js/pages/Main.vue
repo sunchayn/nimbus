@@ -6,7 +6,7 @@
 import { AppSplitter } from '@/components/base/resizable';
 import { AppSlideover } from '@/components/base/slideover';
 import ClientWorkspace from '@/components/domain/Client/ClientWorkspace.vue';
-import RouteExplorer from '@/components/domain/RoutesExplorer/RouteExplorer.vue';
+import ExplorerSidebar from '@/components/domain/Workspace/ExplorerSidebar.vue';
 import WorkspaceSkeleton from '@/components/layout/skeleton/WorkspaceSkeleton.vue';
 import { useSharedStateRestoration } from '@/composables/request/useSharedStateRestoration';
 import { useExplorerVisibility } from '@/composables/ui/useExplorerVisibility';
@@ -108,7 +108,7 @@ const onLayout = () => {
                 }"
             >
                 <template #body>
-                    <RouteExplorer
+                    <ExplorerSidebar
                         class="min-h-0 flex-1"
                         :routes="routesStore.routes"
                         :loading="routesStore.isLoading"
@@ -132,7 +132,7 @@ const onLayout = () => {
             @expand="isExplorerOpen = true"
         >
             <template #panel-0>
-                <RouteExplorer
+                <ExplorerSidebar
                     :routes="routesStore.routes"
                     :loading="routesStore.isLoading"
                     :error="routesStore.error"

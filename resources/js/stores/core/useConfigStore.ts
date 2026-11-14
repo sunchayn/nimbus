@@ -48,6 +48,7 @@ export const useConfigStore = defineStore('config', () => {
         (window.Nimbus?.primaryProcessorName as RoutesProcessingStrategy) ||
         RoutesProcessingStrategy.AutoDetect;
     const showOperationId = (window.Nimbus?.showOperationId as boolean) || false;
+    const workspaceEnabled = window.Nimbus?.workspaceEnabled === true;
 
     const environments: ServerEnvironment[] = window.Nimbus?.environments
         ? JSON.parse(window.Nimbus.environments as string)
@@ -73,5 +74,6 @@ export const useConfigStore = defineStore('config', () => {
         activeApplication,
         primaryProcessorName,
         showOperationId,
+        workspaceEnabled,
     };
 });

@@ -17,3 +17,4 @@ export {
     useTabsStore,
 } from './request';
 export { useRoutesStore } from './routes';
+export { useWorkspaceStore } from './workspace';

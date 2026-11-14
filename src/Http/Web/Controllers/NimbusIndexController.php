@@ -12,6 +12,7 @@ use Sunchayn\Nimbus\Modules\Magic\Actions\DetectEphemeralRateLimiterAction;
 use Sunchayn\Nimbus\Modules\Magic\Actions\ListActorsAction;
 use Sunchayn\Nimbus\Modules\Routes\Actions;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\RoutesProcessorContract;
+use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\WorkspaceConfig;
 
 class NimbusIndexController
 {
@@ -27,6 +28,7 @@ class NimbusIndexController
         ShareableLinkProcessorService $shareableLinkProcessorService,
         ListActorsAction $listActorsAction,
         DetectEphemeralRateLimiterAction $detectEphemeralRateLimiterAction,
+        WorkspaceConfig $workspaceConfig,
     ): Renderable|RedirectResponse {
         $incomingShareableLinkPayload = $this->processShareableLink($shareableLinkProcessorService, $activeApplicationResolver);
 
@@ -53,6 +55,7 @@ class NimbusIndexController
             'ephemeralRateLimiter' => $detectEphemeralRateLimiterAction->execute(),
             'primaryProcessorName' => $routesProcessorContract->getName()->value,
             'showOperationId' => $activeApplicationResolver->showOperationId(),
+            'workspaceEnabled' => $workspaceConfig->isEnabled(),
         ]);
     }
 

@@ -84,6 +84,7 @@
             'sharedState' => isset($sharedState) ? $sharedState : null,
             'primaryProcessorName' => isset($primaryProcessorName) ? $primaryProcessorName : null,
             'showOperationId' => isset($showOperationId) ? $showOperationId : false,
+            'workspaceEnabled' => isset($workspaceEnabled) ? $workspaceEnabled : false,
         ]);
 
         $configTag = new \Illuminate\Support\HtmlString(<<<HTML

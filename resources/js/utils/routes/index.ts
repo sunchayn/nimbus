@@ -4,6 +4,7 @@
 
 export {
     calculateTotalRouteCount,
+    findRouteByName,
     findRoutesByEndpoint,
     listRoutes,
     processRoutesData,

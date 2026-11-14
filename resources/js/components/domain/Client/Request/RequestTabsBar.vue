@@ -5,9 +5,7 @@
  */
 import { AppContextMenu, type AppContextMenuItem } from '@/components/base/context-menu';
 import AppIcon from '@/components/base/icons/AppIcon.vue';
-import { AppInput } from '@/components/base/input';
-import { AppLabel } from '@/components/base/label';
-import { AppPopover } from '@/components/base/popover';
+import { AppInputPopover } from '@/components/base/popover';
 import HttpVerbLabel from '@/components/domain/HttpVerbLabel/HttpVerbLabel.vue';
 import ExplorerToggleButton from '@/components/domain/RoutesExplorer/ExplorerToggleButton.vue';
 import { useShareableLink } from '@/composables/request/useShareableLink';
@@ -53,7 +51,8 @@ const shortTitle = (title: string) => {
     return segments.length > 1 ? segments.slice(1).join('/') : title;
 };
 
-const tabTitle = (tab: Tab) => tab.customTitle ?? shortTitle(tab.title);
+const tabTitle = (tab: Tab) =>
+    tab.customTitle ?? tab.workspace?.name ?? shortTitle(tab.title);
 
 /*
  * Rename.
@@ -66,22 +65,6 @@ const startRename = (tab: Tab) => {
     tabsStore.setActiveTab(tab.id);
     renameDraft.value = tabTitle(tab);
     renamingTabId.value = tab.id;
-};
-
-// The context menu returns focus to the tab when it closes, which would dismiss the popover.
-// So the rename starts once the menu is closed, and the focus return is skipped.
-const pendingRenameTab = shallowRef<Tab | null>(null);
-
-const handleMenuOpen = async (open: boolean) => {
-    if (open || !pendingRenameTab.value) {
-        return;
-    }
-
-    const tab = pendingRenameTab.value;
-    pendingRenameTab.value = null;
-
-    await nextTick();
-    startRename(tab);
 };
 
 const submitRename = () => {
@@ -140,9 +123,7 @@ const menuItems = (tab: Tab, index: number): AppContextMenuItem[][] => {
             {
                 label: 'Rename tab',
                 icon: 'i-hugeicons-pencil-edit-02',
-                onSelect: () => {
-                    pendingRenameTab.value = tab;
-                },
+                afterClose: () => startRename(tab),
             },
             {
                 label: tab.pinned ? 'Unpin tab' : 'Pin tab',
@@ -240,11 +221,7 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
                         'tab-closing': closingTabId === tab.id,
                     }"
                 >
-                    <AppContextMenu
-                        :items="menuItems(tab, index)"
-                        :content="{ onCloseAutoFocus: (e: Event) => e.preventDefault() }"
-                        @update:open="handleMenuOpen"
-                    >
+                    <AppContextMenu :items="menuItems(tab, index)">
                         <div
                             :ref="(el: unknown) => setTabElement(tab.id, el)"
                             :data-active="tab.id === tabsStore.activeTabId"
@@ -286,32 +263,19 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
                                     class="size-icon-xs"
                                 />
                             </button>
-                            <AppPopover
+                            <AppInputPopover
+                                v-model="renameDraft"
                                 :open="renamingTabId === tab.id"
-                                :content="{ align: 'start' }"
+                                header="Label"
+                                placeholder="Tab label"
+                                test-id="tab-rename"
                                 @update:open="open => !open && (renamingTabId = null)"
+                                @submit="submitRename"
                             >
                                 <template #anchor>
                                     <span class="pointer-events-none absolute inset-0" />
                                 </template>
-
-                                <template #content>
-                                    <form
-                                        class="gap-base flex w-64 flex-col"
-                                        data-testid="tab-rename-form"
-                                        @submit.prevent="submitRename"
-                                    >
-                                        <AppLabel for="tab-rename-input">Label</AppLabel>
-                                        <AppInput
-                                            id="tab-rename-input"
-                                            v-model="renameDraft"
-                                            size="sm"
-                                            placeholder="Tab label"
-                                            data-testid="tab-rename-input"
-                                        />
-                                    </form>
-                                </template>
-                            </AppPopover>
+                            </AppInputPopover>
                         </div>
                     </AppContextMenu>
                 </li>

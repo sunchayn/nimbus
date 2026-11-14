@@ -7,6 +7,9 @@
 import { AppSkeleton } from '@/components/base/skeleton';
 import RoutesListSkeleton from '@/components/layout/skeleton/RoutesListSkeleton.vue';
 import WorkspaceSkeleton from '@/components/layout/skeleton/WorkspaceSkeleton.vue';
+import { useConfigStore } from '@/stores';
+
+const configStore = useConfigStore();
 </script>
 
 <template>
@@ -16,6 +19,11 @@ import WorkspaceSkeleton from '@/components/layout/skeleton/WorkspaceSkeleton.vu
             style="width: var(--shell-explorer-width, 20%)"
             data-testid="skeleton-sidebar"
         >
+            <AppSkeleton
+                v-if="configStore.workspaceEnabled"
+                class="h-control-md w-full"
+                data-testid="skeleton-sidebar-tabs"
+            />
             <AppSkeleton class="h-control-md w-full" />
             <ul class="flex flex-col">
                 <RoutesListSkeleton />

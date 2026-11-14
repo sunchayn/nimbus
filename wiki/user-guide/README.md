@@ -38,6 +38,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
     - [Export as Code](#export-as-code)
     - [Shareable Links](#shareable-links)
     - [Toolbox](#toolbox)
+    - [Workspace](#workspace)
     - [OpenAPI Support](#openapi-support)
     - [Routes Snapshot](#routes-snapshot)
 - [Configuration](#configuration)
@@ -842,6 +843,63 @@ The tools are available wherever Nimbus is enabled, which is controlled by `allo
 The Sanctum lookup needs `laravel/sanctum`.
 The session tool reads the session store configured in your application.
 
+### Workspace
+
+The workspace saves requests as small JSON files in your repository, so you can commit them and share them with your team through git.
+It is off by default and Nimbus writes nothing to disk until you turn it on.
+
+```php
+'workspace' => [
+    'enabled' => true,
+    'path' => '.nimbus',
+],
+```
+
+The path is relative to your application root.
+Once it is on, a **Workspace** tab appears in the sidebar next to the routes.
+
+**Save a request:**
+1. Configure your request.
+2. Click the **Request Options** (sparkles) icon in the endpoint bar and choose **Save to workspace**.
+3. Give the request a name, and optionally a folder such as `users/admin`.
+
+A saved request shows **Save changes** and **Save as...** in the same menu. **Save as...** saves a copy under another name.
+In the Workspace tab, a dot next to a request means it has unsaved changes. Hover the row and click the dot to save them.
+
+**Open a request:**
+Click a request in the Workspace tab. Nimbus opens it in a tab, or switches to the tab that already holds it.
+
+**Organize requests:**
+- Click **New folder** to create a folder. Use a slash to nest folders, such as `users/admin`.
+- Drag a request onto a folder to move it. Drop it on the empty area of the list to move it back to the top level.
+- Drag a request or a folder next to its siblings to change the order.
+- Right click a request or a folder to rename or delete it. You can also double click a request to rename it.
+- Deleting a folder deletes every request inside it.
+
+The order you set is saved in `nimbus.json`, so your teammates see the same order. Commit it with your requests.
+Git does not track empty folders, so a folder only reaches your team once it holds a request.
+
+**Share through git:**
+Commit the workspace folder like any other file. When a teammate pulls it, their Workspace tab shows the same requests.
+Nimbus can update `nimbus.json` when you open the tab, for example to add a request a teammate created. Commit that change too.
+
+**Move my tabs into the workspace:**
+Click the **Move my tabs here** icon (folder with arrows) at the top of the Workspace tab to save every open tab that is not saved yet.
+Tabs with form data are skipped, and a message lists them. Your browser data is not deleted.
+
+**Secrets:**
+A request is saved as you typed it, including any token or password. Use variables such as `{{token}}` for secrets, and each person sets them in their own environment. Environment values are never written to the files.
+
+**When the file changed:**
+If the file was changed or deleted after you opened the request, Nimbus does not overwrite it and shows a dialog.
+- **Reload** drops your changes and takes the file as it is now. If the file was deleted, the tab is unlinked from it.
+- **Overwrite** keeps your changes and writes them over the file, or creates the file again if it was deleted.
+
+**Limits:**
+- Form data bodies cannot be saved yet.
+- Files and file parameters are not saved.
+- A request file larger than 1 MB is refused.
+
 ### OpenAPI Support
 
 By default, Nimbus auto-detects routes from your Laravel application. However, you can also configure Nimbus to load routes directly from OpenAPI specification files.
@@ -948,7 +1006,7 @@ return [
 
     'prefix' => 'nimbus',
 
-    'allowed_envs' => ['local', 'staging'],
+    'allowed_envs' => ['local'],
 
     'nested_folders' => false,
 
@@ -1002,12 +1060,13 @@ return [
 | Option | Description                                                                                                                                                                                           | Default | Example |
 |---|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|---|
 | **`prefix`** | The URI segment under which Nimbus is accessible.                                                                                                                                                     | `'nimbus'` | `'api-client'` |
-| **`allowed_envs`** | Environments where Nimbus is enabled. Avoid production for security reasons.                                                                                                                          | `['local', 'staging']` | `['testing', 'local']` |
+| **`allowed_envs`** | Environments where Nimbus is enabled. Avoid production for security reasons.                                                                                                                          | `['local']` | `['testing', 'local']` |
 | **`default_application`** | The base default application to load when no other application is specified.                                                                                                                          | `'main'` | `'rest-api'` |
 | **`nested_folders`** | Groups routes in nested folders that follow the URI, instead of one folder per resource. Applies to all applications.<br /><br />See [Nested Folders](#nested-folders). | `false` | `true` |
 | **`base_url`** | The base URL of the current host, used when Nimbus relays API requests from the UI. Useful when the API runs on a different domain or port. Applies to all applications. If set to null, Nimbus defaults to the host and scheme of the incoming request. | `null` | `'http://127.0.0.1:8001'` |
 | **`environments`** | Pre-configured environments that requests can be sent to. Each key is the environment id and each entry needs a `name`, an absolute `base_url`, and an `enabled` flag. The current host always exists and cannot be listed. See [Environments](#environments). | `[]` | `['staging' => ['name' => 'Staging', 'base_url' => 'https://staging.example.com', 'enabled' => false]]` |
 | **`snapshot`** | Saves the extracted routes and reuses them while their source files are unchanged. Applies to all applications.<br /><br />See [Routes Snapshot](#routes-snapshot). | `false` | `true` |
+| **`workspace`** | Saves requests as JSON files in your repository. Takes `enabled` and `path`. The path is relative to the application root.<br /><br />See [Workspace](#workspace). | `['enabled' => false, 'path' => '.nimbus']` | `['enabled' => true, 'path' => '.nimbus']` |
 | **`applications.*.routes.prefix`** | The base path used to detect application routes. Only routes starting with this prefix are analyzed.                                                                                                  | `'api'` | `'api/v1'` |
 | **`applications.*.routes.versioned`** | Enables version parsing for routes like `/api/v1/...`.                                                                                                                                                | `false` | `true` |
 | **`applications.*.routes.strategy`** | The strategy used to discover routes.<br /><br />Supported values: `'auto_detect'` or `'openapi'`.                                                                                                    | `'auto_detect'` | `'openapi'` |

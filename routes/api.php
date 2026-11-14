@@ -11,6 +11,16 @@ use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayController;
 use Sunchayn\Nimbus\Http\Api\Responses\ResponseShapeController;
 use Sunchayn\Nimbus\Http\Api\Routes\RoutesController;
 use Sunchayn\Nimbus\Http\Api\Toolbox\ToolboxController;
+use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\CreateWorkspaceFolderController;
+use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\DeleteWorkspaceFolderController;
+use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\DeleteWorkspaceRequestController;
+use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\ListWorkspaceController;
+use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\MoveWorkspaceRequestController;
+use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\RenameWorkspaceFolderController;
+use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\ReorderWorkspaceFoldersController;
+use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\ReorderWorkspaceRequestsController;
+use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\SaveWorkspaceRequestController;
+use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\ShowWorkspaceRequestController;
 
 Route::group(
     [
@@ -52,5 +62,39 @@ Route::group(
             Route::post('/token', [ToolboxController::class, 'token'])->name('token');
             Route::post('/session', [ToolboxController::class, 'session'])->name('session');
         });
+
+        Route::prefix('/workspace')
+            ->where(['id' => '[A-Za-z0-9_-]{8,64}'])
+            ->group(function () {
+                Route::get('/', ListWorkspaceController::class)
+                    ->name('nimbus.api.workspace.index');
+
+                Route::get('/requests/{id}', ShowWorkspaceRequestController::class)
+                    ->name('nimbus.api.workspace.requests.show');
+
+                Route::put('/requests/{id}', SaveWorkspaceRequestController::class)
+                    ->name('nimbus.api.workspace.requests.save');
+
+                Route::delete('/requests/{id}', DeleteWorkspaceRequestController::class)
+                    ->name('nimbus.api.workspace.requests.delete');
+
+                Route::patch('/requests/{id}/move', MoveWorkspaceRequestController::class)
+                    ->name('nimbus.api.workspace.requests.move');
+
+                Route::post('/folders', CreateWorkspaceFolderController::class)
+                    ->name('nimbus.api.workspace.folders.create');
+
+                Route::patch('/folders', RenameWorkspaceFolderController::class)
+                    ->name('nimbus.api.workspace.folders.rename');
+
+                Route::delete('/folders', DeleteWorkspaceFolderController::class)
+                    ->name('nimbus.api.workspace.folders.delete');
+
+                Route::put('/folders/order', ReorderWorkspaceFoldersController::class)
+                    ->name('nimbus.api.workspace.folders.reorder');
+
+                Route::put('/requests/order', ReorderWorkspaceRequestsController::class)
+                    ->name('nimbus.api.workspace.requests.reorder');
+            });
     },
 );

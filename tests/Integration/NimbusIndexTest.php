@@ -93,6 +93,8 @@ class NimbusIndexTest extends TestCase
 
         $response->assertViewHas('sharedState', null);
 
+        $response->assertViewHas('workspaceEnabled', false);
+
         $response->assertViewHas('environments', fn (array $environments): bool => $environments[0]['id'] === 'current'
             && $environments[0]['source'] === 'current');
 
@@ -151,6 +153,22 @@ class NimbusIndexTest extends TestCase
         $response
             ->assertStatus(302)
             ->assertRedirect('/nimbus');
+    }
+
+    public function test_it_tells_the_view_when_the_workspace_is_enabled(): void
+    {
+        // Arrange
+
+        config()->set('nimbus.workspace.enabled', true);
+        config()->set('nimbus.workspace.path', '.nimbus-index-test');
+
+        // Act
+
+        $response = $this->get(route('nimbus.index'));
+
+        // Assert
+
+        $response->assertViewHas('workspaceEnabled', true);
     }
 
     public function test_it_integrates(): void

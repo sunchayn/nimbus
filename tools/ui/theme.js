@@ -169,6 +169,13 @@ const menuMd = {
     itemTrailingIcon: icon.md,
 };
 
+const menuCompact = {
+    ...menuMd,
+    item: "p-0 min-h-item-sm items-center px-base py-0 gap-base text-sm",
+    itemLeadingIcon: `${icon.xs} ${itemIcon}`,
+    itemTrailingIcon: icon.xs,
+};
+
 const paletteInput = "[&>input]:h-control-lg";
 
 const paletteSm = {
@@ -467,10 +474,10 @@ export default {
                     item: "data-highlighted:not-data-disabled:before:bg-overlay-hover",
                 },
             },
-            size: menuSizes,
+            size: { ...menuSizes, xs: menuCompact, sm: menuCompact },
         },
         defaultVariants: {
-            size: "md",
+            size: "sm",
         },
     },
 

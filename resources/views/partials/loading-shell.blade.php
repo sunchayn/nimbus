@@ -67,6 +67,10 @@
                     class="gap-tight flex shrink-0 flex-col overflow-hidden max-md:hidden"
                     style="width: var(--shell-explorer-width, 20%)"
                 >
+                    @if (! empty($workspaceEnabled))
+                        {{-- The Routes and Workspace tabs of the sidebar. --}}
+                        <div class="{{ $block }} h-control-md w-full" data-testid="skeleton-sidebar-tabs"></div>
+                    @endif
                     <div class="{{ $block }} h-control-md w-full"></div>
                     <div class="gap-tight flex flex-col">
                         <div class="min-h-8"></div>
