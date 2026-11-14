@@ -732,6 +732,8 @@ export default {
             list: "p-tabs gap-tabs-gap overflow-x-auto no-scrollbar",
             indicator: "hidden",
             content: "rounded-none",
+            // Safari sends a sideways wheel to a clipped label and not to the tab list, so the label must not be a scroll container.
+            label: "overflow-clip!",
             trigger: `shrink-0 grow-0 rounded-sm disabled:cursor-default disabled:opacity-disabled duration-base ${activeTab}`,
         },
         variants: {

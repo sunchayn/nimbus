@@ -24,4 +24,18 @@ export type {
     SentRequest,
 } from './response';
 
+export type {
+    Insight,
+    InsightCacheEntry,
+    InsightEventEntry,
+    InsightExceptionInfo,
+    InsightFrame,
+    InsightGate,
+    InsightHttpEntry,
+    InsightJobEntry,
+    InsightLog,
+    InsightMailEntry,
+    InsightNotificationEntry,
+    InsightQuery,
+} from './insight';
 export { STATUS } from './status';

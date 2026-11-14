@@ -11,14 +11,16 @@ import ResponseDumpAndDie from '@/components/domain/Client/Response/ResponseBody
 import ResponseNotice from '@/components/domain/Client/Response/ResponseBody/ResponseNotice.vue';
 import ResponseCookies from '@/components/domain/Client/Response/ResponseCookies/ResponseCookies.vue';
 import ResponseHeaders from '@/components/domain/Client/Response/ResponseHeaders/ResponseHeaders.vue';
+import ResponseInsight from '@/components/domain/Client/Response/ResponseInsight/ResponseInsight.vue';
 import ResponsePlainView from '@/components/domain/Client/Response/ResponsePlainView/ResponsePlainView.vue';
 import ResponseBodyViewer from '@/components/domain/Client/Response/ResponseTools/ResponseBodyViewer.vue';
 import type { RequestLog } from '@/interfaces/history/logs';
 import { STATUS } from '@/interfaces/http';
 import { useRequestStore } from '@/stores';
+import { insightCount } from '@/utils/insight';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 
 /*
  * Types & Interfaces.
@@ -55,6 +57,8 @@ const countBadge = (count: number | undefined) => ({
     class: 'min-w-5 justify-center font-mono tabular-nums',
 });
 
+const insight = computed(() => props.response?.response?.insight ?? null);
+
 const tabs = computed(() => [
     { label: 'Response', value: 'response', slot: 'response' },
     {
@@ -70,7 +74,28 @@ const tabs = computed(() => [
         badge: countBadge(props.response?.response?.cookies.length),
     },
     { label: 'Plain', value: 'response-plain-view', slot: 'response-plain-view' },
+    ...(insight.value
+        ? [
+              {
+                  label: 'Insight',
+                  value: 'insight',
+                  slot: 'insight',
+                  badge: countBadge(insightCount(insight.value)),
+              },
+          ]
+        : []),
 ]);
+
+// A stored Insight tab is not valid for a response that has no insight.
+watch(
+    insight,
+    value => {
+        if (!value && tab.value === 'insight') {
+            tab.value = 'response';
+        }
+    },
+    { immediate: true },
+);
 
 /*
  * Computed & Methods.
@@ -164,6 +189,9 @@ const pendingRequestData = computed(() => requestStore.pendingRequestData);
                     :response="lastLog.response"
                     :duration-in-ms="lastLog.durationInMs"
                 />
+            </template>
+            <template #insight>
+                <ResponseInsight v-if="insight" :insight="insight" />
             </template>
         </AppTabs>
     </div>

@@ -1,6 +1,6 @@
 import { AppTabs } from '@/components/base/tabs';
 import { mount } from '@vue/test-utils';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 
 /*
@@ -101,6 +101,58 @@ describe('AppTabs', () => {
 
             expect(wrapper.attributes('data-mask-start')).toBeUndefined();
             expect(wrapper.attributes('data-mask-end')).toBeUndefined();
+            wrapper.unmount();
+        });
+    });
+
+    describe('Scroll masks on overflow', () => {
+        const sizes = { scrollWidth: 600, clientWidth: 200 };
+
+        beforeAll(() => {
+            // jsdom has no layout, so the list reports a width that overflows.
+            Object.defineProperty(HTMLElement.prototype, 'scrollWidth', {
+                configurable: true,
+                get: () => sizes.scrollWidth,
+            });
+            Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+                configurable: true,
+                get: () => sizes.clientWidth,
+            });
+        });
+
+        afterAll(() => {
+            Reflect.deleteProperty(HTMLElement.prototype, 'scrollWidth');
+            Reflect.deleteProperty(HTMLElement.prototype, 'clientWidth');
+        });
+
+        it('fades the end of a list that overflows', async () => {
+            // Arrange & Act
+
+            const wrapper = createWrapper();
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // Assert
+
+            expect(wrapper.attributes('data-tabs-scroll')).toBeDefined();
+            expect(wrapper.attributes('data-mask-end')).toBeDefined();
+            expect(wrapper.attributes('data-mask-start')).toBeUndefined();
+            wrapper.unmount();
+        });
+
+        it('keeps the list scrollable when a caller overrides its classes', async () => {
+            // Arrange & Act
+
+            const wrapper = createWrapper({
+                ui: { list: 'bg-elevated p-tight w-fit max-w-full' },
+            });
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // Assert
+
+            expect(wrapper.get('[data-slot="list"]').classes()).toContain(
+                'overflow-x-auto',
+            );
+            expect(wrapper.attributes('data-mask-end')).toBeDefined();
             wrapper.unmount();
         });
     });
