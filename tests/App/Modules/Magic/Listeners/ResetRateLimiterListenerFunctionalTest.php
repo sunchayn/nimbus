@@ -7,7 +7,7 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Magic\Listeners;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\ResetRateLimiterListener;
-use Sunchayn\Nimbus\Modules\Magic\Services\ResettingThrottleRequests;
+use Sunchayn\Nimbus\Modules\Magic\Middleware\ResettingThrottleRequests;
 use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(ResetRateLimiterListener::class)]
