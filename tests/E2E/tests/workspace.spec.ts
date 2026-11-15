@@ -578,7 +578,7 @@ test.describe('Managing requests', () => {
 
         // Act
 
-        await workspace.item(name).dragTo(workspace.folderToggle(folder));
+        await workspace.dragOnto(workspace.item(name), workspace.folderToggle(folder));
 
         // Assert
 
