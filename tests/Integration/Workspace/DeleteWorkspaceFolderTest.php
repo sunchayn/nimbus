@@ -37,7 +37,7 @@ class DeleteWorkspaceFolderTest extends TestCase
         // Act
 
         $response = $this->deleteJson(
-            route('nimbus.api.workspace.folders.delete'),
+            route('nimbus.api.workspace.folders.destroy'),
             ['folder' => 'Users/Admin'],
         );
 
@@ -71,7 +71,7 @@ class DeleteWorkspaceFolderTest extends TestCase
         // Act
 
         $response = $this->deleteJson(
-            route('nimbus.api.workspace.folders.delete'),
+            route('nimbus.api.workspace.folders.destroy'),
             $payload,
         );
 
@@ -122,7 +122,7 @@ class DeleteWorkspaceFolderTest extends TestCase
         // Act
 
         $response = $this->deleteJson(
-            route('nimbus.api.workspace.folders.delete'),
+            route('nimbus.api.workspace.folders.destroy'),
             ['folder' => 'users'],
         );
 
@@ -152,7 +152,7 @@ class DeleteWorkspaceFolderTest extends TestCase
         // Act
 
         $response = $this->deleteJson(
-            route('nimbus.api.workspace.folders.delete'),
+            route('nimbus.api.workspace.folders.destroy'),
             ['folder' => 'users'],
         );
 

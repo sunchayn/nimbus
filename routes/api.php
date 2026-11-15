@@ -73,28 +73,28 @@ Route::group(
                     ->name('nimbus.api.workspace.requests.show');
 
                 Route::put('/requests/{id}', SaveWorkspaceRequestController::class)
-                    ->name('nimbus.api.workspace.requests.save');
+                    ->name('nimbus.api.workspace.requests.update');
 
                 Route::delete('/requests/{id}', DeleteWorkspaceRequestController::class)
-                    ->name('nimbus.api.workspace.requests.delete');
+                    ->name('nimbus.api.workspace.requests.destroy');
 
-                Route::patch('/requests/{id}/move', MoveWorkspaceRequestController::class)
-                    ->name('nimbus.api.workspace.requests.move');
+                Route::put('/requests/{id}/location', MoveWorkspaceRequestController::class)
+                    ->name('nimbus.api.workspace.requests.location.update');
 
                 Route::post('/folders', CreateWorkspaceFolderController::class)
-                    ->name('nimbus.api.workspace.folders.create');
+                    ->name('nimbus.api.workspace.folders.store');
 
                 Route::patch('/folders', RenameWorkspaceFolderController::class)
-                    ->name('nimbus.api.workspace.folders.rename');
+                    ->name('nimbus.api.workspace.folders.update');
 
                 Route::delete('/folders', DeleteWorkspaceFolderController::class)
-                    ->name('nimbus.api.workspace.folders.delete');
+                    ->name('nimbus.api.workspace.folders.destroy');
 
                 Route::put('/folders/order', ReorderWorkspaceFoldersController::class)
-                    ->name('nimbus.api.workspace.folders.reorder');
+                    ->name('nimbus.api.workspace.folders.order.update');
 
                 Route::put('/requests/order', ReorderWorkspaceRequestsController::class)
-                    ->name('nimbus.api.workspace.requests.reorder');
+                    ->name('nimbus.api.workspace.requests.order.update');
             });
     },
 );

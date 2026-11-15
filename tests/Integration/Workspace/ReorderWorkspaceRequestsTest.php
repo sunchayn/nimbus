@@ -37,7 +37,7 @@ class ReorderWorkspaceRequestsTest extends TestCase
         // Act
 
         $response = $this->putJson(
-            route('nimbus.api.workspace.requests.reorder'),
+            route('nimbus.api.workspace.requests.order.update'),
             [
                 'folder' => 'Users',
                 'requests' => ['request-beta', 'request-alpha'],
@@ -75,7 +75,7 @@ class ReorderWorkspaceRequestsTest extends TestCase
         // Act
 
         $this->putJson(
-            route('nimbus.api.workspace.requests.reorder'),
+            route('nimbus.api.workspace.requests.order.update'),
             ['requests' => ['request-beta']],
         );
 
@@ -104,7 +104,7 @@ class ReorderWorkspaceRequestsTest extends TestCase
         // Act
 
         $response = $this->putJson(
-            route('nimbus.api.workspace.requests.reorder'),
+            route('nimbus.api.workspace.requests.order.update'),
             $payload,
         );
 
@@ -165,7 +165,7 @@ class ReorderWorkspaceRequestsTest extends TestCase
         // Act
 
         $response = $this->putJson(
-            route('nimbus.api.workspace.requests.reorder'),
+            route('nimbus.api.workspace.requests.order.update'),
             [
                 'folder' => 'missing',
                 'requests' => ['request-1234'],
@@ -206,7 +206,7 @@ class ReorderWorkspaceRequestsTest extends TestCase
         // Act
 
         $response = $this->putJson(
-            route('nimbus.api.workspace.requests.reorder'),
+            route('nimbus.api.workspace.requests.order.update'),
             [
                 'folder' => '',
                 'requests' => ['request-bravo', 'request-alpha'],

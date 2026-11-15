@@ -36,7 +36,7 @@ class ReorderWorkspaceFoldersTest extends TestCase
         // Act
 
         $response = $this->putJson(
-            route('nimbus.api.workspace.folders.reorder'),
+            route('nimbus.api.workspace.folders.order.update'),
             [
                 'folders' => ['Billing', 'Users/Admin'],
             ],
@@ -72,7 +72,7 @@ class ReorderWorkspaceFoldersTest extends TestCase
         // Act
 
         $response = $this->putJson(
-            route('nimbus.api.workspace.folders.reorder'),
+            route('nimbus.api.workspace.folders.order.update'),
             $payload,
         );
 
@@ -128,7 +128,7 @@ class ReorderWorkspaceFoldersTest extends TestCase
         // Act
 
         $response = $this->putJson(
-            route('nimbus.api.workspace.folders.reorder'),
+            route('nimbus.api.workspace.folders.order.update'),
             ['folders' => ['billing']],
         );
 
@@ -154,7 +154,7 @@ class ReorderWorkspaceFoldersTest extends TestCase
         // Act
 
         $response = $this->putJson(
-            route('nimbus.api.workspace.folders.reorder'),
+            route('nimbus.api.workspace.folders.order.update'),
             [
                 'folders' => ['bravo', 'alpha'],
             ],

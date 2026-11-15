@@ -45,7 +45,7 @@ class CreateWorkspaceFolderTest extends TestCase
         // Act
 
         $this->postJson(
-            route('nimbus.api.workspace.folders.create'),
+            route('nimbus.api.workspace.folders.store'),
             ['folder' => 'Users/Admin'],
         );
 
@@ -81,7 +81,7 @@ class CreateWorkspaceFolderTest extends TestCase
         // Act
 
         $response = $this->postJson(
-            route('nimbus.api.workspace.folders.create'),
+            route('nimbus.api.workspace.folders.store'),
             ['folder' => 'users/admin'],
         );
 
@@ -105,7 +105,7 @@ class CreateWorkspaceFolderTest extends TestCase
         // Act
 
         $response = $this->postJson(
-            route('nimbus.api.workspace.folders.create'),
+            route('nimbus.api.workspace.folders.store'),
             $payload,
         );
 
@@ -166,7 +166,7 @@ class CreateWorkspaceFolderTest extends TestCase
         // Act
 
         $response = $this->postJson(
-            route('nimbus.api.workspace.folders.create'),
+            route('nimbus.api.workspace.folders.store'),
             ['folder' => 'users'],
         );
 
@@ -188,7 +188,7 @@ class CreateWorkspaceFolderTest extends TestCase
         // Act
 
         $response = $this->postJson(
-            route('nimbus.api.workspace.folders.create'),
+            route('nimbus.api.workspace.folders.store'),
             ['folder' => 'Users/Admin'],
         );
 

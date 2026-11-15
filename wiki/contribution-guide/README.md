@@ -407,7 +407,7 @@ The routes live in `routes/api.php` under the `workspace` prefix. A request id m
 | `GET /workspace` | List the folders and request summaries in order |
 | `GET /workspace/requests/{id}` | Read one request |
 | `PUT /workspace/requests/{id}` | Save a request with its last known hash |
-| `PATCH /workspace/requests/{id}/move` | Move or rename a request with its last known hash |
+| `PUT /workspace/requests/{id}/location` | Move or rename a request with its last known hash |
 | `DELETE /workspace/requests/{id}` | Delete a request |
 | `PUT /workspace/requests/order` | Save the order of the requests in one folder |
 | `POST /workspace/folders` | Create a folder |

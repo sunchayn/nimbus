@@ -44,9 +44,9 @@ class MoveWorkspaceRequestTest extends TestCase
 
         // Act
 
-        $this->patchJson(
+        $this->putJson(
             route(
-                'nimbus.api.workspace.requests.move',
+                'nimbus.api.workspace.requests.location.update',
                 'request-1234',
             ),
             [
@@ -102,9 +102,9 @@ class MoveWorkspaceRequestTest extends TestCase
 
         // Act
 
-        $this->patchJson(
+        $this->putJson(
             route(
-                'nimbus.api.workspace.requests.move',
+                'nimbus.api.workspace.requests.location.update',
                 'request-1234',
             ),
             ['hash' => 'a1b2c3d4e5f6a7b8'],
@@ -139,9 +139,9 @@ class MoveWorkspaceRequestTest extends TestCase
 
         // Act
 
-        $this->patchJson(
+        $this->putJson(
             route(
-                'nimbus.api.workspace.requests.move',
+                'nimbus.api.workspace.requests.location.update',
                 'request-1234',
             ),
             [
@@ -185,9 +185,9 @@ class MoveWorkspaceRequestTest extends TestCase
 
         // Act
 
-        $response = $this->patchJson(
+        $response = $this->putJson(
             route(
-                'nimbus.api.workspace.requests.move',
+                'nimbus.api.workspace.requests.location.update',
                 'request-1234',
             ),
             [
@@ -215,9 +215,9 @@ class MoveWorkspaceRequestTest extends TestCase
 
         // Act
 
-        $response = $this->patchJson(
+        $response = $this->putJson(
             route(
-                'nimbus.api.workspace.requests.move',
+                'nimbus.api.workspace.requests.location.update',
                 'request-1234',
             ),
             $payload,
@@ -274,9 +274,9 @@ class MoveWorkspaceRequestTest extends TestCase
 
         // Act
 
-        $response = $this->patchJson(
+        $response = $this->putJson(
             route(
-                'nimbus.api.workspace.requests.move',
+                'nimbus.api.workspace.requests.location.update',
                 'request-9999',
             ),
             [
@@ -307,9 +307,9 @@ class MoveWorkspaceRequestTest extends TestCase
 
         // Act
 
-        $response = $this->patchJson(
+        $response = $this->putJson(
             route(
-                'nimbus.api.workspace.requests.move',
+                'nimbus.api.workspace.requests.location.update',
                 'request-1234',
             ),
             [

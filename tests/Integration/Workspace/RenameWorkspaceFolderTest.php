@@ -45,7 +45,7 @@ class RenameWorkspaceFolderTest extends TestCase
         // Act
 
         $this->patchJson(
-            route('nimbus.api.workspace.folders.rename'),
+            route('nimbus.api.workspace.folders.update'),
             [
                 'folder' => 'Users/Admin',
                 'name' => 'Operators',
@@ -89,7 +89,7 @@ class RenameWorkspaceFolderTest extends TestCase
         // Act
 
         $response = $this->patchJson(
-            route('nimbus.api.workspace.folders.rename'),
+            route('nimbus.api.workspace.folders.update'),
             [
                 'folder' => 'users/admin',
                 'name' => 'operators',
@@ -118,7 +118,7 @@ class RenameWorkspaceFolderTest extends TestCase
         // Act
 
         $response = $this->patchJson(
-            route('nimbus.api.workspace.folders.rename'),
+            route('nimbus.api.workspace.folders.update'),
             $payload,
         );
 
@@ -184,7 +184,7 @@ class RenameWorkspaceFolderTest extends TestCase
         // Act
 
         $response = $this->patchJson(
-            route('nimbus.api.workspace.folders.rename'),
+            route('nimbus.api.workspace.folders.update'),
             [
                 'folder' => 'users',
                 'name' => 'team',
@@ -213,7 +213,7 @@ class RenameWorkspaceFolderTest extends TestCase
         // Act
 
         $response = $this->patchJson(
-            route('nimbus.api.workspace.folders.rename'),
+            route('nimbus.api.workspace.folders.update'),
             [
                 'folder' => 'users/admin',
                 'name' => 'Operators',

@@ -1,4 +1,5 @@
 import {
+    moveWorkspaceRequest,
     renameWorkspaceFolder,
     reorderWorkspaceRequests,
     workspaceErrorMessage,
@@ -71,6 +72,19 @@ describe('workspace folder and item calls', () => {
                 folder: 'users',
                 name: 'People',
             },
+        );
+    });
+
+    it('moves a request through its location', async () => {
+        const put = vi
+            .spyOn(axios, 'put')
+            .mockResolvedValue({ data: { id: 'request-1234' } });
+
+        await moveWorkspaceRequest('request-1234', { folder: 'users' }, 'a1b2');
+
+        expect(put).toHaveBeenCalledWith(
+            expect.stringContaining('/api/workspace/requests/request-1234/location'),
+            { folder: 'users', hash: 'a1b2' },
         );
     });
 });
