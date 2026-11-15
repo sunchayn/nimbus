@@ -21,7 +21,12 @@
         <div class="gap-base flex min-w-0 items-center">
             <div class="gap-base flex items-center">
                 <img src="{{ asset('/vendor/nimbus/favicon/favicon.svg') }}" alt="" class="size-icon-lg" />
-                <span class="text-highlighted text-sm font-semibold max-sm:hidden">Nimbus</span>
+                <span class="flex items-center">
+                    <span class="text-highlighted text-sm font-semibold max-sm:hidden">Nimbus</span>
+                    @if (config('nimbus.display_app_name'))
+                        <span class="text-muted text-sm">&nbsp;/ {{ config('app.name') }}</span>
+                    @endif
+                </span>
             </div>
             <div class="border-default h-chip-sm border-l"></div>
             <div class="{{ $block }} h-control-sm w-control-sm"></div>

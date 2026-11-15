@@ -186,11 +186,11 @@ class NimbusIndexTest extends TestCase
         $response->assertViewHas(['headers', 'currentUser', 'primaryProcessorName']);
     }
 
-    public function test_it_injects_the_configured_app_name(): void
+    public function test_it_injects_the_application_name_when_display_is_enabled(): void
     {
         // Arrange
 
-        config(['nimbus.app_name' => 'Acme API']);
+        config(['nimbus.display_app_name' => true, 'app.name' => 'Host Application']);
 
         // Act
 
@@ -201,14 +201,14 @@ class NimbusIndexTest extends TestCase
         $response->assertStatus(200);
 
         // The name is embedded in the window.Nimbus config (Js::from output).
-        $response->assertSee('Acme API', false);
+        $response->assertSee('Host Application', false);
     }
 
-    public function test_it_falls_back_to_the_application_name_when_app_name_is_null(): void
+    public function test_it_does_not_inject_the_application_name_when_display_is_disabled(): void
     {
         // Arrange
 
-        config(['nimbus.app_name' => null, 'app.name' => 'Host Application']);
+        config(['nimbus.display_app_name' => false, 'app.name' => 'Host Application']);
 
         // Act
 
@@ -217,7 +217,9 @@ class NimbusIndexTest extends TestCase
         // Assert
 
         $response->assertStatus(200);
-        $response->assertSee('Host Application', false);
+
+        // The page title still uses the name, so only the window.Nimbus config is checked.
+        $response->assertSee('\\u0022appName\\u0022:null', false);
     }
 
     public function test_it_redirects_to_new_application(): void

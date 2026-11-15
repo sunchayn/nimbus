@@ -100,6 +100,17 @@ http://your-app.test/nimbus
 
 **Important**: If you're using Laravel Sail or `php artisan serve`, see [Making Nimbus work with single-threaded servers](#making-nimbus-work-with-single-threaded-servers) for a workaround.
 
+#### Show the Application Name
+
+Nimbus shows only its own name in the top bar by default.
+To show your application name next to it, enable `display_app_name` in `config/nimbus.php`:
+
+```php
+'display_app_name' => true,
+```
+
+The name comes from `config('app.name')`, so the top bar reads `Nimbus / Your App`.
+
 ### Interface Overview
 
 The Nimbus interface consists of three main panels:
@@ -1008,6 +1019,8 @@ return [
 
     'allowed_envs' => ['local'],
 
+    'display_app_name' => false,
+
     'nested_folders' => false,
 
     'base_url' => null,
@@ -1062,6 +1075,7 @@ return [
 | **`prefix`** | The URI segment under which Nimbus is accessible.                                                                                                                                                     | `'nimbus'` | `'api-client'` |
 | **`allowed_envs`** | Environments where Nimbus is enabled. Avoid production for security reasons.                                                                                                                          | `['local']` | `['testing', 'local']` |
 | **`default_application`** | The base default application to load when no other application is specified.                                                                                                                          | `'main'` | `'rest-api'` |
+| **`display_app_name`** | Shows your application name (`config('app.name')`) next to the Nimbus name in the top bar.<br /><br />See [Show the Application Name](#show-the-application-name). | `false` | `true` |
 | **`nested_folders`** | Groups routes in nested folders that follow the URI, instead of one folder per resource. Applies to all applications.<br /><br />See [Nested Folders](#nested-folders). | `false` | `true` |
 | **`base_url`** | The base URL of the current host, used when Nimbus relays API requests from the UI. Useful when the API runs on a different domain or port. Applies to all applications. If set to null, Nimbus defaults to the host and scheme of the incoming request. | `null` | `'http://127.0.0.1:8001'` |
 | **`environments`** | Pre-configured environments that requests can be sent to. Each key is the environment id and each entry needs a `name`, an absolute `base_url`, and an `enabled` flag. The current host always exists and cannot be listed. See [Environments](#environments). | `[]` | `['staging' => ['name' => 'Staging', 'base_url' => 'https://staging.example.com', 'enabled' => false]]` |

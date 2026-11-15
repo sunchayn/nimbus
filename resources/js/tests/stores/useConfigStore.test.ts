@@ -82,7 +82,7 @@ describe('useConfigStore', () => {
             expect(store.tokenGuards).toEqual(['api']);
         });
 
-        it('reads the configured application name', () => {
+        it('reads the application name when it is displayed', () => {
             window.Nimbus = {
                 ...window.Nimbus,
                 appName: 'Fliip',
@@ -91,13 +91,13 @@ describe('useConfigStore', () => {
             expect(useConfigStore().appName).toBe('Fliip');
         });
 
-        it('falls back to "Nimbus" when no application name is configured', () => {
+        it('is null when the application name is not displayed', () => {
             window.Nimbus = {
                 ...window.Nimbus,
-                appName: undefined,
+                appName: null,
             };
 
-            expect(useConfigStore().appName).toBe('Nimbus');
+            expect(useConfigStore().appName).toBeNull();
         });
     });
 });
