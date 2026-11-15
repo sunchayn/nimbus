@@ -9,17 +9,27 @@ const delayRoutes = async (page: import('@playwright/test').Page, ms: number) =>
 
 test.describe('Loading shell', () => {
     test('shows the skeleton and the loading message while routes load', async ({ page }) => {
-        await delayRoutes(page, 4_000);
+        let releaseRoutes: () => void = () => {};
+        const routesHeld = new Promise<void>(resolve => {
+            releaseRoutes = resolve;
+        });
+
+        await page.route('**/api/routes', async route => {
+            await routesHeld;
+            await route.continue();
+        });
 
         await page.goto('/demo/');
 
         await expect(page.getByTestId('routes-skeleton-message')).toHaveText(
             'Loading routes',
-            { timeout: 3_000 },
+            { timeout: 10_000 },
         );
         await expect(page.getByText('The first load can take longer')).toBeVisible({
-            timeout: 5_000,
+            timeout: 10_000,
         });
+
+        releaseRoutes();
 
         await expect(page.getByTestId('routes-skeleton')).toHaveCount(0, {
             timeout: 10_000,
