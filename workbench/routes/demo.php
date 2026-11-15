@@ -227,10 +227,13 @@ Route::get('/time', fn () => response()->json([
     'timezone' => config('app.timezone'),
 ]))->name('demo.time');
 
-Route::get('/rate-limit', fn () => response()->json(['ok' => true]))->middleware('throttle:5,1');
+Route::get('/rate-limit', fn () => response()->json(['ok' => true]))->middleware('throttle:5,1')->name('demo.rate-limit');
 
 Route::prefix('insight')->group(function () {
-    Route::get('/activity', [InsightController::class, 'activity']);
-    Route::get('/failure', [InsightController::class, 'failure']);
-    Route::get('/sandbox', [InsightController::class, 'sandbox']);
+    Route::get('/activity', [InsightController::class, 'activity'])
+        ->name('demo.insight.activity');
+    Route::get('/failure', [InsightController::class, 'failure'])
+        ->name('demo.insight.failure');
+    Route::get('/sandbox', [InsightController::class, 'sandbox'])
+        ->name('demo.insight.sandbox');
 });

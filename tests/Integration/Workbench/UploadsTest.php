@@ -21,7 +21,7 @@ class UploadsTest extends TestCase
     {
         // Act
 
-        $response = $this->postJson('demo/uploads/multipart/single', [
+        $response = $this->postJson(route('demo.uploads.multipart.single'), [
             'title' => 'Report',
             'file' => UploadedFile::fake()->createWithContent('report.txt', 'hello'),
         ]);
@@ -40,7 +40,7 @@ class UploadsTest extends TestCase
     {
         // Act
 
-        $response = $this->postJson('demo/uploads/multipart/multiple', [
+        $response = $this->postJson(route('demo.uploads.multipart.multiple'), [
             'title' => 'Photos',
             'files' => [
                 UploadedFile::fake()->createWithContent('a.txt', 'a'),
@@ -61,7 +61,7 @@ class UploadsTest extends TestCase
     {
         // Act
 
-        $response = $this->postJson('demo/uploads/multipart/mixed', [
+        $response = $this->postJson(route('demo.uploads.multipart.mixed'), [
             'title' => 'Mixed',
             'meta' => ['description' => 'Nested text'],
             'file' => UploadedFile::fake()->createWithContent('main.txt', 'main'),
@@ -79,7 +79,7 @@ class UploadsTest extends TestCase
 
     public function test_it_rejects_a_multipart_request_without_a_file(): void
     {
-        $this->postJson('demo/uploads/multipart/single', ['title' => 'Report'])
+        $this->postJson(route('demo.uploads.multipart.single'), ['title' => 'Report'])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('file');
     }
@@ -88,7 +88,7 @@ class UploadsTest extends TestCase
     {
         // Act
 
-        $response = $this->postJson('demo/uploads/json/single', [
+        $response = $this->postJson(route('demo.uploads.json.single'), [
             'title' => 'Report',
             'file' => [
                 'name' => 'report.txt',
@@ -111,7 +111,7 @@ class UploadsTest extends TestCase
     {
         // Act
 
-        $response = $this->postJson('demo/uploads/json/multiple', [
+        $response = $this->postJson(route('demo.uploads.json.multiple'), [
             'title' => 'Photos',
             'files' => [
                 ['name' => 'a.txt', 'content' => base64_encode('a')],
@@ -130,7 +130,7 @@ class UploadsTest extends TestCase
 
     public function test_it_rejects_invalid_base64_content(): void
     {
-        $this->postJson('demo/uploads/json/single', [
+        $this->postJson(route('demo.uploads.json.single'), [
             'title' => 'Report',
             'file' => ['name' => 'report.txt', 'content' => '%%% not base64 %%%'],
         ])
@@ -140,7 +140,7 @@ class UploadsTest extends TestCase
 
     public function test_it_rejects_base64_content_over_the_size_limit(): void
     {
-        $this->postJson('demo/uploads/json/multiple', [
+        $this->postJson(route('demo.uploads.json.multiple'), [
             'title' => 'Report',
             'files' => [
                 ['name' => 'big.bin', 'content' => base64_encode(str_repeat('a', 2 * 1024 * 1024 + 1))],
