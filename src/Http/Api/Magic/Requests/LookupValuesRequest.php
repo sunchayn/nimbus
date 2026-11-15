@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Sunchayn\Nimbus\Http\Api\Magic;
+namespace Sunchayn\Nimbus\Http\Api\Magic\Requests;
 
-use Sunchayn\Nimbus\Http\Api\Responses\ResponseShapeRequest;
+use Sunchayn\Nimbus\Http\Api\Responses\Requests\ResponseShapeRequest;
 
 /**
  * Names a route, so the pairs it may read can only come from the exists rules of that route.

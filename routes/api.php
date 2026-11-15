@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Sunchayn\Nimbus\Http\Api\Actors\ListActorsController;
-use Sunchayn\Nimbus\Http\Api\Doctor\DoctorController;
-use Sunchayn\Nimbus\Http\Api\Magic\LookupValuesController;
-use Sunchayn\Nimbus\Http\Api\Magic\SignedUrlController;
-use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayController;
-use Sunchayn\Nimbus\Http\Api\Responses\ResponseShapeController;
-use Sunchayn\Nimbus\Http\Api\Routes\RoutesController;
-use Sunchayn\Nimbus\Http\Api\Toolbox\ToolboxController;
+use Sunchayn\Nimbus\Http\Api\Actors\Controllers\ListActorsController;
+use Sunchayn\Nimbus\Http\Api\Doctor\Controllers\DoctorController;
+use Sunchayn\Nimbus\Http\Api\Magic\Controllers\LookupValuesController;
+use Sunchayn\Nimbus\Http\Api\Magic\Controllers\SignedUrlController;
+use Sunchayn\Nimbus\Http\Api\Relay\Controllers\NimbusRelayController;
+use Sunchayn\Nimbus\Http\Api\Responses\Controllers\ResponseShapeController;
+use Sunchayn\Nimbus\Http\Api\Routes\Controllers\RoutesController;
+use Sunchayn\Nimbus\Http\Api\Toolbox\Controllers\ToolboxController;
 use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\CreateWorkspaceFolderController;
 use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\DeleteWorkspaceFolderController;
 use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\DeleteWorkspaceRequestController;

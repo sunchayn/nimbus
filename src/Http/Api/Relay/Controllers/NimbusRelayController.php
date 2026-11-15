@@ -1,10 +1,12 @@
 <?php
 
-namespace Sunchayn\Nimbus\Http\Api\Relay;
+namespace Sunchayn\Nimbus\Http\Api\Relay\Controllers;
 
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Sunchayn\Nimbus\Http\Api\Relay\Requests\NimbusRelayRequest;
+use Sunchayn\Nimbus\Http\Api\Relay\Resources\RelayResponseResource;
 use Sunchayn\Nimbus\Modules\Doctor\Services\SingleThreadedServerDetector;
 use Sunchayn\Nimbus\Modules\Relay\Actions\RequestRelayAction;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;

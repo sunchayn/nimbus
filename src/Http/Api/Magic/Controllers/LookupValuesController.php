@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Sunchayn\Nimbus\Http\Api\Magic;
+namespace Sunchayn\Nimbus\Http\Api\Magic\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Sunchayn\Nimbus\Http\Api\Magic\Requests\LookupValuesRequest;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Request\RequestSchemaExtractor;
 use Sunchayn\Nimbus\Modules\Magic\Actions\ReadLookupValuesAction;
 

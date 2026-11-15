@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Sunchayn\Nimbus\Http\Api\Routes;
+namespace Sunchayn\Nimbus\Http\Api\Routes\Controllers;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Http\JsonResponse;

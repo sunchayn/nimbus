@@ -4,7 +4,7 @@ namespace Sunchayn\Nimbus\Tests\Integration\Workbench;
 
 use Illuminate\Routing\Router;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Sunchayn\Nimbus\Http\Api\Responses\ResponseShapeController;
+use Sunchayn\Nimbus\Http\Api\Responses\Controllers\ResponseShapeController;
 use Sunchayn\Nimbus\Modules\Extractor\Actions\InferSchemaFromResourceAstAction;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\Strategies\PaginatedResourceCollectionStrategy;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\OptionalSchemaProperty;

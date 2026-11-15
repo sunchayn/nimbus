@@ -1,6 +1,6 @@
 <?php
 
-namespace Sunchayn\Nimbus\Http\Api\Relay;
+namespace Sunchayn\Nimbus\Http\Api\Relay\Requests;
 
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;

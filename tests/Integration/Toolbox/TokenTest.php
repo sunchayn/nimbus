@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Sunchayn\Nimbus\Tests\Integration\Toolbox;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use Sunchayn\Nimbus\Http\Api\Toolbox\ToolboxController;
+use Sunchayn\Nimbus\Http\Api\Toolbox\Controllers\ToolboxController;
 use Sunchayn\Nimbus\Modules\Magic\Toolbox\Actions\DecodeJwtAction;
 use Sunchayn\Nimbus\Modules\Magic\Toolbox\Actions\FindSanctumTokenAction;
 use Sunchayn\Nimbus\Modules\Magic\Toolbox\Exceptions\InvalidToolInputException;

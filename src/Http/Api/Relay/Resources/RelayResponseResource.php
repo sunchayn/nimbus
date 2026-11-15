@@ -1,6 +1,6 @@
 <?php
 
-namespace Sunchayn\Nimbus\Http\Api\Relay;
+namespace Sunchayn\Nimbus\Http\Api\Relay\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RedirectHopData;

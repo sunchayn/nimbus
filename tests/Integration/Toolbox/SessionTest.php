@@ -6,7 +6,7 @@ namespace Sunchayn\Nimbus\Tests\Integration\Toolbox;
 
 use Illuminate\Support\Facades\Session;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Sunchayn\Nimbus\Http\Api\Toolbox\ToolboxController;
+use Sunchayn\Nimbus\Http\Api\Toolbox\Controllers\ToolboxController;
 use Sunchayn\Nimbus\Modules\Magic\Toolbox\Actions\ReadSessionAction;
 use Sunchayn\Nimbus\Modules\Magic\Toolbox\Exceptions\InvalidToolInputException;
 use Sunchayn\Nimbus\Tests\TestCase;

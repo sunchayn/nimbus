@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Sunchayn\Nimbus\Http\Api\Toolbox;
+namespace Sunchayn\Nimbus\Http\Api\Toolbox\Controllers;
 
 use Closure;
 use Illuminate\Http\JsonResponse;

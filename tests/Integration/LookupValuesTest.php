@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Sunchayn\Nimbus\Http\Api\Magic\LookupValuesController;
-use Sunchayn\Nimbus\Http\Api\Magic\LookupValuesRequest;
+use Sunchayn\Nimbus\Http\Api\Magic\Controllers\LookupValuesController;
+use Sunchayn\Nimbus\Http\Api\Magic\Requests\LookupValuesRequest;
 use Sunchayn\Nimbus\Modules\Magic\Actions\ReadLookupValuesAction;
 use Sunchayn\Nimbus\Tests\TestCase;
 

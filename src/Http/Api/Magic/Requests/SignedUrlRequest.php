@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Sunchayn\Nimbus\Http\Api\Magic;
+namespace Sunchayn\Nimbus\Http\Api\Magic\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
