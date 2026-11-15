@@ -1,18 +1,15 @@
 <?php
 
-namespace Sunchayn\Nimbus\Modules\Magic\ValueObjects;
+namespace Sunchayn\Nimbus\Modules\Magic\DataTransferObjects;
 
 use Illuminate\Http\Request;
+use Sunchayn\Nimbus\Modules\Magic\Enums\NimbusHeaderEnum;
 
 /**
  * Reads and validates the Nimbus control headers of a request in one place.
  */
-readonly class NimbusHeaders
+readonly class NimbusHeadersData
 {
-    public const TRANSACTION_MODE = 'X-Nimbus-Transaction-Mode';
-
-    public const ACTOR = 'X-Nimbus-Actor';
-
     public function __construct(
         public bool $transactionMode = false,
         public ?string $actorGuard = null,
@@ -21,10 +18,10 @@ readonly class NimbusHeaders
 
     public static function fromRequest(Request $request): self
     {
-        [$guard, $key] = self::parseActor($request->header(self::ACTOR));
+        [$guard, $key] = self::parseActor($request->header(NimbusHeaderEnum::Actor->value));
 
         return new self(
-            transactionMode: $request->header(self::TRANSACTION_MODE) === '1',
+            transactionMode: $request->header(NimbusHeaderEnum::TransactionMode->value) === '1',
             actorGuard: $guard,
             actorKey: $key,
         );

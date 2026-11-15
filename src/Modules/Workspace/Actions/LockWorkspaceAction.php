@@ -6,8 +6,8 @@ namespace Sunchayn\Nimbus\Modules\Workspace\Actions;
 
 use Closure;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
+use Sunchayn\Nimbus\Modules\Workspace\Services\WorkspaceLockFile;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\WorkspaceConfig;
-use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\WorkspaceLockFile;
 
 /**
  * Runs a callback while holding the exclusive lock of the workspace.

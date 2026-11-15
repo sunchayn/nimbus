@@ -1,16 +1,16 @@
 <?php
 
-namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\ValueObjects;
+namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\DataTransferObjects;
 
 use GuzzleHttp\Psr7\Response as PsrResponse;
 use Illuminate\Http\Client\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
-use Sunchayn\Nimbus\Modules\Relay\ValueObjects\DownloadResponseBody;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\DownloadResponseBodyData;
 
-#[CoversClass(DownloadResponseBody::class)]
-class DownloadResponseBodyUnitTest extends TestCase
+#[CoversClass(DownloadResponseBodyData::class)]
+class DownloadResponseBodyDataUnitTest extends TestCase
 {
     private const ENDPOINT = 'https://localhost/api/reports/export.csv?year=2025';
 
@@ -27,7 +27,7 @@ class DownloadResponseBodyUnitTest extends TestCase
 
         // Act
 
-        $download = DownloadResponseBody::tryFromResponse($response, self::ENDPOINT);
+        $download = DownloadResponseBodyData::tryFromResponse($response, self::ENDPOINT);
 
         // Assert
 
@@ -48,7 +48,7 @@ class DownloadResponseBodyUnitTest extends TestCase
 
         // Act
 
-        $download = DownloadResponseBody::tryFromResponse($response, 'https://localhost/');
+        $download = DownloadResponseBodyData::tryFromResponse($response, 'https://localhost/');
 
         // Assert
 
@@ -67,7 +67,7 @@ class DownloadResponseBodyUnitTest extends TestCase
 
         // Act
 
-        $download = DownloadResponseBody::tryFromResponse($response, self::ENDPOINT);
+        $download = DownloadResponseBodyData::tryFromResponse($response, self::ENDPOINT);
 
         // Assert
 
@@ -82,14 +82,14 @@ class DownloadResponseBodyUnitTest extends TestCase
 
         // Act & Assert
 
-        $this->assertNull(DownloadResponseBody::tryFromResponse($response, self::ENDPOINT));
+        $this->assertNull(DownloadResponseBodyData::tryFromResponse($response, self::ENDPOINT));
     }
 
     public function test_it_converts_to_array(): void
     {
         // Arrange
 
-        $download = new DownloadResponseBody('a.txt', 'text/plain', 1, 'YQ==');
+        $download = new DownloadResponseBodyData('a.txt', 'text/plain', 1, 'YQ==');
 
         // Act & Assert
 

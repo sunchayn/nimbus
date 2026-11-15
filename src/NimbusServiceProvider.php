@@ -36,8 +36,8 @@ use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\AutoDete
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\OpenAPISchemaRoutesProcessor;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\RoutesProcessorContract;
 use Sunchayn\Nimbus\Modules\Routes\Services\Snapshot\ManifestManager;
+use Sunchayn\Nimbus\Modules\Workspace\Services\WorkspaceLockFile;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\WorkspaceConfig;
-use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\WorkspaceLockFile;
 
 class NimbusServiceProvider extends PackageServiceProvider
 {

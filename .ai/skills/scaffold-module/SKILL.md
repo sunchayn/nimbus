@@ -24,7 +24,7 @@ Add exactly the files the capability needs now, wired with explicit Laravel APIs
 
 - `Actions/`, `DataTransferObjects/`: see `create-dto-action`.
 - `Services/`: reusable logic or stateful helpers, never a full workflow. Strategy families live in `Services/<Area>/Strategies` with `Contracts`.
-- `ValueObjects/`: immutable values.
+- `ValueObjects/`: immutable values that validate or compare themselves, such as `FolderPath` and `Endpoint`. A class that only carries data is a DTO.
 - `Contracts/`: cross-module interfaces.
 - `Queries/`: read-only AST helpers like `ClassQuery`. Never Eloquent.
 - `Collections/`, `Factories/`, `Enums/`, `Exceptions/`: only when one exists.

@@ -6,6 +6,7 @@ use Illuminate\Database\Connection;
 use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\Facades\Log;
+use Sunchayn\Nimbus\Modules\Magic\Enums\NimbusHeaderEnum;
 use Throwable;
 
 class TransactionModeListener
@@ -14,7 +15,7 @@ class TransactionModeListener
 
     public function handle(RouteMatched $routeMatched): void
     {
-        if ($routeMatched->request->header('X-Nimbus-Transaction-Mode') !== '1') {
+        if ($routeMatched->request->header(NimbusHeaderEnum::TransactionMode->value) !== '1') {
             return;
         }
 

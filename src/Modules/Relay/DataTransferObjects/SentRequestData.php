@@ -1,11 +1,11 @@
 <?php
 
-namespace Sunchayn\Nimbus\Modules\Relay\ValueObjects;
+namespace Sunchayn\Nimbus\Modules\Relay\DataTransferObjects;
 
 use Psr\Http\Message\RequestInterface;
 use Throwable;
 
-readonly class SentRequest
+readonly class SentRequestData
 {
     public const MAX_BODY_BYTES = 262_144;
 

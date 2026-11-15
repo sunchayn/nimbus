@@ -1,10 +1,10 @@
 <?php
 
-namespace Sunchayn\Nimbus\Modules\Relay\ValueObjects;
+namespace Sunchayn\Nimbus\Modules\Relay\DataTransferObjects;
 
 use Illuminate\Http\Client\Response;
 
-readonly class DownloadResponseBody
+readonly class DownloadResponseBodyData
 {
     public const DEFAULT_FILENAME = 'download';
 

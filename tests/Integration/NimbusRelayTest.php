@@ -17,12 +17,12 @@ use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayRequest;
 use Sunchayn\Nimbus\Http\Api\Relay\RelayResponseResource;
 use Sunchayn\Nimbus\Modules\Magic\DataTransferObjects\InsightData;
 use Sunchayn\Nimbus\Modules\Relay\Actions\RequestRelayAction;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\DownloadResponseBodyData;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\PrintableResponseBodyData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\ResponseCookieData;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
-use Sunchayn\Nimbus\Modules\Relay\ValueObjects\DownloadResponseBody;
-use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;
-use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
 use Sunchayn\Nimbus\NimbusServiceProvider;
 use Sunchayn\Nimbus\Tests\TestCase;
 
@@ -94,7 +94,7 @@ class NimbusRelayTest extends TestCase
             ->andReturn(new RelayedRequestResponseData(
                 statusCode: 200,
                 statusText: 'OK',
-                body: new PrintableResponseBody(''),
+                body: new PrintableResponseBodyData(''),
                 headers: [],
                 durationMs: 1.5,
                 timestamp: 1_700_000_000,
@@ -210,7 +210,7 @@ class NimbusRelayTest extends TestCase
         $relayResponseStub = new RelayedRequestResponseData(
             statusCode: 200,
             statusText: 'OK',
-            body: new PrintableResponseBody(''),
+            body: new PrintableResponseBodyData(''),
             headers: [],
             durationMs: 1.5,
             timestamp: 1_700_000_000,
@@ -267,12 +267,12 @@ class NimbusRelayTest extends TestCase
         $relayResponseStub = new RelayedRequestResponseData(
             statusCode: 200,
             statusText: 'OK',
-            body: new PrintableResponseBody(''),
+            body: new PrintableResponseBodyData(''),
             headers: [],
             durationMs: 1.5,
             timestamp: 1_700_000_000,
             cookies: [],
-            download: new DownloadResponseBody(
+            download: new DownloadResponseBodyData(
                 filename: 'file.bin',
                 mimeType: 'application/octet-stream',
                 sizeInBytes: strlen($binary),
@@ -364,14 +364,14 @@ class NimbusRelayTest extends TestCase
             'relayResponseStub' => new RelayedRequestResponseData(
                 statusCode: 200,
                 statusText: 'OK',
-                body: new PrintableResponseBody('Hey!'),
+                body: new PrintableResponseBodyData('Hey!'),
                 headers: [
                     'header1' => ['value1'],
                 ],
                 durationMs: fake('en')->randomFloat(),
                 timestamp: fake('en')->dateTime()->getTimestamp(),
                 cookies: [
-                    new ResponseCookieValueObject(
+                    new ResponseCookieData(
                         key: 'cookie1',
                         rawValue: '::value::',
                         prefix: '::prefix::',
@@ -392,14 +392,14 @@ class NimbusRelayTest extends TestCase
             'relayResponseStub' => new RelayedRequestResponseData(
                 statusCode: 200,
                 statusText: 'OK',
-                body: new PrintableResponseBody('Authentoicated!'),
+                body: new PrintableResponseBodyData('Authentoicated!'),
                 headers: [
                     'header1' => ['value1'],
                 ],
                 durationMs: fake('en')->randomFloat(),
                 timestamp: fake('en')->dateTime()->getTimestamp(),
                 cookies: [
-                    new ResponseCookieValueObject(
+                    new ResponseCookieData(
                         key: 'cookie1',
                         rawValue: '::value::',
                         prefix: '::prefix::',
@@ -417,7 +417,7 @@ class NimbusRelayTest extends TestCase
             'relayResponseStub' => new RelayedRequestResponseData(
                 statusCode: 404,
                 statusText: 'Not Found',
-                body: new PrintableResponseBody('Not Found!'),
+                body: new PrintableResponseBodyData('Not Found!'),
                 headers: [
                     'header1' => ['value1'],
                 ],
@@ -439,7 +439,7 @@ class NimbusRelayTest extends TestCase
             'relayResponseStub' => new RelayedRequestResponseData(
                 statusCode: 200,
                 statusText: 'OK',
-                body: new PrintableResponseBody('Received plain text!'),
+                body: new PrintableResponseBodyData('Received plain text!'),
                 headers: [
                     'header1' => ['value1'],
                 ],
@@ -656,7 +656,7 @@ class NimbusRelayTest extends TestCase
             ->andReturn(new RelayedRequestResponseData(
                 statusCode: 200,
                 statusText: 'OK',
-                body: new PrintableResponseBody('Hey!'),
+                body: new PrintableResponseBodyData('Hey!'),
                 headers: [],
                 durationMs: 1.0,
                 timestamp: 1_700_000_000,
@@ -686,7 +686,7 @@ class NimbusRelayTest extends TestCase
         return new RelayedRequestResponseData(
             statusCode: 200,
             statusText: 'OK',
-            body: new PrintableResponseBody(''),
+            body: new PrintableResponseBodyData(''),
             headers: [],
             durationMs: 1.5,
             timestamp: 1_700_000_000,

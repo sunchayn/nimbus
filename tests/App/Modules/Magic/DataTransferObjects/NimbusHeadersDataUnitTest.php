@@ -1,16 +1,17 @@
 <?php
 
-namespace Sunchayn\Nimbus\Tests\App\Modules\Magic\ValueObjects;
+namespace Sunchayn\Nimbus\Tests\App\Modules\Magic\DataTransferObjects;
 
 use Generator;
 use Illuminate\Http\Request;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Sunchayn\Nimbus\Modules\Magic\ValueObjects\NimbusHeaders;
+use Sunchayn\Nimbus\Modules\Magic\DataTransferObjects\NimbusHeadersData;
+use Sunchayn\Nimbus\Modules\Magic\Enums\NimbusHeaderEnum;
 
-#[CoversClass(NimbusHeaders::class)]
-class NimbusHeadersUnitTest extends TestCase
+#[CoversClass(NimbusHeadersData::class)]
+class NimbusHeadersDataUnitTest extends TestCase
 {
     #[DataProvider('actorDataProvider')]
     public function test_it_parses_the_actor_header(?string $value, ?string $guard, ?string $key): void
@@ -20,12 +21,12 @@ class NimbusHeadersUnitTest extends TestCase
         $request = Request::create('/test');
 
         if ($value !== null) {
-            $request->headers->set(NimbusHeaders::ACTOR, $value);
+            $request->headers->set(NimbusHeaderEnum::Actor->value, $value);
         }
 
         // Act
 
-        $headers = NimbusHeaders::fromRequest($request);
+        $headers = NimbusHeadersData::fromRequest($request);
 
         // Assert
 
@@ -50,18 +51,18 @@ class NimbusHeadersUnitTest extends TestCase
         // Arrange
 
         $request = Request::create('/test');
-        $request->headers->set(NimbusHeaders::TRANSACTION_MODE, '1');
+        $request->headers->set(NimbusHeaderEnum::TransactionMode->value, '1');
 
         // Act & Assert
 
-        $this->assertTrue(NimbusHeaders::fromRequest($request)->transactionMode);
-        $this->assertFalse(NimbusHeaders::fromRequest(Request::create('/test'))->transactionMode);
+        $this->assertTrue(NimbusHeadersData::fromRequest($request)->transactionMode);
+        $this->assertFalse(NimbusHeadersData::fromRequest(Request::create('/test'))->transactionMode);
     }
 
     public function test_it_builds_the_actor_value(): void
     {
         // Act & Assert
 
-        $this->assertSame('web:7', NimbusHeaders::actorValue('web', '7'));
+        $this->assertSame('web:7', NimbusHeadersData::actorValue('web', '7'));
     }
 }
