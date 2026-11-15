@@ -1,10 +1,5 @@
 export type SqlTokenType =
-    | 'keyword'
-    | 'string'
-    | 'number'
-    | 'comment'
-    | 'identifier'
-    | 'text';
+    'keyword' | 'string' | 'number' | 'comment' | 'identifier' | 'text';
 
 export interface SqlToken {
     type: SqlTokenType;

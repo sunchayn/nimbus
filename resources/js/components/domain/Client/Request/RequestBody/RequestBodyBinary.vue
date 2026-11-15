@@ -11,7 +11,7 @@ import { computed } from 'vue';
  */
 
 const model = defineModel<FormData | null>({
-    default: () => null,
+    default: null,
 });
 
 const file = computed(() => {

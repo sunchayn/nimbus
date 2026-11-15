@@ -24,7 +24,7 @@ export interface RequestBodyFormDataProps {
 withDefaults(defineProps<RequestBodyFormDataProps>(), { freeFormTypes: true });
 
 const model = defineModel<FormData | null>({
-    default: () => null,
+    default: null,
 });
 
 /*

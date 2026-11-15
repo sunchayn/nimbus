@@ -45,7 +45,6 @@ const text = computed(() => formatResponsePlainView(props.response));
         <pre
             class="p-panel font-mono text-xs break-all whitespace-pre-wrap"
             data-testid="response-plain-view-text"
-            >{{ text }}</pre
-        >
+            >{{ text }}</pre>
     </AppScrollArea>
 </template>

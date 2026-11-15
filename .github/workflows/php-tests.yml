@@ -13,8 +13,8 @@ jobs:
     outputs:
       php: ${{ steps.filter.outputs.php == 'true' || github.event_name == 'schedule' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
@@ -61,7 +61,7 @@ jobs:
     steps:
       - name: Checkout code
         if: needs.changes.outputs.php == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         if: needs.changes.outputs.php == 'true'
@@ -73,7 +73,7 @@ jobs:
 
       - name: Cache Composer dependencies
         if: needs.changes.outputs.php == 'true'
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: vendor
           key: composer-${{ matrix.php }}-L${{ matrix.laravel }}-${{ hashFiles('composer.lock') }}
@@ -100,9 +100,9 @@ jobs:
 
       - name: Upload coverage reports to Codecov
         if: needs.changes.outputs.php == 'true' && matrix.php == '8.5' && matrix.laravel == 13
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
-          file: ./build/coverage.xml
+          files: ./build/coverage.xml
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 

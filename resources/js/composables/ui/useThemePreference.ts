@@ -2,12 +2,7 @@ import { usePreferredDark } from '@vueuse/core';
 import { computed, type ComputedRef, type MaybeRefOrGetter, toValue, watch } from 'vue';
 
 export type ThemePreference =
-    | 'light'
-    | 'dark'
-    | 'system'
-    | 'solarized-light'
-    | 'solarized-dark'
-    | 'sakura';
+    'light' | 'dark' | 'system' | 'solarized-light' | 'solarized-dark' | 'sakura';
 
 /*
  * Named themes override tokens under their own data-theme selector.

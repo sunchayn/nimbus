@@ -85,8 +85,7 @@ const closeDialog = () => {
                 <pre
                     class="bg-muted text-default border-default p-base h-full min-h-0 flex-1 overflow-auto rounded-md border font-mono text-xs leading-relaxed whitespace-pre"
                     data-testid="code-sample"
-                    >{{ content }}</pre
-                >
+                    >{{ content }}</pre>
             </div>
         </template>
 

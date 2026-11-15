@@ -68,16 +68,14 @@ const handleOpen = async (open: boolean) => {
     action();
 };
 
-const bound = computed(
-    (): Record<string, unknown> => ({
-        ...forwarded.value,
-        items: props.items ? withDeferredActions(props.items) : undefined,
-        content: {
-            onCloseAutoFocus: (event: Event) => event.preventDefault(),
-            ...(props.content as object | undefined),
-        },
-    }),
-);
+const bound = computed((): Record<string, unknown> => ({
+    ...forwarded.value,
+    items: props.items ? withDeferredActions(props.items) : undefined,
+    content: {
+        onCloseAutoFocus: (event: Event) => event.preventDefault(),
+        ...(props.content as object | undefined),
+    },
+}));
 </script>
 
 <template>

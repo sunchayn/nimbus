@@ -54,8 +54,7 @@ defineProps<{ exception: InsightExceptionInfo }>();
                         Object.entries(frame.code)
                             .map(([line, code]) => `${line}  ${code}`)
                             .join('\n')
-                    }}</pre
-                >
+                    }}</pre>
             </div>
         </InsightCard>
     </InsightSection>

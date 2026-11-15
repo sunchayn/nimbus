@@ -9,7 +9,7 @@ import type { ResolverFn } from '@/interfaces/common/env-vars';
 import type { RequestLog } from '@/interfaces/history/logs';
 import type { PendingRequest, Response } from '@/interfaces/http';
 import type { ShareableLinkPayload } from '@/interfaces/share';
-import pako from 'pako';
+import { deflate } from 'pako';
 
 /**
  * Encodes a pending request and optional response into a URL-safe shareable string.
@@ -74,7 +74,7 @@ export function encodeShareablePayload(
 
     const jsonString = JSON.stringify(payload);
 
-    const compressed = pako.deflate(jsonString);
+    const compressed = deflate(jsonString);
 
     const base64 = btoa(String.fromCharCode.apply(null, Array.from(compressed)));
 

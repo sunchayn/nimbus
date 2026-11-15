@@ -132,9 +132,8 @@ export const useEnvironmentVariablesStore = defineStore(
             environments.value.filter(env => env.enabled),
         );
 
-        const currentHostEnvironment = computed(
-            () =>
-                environments.value.find(env => env.source === EnvironmentSource.Current)!,
+        const currentHostEnvironment = computed(() =>
+            environments.value.find(env => env.source === EnvironmentSource.Current)!,
         );
 
         // A missing or disabled active environment falls back to the current host.

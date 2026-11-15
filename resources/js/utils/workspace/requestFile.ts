@@ -98,12 +98,14 @@ export const fromRequestFile = (
 > & { body: string | null } => ({
     method: file.method.toUpperCase(),
     endpoint: file.endpoint,
-    headers: file.headers.map(
-        (header): ParameterContract => ({ ...header, type: ParameterType.Text }),
-    ),
-    queryParameters: file.query.map(
-        (parameter): ParameterContract => ({ ...parameter, type: ParameterType.Text }),
-    ),
+    headers: file.headers.map((header): ParameterContract => ({
+        ...header,
+        type: ParameterType.Text,
+    })),
+    queryParameters: file.query.map((parameter): ParameterContract => ({
+        ...parameter,
+        type: ParameterType.Text,
+    })),
     payloadType: PAYLOAD_TYPES[file.body.type],
     body: file.body.type === 'empty' ? null : (file.body.content ?? ''),
     authorization: file.authorization as AuthorizationContract,

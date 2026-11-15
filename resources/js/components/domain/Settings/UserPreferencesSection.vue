@@ -10,8 +10,8 @@ import { AppRadioCardGroup } from '@/components/base/radio-card';
 import { AppSelect } from '@/components/base/select';
 import { useAppToast } from '@/components/base/toast';
 import ThemePreview from '@/components/domain/Settings/ThemePreview.vue';
-import { AuthorizationType } from '@/interfaces/generated'; // eslint-disable-line @typescript-eslint/consistent-type-imports
-import { RequestBodyTypeEnum } from '@/interfaces/http'; // eslint-disable-line @typescript-eslint/consistent-type-imports
+import { AuthorizationType } from '@/interfaces/generated';
+import { RequestBodyTypeEnum } from '@/interfaces/http';
 import type { UserPreferences } from '@/stores/core/useSettingsStore';
 import { useSettingsStore } from '@/stores/core/useSettingsStore';
 import { computed } from 'vue';

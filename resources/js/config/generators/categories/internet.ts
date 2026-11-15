@@ -31,7 +31,7 @@ export const internet = defineCategory({
             id: 'username',
             name: 'Username',
             icon: 'i-hugeicons-user-circle',
-            generate: context => withinLength(context, () => faker.internet.userName()),
+            generate: context => withinLength(context, () => faker.internet.username()),
             nameRules: [{ pattern: /^(username|user[-_]?name|login)$/i }],
         },
         {

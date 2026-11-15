@@ -71,7 +71,7 @@ const create = () => {
     shown.value = 'create';
     parametersError.value = null;
 
-    let parsed: unknown = {};
+    let parsed: unknown;
 
     try {
         parsed = parameters.value.trim() ? JSON.parse(parameters.value) : {};
