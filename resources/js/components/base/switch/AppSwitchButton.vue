@@ -25,9 +25,9 @@ const modelValue = defineModel<boolean | undefined>({ default: undefined });
 
 <template>
     <label
-        class="border-default h-control-xs gap-tight px-tight hover:bg-elevated inline-flex cursor-pointer items-center rounded-md border text-xs"
+        class="border-default h-control-sm gap-tight px-tight hover:bg-elevated inline-flex cursor-pointer items-center rounded-sm border text-sm"
     >
-        <AppSwitch v-model="modelValue" size="xs" :aria-label="label" />
+        <AppSwitch v-model="modelValue" size="sm" :aria-label="label" />
         <span>{{ label }}</span>
     </label>
 </template>

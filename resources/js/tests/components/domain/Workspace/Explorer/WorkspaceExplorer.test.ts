@@ -23,6 +23,9 @@ const createWrapper = (state: Record<string, unknown>) => {
         initialState: { workspace: state },
     });
 
+    // Stubbed actions return nothing, and every folder is open unless collapsed.
+    vi.mocked(useWorkspaceStore().isFolderOpen).mockReturnValue(true);
+
     const wrapper = mount(WorkspaceExplorer, {
         global: { plugins: [pinia] },
         attachTo: document.body,

@@ -125,7 +125,8 @@ const pendingRequestData = computed(() => requestStore.pendingRequestData);
             color="neutral"
             class="mt-0 h-full gap-0 overflow-auto"
             :ui="{
-                list: 'h-toolbar overflow-x-auto rounded-none px-0',
+                // The list sits above the content, so a focus ring is never painted over.
+                list: 'z-sticky relative h-toolbar overflow-x-auto rounded-none px-0',
                 trigger: 'px-panel',
                 content:
                     'border-default flex min-h-0 flex-1 flex-col overflow-hidden border-t',

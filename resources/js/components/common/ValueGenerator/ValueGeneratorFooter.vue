@@ -35,7 +35,7 @@ const store = useGeneratorCommandStore();
             <AppBadge
                 variant="outline"
                 color="neutral"
-                size="xs"
+                size="sm"
                 icon="i-hugeicons-arrow-up-big"
                 label="Shift"
             />

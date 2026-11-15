@@ -41,20 +41,19 @@ const change = () => {
 </script>
 
 <template>
-    <div
-        v-if="timeTravel"
-        class="pane-surface size-pane-header flex shrink-0 items-center justify-center"
-    >
+    <div v-if="timeTravel" class="shrink-0">
         <AppPopover
             :open="showPopover"
             :content="{ align: 'end', sideOffset: 12, alignOffset: -6 }"
             @update:open="showPopover = $event"
         >
             <AppButton
-                variant="ghost"
+                class="h-control-pane! w-control-pane!"
+                variant="outline"
                 color="warning"
                 size="sm"
-                icon="i-hugeicons-clock-01"
+                square
+                icon="i-hugeicons-clock-alert"
                 :title="`The application clock is set to ${timeTravel}`"
                 aria-label="The application clock is fixed"
                 data-testid="time-travel-indicator"
@@ -66,9 +65,9 @@ const change = () => {
                         The application clock is set to
                         <span class="text-default font-medium">{{ timeTravel }}</span>
                     </p>
-                    <div class="gap-base flex">
+                    <div class="gap-tight flex">
                         <AppButton
-                            size="xs"
+                            size="sm"
                             variant="outline"
                             color="neutral"
                             label="Clear"
@@ -76,7 +75,7 @@ const change = () => {
                             @click="clear"
                         />
                         <AppButton
-                            size="xs"
+                            size="sm"
                             variant="outline"
                             color="neutral"
                             label="Change"

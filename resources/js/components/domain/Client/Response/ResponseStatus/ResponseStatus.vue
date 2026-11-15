@@ -6,6 +6,7 @@
 import { AppBadge } from '@/components/base/badge';
 import { AppButton } from '@/components/base/button';
 import { AppTooltip } from '@/components/base/tooltip';
+import ResponseDownloadDropdown from '@/components/domain/Client/Response/ResponseBody/ResponseDownloadDropdown.vue';
 import RequestHistory from '@/components/domain/Client/Response/ResponseStatus/History/RequestHistory.vue';
 import RateLimitMeter from '@/components/domain/Client/Response/ResponseStatus/RateLimitMeter.vue';
 import ResponseStatusCode from '@/components/domain/Client/Response/ResponseStatus/ResponseStatusCode.vue';
@@ -109,7 +110,7 @@ const isImportedFromShare = computed(() => lastLog.value?.importedFromShare === 
     <div
         :class="
             cn(
-                'pane-surface pr-panel h-pane-header gap-loose @container flex shrink-0 items-center justify-between',
+                'pane-surface pr-tight h-pane-header gap-loose @container flex shrink-0 items-center justify-between',
                 props.class,
             )
         "
@@ -159,10 +160,15 @@ const isImportedFromShare = computed(() => lastLog.value?.importedFromShare === 
                     @reset="resetLimiter"
                 />
                 <RequestHistory />
+                <ResponseDownloadDropdown
+                    v-if="lastLog?.response && !lastLog.response.download"
+                    :response="lastLog"
+                />
             </template>
 
             <AppButton
                 v-else
+                class="h-control-pane!"
                 variant="outline"
                 color="neutral"
                 size="xs"

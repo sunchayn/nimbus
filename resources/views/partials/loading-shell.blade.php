@@ -69,14 +69,19 @@
                 {{-- The inline script in the head sets the sidebar variables from the saved layout. --}}
                 <aside
                     data-testid="skeleton-sidebar"
-                    class="gap-tight flex shrink-0 flex-col overflow-hidden max-md:hidden"
+                    class="flex shrink-0 flex-col overflow-hidden max-md:hidden"
                     style="width: var(--shell-explorer-width, 20%)"
                 >
+                    <div class="gap-tight mb-base flex shrink-0 items-center">
+                        <div class="{{ $block }} h-control-md min-w-0 flex-1"></div>
+                        <div class="{{ $block }} h-control-md w-control-md shrink-0"></div>
+                    </div>
                     @if (! empty($workspaceEnabled))
                         {{-- The Routes and Workspace tabs of the sidebar. --}}
-                        <div class="{{ $block }} h-control-md w-full" data-testid="skeleton-sidebar-tabs"></div>
+                        <div class="h-pane-header mb-tight shrink-0" data-testid="skeleton-sidebar-tabs">
+                            <div class="{{ $block }} h-full w-full"></div>
+                        </div>
                     @endif
-                    <div class="{{ $block }} h-control-md w-full"></div>
                     <div class="gap-tight flex flex-col">
                         <div class="min-h-8"></div>
                         <div class="{{ $block }} h-control-sm w-2/3"></div>
@@ -102,8 +107,8 @@
                     {{-- The row layout starts at a wide container, close to the breakpoint in ClientWorkspace. --}}
                     <div class="gap-pane flex min-h-0 flex-1 flex-col @4xl:flex-row">
                         <div class="gap-pane flex min-h-0 min-w-0 flex-col" style="flex: var(--shell-request-size, 1) 1 0%" data-testid="skeleton-request">
-                            <div class="pane-surface p-tight shrink-0">
-                                <div class="{{ $block }} h-control-md w-full"></div>
+                            <div class="pane-surface h-pane-header p-tight shrink-0">
+                                <div class="{{ $block }} h-full w-full"></div>
                             </div>
                             <div class="pane-surface flex min-h-0 flex-1 flex-col">
                                 <div class="h-toolbar px-panel gap-base flex shrink-0 items-center border-b">

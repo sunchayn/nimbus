@@ -67,7 +67,7 @@ const closeDialog = () => {
                     description="This link contains the full request configuration and the latest response. Anyone with this link can restore the exact state in their Nimbus instance."
                 />
 
-                <div class="gap-base flex min-h-0 flex-1 flex-col">
+                <div class="gap-dialog-gap flex min-h-0 flex-1 flex-col">
                     <div class="flex items-center justify-between">
                         <h4 class="text-default text-xs font-medium">Link</h4>
                         <AppButton
@@ -80,7 +80,7 @@ const closeDialog = () => {
                     </div>
 
                     <pre
-                        class="bg-muted text-default border-default p-base flex-1 overflow-auto rounded-md border font-mono text-xs leading-relaxed break-all whitespace-break-spaces"
+                        class="bg-muted text-default border-default p-base flex-1 overflow-auto rounded-sm border font-mono text-xs leading-relaxed break-all whitespace-break-spaces"
                         data-testid="shareable-link-content"
                         >{{ link }}</pre>
                 </div>

@@ -11,7 +11,6 @@ import {
     RequestHeaders,
     RequestParameters,
 } from '@/components/domain/Client/Request';
-import RequestTimeTravelIndicator from '@/components/domain/Client/Request/RequestBuilder/RequestTimeTravelIndicator.vue';
 import { useRequestStore } from '@/stores/request/useRequestStore';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import { useStorage } from '@vueuse/core';
@@ -74,10 +73,7 @@ const tabs = computed(() => [
         class="gap-pane relative flex h-full max-h-full flex-1 flex-col"
         data-testid="request-builder-root"
     >
-        <div class="gap-pane flex shrink-0 items-stretch">
-            <RequestBuilderEndpoint class="min-w-0 flex-1" />
-            <RequestTimeTravelIndicator />
-        </div>
+        <RequestBuilderEndpoint class="shrink-0" />
         <AppTabs
             v-model="tab"
             :items="tabs"
@@ -85,7 +81,8 @@ const tabs = computed(() => [
             color="neutral"
             class="pane-surface mt-0 min-h-0 flex-1 gap-0"
             :ui="{
-                list: 'h-toolbar overflow-x-auto rounded-none px-0',
+                // The list sits above the content, so a focus ring is never painted over.
+                list: 'z-sticky relative h-toolbar overflow-x-auto rounded-none px-0',
                 trigger: 'px-panel',
                 content:
                     'border-default flex max-h-full min-h-0 flex-1 flex-col overflow-y-auto border-t',

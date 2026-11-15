@@ -5,6 +5,7 @@
  */
 export interface DropIndicatorProps {
     edge: 'before' | 'after';
+    testId?: string;
 }
 
 defineProps<DropIndicatorProps>();
@@ -15,6 +16,6 @@ defineProps<DropIndicatorProps>();
         class="bg-info h-hair pointer-events-none absolute inset-x-0 z-10 rounded-full"
         :class="edge === 'before' ? 'top-0' : 'bottom-0'"
         aria-hidden="true"
-        data-testid="workspace-drop-indicator"
+        :data-testid="testId"
     />
 </template>

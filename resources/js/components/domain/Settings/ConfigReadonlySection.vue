@@ -53,12 +53,12 @@ const configData = computed(() => ({
                 </p>
             </div>
             <div
-                class="border-default gap-base p-card grid rounded-md border sm:col-span-2 sm:grid-cols-2"
+                class="border-default gap-base p-card grid rounded-sm border sm:col-span-2 sm:grid-cols-2"
             >
                 <div class="gap-tight flex flex-col">
                     <AppLabel class="text-muted text-xs">Route Prefix</AppLabel>
                     <div
-                        class="bg-muted h-control-md px-control-md flex items-center rounded-md font-mono text-sm"
+                        class="bg-muted h-control-md px-control-md flex items-center rounded-sm font-mono text-sm"
                     >
                         {{ configData.routePrefix }}
                     </div>
@@ -67,7 +67,7 @@ const configData = computed(() => ({
                 <div class="gap-tight flex flex-col">
                     <AppLabel class="text-muted text-xs">Versioned</AppLabel>
                     <div
-                        class="bg-muted h-control-md gap-base px-control-md flex items-center rounded-md text-sm"
+                        class="bg-muted h-control-md gap-base px-control-md flex items-center rounded-sm text-sm"
                     >
                         <div
                             :class="configData.isVersioned ? 'bg-success' : 'bg-accented'"
@@ -93,12 +93,12 @@ const configData = computed(() => ({
                 </p>
             </div>
             <div
-                class="border-default gap-base p-card grid rounded-md border sm:col-span-2 sm:grid-cols-2"
+                class="border-default gap-base p-card grid rounded-sm border sm:col-span-2 sm:grid-cols-2"
             >
                 <div class="gap-tight flex flex-col">
                     <AppLabel class="text-muted text-xs">Base URL</AppLabel>
                     <div
-                        class="bg-muted h-control-md px-control-md flex items-center rounded-md font-mono text-sm"
+                        class="bg-muted h-control-md px-control-md flex items-center rounded-sm font-mono text-sm"
                     >
                         {{ configData.baseUrl }}
                     </div>
@@ -107,7 +107,7 @@ const configData = computed(() => ({
                 <div class="gap-tight flex flex-col">
                     <AppLabel class="text-muted text-xs">Base Path</AppLabel>
                     <div
-                        class="bg-muted h-control-md px-control-md flex items-center rounded-md font-mono text-sm"
+                        class="bg-muted h-control-md px-control-md flex items-center rounded-sm font-mono text-sm"
                     >
                         {{ configData.basePath || 'None' }}
                     </div>
@@ -127,13 +127,13 @@ const configData = computed(() => ({
                 </p>
             </div>
             <div
-                class="border-default gap-base p-card flex flex-col rounded-md border sm:col-span-2"
+                class="border-default gap-base p-card flex flex-col rounded-sm border sm:col-span-2"
             >
                 <template v-if="configData.globalHeaders.length > 0">
                     <div
                         v-for="header in configData.globalHeaders"
                         :key="header.header"
-                        class="bg-muted h-control-md px-control-md flex items-center justify-between rounded-md"
+                        class="bg-muted h-control-md px-control-md flex items-center justify-between rounded-sm"
                     >
                         <span class="font-mono text-sm">{{ header.header }}</span>
                         <div class="gap-base flex items-center">

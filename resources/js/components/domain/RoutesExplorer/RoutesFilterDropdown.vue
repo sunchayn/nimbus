@@ -134,12 +134,17 @@ const clear = () => {
 </script>
 
 <template>
-    <AppPopover v-model:open="open" :content="{ align: 'end' }">
+    <AppPopover
+        v-model:open="open"
+        :content="{ align: 'end' }"
+        :ui="{ content: 'p-0 overflow-hidden' }"
+    >
         <AppButton
             icon="i-hugeicons-filter"
             :color="isActive ? 'primary' : 'neutral'"
             variant="outline"
             size="md"
+            :square="!isActive"
             :disabled="disabled"
             aria-label="Filter routes"
             data-testid="routes-filter-toggle"
@@ -155,6 +160,7 @@ const clear = () => {
             <div class="w-64" data-testid="routes-filters">
                 <AppCommand
                     :groups="groups"
+                    size="sm"
                     placeholder="Filter by method or middleware..."
                     :ui="{ content: 'max-h-64 overflow-y-auto', empty: 'text-start' }"
                 >

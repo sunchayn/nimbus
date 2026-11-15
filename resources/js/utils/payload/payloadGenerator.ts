@@ -204,6 +204,7 @@ function generateArrayOfPrimitives(
 
 /**
  * Picks how many items an array gets, within the schema item limits.
+ * Lower counts are more likely than higher ones.
  */
 function countArrayItems(schema: JSONSchema7, isPlaceholder: boolean): number {
     const minItems =
@@ -217,7 +218,14 @@ function countArrayItems(schema: JSONSchema7, isPlaceholder: boolean): number {
     const maxItems =
         schema.maxItems ?? minItems + PAYLOAD_GENERATOR_CONFIG.MAX_ARRAY_ITEMS - 1;
 
-    return faker.number.int({ min: minItems, max: Math.max(minItems, maxItems) });
+    // Each extra item is half as likely as the one before, so short arrays come up most.
+    let count = minItems;
+
+    while (count < maxItems && faker.datatype.boolean()) {
+        count++;
+    }
+
+    return count;
 }
 
 /**

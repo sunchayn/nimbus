@@ -11,7 +11,7 @@ export const buildWorkspaceTree = (
         name: '',
         path: '',
         folders: [],
-        requests: [],
+        items: [],
     };
     const nodes = new Map<string, WorkspaceFolderNode>([['', root]]);
 
@@ -27,7 +27,7 @@ export const buildWorkspaceTree = (
             name: segments[segments.length - 1],
             path,
             folders: [],
-            requests: [],
+            items: [],
         };
 
         nodes.set(path, node);
@@ -42,7 +42,7 @@ export const buildWorkspaceTree = (
     }
 
     for (const request of requests) {
-        ensure(request.folder).requests.push(request);
+        ensure(request.folder).items.push(request);
     }
 
     return root;

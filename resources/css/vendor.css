@@ -1,14 +1,4 @@
 @layer components {
-    .cm-focused {
-        outline: none !important;
-    }
-
-    .cm-tooltip {
-        background-color: var(--color-overlay) !important;
-        border-color: var(--ui-border) !important;
-        @apply flex flex-col;
-    }
-
     .gw {
         position: fixed;
         will-change: contents, height, width;
@@ -18,20 +8,9 @@
         @apply text-dimmed;
     }
 
-    /* The gutter shares the editor surface, so the editor reads as one flat pane. */
-    .cm-gutters {
-        background-color: var(--ui-bg) !important;
-        border-right: 0 !important;
-        color: var(--ui-text-dimmed) !important;
-    }
-
     .cm-foldGutter .cm-gutterElement {
         cursor: pointer;
         color: var(--ui-text-dimmed);
-    }
-
-    .cm-foldGutter .cm-gutterElement:hover {
-        color: var(--ui-text-highlighted);
     }
 
     /* Environment placeholders drawn as chips. */
@@ -43,6 +22,11 @@
         color: var(--ui-text) !important;
     }
 
+    /* A chip inside a string keeps its own text color. */
+    .cm-line .cm-env-chip * {
+        color: inherit !important;
+    }
+
     .cm-line .cm-env-chip-resolved {
         border-color: color-mix(in oklab, var(--ui-info) 40%, transparent);
         background-color: color-mix(in oklab, var(--ui-info) 10%, transparent);
@@ -50,7 +34,21 @@
 
     .cm-line .cm-env-chip-empty {
         border-color: color-mix(in oklab, var(--ui-warning) 40%, transparent);
-        background-color: color-mix(in oklab, var(--ui-warning) 10%, transparent);
+        background-color: color-mix(
+            in oklab,
+            var(--ui-warning) 10%,
+            transparent
+        );
+    }
+
+    /* Dynamic values such as {$uuid} use the secondary color, apart from the status colors above. */
+    .cm-line .cm-env-chip-dynamic {
+        border-color: color-mix(in oklab, var(--ui-secondary) 40%, transparent);
+        background-color: color-mix(
+            in oklab,
+            var(--ui-secondary) 10%,
+            transparent
+        );
     }
 
     .cm-line .cm-env-chip-missing {
@@ -61,7 +59,7 @@
     /* Autocomplete popup and its documentation panel use the overlay surface. */
     .cm-tooltip-autocomplete {
         box-shadow: var(--elevation-overlay);
-        border-radius: var(--radius-md);
+        border-radius: var(--radius-sm);
         overflow: hidden;
     }
 
@@ -90,134 +88,39 @@
     .cm-completionInfo {
         background-color: var(--color-overlay);
         border: var(--spacing-line) solid var(--ui-border);
-        border-radius: var(--radius-md);
+        border-radius: var(--radius-sm);
         box-shadow: var(--elevation-overlay);
         padding: var(--spacing-tight) var(--spacing-base) !important;
         font-size: var(--text-xs);
         color: var(--ui-text);
     }
 
-    .cm-activeLineGutter,
-    .cm-activeLine {
-        background-color: var(--ui-bg-elevated) !important;
-    }
-
     /* Search matches stay visible on the active line and under the selection. */
     .cm-searchMatch {
-        background-color: color-mix(in oklab, var(--ui-warning) 20%, transparent) !important;
+        background-color: color-mix(
+            in oklab,
+            var(--ui-warning) 20%,
+            transparent
+        ) !important;
     }
 
     .cm-searchMatch.cm-searchMatch-selected {
-        background-color: color-mix(in oklab, var(--ui-warning) 30%, transparent) !important;
-    }
-
-    .cm-line span {
-        color: var(--ui-text-muted) !important;
-    }
-
-    .cm-tooltip-lint {
-        background-color: var(--color-overlay) !important;
-        border: var(--spacing-line) solid var(--ui-border) !important;
-        box-shadow: var(--elevation-overlay) !important;
-        overflow: hidden !important;
-        transform: translateY(var(--spacing-tooltip-nudge));
+        background-color: color-mix(
+            in oklab,
+            var(--ui-warning) 30%,
+            transparent
+        ) !important;
     }
 
     .cm-tooltip-hover {
         z-index: var(--z-index-toast) !important;
     }
 
-    .cm-diagnosticText {
-        color: var(--ui-text) !important;
-        & code {
-            font-family: inherit !important;
-            font-weight: 600 !important;
-        }
-    }
-
-    .cm-diagnosticSource {
-        color: var(--ui-text) !important;
-    }
-
-    .cm-lint-tooltip-item {
-        padding: var(--spacing-tight) var(--spacing-base) !important;
-        border-bottom: var(--spacing-line) solid var(--ui-border) !important;
-    }
-
-    .cm-lint-tooltip-item:last-child {
-        border-bottom: none !important;
-    }
-
-    .cm-diagnostic {
-        font-size: var(--text-xs) !important;
-        line-height: var(--text-xs--line-height) !important;
-        color: var(--ui-text) !important;
-        --diagnostic--border-color: var(--ui-border);
-        border-left: calc(var(--spacing-line) * 3) solid var(--diagnostic--border-color) !important;
-        border-bottom: var(--spacing-line) solid var(--ui-border);
-
-        &:last-child {
-            border-bottom: 0;
-        }
-    }
-
-    .cm-diagnostic-info {
-        --diagnostic--border-color: var(--ui-info);
-    }
-
-    .cm-diagnostic-warning {
-        --diagnostic--border-color: var(--ui-warning);
-    }
-
-    .cm-diagnostic-error {
-        --diagnostic--border-color: var(--ui-error);
-    }
-
     .cm-gutterElement {
         font-size: var(--text-xs) !important;
         display: inline-flex !important;
-        align-items: center;
+        /* A wrapped line is taller than its number, which stays on the first row. */
+        align-items: flex-start;
         justify-content: center;
-    }
-
-    .cm-lint-marker {
-        width: 0.8em !important;
-        height: 0.8em !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-
-    .cm-lint-marker-error {
-        content: url("data:image/svg+xml,%3Csvg%20width%3D%228%22%20height%3D%228%22%20viewBox%3D%220%200%208%208%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cdefs%3E%3CradialGradient%20id%3D%22roseBall%22%20cx%3D%2230%25%22%20cy%3D%2230%25%22%20r%3D%2250%25%22%3E%3Cstop%20offset%3D%220%25%22%20style%3D%22stop-color%3A%20oklch(0.9%200.12%2016.44)%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20style%3D%22stop-color%3A%20oklch(0.645%200.246%2016.44)%22%2F%3E%3C%2FradialGradient%3E%3C%2Fdefs%3E%3Ccircle%20cx%3D%224%22%20cy%3D%224%22%20r%3D%223.5%22%20fill%3D%22url(%23roseBall)%22%20%2F%3E%3C%2Fsvg%3E") !important;;
-    }
-
-    .cm-lint-marker-warning {
-        color: var(--ui-warning);
-        font-size: var(--text-xs) !important;
-    }
-
-    .cm-tooltip {
-        @apply border;
-    }
-
-    .cm-tooltip-section {
-        padding: 0 !important;
-
-        &:last-child {
-            border: 0 !important;
-            outline: 0;
-        }
-    }
-
-    /* Global tooltip text reset to prevent huge text from theme defaults */
-    .cm-tooltip-hover {
-        @apply p-0;
-
-        font-size: var(--text-xs) !important;
-    }
-
-    .cm6-json-schema-hover {
-        padding: var(--spacing-line) var(--spacing-hair) !important;
     }
 }

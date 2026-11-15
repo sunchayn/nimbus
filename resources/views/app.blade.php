@@ -8,6 +8,9 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('/vendor/nimbus/favicon/favicon.svg') }}"/>
     <link rel="shortcut icon" href="{{ asset('/vendor/nimbus/favicon/favicon.ico') }}"/>
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('/vendor/nimbus/favicon/apple-touch-icon.png') }}"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"/>
     <meta name="apple-mobile-web-app-title" content="Nimbus"/>
 
     <title>{{ config('app.name', 'Laravel') }} - Nimbus</title>
@@ -99,7 +102,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app/app.ts'])
 </head>
-<body class="font-sans antialiased">
+<body class="font-sans">
 <div id="app" class="isolate">
     @include('nimbus::partials.loading-shell')
 </div>

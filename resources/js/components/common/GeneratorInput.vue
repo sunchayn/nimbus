@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
  * @component GeneratorInput
- * @description Text input that opens the value generator when Shift is pressed twice.
+ * @description A text input that opens the value generator when Shift is pressed twice.
+ * It is only for fields where the user may want a generated value.
  */
 import { AppInput, type AppInputProps } from '@/components/base/input';
 import { useForwardedProps } from '@/components/base/useForwardedProps';

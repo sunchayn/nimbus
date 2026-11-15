@@ -25,7 +25,7 @@ const handleVariablesUpdate = (variables: ParameterContract[]) => {
 </script>
 
 <template>
-    <div class="relative flex-1 overflow-hidden rounded-md border border-b-0">
+    <div class="relative flex-1 overflow-hidden rounded-sm border border-b-0">
         <slot name="header" />
 
         <EnvironmentFields />

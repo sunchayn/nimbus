@@ -119,7 +119,7 @@ const updateMaxHistoryLogs = (value: string | number) => {
                 <p class="text-muted text-xs">Control how many past requests are kept.</p>
             </div>
             <div
-                class="border-default gap-tight p-card flex flex-col rounded-md border sm:col-span-2"
+                class="border-default gap-tight p-card flex flex-col rounded-sm border sm:col-span-2"
             >
                 <AppLabel>Maximum history logs</AppLabel>
                 <p class="text-muted text-xs">
@@ -149,7 +149,7 @@ const updateMaxHistoryLogs = (value: string | number) => {
                 </p>
             </div>
             <div
-                class="border-default gap-tight p-card flex flex-col rounded-md border sm:col-span-2"
+                class="border-default gap-tight p-card flex flex-col rounded-sm border sm:col-span-2"
             >
                 <AppLabel>Theme</AppLabel>
                 <p class="text-muted text-xs">Choose your preferred color scheme</p>
@@ -183,7 +183,7 @@ const updateMaxHistoryLogs = (value: string | number) => {
                 <p class="text-muted text-xs">Set default values for new requests.</p>
             </div>
             <div
-                class="border-default flex flex-col divide-y rounded-md border sm:col-span-2"
+                class="border-default flex flex-col divide-y rounded-sm border sm:col-span-2"
             >
                 <div class="gap-tight p-card flex flex-col">
                     <AppLabel>Default request body type</AppLabel>

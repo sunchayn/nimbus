@@ -6,9 +6,8 @@
  */
 import { AppButton } from '@/components/base/button';
 import { AppDialog } from '@/components/base/dialog';
-import { AppIcon } from '@/components/base/icons';
 import { AppInput } from '@/components/base/input';
-import { AppTabs } from '@/components/base/tabs';
+import { AppSegmentedTabs } from '@/components/base/tabs';
 import {
     TIME_TRAVEL_PRESETS,
     applyRelativeTimeTravel,
@@ -145,25 +144,15 @@ const apply = () => {
         :ui="{ content: 'max-w-dialog-lg' }"
         @update:open="emits('update:open', $event)"
     >
-        <template #title>
-            <AppIcon name="i-hugeicons-clock-01" class="size-icon-md" />
-            Set current time
-        </template>
+        <template #title>Set current time</template>
 
         <template #body>
             <div class="gap-loose flex flex-col" data-testid="time-travel-dialog">
-                <AppTabs
+                <AppSegmentedTabs
                     v-model="mode"
                     :items="modes"
                     :content="false"
-                    variant="pill"
-                    color="neutral"
-                    class="w-full"
-                    :ui="{
-                        list: 'bg-muted p-tight w-full',
-                        trigger: 'text-muted data-[state=active]:text-highlighted flex-1',
-                        indicator: 'bg-default border-inverted border shadow-none',
-                    }"
+                    outlined
                     data-testid="time-travel-mode"
                 />
 
@@ -235,7 +224,7 @@ const apply = () => {
                 </div>
 
                 <div
-                    class="bg-muted border-default p-card gap-tight flex flex-col rounded-md border text-xs"
+                    class="bg-muted border-default p-base gap-tight flex flex-col rounded-sm border text-xs"
                     aria-live="polite"
                     data-testid="time-travel-preview"
                 >
@@ -266,7 +255,7 @@ const apply = () => {
                     data-testid="time-travel-use-now"
                     @click="save('')"
                 />
-                <div class="gap-base flex">
+                <div class="gap-tight flex">
                     <AppButton
                         size="sm"
                         variant="outline"

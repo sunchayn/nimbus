@@ -6,7 +6,7 @@
 import { AppButton } from '@/components/base/button';
 import { AppInput } from '@/components/base/input';
 import { AppSelectMenu } from '@/components/base/select';
-import { AppTabs } from '@/components/base/tabs';
+import { AppSegmentedTabs } from '@/components/base/tabs';
 import { AppTextarea } from '@/components/base/textarea';
 import { useToolRequest } from '@/composables/toolbox/useToolRequest';
 import { useRoutesStore } from '@/stores/routes/useRoutesStore';
@@ -93,18 +93,13 @@ const create = () => {
 
 <template>
     <div class="gap-base flex flex-col" data-testid="signed-url-tool">
-        <AppTabs
+        <AppSegmentedTabs
             v-model="shown"
             :items="modes"
             :content="false"
-            variant="pill"
-            color="neutral"
-            class="w-full"
-            :ui="{
-                list: 'bg-muted p-tight w-full',
-                trigger: 'text-muted data-[state=active]:text-highlighted flex-1',
-                indicator: 'bg-default border-inverted border shadow-none',
-            }"
+            outlined
+            :fill="false"
+            class="self-start"
             data-testid="signed-url-mode"
         />
 

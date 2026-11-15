@@ -151,7 +151,7 @@ const copyPublishCommand = async () => {
                                                         </p>
                                                     </div>
                                                     <div
-                                                        class="bg-muted gap-base p-base relative flex items-center rounded-md font-mono text-xs"
+                                                        class="bg-muted gap-base p-base relative flex items-center rounded-sm font-mono text-xs"
                                                     >
                                                         <code class="flex-1">
                                                             php artisan vendor:publish

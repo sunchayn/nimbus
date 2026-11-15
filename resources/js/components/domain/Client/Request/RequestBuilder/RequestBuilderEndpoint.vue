@@ -8,6 +8,7 @@ import { type HTMLAttributes } from 'vue';
 import RequestBuilderEndpointInput from './RequestBuilderEndpointInput.vue';
 import RequestBuilderMethodSelector from './RequestBuilderMethodSelector.vue';
 import RequestBuilderOptionsMenu from './RequestBuilderOptionsMenu.vue';
+import RequestTimeTravelIndicator from './RequestTimeTravelIndicator.vue';
 
 /*
  * Types & Interfaces.
@@ -28,7 +29,7 @@ const props = defineProps<RequestBuilderEndpointProps>();
     <div
         :class="
             cn(
-                'pane-surface focus-within:border-accented flex shrink-0 items-center items-stretch',
+                'pane-surface h-pane-header focus-within:border-accented flex shrink-0 items-stretch',
                 props.class,
             )
         "
@@ -38,6 +39,7 @@ const props = defineProps<RequestBuilderEndpointProps>();
 
         <RequestBuilderEndpointInput>
             <template #options-menu>
+                <RequestTimeTravelIndicator />
                 <RequestBuilderOptionsMenu />
             </template>
         </RequestBuilderEndpointInput>

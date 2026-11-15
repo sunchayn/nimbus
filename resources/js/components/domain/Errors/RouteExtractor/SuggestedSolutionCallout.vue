@@ -24,7 +24,7 @@ const props = defineProps<SuggestedSolutionCalloutProps>();
 </script>
 
 <template>
-    <div :class="cn('bg-muted p-base rounded-md border', props.class)">
+    <div :class="cn('bg-muted p-base rounded-sm border', props.class)">
         <div class="gap-base flex items-start">
             <AppIcon name="i-hugeicons-bulb" class="size-icon-sm mt-tight shrink-0" />
             <div class="flex-1">

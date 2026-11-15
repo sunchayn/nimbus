@@ -1,7 +1,9 @@
 <script setup lang="ts">
 /**
  * @component AppInputPopover
- * @description A popover with one full width input and an optional header.
+ * @description A popover with one full width input, laid out like the search row of a dropdown.
+ * A header, when passed, shows as a label row above the input and also names it for assistive technology.
+ * An optional leading icon marks the purpose of the input.
  * Enter submits the value. The default slot is the trigger and `#anchor` anchors it without a trigger.
  */
 import { AppInput } from '@/components/base/input';
@@ -13,6 +15,7 @@ import { AppPopover } from '@/components/base/popover';
 
 export interface AppInputPopoverProps {
     header?: string;
+    leadingIcon?: string;
     placeholder?: string;
     /** Prefix of the test ids, which become `<prefix>-form` and `<prefix>-input`. */
     testId?: string;
@@ -54,7 +57,7 @@ const emit = defineEmits<{
             >
                 <p
                     v-if="header"
-                    class="border-default text-muted px-base py-tight border-b text-xs"
+                    class="px-control-sm py-tight text-menu-label border-b-line border-default text-muted font-semibold"
                 >
                     {{ header }}
                 </p>
@@ -63,6 +66,7 @@ const emit = defineEmits<{
                     variant="none"
                     size="sm"
                     class="w-full"
+                    :leading-icon="leadingIcon"
                     :placeholder="placeholder"
                     :aria-label="header"
                     :data-testid="testId && `${testId}-input`"

@@ -21,7 +21,7 @@ defineProps<Props>();
 </script>
 
 <template>
-    <AppPanel class="gap-base flex flex-col shadow-none">
+    <AppPanel class="gap-tight flex flex-col shadow-none">
         <AppPanelTitle>This URL does not match the environment</AppPanelTitle>
 
         <AppPanelDescription class="text-xs">

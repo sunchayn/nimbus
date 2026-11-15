@@ -171,7 +171,7 @@ watch(
             </span>
         </div>
         <template #toolbox>
-            <div class="gap-base flex items-center">
+            <div class="gap-tight flex items-center">
                 <div v-if="hasMultipleDumps" class="gap-tight flex items-center">
                     <AppButton
                         variant="ghost"
@@ -220,7 +220,7 @@ watch(
                                 :name="
                                     isDumpMarkedForDeletion(selectedDumpsLog.id)
                                         ? 'i-hugeicons-tick-02'
-                                        : 'i-hugeicons-delete-02'
+                                        : 'i-hugeicons-delete-01'
                                 "
                                 class="size-icon-sm"
                             />
@@ -268,7 +268,7 @@ watch(
             <div
                 v-for="({ item: dump, key }, index) in keyedDumps"
                 :key="key"
-                class="border-muted bg-default rounded-md border"
+                class="border-muted bg-default rounded-sm border"
                 :data-testid="`dump-value-${index}`"
             >
                 <div class="px-panel z-sticky gap-base py-tight relative flex border-b">

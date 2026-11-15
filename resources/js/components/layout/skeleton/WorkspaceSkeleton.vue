@@ -24,8 +24,8 @@ import { AppSkeleton } from '@/components/base/skeleton';
                 style="flex: var(--shell-request-size, 1) 1 0%"
                 data-testid="skeleton-request"
             >
-                <div class="pane-surface p-tight shrink-0">
-                    <AppSkeleton class="h-control-md w-full" />
+                <div class="pane-surface h-pane-header p-tight shrink-0">
+                    <AppSkeleton class="h-full w-full" />
                 </div>
                 <div class="pane-surface flex min-h-0 flex-1 flex-col">
                     <div

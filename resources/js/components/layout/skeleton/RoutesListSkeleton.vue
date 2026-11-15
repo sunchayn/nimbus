@@ -27,7 +27,7 @@ const rows = [
 </script>
 
 <template>
-    <li class="gap-tight flex flex-col" data-testid="routes-skeleton">
+    <div class="gap-tight flex flex-col" data-testid="routes-skeleton">
         <p
             role="status"
             aria-live="polite"
@@ -46,5 +46,5 @@ const rows = [
             :key="index"
             :class="`h-control-sm ${row}`"
         />
-    </li>
+    </div>
 </template>

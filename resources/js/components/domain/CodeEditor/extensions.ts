@@ -1,5 +1,9 @@
+import { jsonHighlight } from '@/components/domain/CodeEditor/highlight';
 import { jsonLinter } from '@/components/domain/CodeEditor/jsonLinter';
 import { dynamicAwareJsonSchema } from '@/components/domain/CodeEditor/jsonSchemaExtension';
+import { editorTheme } from '@/components/domain/CodeEditor/theme';
+import { CODE_EDITOR_INDENT } from '@/config/code-editor';
+import { DYNAMIC_PLACEHOLDER_PATTERN } from '@/config/dynamic-variables';
 import {
     EnvVariableCheckStatus,
     PLACEHOLDER_PATTERN,
@@ -11,6 +15,7 @@ import {
 } from '@/utils/variableSuggestions';
 import { autocompletion, type CompletionContext } from '@codemirror/autocomplete';
 import { json } from '@codemirror/lang-json';
+import { indentUnit } from '@codemirror/language';
 import { type Diagnostic, linter, lintGutter } from '@codemirror/lint';
 import { EditorState, type Extension, RangeSetBuilder } from '@codemirror/state';
 import {
@@ -36,7 +41,7 @@ export const jsonExtensions = (
 ): Extension[] => {
     const extensions = commonExtensions(readonly);
 
-    extensions.push(json());
+    extensions.push(json(), jsonHighlight);
 
     if (schema !== undefined) {
         extensions.push(...dynamicAwareJsonSchema(schema));
@@ -50,7 +55,13 @@ export const jsonExtensions = (
 };
 
 export const commonExtensions = (readonly: boolean): Extension[] => {
-    const extensions = [lintGutter(), noWritingAssistants];
+    const extensions = [
+        lintGutter(),
+        noWritingAssistants,
+        editorTheme,
+        EditorState.tabSize.of(CODE_EDITOR_INDENT),
+        indentUnit.of(' '.repeat(CODE_EDITOR_INDENT)),
+    ];
 
     if (readonly) {
         extensions.push(EditorState.readOnly.of(true), EditorView.editable.of(false));
@@ -78,18 +89,26 @@ const envVariableChips = (
         const builder = new RangeSetBuilder<Decoration>();
         const text = view.state.doc.toString();
 
-        for (const match of text.matchAll(PLACEHOLDER_PATTERN)) {
-            const className = chipClasses[getStatus(match[1])];
+        const chips = [
+            ...[...text.matchAll(PLACEHOLDER_PATTERN)].map(match => ({
+                from: match.index,
+                to: match.index + match[0].length,
+                className: chipClasses[getStatus(match[1])],
+            })),
+            // A dynamic value always resolves, so it has one look and no status.
+            ...[...text.matchAll(DYNAMIC_PLACEHOLDER_PATTERN)].map(match => ({
+                from: match.index,
+                to: match.index + match[0].length,
+                className: 'cm-env-chip cm-env-chip-dynamic',
+            })),
+        ].sort((first, second) => first.from - second.from);
 
-            if (match.index === undefined || className === undefined) {
+        for (const chip of chips) {
+            if (chip.className === undefined) {
                 continue;
             }
 
-            builder.add(
-                match.index,
-                match.index + match[0].length,
-                Decoration.mark({ class: className }),
-            );
+            builder.add(chip.from, chip.to, Decoration.mark({ class: chip.className }));
         }
 
         return builder.finish();

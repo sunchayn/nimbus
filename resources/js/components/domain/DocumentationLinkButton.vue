@@ -38,7 +38,7 @@ const href = computed(() =>
 
 <template>
     <AppButton
-        size="xs"
+        size="sm"
         :variant="variant"
         as="a"
         :href="href"

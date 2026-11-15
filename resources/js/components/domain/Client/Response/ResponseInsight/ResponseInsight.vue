@@ -5,7 +5,7 @@
  * It owns the selected tab and the query picked on the timeline.
  */
 import { AppScrollArea } from '@/components/base/scroll-area';
-import { AppTabs, type AppTabsItem } from '@/components/base/tabs';
+import { AppSegmentedTabs, type AppTabsItem } from '@/components/base/tabs';
 import type { Insight } from '@/interfaces/http';
 import type { QueryFocus, TimelineRow } from '@/utils/insight';
 import { computed, ref, watch } from 'vue';
@@ -128,21 +128,15 @@ const select = ({ kind, index }: Pick<TimelineRow, 'kind' | 'index'>) => {
 
 <template>
     <div
-        class="bg-muted p-panel flex min-h-0 flex-1 flex-col"
+        class="bg-muted p-tight flex min-h-0 flex-1 flex-col"
         data-testid="response-insight"
     >
-        <AppTabs
+        <AppSegmentedTabs
             v-model="tab"
             :items="tabs"
-            variant="pill"
-            size="xs"
-            color="neutral"
+            :fill="false"
             class="gap-base min-h-0 flex-1 items-stretch"
-            :ui="{
-                list: 'bg-elevated p-tight w-fit max-w-full',
-                trigger: 'text-muted data-[state=active]:text-highlighted',
-                content: 'flex min-h-0 flex-1 flex-col overflow-hidden',
-            }"
+            :ui="{ content: 'flex min-h-0 flex-1 flex-col overflow-hidden' }"
         >
             <template #trailing="{ item }">
                 <span
@@ -241,6 +235,6 @@ const select = ({ kind, index }: Pick<TimelineRow, 'kind' | 'index'>) => {
                     <InsightSandbox :sandbox="insight.sandbox" />
                 </AppScrollArea>
             </template>
-        </AppTabs>
+        </AppSegmentedTabs>
     </div>
 </template>

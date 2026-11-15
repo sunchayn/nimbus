@@ -23,3 +23,5 @@ export {
     routeMatchesFilters,
     type RouteFilters,
 } from './routeFilters';
+
+export { buildRoutesTree, routeKey } from './routesTree';

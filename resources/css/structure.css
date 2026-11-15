@@ -13,11 +13,13 @@
  */
 @theme {
     --font-sans:
-        -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+        "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui,
+        sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+    --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
     --font-mono:
-        ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+        ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono",
+        Menlo, monospace;
 
     /* Type scale. The other steps keep the Tailwind defaults. */
     --text-xxs: 0.6875rem;
@@ -42,12 +44,12 @@
     --spacing-loose: calc(var(--spacing) * 3);
 
     /* Spacing roles. They give gap-base, p-card, px-panel, translate-y-press and similar classes. */
-    --spacing-card: var(--spacing-loose);
-    --spacing-dialog: var(--spacing-loose);
-    --spacing-dialog-gap: var(--spacing-loose);
+    --spacing-card: var(--spacing-base);
+    --spacing-dialog: var(--spacing-base);
+    --spacing-dialog-gap: var(--spacing-base);
     --spacing-popover: var(--spacing-base);
     --spacing-menu: var(--spacing-tight);
-    --spacing-toast: var(--spacing-loose);
+    --spacing-toast: var(--spacing-base);
     --spacing-panel: var(--spacing-base);
     --spacing-tabs: 2px;
     --spacing-tabs-gap: var(--spacing-tight);
@@ -58,7 +60,7 @@
     /* Panes are rounded cards on the window background, with a gap between them. */
     --spacing-pane: calc(var(--spacing) * 1);
     --spacing-group: calc(var(--spacing) * 2);
-    --radius-pane: 0.5rem;
+    --radius-pane: var(--ui-radius);
     --spacing-line: 1px;
     --spacing-grip: 2px;
     --spacing-fade: 32px;
@@ -66,7 +68,9 @@
     --spacing-hair: 2px;
     --spacing-hit-sm: 4px;
     --spacing-hit-lg: 20px;
-    --spacing-pane-header: calc(var(--toolbar-height) + 2 * var(--spacing-line));
+    --spacing-pane-header: calc(
+        var(--control-h-sm) + 2 * var(--spacing-tight) + 2 * var(--spacing-line)
+    );
 
     /* Small round indicators and status dots. */
     --spacing-dot-xs: 5px;
@@ -79,6 +83,7 @@
     /* Icon and row sizes. They give size-icon-md, size-nav-icon and h-item-md. */
     --spacing-icon-xs: 12px;
     --spacing-icon-sm: 14px;
+    --spacing-icon-menu: 14px;
     --spacing-icon-md: 16px;
     --spacing-icon-lg: 18px;
     --spacing-nav-icon: var(--spacing-icon-md);
@@ -91,8 +96,6 @@
     --sidebar-expanded-width: 280px;
     --sidebar-collapsed-width: 3rem;
 
-    /* Overlay widths and the dialog height. */
-    --min-width-overlay: 8rem;
     /* Popovers grow to their content up to this width, then wrap. */
     --max-width-popover: min(28rem, calc(100vw - 2 * var(--spacing-loose)));
     --max-width-dialog: 30rem;
@@ -161,8 +164,10 @@
     --animate-fade-out-fast: fade-out var(--duration-fast) var(--ease-out);
     --animate-fade-in-base: fade-in var(--duration-base) var(--ease-out);
     --animate-fade-out-base: fade-out var(--duration-base) var(--ease-out);
-    --animate-collapsible-down: collapsible-down var(--duration-base) var(--ease-out);
-    --animate-collapsible-up: collapsible-up var(--duration-base) var(--ease-out);
+    --animate-collapsible-down: collapsible-down var(--duration-base)
+        var(--ease-out);
+    --animate-collapsible-up: collapsible-up var(--duration-base)
+        var(--ease-out);
 }
 
 /*
@@ -174,6 +179,21 @@
     --control-height-sm: var(--control-h-sm);
     --control-height-md: var(--control-h-md);
     --control-height-lg: var(--control-h-lg);
+
+    /* Height of every field row in the request client. Point it at another control height to resize them all. */
+    --control-height-field: var(--control-h-md);
+
+    /* Fills a pane header, leaving the tight space above and below. */
+    --control-height-pane: calc(
+        var(--spacing-pane-header) - 2 * var(--spacing-line) - 2 *
+            var(--spacing-tight)
+    );
+
+    /* Where the text of a field starts after a leading icon, which is padding, icon and gap. */
+    --field-leading-xs: calc(var(--control-px-xs) + var(--spacing-icon-xs) + var(--control-gap-xs));
+    --field-leading-sm: calc(var(--control-px-sm) + var(--spacing-icon-sm) + var(--control-gap-sm));
+    --field-leading-md: calc(var(--control-px-md) + var(--spacing-icon-md) + var(--control-gap-md));
+    --field-leading-lg: calc(var(--control-px-lg) + var(--spacing-icon-lg) + var(--control-gap-lg));
     --control-inline-xs: var(--control-px-xs);
     --control-inline-sm: var(--control-px-sm);
     --control-inline-md: var(--control-px-md);
@@ -210,10 +230,8 @@
  */
 :root {
     /*
-     * Nuxt UI derives its radius scale from this value, sm 4px, md 6px and lg 8px.
-     * Items, buttons, badges, tab triggers, kbd and tooltips use sm.
-     * Fields, cards, alerts, toasts, tab lists, menus and popovers use md.
-     * Dialogs and large floating surfaces use lg. No other radius is used.
+     * One radius for every surface. Every rounded class in the app is sm, which is this value.
+     * Change this value to restyle the corners of the whole app.
      */
     --ui-radius: 0.25rem;
 

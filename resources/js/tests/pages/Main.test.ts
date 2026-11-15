@@ -152,7 +152,7 @@ describe('MainPage', () => {
             // Assert
 
             expect(
-                wrapper.findComponent({ name: 'RouteExplorer' }).props('snapshotAt'),
+                wrapper.findComponent({ name: 'ExplorerToolbar' }).props('snapshotAt'),
             ).toBe(1700000000);
             expect(mockRoutesStore.initializeRoutes).toHaveBeenCalledWith(true);
         });

@@ -1,3 +1,4 @@
+import { schemaHoverOptions } from '@/components/domain/CodeEditor/schemaHover';
 import { maskDynamicVariables } from '@/utils/dynamicVariableMask';
 import { json, jsonLanguage } from '@codemirror/lang-json';
 import { type Diagnostic, linter } from '@codemirror/lint';
@@ -51,6 +52,6 @@ export const dynamicAwareJsonSchema = (schema: JSONSchema7): Extension[] => [
     json(),
     linter(dynamicAwareSchemaLinter(), { needsRefresh: handleRefresh }),
     jsonLanguage.data.of({ autocomplete: jsonCompletion() }),
-    hoverTooltip(jsonSchemaHover()),
+    hoverTooltip(jsonSchemaHover(schemaHoverOptions)),
     stateExtensions(schema),
 ];

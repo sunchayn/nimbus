@@ -60,21 +60,25 @@ const fadeDialog =
     "data-[state=open]:animate-fade-in-base data-[state=closed]:animate-fade-out-base";
 
 const overlaySurface =
-    "bg-overlay rounded-md ring-line ring-default shadow-overlay";
+    "bg-overlay rounded-sm ring-line ring-default shadow-overlay";
 
 const dialogSurface =
-    "bg-overlay rounded-lg ring-line ring-default shadow-modal";
+    "bg-overlay rounded-sm ring-line ring-default shadow-modal";
 
 const overlaySeparator = "-mx-menu my-menu bg-separator";
 
 // Menus also divide their groups with borders on the viewport.
 const overlayDivide = "divide-separator";
 
-const itemMd =
-    "p-0 min-h-item-md items-center px-control-sm py-0 gap-control-md text-sm";
+/*
+ * Every menu, select and command shares one item. The row, the text and the icon have one size
+ * whatever the size prop of the component is, so icons look the same in every list.
+ */
+// Menu icons are one size, a little below the text, with a one pixel stroke.
+const menuIcon = "size-icon-menu menu-icon";
 
-const itemSm =
-    "p-0 min-h-item-sm items-center px-control-sm py-0 gap-control-sm text-xs";
+const menuItem =
+    "p-0 min-h-item-md items-center px-control-sm py-0 gap-control-md text-sm font-medium";
 
 const itemBase =
     "before:rounded-sm data-disabled:cursor-default data-disabled:opacity-disabled";
@@ -151,56 +155,35 @@ const fieldSize = (size) => ({
 });
 
 /*
- * Menus and selects use small rows up to sm and regular rows above.
+ * The size prop of a menu, select or command only changes its trigger, never its rows.
  */
-const menuSm = {
+const menu = {
     label: labelRow,
-    item: itemSm,
+    item: menuItem,
     empty: emptyRow,
-    itemLeadingIcon: `${icon.sm} ${itemIcon}`,
-    itemTrailingIcon: icon.sm,
-};
-
-const menuMd = {
-    label: labelRow,
-    item: itemMd,
-    empty: emptyRow,
-    itemLeadingIcon: `${icon.md} ${itemIcon}`,
-    itemTrailingIcon: icon.md,
-};
-
-const menuCompact = {
-    ...menuMd,
-    item: "p-0 min-h-item-sm items-center px-base py-0 gap-base text-sm",
-    itemLeadingIcon: `${icon.xs} ${itemIcon}`,
-    itemTrailingIcon: icon.xs,
+    itemLeadingIcon: `${menuIcon} ${itemIcon}`,
+    itemTrailingIcon: menuIcon,
 };
 
 const paletteInput = "[&>input]:h-control-lg";
 
-const paletteSm = {
-    ...menuSm,
+const palette = {
+    ...menu,
     input: paletteInput,
-    itemTrailingHighlightedIcon: icon.sm,
+    itemTrailingHighlightedIcon: menuIcon,
 };
 
-const paletteMd = {
-    ...menuMd,
-    input: paletteInput,
-    itemTrailingHighlightedIcon: icon.md,
-};
-
-const menuSizes = {
-    xs: menuSm,
-    sm: menuSm,
-    md: menuMd,
-    lg: menuMd,
-    xl: menuMd,
-};
+const sizes = (slots) => ({
+    xs: slots,
+    sm: slots,
+    md: slots,
+    lg: slots,
+    xl: slots,
+});
 
 const select = {
     slots: {
-        base: `rounded-md ${controlBase}`,
+        base: `rounded-sm ${controlBase}`,
         // The list grows to its longest item, so labels never truncate.
         content: `w-max min-w-(--reka-select-trigger-width) max-w-(--reka-select-content-available-width) ${overlaySurface}`,
         viewport: overlayDivide,
@@ -215,11 +198,11 @@ const select = {
             popper: { content: fadeOverlay },
         },
         size: {
-            xs: { ...fieldSize("xs"), ...menuSm },
-            sm: { ...fieldSize("sm"), ...menuSm },
-            md: { ...fieldSize("md"), ...menuMd },
-            lg: { ...fieldSize("lg"), ...menuMd },
-            xl: { ...fieldSize("lg"), ...menuMd },
+            xs: { ...fieldSize("xs"), ...menu },
+            sm: { ...fieldSize("sm"), ...menu },
+            md: { ...fieldSize("md"), ...menu },
+            lg: { ...fieldSize("lg"), ...menu },
+            xl: { ...fieldSize("lg"), ...menu },
         },
     },
     defaultVariants: {
@@ -247,7 +230,7 @@ const dialogSlots = {
     wrapper: "flex-1 min-w-0",
     // The body is a column, so a code box inside can shrink and scroll on its own.
     body: "p-0 sm:p-0 flex flex-col min-h-0",
-    footer: "p-0 sm:p-0 shrink-0 justify-end gap-base",
+    footer: "p-0 sm:p-0 shrink-0 justify-end gap-tight",
     title: "flex items-center gap-base text-sm",
     description: "mt-tight text-xs",
     // The close button sits in the header row, and the negative margin centers it on the title line.
@@ -278,7 +261,7 @@ const disabledToggle = {
 export default {
     alert: {
         slots: {
-            root: "shrink-0 rounded-md py-base px-control-md gap-base",
+            root: "shrink-0 rounded-sm py-base px-control-md gap-base",
             title: "text-xs",
             // Full opacity keeps tinted alerts above 4.5 to 1.
             description: "text-xs opacity-100",
@@ -335,9 +318,9 @@ export default {
         variants: {
             size: {
                 xs: {
-                    base: `h-control-sm px-control-sm py-0 gap-control-xs text-control-xs ${slottedIcon.sm}`,
-                    leadingIcon: icon.sm,
-                    trailingIcon: icon.sm,
+                    base: `${control.xs} ${slottedIcon.xs}`,
+                    leadingIcon: icon.xs,
+                    trailingIcon: icon.xs,
                 },
                 sm: {
                     base: `${control.sm} ${slottedIcon.sm}`,
@@ -366,7 +349,7 @@ export default {
             {
                 size: "xs",
                 square: true,
-                class: "w-control-sm p-0 justify-center",
+                class: "w-control-xs p-0 justify-center",
             },
             {
                 size: "sm",
@@ -398,7 +381,7 @@ export default {
 
     card: {
         slots: {
-            root: "rounded-md",
+            root: "rounded-sm",
             ...cardSlots,
         },
         variants: {
@@ -434,19 +417,13 @@ export default {
         slots: {
             // AppCommand renders its header and footer inside the footer slot.
             // The order classes then place the header between the input and the list.
-            root: "bg-default rounded-lg overflow-hidden *:data-[slot=content]:order-1 **:data-[slot=command-footer]:order-2",
+            root: "bg-default rounded-sm overflow-hidden *:data-[slot=content]:order-1 **:data-[slot=command-footer]:order-2",
             group: "p-menu",
             footer: "contents",
             item: `${itemBase} items-center`,
         },
         variants: {
-            size: {
-                xs: paletteSm,
-                sm: paletteSm,
-                md: paletteMd,
-                lg: paletteMd,
-                xl: paletteMd,
-            },
+            size: sizes(palette),
             active: {
                 true: { item: "before:bg-overlay-hover" },
                 false: {
@@ -461,7 +438,7 @@ export default {
 
     contextMenu: {
         slots: {
-            content: `min-w-overlay ${overlaySurface} ${fadeOverlay}`,
+            content: `${overlaySurface} ${fadeOverlay}`,
             viewport: overlayDivide,
             group: "p-menu",
             separator: overlaySeparator,
@@ -474,7 +451,7 @@ export default {
                     item: "data-highlighted:not-data-disabled:before:bg-overlay-hover",
                 },
             },
-            size: { ...menuSizes, xs: menuCompact, sm: menuCompact },
+            size: sizes(menu),
         },
         defaultVariants: {
             size: "sm",
@@ -483,7 +460,7 @@ export default {
 
     dropdownMenu: {
         slots: {
-            content: `min-w-overlay ${overlaySurface} ${fadeOverlay}`,
+            content: `${overlaySurface} ${fadeOverlay}`,
             viewport: overlayDivide,
             group: "p-menu",
             separator: overlaySeparator,
@@ -494,7 +471,7 @@ export default {
                 true: { item: "before:bg-overlay-hover" },
                 false: { item: itemHighlight },
             },
-            size: menuSizes,
+            size: sizes(menu),
         },
         defaultVariants: {
             size: "md",
@@ -516,7 +493,7 @@ export default {
 
     input: {
         slots: {
-            base: `rounded-md ${controlBase}`,
+            base: `rounded-sm ${controlBase}`,
         },
         variants: {
             variant: {
@@ -531,6 +508,14 @@ export default {
                 xl: fieldSize("lg"),
             },
         },
+        // Text starts right after the icon, with no more space than the padding and the gap.
+        compoundVariants: [
+            { leading: true, size: "xs", class: "ps-field-leading-xs!" },
+            { leading: true, size: "sm", class: "ps-field-leading-sm!" },
+            { leading: true, size: "md", class: "ps-field-leading-md!" },
+            { leading: true, size: "lg", class: "ps-field-leading-lg!" },
+            { leading: true, size: "xl", class: "ps-field-leading-lg!" },
+        ],
         defaultVariants: {
             color: "neutral",
             variant: "outline",
@@ -669,7 +654,7 @@ export default {
         },
         variants: {
             inset: {
-                true: { content: "rounded-lg" },
+                true: { content: "rounded-sm" },
             },
             transition: {
                 true: { overlay: fadeDialog },
@@ -713,6 +698,11 @@ export default {
                     container: "h-3",
                     thumb: "size-2 data-[state=checked]:translate-x-3 data-[state=checked]:rtl:-translate-x-3",
                 },
+                sm: {
+                    base: "w-8",
+                    container: "h-4",
+                    thumb: "size-3 data-[state=checked]:translate-x-4 data-[state=checked]:rtl:-translate-x-4",
+                },
             },
             disabled: disabledToggle,
         },
@@ -745,7 +735,7 @@ export default {
         },
         variants: {
             variant: {
-                pill: { list: "rounded-md" },
+                pill: { list: "rounded-sm" },
             },
             // Triggers have a fixed height, so a taller list must center them.
             orientation: {
@@ -787,7 +777,7 @@ export default {
                 class: {
                     list: "border-b-0 mb-0 p-0 gap-tabs-gap",
                     trigger:
-                        "rounded-md bg-transparent shadow-none ring-0 text-dimmed hover:text-default data-[state=active]:shadow-none data-[state=active]:ring-0 data-[state=active]:text-highlighted",
+                        "rounded-sm bg-transparent shadow-none ring-0 text-dimmed hover:text-default data-[state=active]:shadow-none data-[state=active]:ring-0 data-[state=active]:text-highlighted",
                 },
             },
         ],
@@ -800,7 +790,7 @@ export default {
 
     textarea: {
         slots: {
-            base: `rounded-md ${controlBase}`,
+            base: `rounded-sm ${controlBase}`,
         },
         variants: {
             variant: controlBorder,
@@ -841,7 +831,7 @@ export default {
 
     toast: {
         slots: {
-            root: "bg-overlay rounded-md shadow-overlay p-toast gap-base",
+            root: "bg-overlay rounded-sm shadow-overlay p-toast gap-base",
             description: "mt-tight",
             icon: icon.lg,
             actions: "gap-base",

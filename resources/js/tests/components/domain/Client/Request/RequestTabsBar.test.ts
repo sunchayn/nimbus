@@ -239,7 +239,7 @@ describe('RequestTabsBar', () => {
             );
 
             expect(input?.value).toBe('Route 1');
-            expect(document.body.textContent).toContain('Label');
+            expect(input?.getAttribute('aria-label')).toBe('Label');
             expect(
                 document.body.querySelector('[data-testid="tab-rename-save"]'),
             ).toBeNull();

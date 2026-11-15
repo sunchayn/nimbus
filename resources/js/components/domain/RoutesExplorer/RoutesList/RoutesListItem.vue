@@ -5,8 +5,7 @@
  */
 import AppIcon from '@/components/base/icons/AppIcon.vue';
 import { AppTooltip } from '@/components/base/tooltip';
-import HttpVerbLabel from '@/components/domain/HttpVerbLabel/HttpVerbLabel.vue';
-import ExplorerRow from '@/components/domain/RoutesExplorer/ExplorerRow.vue';
+import ExplorerItemRow from '@/components/domain/Explorer/ExplorerItemRow.vue';
 import { type RouteDefinition } from '@/interfaces/routes/routes';
 import { useConfigStore } from '@/stores/core/useConfigStore';
 import { useRoutesStore } from '@/stores/routes/useRoutesStore';
@@ -22,11 +21,6 @@ export interface RoutesListItemProps {
     route: RouteDefinition;
     resource: string;
     isActive?: boolean;
-    onClick?: () => void;
-}
-
-export interface RoutesListItemEmits {
-    (e: 'click'): void;
 }
 
 /*
@@ -35,10 +29,7 @@ export interface RoutesListItemEmits {
 
 const props = withDefaults(defineProps<RoutesListItemProps>(), {
     isActive: false,
-    onClick: () => {},
 });
-
-const emit = defineEmits<RoutesListItemEmits>();
 
 const routesStore = useRoutesStore();
 const configStore = useConfigStore();
@@ -77,56 +68,43 @@ const showUndocumented = computed(() => routesStore.isUndocumented(props.route))
 const showMissingImplementation = computed(() =>
     routesStore.isMissingImplementation(props.route),
 );
-
-const handleClick = () => {
-    if (props.onClick) {
-        props.onClick();
-    }
-
-    emit('click');
-};
 </script>
 
 <template>
-    <ExplorerRow :is-active="isActive" @click="handleClick">
-        <HttpVerbLabel class="min-w-8" :method="route.method" />
-        <span class="flex-1 whitespace-nowrap">
-            <template v-if="showOperationId">
-                {{ route.metadata?.operationId }}
-            </template>
-            <template
-                v-for="{ item: segment, key } in endpointsSegments"
-                v-else
-                :key="key"
-            >
-                <span v-if="!segment.isRouteVariable">{{ segment.value }}</span>
-                <span v-else>
-                    <span class="text-muted">{{ segment.value }}</span>
-                </span>
-            </template>
-        </span>
-
-        <span
-            v-if="requiresAuth"
-            class="justify-self-end"
-            title="Requires authentication"
-            data-testid="route-auth-badge"
-        >
-            <AppIcon name="i-hugeicons-square-lock-02" class="size-icon-xs" />
-        </span>
-
-        <AppTooltip v-if="throttleHint" :text="throttleHint">
-            <span class="justify-self-end" data-testid="route-throttle-badge">
-                <AppIcon name="i-hugeicons-timer-01" class="size-icon-xs" />
+    <ExplorerItemRow :method="route.method" :is-active="isActive">
+        <template v-if="showOperationId">
+            {{ route.metadata?.operationId }}
+        </template>
+        <template v-for="{ item: segment, key } in endpointsSegments" v-else :key="key">
+            <span v-if="!segment.isRouteVariable">{{ segment.value }}</span>
+            <span v-else>
+                <span class="text-muted">{{ segment.value }}</span>
             </span>
-        </AppTooltip>
+        </template>
 
-        <span v-if="showUndocumented" class="justify-self-end">
-            <AppIcon name="i-hugeicons-information-circle" class="size-icon-xs" />
-        </span>
+        <template #trailing>
+            <span
+                v-if="requiresAuth"
+                class="justify-self-end"
+                title="Requires authentication"
+                data-testid="route-auth-badge"
+            >
+                <AppIcon name="i-hugeicons-square-lock-02" class="size-icon-xs" />
+            </span>
 
-        <span v-if="showMissingImplementation" class="text-warning justify-self-end">
-            <AppIcon name="i-hugeicons-alert-02" class="size-icon-xs" />
-        </span>
-    </ExplorerRow>
+            <AppTooltip v-if="throttleHint" :text="throttleHint">
+                <span class="justify-self-end" data-testid="route-throttle-badge">
+                    <AppIcon name="i-hugeicons-timer-01" class="size-icon-xs" />
+                </span>
+            </AppTooltip>
+
+            <span v-if="showUndocumented" class="justify-self-end">
+                <AppIcon name="i-hugeicons-information-circle" class="size-icon-xs" />
+            </span>
+
+            <span v-if="showMissingImplementation" class="text-warning justify-self-end">
+                <AppIcon name="i-hugeicons-alert-02" class="size-icon-xs" />
+            </span>
+        </template>
+    </ExplorerItemRow>
 </template>

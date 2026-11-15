@@ -45,7 +45,7 @@ const groups = computed(() =>
 <template>
     <Teleport to="body">
         <div
-            class="bg-default border-default z-overlay py-tight fixed max-h-60 min-w-56 overflow-y-auto rounded-md border text-xs shadow-md"
+            class="bg-default border-default z-overlay py-tight fixed max-h-60 min-w-56 overflow-y-auto rounded-sm border text-xs shadow-md"
             :style="{
                 top: `${position.top + 2}px`,
                 left: `${position.left}px`,

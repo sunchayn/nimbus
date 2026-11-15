@@ -208,7 +208,7 @@ const actionItems = computed(() => {
             label: confirmation.isConfirming('clear-history')
                 ? 'Select again to clear the history'
                 : 'Clear history',
-            icon: 'i-hugeicons-delete-02',
+            icon: 'i-hugeicons-delete-01',
             onSelect: () =>
                 confirmation.trigger(() => {
                     closePalette();
@@ -245,7 +245,9 @@ const groups = computed<AppCommandGroup[]>(() => {
         title="Command palette"
         description="Search routes, tabs, environments, and actions."
         :content="{ onCloseAutoFocus: restoreFocus }"
-        :ui="{ content: 'max-w-dialog-lg top-20 translate-y-0' }"
+        :ui="{
+            content: 'max-w-dialog-lg top-20 translate-y-0 p-0 gap-0 overflow-hidden',
+        }"
     >
         <template #content>
             <AppCommand

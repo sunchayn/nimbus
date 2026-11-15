@@ -19,6 +19,7 @@ export {
     saveWorkspaceRequest,
     workspaceErrorMessage,
 } from './workspaceApi';
+export { filterWorkspaceRequests, pruneEmptyFolders } from './workspaceFilter';
 export {
     buildWorkspaceTree,
     reorderFolderPaths,
