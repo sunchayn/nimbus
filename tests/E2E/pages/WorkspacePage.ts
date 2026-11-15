@@ -91,6 +91,17 @@ export class WorkspacePage {
         await this.page.getByTestId('workspace-folder-input').press('Enter');
     }
 
+    async dragOnto(source: Locator, target: Locator) {
+        // Events are dispatched on the elements, so list reflows cannot move the pointer off the target.
+        const dataTransfer = await this.page.evaluateHandle(() => new DataTransfer());
+
+        await source.dispatchEvent('dragstart', { dataTransfer });
+        await target.dispatchEvent('dragenter', { dataTransfer });
+        await target.dispatchEvent('dragover', { dataTransfer });
+        await target.dispatchEvent('drop', { dataTransfer });
+        await source.dispatchEvent('dragend', { dataTransfer });
+    }
+
     async rightClick(locator: Locator) {
         await locator.click({ button: 'right' });
     }
