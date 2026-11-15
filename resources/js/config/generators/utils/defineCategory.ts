@@ -32,16 +32,13 @@ export function defineCategory(definition: CategoryDefinition): GeneratorCategor
         icon: definition.icon,
     };
 
-    const generators = definition.generators.map(
-        (generator): ValueGenerator => ({
-            ...generator,
-            description:
-                generator.description ??
-                `Generate a random ${generator.name.toLowerCase()}`,
-            icon: generator.icon ?? category.icon,
-            category,
-        }),
-    );
+    const generators = definition.generators.map((generator): ValueGenerator => ({
+        ...generator,
+        description:
+            generator.description ?? `Generate a random ${generator.name.toLowerCase()}`,
+        icon: generator.icon ?? category.icon,
+        category,
+    }));
 
     return { category, generators };
 }

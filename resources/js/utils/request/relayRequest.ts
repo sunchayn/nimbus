@@ -156,12 +156,10 @@ export const createRelayPayload = (
                 (parameter: ParameterContract) =>
                     parameter.enabled && parameter.key.trim() !== '',
             )
-            .map(
-                (parameter: ParameterContract): HttpHeaders => ({
-                    key: parameter.key,
-                    value: resolve(parameter.value),
-                }),
-            ),
+            .map((parameter: ParameterContract): HttpHeaders => ({
+                key: parameter.key,
+                value: resolve(parameter.value),
+            })),
         getMimeTypeForRequest(request),
     );
 

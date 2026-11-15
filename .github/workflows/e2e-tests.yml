@@ -13,10 +13,10 @@ jobs:
     name: E2E Tests
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: 'npm'
@@ -33,7 +33,7 @@ jobs:
           coverage: none
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: vendor
           key: composer-e2e-${{ hashFiles('composer.json') }}
@@ -41,7 +41,7 @@ jobs:
             composer-e2e-
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ runner.os }}-v1
@@ -65,7 +65,7 @@ jobs:
         env:
           NIMBUS_SNAPSHOT: 'true'
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: playwright-report

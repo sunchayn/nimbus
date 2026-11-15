@@ -57,8 +57,7 @@ const isOpen = (index: number) => opened[index] ?? props.sandbox.mail?.length ==
                 <pre
                     class="bg-muted p-base max-h-64 overflow-auto font-mono text-xs break-all whitespace-pre-wrap"
                     data-testid="sandbox-mail-body"
-                    >{{ message.body }}</pre
-                >
+                    >{{ message.body }}</pre>
             </InsightCard>
         </section>
 

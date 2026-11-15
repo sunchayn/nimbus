@@ -1,4 +1,4 @@
-import type { MockInstance } from '@vitest/spy';
+import type { Mock, MockInstance } from '@vitest/spy';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('uniquePersistenceKey', () => {
@@ -66,7 +66,7 @@ describe('uniquePersistenceKey', () => {
 describe('clearPersistentKeys', () => {
     let uniquePersistenceKey: (key: string) => string;
     let clearPersistentKeys: () => void;
-    let localStorageRemoveSpy: MockInstance;
+    let localStorageRemoveSpy: Mock<(key: string) => void>;
 
     beforeEach(async () => {
         // Reset modules to clear the internal keys array
@@ -77,17 +77,20 @@ describe('clearPersistentKeys', () => {
         uniquePersistenceKey = module.uniquePersistenceKey;
         clearPersistentKeys = module.clearPersistentKeys;
 
-        localStorageRemoveSpy = vi.fn();
+        localStorageRemoveSpy = vi.fn<(key: string) => void>();
 
-        global.localStorage = {
-            // @ts-expect-error it is a mock.
+        vi.stubGlobal('localStorage', {
             removeItem: localStorageRemoveSpy,
             setItem: vi.fn(),
             getItem: vi.fn(),
             clear: vi.fn(),
             key: vi.fn(),
             length: 0,
-        };
+        });
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
     });
 
     it('should remove all registered keys from localStorage', () => {

@@ -41,8 +41,7 @@ const hasContext = (log: InsightLog) => Object.keys(log.context).length > 0;
                 <pre
                     class="bg-muted p-base overflow-x-auto rounded font-mono text-xs"
                     data-testid="insight-log-context"
-                    >{{ JSON.stringify(log.context, null, 2) }}</pre
-                >
+                    >{{ JSON.stringify(log.context, null, 2) }}</pre>
             </div>
         </InsightCard>
     </InsightSection>

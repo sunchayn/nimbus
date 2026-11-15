@@ -176,30 +176,26 @@ export const buildTimeline = (insight: Insight): Timeline | null => {
     });
 
     const rows: TimelineRow[] = [
-        ...insight.queries.map(
-            (query, index): TimelineRow => ({
-                kind: 'query',
-                index,
-                label: flattenSql(query.sql),
-                title: query.sql,
-                ms: query.time_ms,
-                ...place(query.offset_ms, query.time_ms),
-                isSlow: query.time_ms >= SLOW_QUERY_MS,
-                depth: 0,
-            }),
-        ),
-        ...calls.map(
-            ({ call, index, offset, ms }): TimelineRow => ({
-                kind: 'http',
-                index,
-                label: `${call.method} ${call.url}`,
-                title: `${call.method} ${call.url}`,
-                ms,
-                ...place(offset, ms),
-                isSlow: false,
-                depth: 0,
-            }),
-        ),
+        ...insight.queries.map((query, index): TimelineRow => ({
+            kind: 'query',
+            index,
+            label: flattenSql(query.sql),
+            title: query.sql,
+            ms: query.time_ms,
+            ...place(query.offset_ms, query.time_ms),
+            isSlow: query.time_ms >= SLOW_QUERY_MS,
+            depth: 0,
+        })),
+        ...calls.map(({ call, index, offset, ms }): TimelineRow => ({
+            kind: 'http',
+            index,
+            label: `${call.method} ${call.url}`,
+            title: `${call.method} ${call.url}`,
+            ms,
+            ...place(offset, ms),
+            isSlow: false,
+            depth: 0,
+        })),
     ].sort((a, b) => a.offsetPercent - b.offsetPercent);
 
     const queryRows = new Map(

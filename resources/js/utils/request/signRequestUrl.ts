@@ -40,7 +40,7 @@ export const signRequestUrl = async (
         };
     } catch (error) {
         if (axios.isAxiosError(error) && error.response?.data?.message) {
-            throw new Error(error.response.data.message);
+            throw new Error(error.response.data.message, { cause: error });
         }
 
         throw error;

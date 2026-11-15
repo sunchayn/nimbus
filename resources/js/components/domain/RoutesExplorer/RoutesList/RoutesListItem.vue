@@ -21,7 +21,7 @@ import { computed } from 'vue';
 export interface RoutesListItemProps {
     route: RouteDefinition;
     resource: string;
-    isActive: boolean;
+    isActive?: boolean;
     onClick?: () => void;
 }
 

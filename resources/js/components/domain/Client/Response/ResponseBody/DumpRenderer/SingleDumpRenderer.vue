@@ -213,7 +213,7 @@ const nestedValues: ComputedRef<
                         >
                             <template #key>
                                 <ObjectDumpValuePropertyKey
-                                    :key-name="key"
+                                    :key-name="String(key)"
                                     :property="nestedValue as ObjectDumpProperty"
                                 />
                             </template>

@@ -32,8 +32,7 @@ const { scrollContainer, showLeftMask, showRightMask, scrollTabIntoView } =
 // A function ref runs before mounted hooks, so the composable can attach its scroll listener.
 const bindList = (instance: Element | ComponentPublicInstance | null) => {
     const root = (instance as ComponentPublicInstance | null)?.$el as
-        | HTMLElement
-        | undefined;
+        HTMLElement | undefined;
 
     scrollContainer.value =
         root?.querySelector<HTMLElement>(':scope > [data-slot="list"]') ?? null;

@@ -11,8 +11,10 @@ import UTextarea from '@nuxt/ui/components/Textarea.vue';
  * Types & Interfaces.
  */
 
-export interface AppTextareaProps
-    extends Omit<TextareaProps, 'modelValue' | 'defaultValue'> {}
+export interface AppTextareaProps extends Omit<
+    TextareaProps,
+    'modelValue' | 'defaultValue'
+> {}
 
 /*
  * Component Setup.

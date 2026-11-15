@@ -57,8 +57,7 @@ const getDownloadSlug = (request?: Request): string => {
  */
 const useResponseDownload = (
     response:
-        | Ref<RequestLog | null | undefined>
-        | ComputedRef<RequestLog | null | undefined>,
+        Ref<RequestLog | null | undefined> | ComputedRef<RequestLog | null | undefined>,
 ): UseResponseDownloadResult => {
     const configStore = useConfigStore();
 

@@ -7,12 +7,7 @@ import { generatePest, generatePhpUnit } from './codeExport/phpTests';
 import type { CodeGenerator } from './codeExport/types';
 
 export type CodeLanguage =
-    | 'fetch'
-    | 'axios'
-    | 'laravel-http'
-    | 'guzzle'
-    | 'pest'
-    | 'phpunit';
+    'fetch' | 'axios' | 'laravel-http' | 'guzzle' | 'pest' | 'phpunit';
 
 export const CODE_LANGUAGES: { value: CodeLanguage; label: string }[] = [
     { value: 'fetch', label: 'JavaScript (fetch)' },

@@ -82,8 +82,7 @@ const closeDialog = () => {
                     <pre
                         class="bg-muted text-default border-default p-base flex-1 overflow-auto rounded-md border font-mono text-xs leading-relaxed break-all whitespace-break-spaces"
                         data-testid="shareable-link-content"
-                        >{{ link }}</pre
-                    >
+                        >{{ link }}</pre>
                 </div>
             </div>
         </template>

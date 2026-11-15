@@ -11,13 +11,7 @@ export const TIME_TRAVEL_MAX_AMOUNT = 9999;
 export const TIME_TRAVEL_MAX_PARTS = 6;
 
 export type TimeTravelUnit =
-    | 'second'
-    | 'minute'
-    | 'hour'
-    | 'day'
-    | 'week'
-    | 'month'
-    | 'year';
+    'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year';
 
 export type TimeTravelDirection = '+' | '-';
 
