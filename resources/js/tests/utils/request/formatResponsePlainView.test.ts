@@ -60,4 +60,62 @@ describe('formatResponsePlainView', () => {
 
         expect(text).toContain('The sent request is not available');
     });
+
+    it('prints every redirect hop before the final response', () => {
+        const text = formatResponsePlainView(
+            createMockResponse({
+                statusCode: 200,
+                statusText: 'OK',
+                body: 'done',
+                headers: [],
+                sent: {
+                    method: 'GET',
+                    url: 'https://a.test/final',
+                    protocolVersion: '1.1',
+                    headers: [],
+                    body: '',
+                    bodyTruncated: false,
+                },
+                redirects: [
+                    {
+                        sent: {
+                            method: 'GET',
+                            url: 'https://a.test/start',
+                            protocolVersion: '1.1',
+                            headers: [],
+                            body: '',
+                            bodyTruncated: false,
+                        },
+                        statusCode: 302,
+                        statusText: 'Found',
+                        headers: [{ key: 'Location', value: 'https://a.test/final' }],
+                    },
+                ],
+            }),
+        );
+
+        expect(text).toBe(
+            [
+                '> Request',
+                'GET https://a.test/start HTTP/1.1',
+                '',
+                '',
+                '',
+                '< Response',
+                'HTTP 302 Found',
+                'Location: https://a.test/final',
+                '',
+                '',
+                '> Request',
+                'GET https://a.test/final HTTP/1.1',
+                '',
+                '',
+                '',
+                '< Response',
+                'HTTP 200 OK',
+                '',
+                'done',
+            ].join('\n'),
+        );
+    });
 });

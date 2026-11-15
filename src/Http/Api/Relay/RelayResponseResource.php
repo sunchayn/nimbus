@@ -3,6 +3,7 @@
 namespace Sunchayn\Nimbus\Http\Api\Relay;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RedirectHopData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 
 /**
@@ -30,6 +31,14 @@ class RelayResponseResource extends JsonResource
             'download' => $this->resource->download?->toArray(),
             'sent' => $this->resource->sent?->toArray(),
             'insight' => $this->resource->insight?->toArray(),
+            'redirects' => collect($this->resource->redirects)
+                ->map(fn (RedirectHopData $hop): array => [
+                    'sent' => $hop->request->toArray(),
+                    'statusCode' => $hop->statusCode,
+                    'statusText' => $hop->statusText,
+                    'headers' => $this->processHeaders($hop->headers),
+                ])
+                ->all(),
         ];
     }
 

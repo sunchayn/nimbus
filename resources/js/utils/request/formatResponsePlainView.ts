@@ -1,26 +1,48 @@
-import type { Response } from '@/interfaces/http';
+import type { Response, SentRequest } from '@/interfaces/http';
+import type { ResponseHeader } from '@/interfaces/http/headers';
 
-/**
- * Formats the request as sent and the response received as raw HTTP text.
- */
-export const formatResponsePlainView = (response: Response): string => {
-    const sent = response.sent;
+const formatHeaders = (headers: ResponseHeader[]): string[] =>
+    headers.map(header => `${header.key}: ${header.value}`);
 
-    const requestLines = sent
+const formatSentRequest = (sent: SentRequest | null | undefined): string[] =>
+    sent
         ? [
               `${sent.method} ${sent.url} HTTP/${sent.protocolVersion}`,
-              ...sent.headers.map(header => `${header.key}: ${header.value}`),
+              ...formatHeaders(sent.headers),
               '',
               sent.body + (sent.bodyTruncated ? '\n[truncated]' : ''),
           ]
         : ['The sent request is not available for this response.'];
 
+/**
+ * Formats the requests as sent and the responses received as raw HTTP text.
+ * A followed redirect prints one request and response pair per hop, in order.
+ */
+export const formatResponsePlainView = (response: Response): string => {
+    const redirectLines = (response.redirects ?? []).flatMap(hop => [
+        '> Request',
+        ...formatSentRequest(hop.sent),
+        '',
+        '< Response',
+        `HTTP ${hop.statusCode} ${hop.statusText}`,
+        ...formatHeaders(hop.headers),
+        '',
+        '',
+    ]);
+
     const responseLines = [
         `HTTP ${response.statusCode} ${response.statusText}`,
-        ...response.headers.map(header => `${header.key}: ${header.value}`),
+        ...formatHeaders(response.headers),
         '',
         response.body,
     ];
 
-    return ['> Request', ...requestLines, '', '< Response', ...responseLines].join('\n');
+    return [
+        ...redirectLines,
+        '> Request',
+        ...formatSentRequest(response.sent),
+        '',
+        '< Response',
+        ...responseLines,
+    ].join('\n');
 };

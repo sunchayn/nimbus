@@ -22,6 +22,14 @@ export interface SentRequest {
     bodyTruncated: boolean;
 }
 
+/** A response that redirected the relay to another URL, with the request that received it. */
+export interface RedirectHop {
+    sent: SentRequest;
+    statusCode: number;
+    statusText: string;
+    headers: ResponseHeader[];
+}
+
 export interface Response {
     status: STATUS;
     statusCode: number;
@@ -35,6 +43,7 @@ export interface Response {
     timestamp: number;
     download?: ResponseDownload | null;
     sent?: SentRequest | null;
+    redirects?: RedirectHop[];
     insight?: Insight | null;
 }
 
@@ -54,6 +63,7 @@ export interface RelayProxyResponse {
     timestamp: number;
     download?: RelayProxyDownload | null;
     sent?: SentRequest | null;
+    redirects?: RedirectHop[];
     insight?: Insight | null;
 }
 

@@ -16,6 +16,7 @@ export { RequestBodyTypeEnum } from './request';
 
 export type {
     ErrorPlainResponse,
+    RedirectHop,
     RelayProxyDownload,
     RelayProxyResponse,
     Response,

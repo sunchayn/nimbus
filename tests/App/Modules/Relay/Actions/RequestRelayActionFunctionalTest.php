@@ -3,6 +3,9 @@
 namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\Actions;
 
 use Carbon\CarbonImmutable;
+use GuzzleHttp\Psr7\Request as Psr7Request;
+use GuzzleHttp\Psr7\Response as Psr7Response;
+use GuzzleHttp\TransferStats;
 use Illuminate\Cookie\CookieValuePrefix;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
@@ -1378,6 +1381,83 @@ class RequestRelayActionFunctionalTest extends TestCase
         $this->assertSame('{"name":"Ada"}', $sent->body);
         $this->assertFalse($sent->bodyTruncated);
         $this->assertContains(['key' => 'x-custom', 'value' => 'yes'], $sent->headers);
+    }
+
+    public function test_it_returns_the_redirect_hops_before_the_final_response(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'get',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: [],
+            cookies: new ParameterBag,
+        );
+
+        // Anticipate
+
+        // Guzzle reports one transfer per hop, so the fake reports the redirect by hand.
+        Http::fake(function (Request $request, array $options) {
+            $redirectingRequest = new Psr7Request('GET', 'https://localhost/api/start');
+
+            $redirectResponse = new Psr7Response(
+                302,
+                ['Location' => 'https://localhost/api/test-endpoint'],
+            );
+
+            $options['on_stats'](new TransferStats($redirectingRequest, $redirectResponse));
+
+            return Http::response('done');
+        });
+
+        $this->mockAuthorizationHandler();
+
+        // Act
+
+        $result = resolve(RequestRelayAction::class)->execute($requestData);
+
+        // Assert
+
+        $this->assertCount(1, $result->redirects);
+
+        $hop = $result->redirects[0];
+
+        $this->assertSame('https://localhost/api/start', $hop->request->url);
+        $this->assertSame(302, $hop->statusCode);
+        $this->assertSame('Found', $hop->statusText);
+        $this->assertSame(['https://localhost/api/test-endpoint'], $hop->headers['Location']);
+
+        $this->assertSame(self::ENDPOINT, $result->sent->url);
+    }
+
+    public function test_it_returns_no_redirect_hops_for_a_direct_response(): void
+    {
+        // Arrange
+
+        $requestData = new RequestRelayData(
+            method: 'get',
+            endpoint: self::ENDPOINT,
+            authorization: AuthorizationCredentials::none(),
+            headers: [],
+            body: [],
+            cookies: new ParameterBag,
+        );
+
+        // Anticipate
+
+        Http::fake();
+
+        $this->mockAuthorizationHandler();
+
+        // Act
+
+        $result = resolve(RequestRelayAction::class)->execute($requestData);
+
+        // Assert
+
+        $this->assertSame([], $result->redirects);
     }
 
     public function test_it_truncates_a_large_sent_body(): void
