@@ -6,8 +6,7 @@ use Illuminate\Container\Container;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\Facades\Event;
-use Spatie\LaravelPackageTools\Package;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Illuminate\Support\ServiceProvider;
 use Sunchayn\Nimbus\Console\Doctor\DoctorCommand;
 use Sunchayn\Nimbus\Console\Snapshot\ClearRoutesSnapshotCommand;
 use Sunchayn\Nimbus\Modules\Ast\Events\ClassFileResolved;
@@ -39,41 +38,26 @@ use Sunchayn\Nimbus\Modules\Routes\Services\Snapshot\ManifestManager;
 use Sunchayn\Nimbus\Modules\Workspace\Services\WorkspaceLockFile;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\WorkspaceConfig;
 
-class NimbusServiceProvider extends PackageServiceProvider
+class NimbusServiceProvider extends ServiceProvider
 {
+    private const NAME = 'nimbus';
+
     private bool $enabled;
 
     public function __construct($app)
     {
         parent::__construct($app);
 
-        $this->enabled = $this->app->environment(config('nimbus.allowed_envs', ['testing', 'local', 'staging']));
-    }
-
-    /**
-     * @see https://github.com/spatie/laravel-package-tools
-     */
-    public function configurePackage(Package $package): void
-    {
-        $package
-            ->name('nimbus')
-            ->hasConfigFile()
-            ->hasViews('nimbus')
-            ->hasAssets()
-            ->hasRoutes(['api', 'web'])
-            ->hasCommand(ClearRoutesSnapshotCommand::class)
-            ->hasCommand(DoctorCommand::class);
+        $this->enabled = $this->app->environment(config('nimbus.allowed_envs', ['testing', 'local']));
     }
 
     public function register(): void
     {
-        if (! $this->enabled) {
-            $this->registerPackageConfigs();
+        $this->mergeConfigFrom($this->packagePath('config/nimbus.php'), self::NAME);
 
+        if (! $this->enabled) {
             return;
         }
-
-        parent::register();
 
         $this->app->singleton(ManifestManager::class);
         $this->app->singleton(InsightsService::class);
@@ -128,9 +112,16 @@ class NimbusServiceProvider extends PackageServiceProvider
             return;
         }
 
-        parent::boot();
+        $this->loadRoutesFrom($this->packagePath('routes/api.php'));
+        $this->loadRoutesFrom($this->packagePath('routes/web.php'));
+        $this->loadViewsFrom($this->packagePath('resources/views'), self::NAME);
 
-        $this->tagAlongsideLaravelAssets();
+        $this->commands([
+            ClearRoutesSnapshotCommand::class,
+            DoctorCommand::class,
+        ]);
+
+        $this->registerPublishing();
 
         Event::listen(RouteMatched::class, ActorHeaderListener::class);
         Event::listen(RouteMatched::class, TransactionModeListener::class);
@@ -140,15 +131,33 @@ class NimbusServiceProvider extends PackageServiceProvider
         Event::listen(RouteMatched::class, SandboxModeListener::class);
     }
 
-    /**
-     * Laravel assets are configured by default in Laravel to be published post update.
-     * We always want to force-publish the assets with Nimbus, so let's tag alongside them.
-     */
-    private function tagAlongsideLaravelAssets(): void
+    private function registerPublishing(): void
     {
-        $vendorAssets = $this->package->basePath('/../resources/dist');
-        $appAssets = public_path('vendor/'.$this->package->shortName());
+        if (! $this->app->runningInConsole()) {
+            return;
+        }
 
-        $this->publishes([$vendorAssets => $appAssets], 'laravel-assets');
+        $assets = $this->packagePath('resources/dist');
+
+        $this->publishes([$assets => public_path('vendor/'.self::NAME)], self::NAME.'-assets');
+
+        // Laravel assets are published after an update by default.
+        // Nimbus always wants fresh assets, so they share that tag too.
+        $this->publishes([$assets => public_path('vendor/'.self::NAME)], 'laravel-assets');
+
+        $this->publishes(
+            [$this->packagePath('config/nimbus.php') => config_path('nimbus.php')],
+            self::NAME.'-config',
+        );
+
+        $this->publishes(
+            [$this->packagePath('resources/views') => resource_path('views/vendor/'.self::NAME)],
+            self::NAME.'-views',
+        );
+    }
+
+    private function packagePath(string $path): string
+    {
+        return __DIR__.'/../'.$path;
     }
 }
