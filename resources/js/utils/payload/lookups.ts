@@ -8,6 +8,7 @@ export interface Lookup {
 
 export interface LookupField extends Lookup {
     field: string;
+    type?: JSONSchema7['type'];
 }
 
 export const lookupKey = ({ table, column }: Lookup): string => `${table}.${column}`;
@@ -27,8 +28,34 @@ export const collectLookupFields = (shape: JSONSchema7 | undefined): LookupField
     Object.entries(shape?.properties ?? {}).flatMap(([field, property]) => {
         const lookup = readLookup((property as { lookup?: unknown }).lookup);
 
-        return lookup ? [{ field, ...lookup }] : [];
+        return lookup ? [{ field, ...lookup, type: (property as JSONSchema7).type }] : [];
     });
+
+/**
+ * Matches a stored value to the type the schema declares, so a numeric id fits a string field.
+ */
+export const coerceToSchemaType = (
+    value: string | number,
+    type: JSONSchema7['type'] | undefined,
+): string | number => {
+    const types = Array.isArray(type) ? type : [type];
+
+    if (types.includes('string') && !types.some(t => t === 'integer' || t === 'number')) {
+        return String(value);
+    }
+
+    if (
+        types.some(t => t === 'integer' || t === 'number') &&
+        !types.includes('string') &&
+        typeof value === 'string' &&
+        value.trim() !== '' &&
+        !Number.isNaN(Number(value))
+    ) {
+        return Number(value);
+    }
+
+    return value;
+};
 
 /**
  * Lists every distinct table and column pair of the schema, at any depth.
