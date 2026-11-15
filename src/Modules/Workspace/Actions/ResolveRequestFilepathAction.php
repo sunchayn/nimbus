@@ -7,7 +7,6 @@ namespace Sunchayn\Nimbus\Modules\Workspace\Actions;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\RequestFile;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\ResolveRequestFilepathData;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SavedRequest;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
@@ -27,22 +26,31 @@ class ResolveRequestFilepathAction
     /**
      * @throws WorkspaceException
      */
-    public function execute(ResolveRequestFilepathData $data): string
-    {
-        $current = $data->current?->filepath;
+    public function execute(
+        ?FolderPath $folder,
+        ?string $name,
+        ?RequestFile $current = null,
+    ): string {
+        $currentFilepath = $current?->filepath;
 
-        $folder = $this->findFolder($data);
+        $targetFolder = $this->findFolder(
+            folder: $folder,
+            current: $current,
+        );
 
-        $dirpath = $this->config->folderDirectory($folder);
+        $dirpath = $this->config->folderDirectory($targetFolder);
 
-        $slug = $this->findSlug($data);
+        $slug = $this->findSlug(
+            name: $name,
+            current: $current,
+        );
 
         $filepath = "{$dirpath}/{$slug}".SavedRequest::REQUEST_SUFFIX;
 
         // A number is added when another file uses the name, and the current file does not count.
         for ($number = 2; $this->isTaken(
             $filepath,
-            $current,
+            $currentFilepath,
         ); $number++) {
             $filepath = "{$dirpath}/{$slug}-{$number}".SavedRequest::REQUEST_SUFFIX;
         }
@@ -59,28 +67,32 @@ class ResolveRequestFilepathAction
         return File::exists($filepath);
     }
 
-    private function findFolder(ResolveRequestFilepathData $data): FolderPath
-    {
-        if ($data->folder instanceof FolderPath) {
-            return $data->folder;
+    private function findFolder(
+        ?FolderPath $folder,
+        ?RequestFile $current,
+    ): FolderPath {
+        if ($folder instanceof FolderPath) {
+            return $folder;
         }
 
-        if ($data->current instanceof RequestFile) {
-            return $data->current->folder;
+        if ($current instanceof RequestFile) {
+            return $current->folder;
         }
 
         return FolderPath::root();
     }
 
-    private function findSlug(ResolveRequestFilepathData $data): string
-    {
-        if ($data->name !== null) {
-            return $this->slugify($data->name);
+    private function findSlug(
+        ?string $name,
+        ?RequestFile $current,
+    ): string {
+        if ($name !== null) {
+            return $this->slugify($name);
         }
 
-        if ($data->current instanceof RequestFile) {
+        if ($current instanceof RequestFile) {
             return basename(
-                path: $data->current->filepath,
+                path: $current->filepath,
                 suffix: SavedRequest::REQUEST_SUFFIX,
             );
         }

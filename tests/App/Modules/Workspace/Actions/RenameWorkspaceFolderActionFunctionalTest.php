@@ -6,7 +6,6 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Workspace\Actions;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Workspace\Actions\RenameWorkspaceFolderAction;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\RenameFolderData;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 use Sunchayn\Nimbus\Tests\Concerns\UsesTemporaryWorkspace;
@@ -46,7 +45,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
             folder: 'users/admin',
         );
 
-        $data = $this->renameData(
+        $data = $this->renameArguments(
             folder: 'users',
             name: 'People',
         );
@@ -55,7 +54,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         // Act
 
-        $renamed = $action->execute(data: $data);
+        $renamed = $action->execute(...$data);
 
         // Assert
 
@@ -96,7 +95,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
             folder: 'users/admin',
         );
 
-        $data = $this->renameData(
+        $data = $this->renameArguments(
             folder: 'users',
             name: 'People',
         );
@@ -105,7 +104,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -136,7 +135,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
             folder: 'users/billing',
         );
 
-        $data = $this->renameData(
+        $data = $this->renameArguments(
             folder: 'users/billing',
             name: 'finance',
         );
@@ -145,7 +144,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -168,7 +167,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         $this->createFolder('users/admin');
 
-        $data = $this->renameData(
+        $data = $this->renameArguments(
             folder: 'users/admin',
             name: 'staff',
         );
@@ -177,7 +176,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         // Act
 
-        $renamed = $action->execute(data: $data);
+        $renamed = $action->execute(...$data);
 
         // Assert
 
@@ -198,7 +197,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         $this->createFolder('users');
 
-        $data = $this->renameData(
+        $data = $this->renameArguments(
             folder: 'users',
             name: 'Users',
         );
@@ -207,7 +206,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         // Act
 
-        $renamed = $action->execute(data: $data);
+        $renamed = $action->execute(...$data);
 
         // Assert
 
@@ -229,7 +228,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
         $this->createFolder('users');
         $this->createFolder('people');
 
-        $data = $this->renameData(
+        $data = $this->renameArguments(
             folder: 'users',
             name: 'people',
         );
@@ -243,7 +242,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
     }
 
     public function test_it_refuses_an_empty_name(): void
@@ -252,7 +251,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         $this->createFolder('users');
 
-        $data = $this->renameData(
+        $data = $this->renameArguments(
             folder: 'users',
             name: '!!!',
         );
@@ -266,7 +265,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
     }
 
     public function test_it_refuses_a_name_with_several_segments(): void
@@ -275,7 +274,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         $this->createFolder('users');
 
-        $data = $this->renameData(
+        $data = $this->renameArguments(
             folder: 'users',
             name: 'people/admin',
         );
@@ -289,14 +288,14 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
     }
 
     public function test_it_refuses_the_root_folder(): void
     {
         // Arrange
 
-        $data = $this->renameData(
+        $data = $this->renameArguments(
             folder: '',
             name: 'people',
         );
@@ -310,14 +309,14 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
     }
 
     public function test_it_refuses_a_folder_that_does_not_exist(): void
     {
         // Arrange
 
-        $data = $this->renameData(
+        $data = $this->renameArguments(
             folder: 'missing',
             name: 'other',
         );
@@ -331,7 +330,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
     }
 
     public function test_it_scans_only_after_taking_the_lock(): void
@@ -342,7 +341,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         $scanSpy = $this->spyOnScanLockState();
 
-        $data = $this->renameData(
+        $data = $this->renameArguments(
             folder: 'users',
             name: 'people',
         );
@@ -351,7 +350,7 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -361,11 +360,11 @@ class RenameWorkspaceFolderActionFunctionalTest extends TestCase
         );
     }
 
-    private function renameData(string $folder, string $name): RenameFolderData
+    private function renameArguments(string $folder, string $name): array
     {
-        return new RenameFolderData(
-            folder: FolderPath::from($folder),
-            name: FolderPath::from($name),
-        );
+        return [
+            'folder' => FolderPath::from($folder),
+            'newName' => FolderPath::from($name),
+        ];
     }
 }

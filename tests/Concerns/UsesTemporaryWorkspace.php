@@ -15,7 +15,6 @@ use Sunchayn\Nimbus\Modules\Workspace\Actions\TryLockWorkspaceAction;
 use Sunchayn\Nimbus\Modules\Workspace\Actions\WriteWorkspaceFileAction;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\RequestFile;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SavedRequest;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SaveWorkspaceRequestData;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\WorkspaceScanResult;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\WorkspaceConfig;
@@ -126,14 +125,10 @@ trait UsesTemporaryWorkspace
         ?string $hash,
         ?string $folder = null,
     ): RequestFile {
-        $data = new SaveWorkspaceRequestData(
+        return resolve(SaveWorkspaceRequestAction::class)->execute(
             savedRequest: $savedRequest,
             hash: $hash,
             folder: FolderPath::from($folder),
-        );
-
-        return resolve(SaveWorkspaceRequestAction::class)->execute(
-            data: $data,
         );
     }
 

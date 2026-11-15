@@ -7,7 +7,6 @@ namespace Sunchayn\Nimbus\Tests\App\Console\Doctor;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Console\Doctor\DoctorCommand;
 use Sunchayn\Nimbus\Modules\Doctor\Actions\RunDiagnosticsAction;
-use Sunchayn\Nimbus\Modules\Doctor\DataTransferObjects\DiagnoseData;
 use Sunchayn\Nimbus\Modules\Doctor\DataTransferObjects\DiagnosticCheckData;
 use Sunchayn\Nimbus\Modules\Doctor\Enums\DiagnosticStatusEnum;
 use Sunchayn\Nimbus\Tests\TestCase;
@@ -38,9 +37,9 @@ class DoctorCommandFunctionalTest extends TestCase
 
         $actionSpy
             ->shouldHaveReceived('execute')
-            ->withArgs(function (DiagnoseData $data): bool {
-                $this->assertSame('http://localhost:8000', $data->pageUrl);
-                $this->assertSame('http://localhost:8001', $data->baseUrl);
+            ->withArgs(function (string $pageUrl, string $baseUrl): bool {
+                $this->assertSame('http://localhost:8000', $pageUrl);
+                $this->assertSame('http://localhost:8001', $baseUrl);
 
                 return true;
             });

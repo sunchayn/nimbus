@@ -17,7 +17,8 @@ class ReorderWorkspaceRequestsController
     public function __invoke(ReorderWorkspaceRequestsRequest $request): Response
     {
         $this->reorderWorkspaceRequestsAction->execute(
-            data: $request->toData(),
+            folder: $request->folderPath(),
+            ids: $request->orderedIds(),
         );
 
         return response()->noContent();

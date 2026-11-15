@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Sunchayn\Nimbus\Modules\Workspace\Actions;
 
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\ManifestFile;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\ReorderRequestsData;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\WriteWorkspaceFileData;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
+use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 
 /** @final */
 class ReorderWorkspaceRequestsAction
@@ -19,28 +19,40 @@ class ReorderWorkspaceRequestsAction
     ) {}
 
     /**
+     * @param  list<string>  $ids
+     *
      * @throws WorkspaceException
      */
-    public function execute(ReorderRequestsData $data): void
-    {
+    public function execute(
+        FolderPath $folder,
+        array $ids,
+    ): void {
         $this->lockWorkspaceAction->execute(
-            fn () => $this->actuallyReorder($data),
+            fn () => $this->actuallyReorder(
+                folder: $folder,
+                ids: $ids,
+            ),
         );
     }
 
-    private function actuallyReorder(ReorderRequestsData $data): void
-    {
+    /**
+     * @param  list<string>  $ids
+     */
+    private function actuallyReorder(
+        FolderPath $folder,
+        array $ids,
+    ): void {
         $workspace = $this->scanWorkspaceAction->execute();
 
-        if (! $workspace->entries->hasFolder($data->folder)) {
-            throw WorkspaceException::folderNotFound((string) $data->folder);
+        if (! $workspace->entries->hasFolder($folder)) {
+            throw WorkspaceException::folderNotFound((string) $folder);
         }
 
         $entries = $workspace
             ->entries
             ->withRequestsOrdered(
-                folder: $data->folder,
-                orderedList: $data->ids,
+                folder: $folder,
+                orderedList: $ids,
             )
             ->flattenedByHierarchy();
 

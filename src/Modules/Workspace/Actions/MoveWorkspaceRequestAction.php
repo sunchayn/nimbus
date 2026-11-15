@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Sunchayn\Nimbus\Modules\Workspace\Actions;
 
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\MoveWorkspaceRequestData;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\RequestFile;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\ResolveRequestFilepathData;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SavedRequest;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SaveRequestFileData;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
+use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 
 /**
  * Moves a request to another folder, renames it, or both.
@@ -28,30 +27,41 @@ class MoveWorkspaceRequestAction
     /**
      * @throws WorkspaceException
      */
-    public function execute(MoveWorkspaceRequestData $data): RequestFile
-    {
+    public function execute(
+        string $id,
+        ?FolderPath $folder,
+        ?string $name,
+        ?string $hash,
+    ): RequestFile {
         return $this->lockWorkspaceAction->execute(
-            fn (): RequestFile => $this->actuallyMove($data),
+            fn (): RequestFile => $this->actuallyMove(
+                id: $id,
+                folder: $folder,
+                name: $name,
+                hash: $hash,
+            ),
         );
     }
 
-    private function actuallyMove(MoveWorkspaceRequestData $data): RequestFile
-    {
+    private function actuallyMove(
+        string $id,
+        ?FolderPath $folder,
+        ?string $name,
+        ?string $hash,
+    ): RequestFile {
         $workspace = $this->scanWorkspaceAction->execute();
 
-        $previous = $workspace->entries->findRequestOrFail($data->id);
+        $previous = $workspace->entries->findRequestOrFail($id);
 
         $filepath = $this->resolveRequestFilepathAction->execute(
-            data: new ResolveRequestFilepathData(
-                folder: $data->folder,
-                name: $data->name,
-                current: $previous,
-            ),
+            folder: $folder,
+            name: $name,
+            current: $previous,
         );
 
         $savedRequest = $this->renameRequest(
             $previous->savedRequest,
-            $data->name,
+            $name,
         );
 
         return $this->saveRequestFileAction->execute(
@@ -59,7 +69,7 @@ class MoveWorkspaceRequestAction
                 savedRequest: $savedRequest,
                 filepath: $filepath,
                 previous: $previous,
-                hash: $data->hash,
+                hash: $hash,
                 manifest: $workspace->manifest,
             ),
         );

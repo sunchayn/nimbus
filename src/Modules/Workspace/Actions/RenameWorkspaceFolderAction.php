@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Sunchayn\Nimbus\Modules\Workspace\Actions;
 
 use Illuminate\Support\Facades\File;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\RenameFolderData;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\WriteWorkspaceFileData;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
@@ -27,33 +26,40 @@ class RenameWorkspaceFolderAction
     /**
      * @throws WorkspaceException
      */
-    public function execute(RenameFolderData $data): FolderPath
-    {
-        if ($data->folder->isRoot()) {
+    public function execute(
+        FolderPath $folder,
+        FolderPath $newName,
+    ): FolderPath {
+        if ($folder->isRoot()) {
             throw WorkspaceException::invalidFolder();
         }
 
-        if ($data->name->depth() !== 1) {
+        if ($newName->depth() !== 1) {
             throw WorkspaceException::invalidFolder();
         }
 
         return $this->lockWorkspaceAction->execute(
-            fn (): FolderPath => $this->actuallyRename($data),
+            fn (): FolderPath => $this->actuallyRename(
+                folder: $folder,
+                newName: $newName,
+            ),
         );
     }
 
-    private function actuallyRename(RenameFolderData $data): FolderPath
-    {
-        $source = $this->findWorkspaceFolderDirectoryAction->execute($data->folder);
+    private function actuallyRename(
+        FolderPath $folder,
+        FolderPath $newName,
+    ): FolderPath {
+        $source = $this->findWorkspaceFolderDirectoryAction->execute($folder);
         $parentDirectory = dirname($source);
-        $destination = "{$parentDirectory}/{$data->name}";
+        $destination = "{$parentDirectory}/{$newName}";
 
         if ($destination === $source) {
-            return $data->folder;
+            return $folder;
         }
 
         if (File::exists($destination)) {
-            throw WorkspaceException::folderExists((string) $data->name);
+            throw WorkspaceException::folderExists((string) $newName);
         }
 
         $workspace = $this->scanWorkspaceAction->execute();
@@ -63,10 +69,10 @@ class RenameWorkspaceFolderAction
             $destination,
         );
 
-        $newFolder = $data->folder->parent()->join($data->name->name());
+        $newFolder = $folder->parent()->join($newName->name());
 
         $newManifestFile = $workspace->manifest->withFolderRenamed(
-            from: $data->folder,
+            from: $folder,
             to: $newFolder,
         );
 

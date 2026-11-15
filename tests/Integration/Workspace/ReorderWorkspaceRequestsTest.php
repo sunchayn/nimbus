@@ -10,8 +10,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\ReorderWorkspaceRequestsController;
 use Sunchayn\Nimbus\Http\Api\Workspace\Requests\ReorderWorkspaceRequestsRequest;
 use Sunchayn\Nimbus\Modules\Workspace\Actions\ReorderWorkspaceRequestsAction;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\ReorderRequestsData;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
+use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 use Sunchayn\Nimbus\Tests\Concerns\UsesTemporaryWorkspace;
 use Sunchayn\Nimbus\Tests\TestCase;
 
@@ -51,15 +51,15 @@ class ReorderWorkspaceRequestsTest extends TestCase
         $actionSpy
             ->shouldHaveReceived('execute')
             ->once()
-            ->withArgs(function (ReorderRequestsData $data): bool {
+            ->withArgs(function (FolderPath $folder, array $ids): bool {
                 $this->assertSame(
                     'users',
-                    (string) $data->folder,
+                    (string) $folder,
                 );
 
                 $this->assertSame(
                     ['request-beta', 'request-alpha'],
-                    $data->ids,
+                    $ids,
                 );
 
                 return true;
@@ -84,8 +84,8 @@ class ReorderWorkspaceRequestsTest extends TestCase
         $actionSpy
             ->shouldHaveReceived('execute')
             ->once()
-            ->withArgs(function (ReorderRequestsData $data): bool {
-                $this->assertTrue($data->folder->isRoot());
+            ->withArgs(function (FolderPath $folder, array $ids): bool {
+                $this->assertTrue($folder->isRoot());
 
                 return true;
             });

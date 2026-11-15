@@ -9,7 +9,6 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
-use Sunchayn\Nimbus\Modules\Doctor\DataTransferObjects\DiagnoseData;
 use Sunchayn\Nimbus\Modules\Doctor\DataTransferObjects\DiagnosticCheckData;
 use Sunchayn\Nimbus\Modules\Doctor\Enums\DiagnosticStatusEnum;
 use Sunchayn\Nimbus\Modules\Doctor\Services\SingleThreadedServerDetector;
@@ -30,9 +29,14 @@ class RunDiagnosticsAction
     /**
      * @return list<DiagnosticCheckData>
      */
-    public function execute(DiagnoseData $data): array
-    {
-        $diagnosticCheckData = $this->checkSingleThreadedServer($data);
+    public function execute(
+        string $pageUrl,
+        string $baseUrl,
+    ): array {
+        $diagnosticCheckData = $this->checkSingleThreadedServer(
+            pageUrl: $pageUrl,
+            baseUrl: $baseUrl,
+        );
 
         return [
             $this->checkConfig(),
@@ -42,7 +46,7 @@ class RunDiagnosticsAction
             $diagnosticCheckData,
             $diagnosticCheckData->status === DiagnosticStatusEnum::Failed
                 ? $this->check('Base URL', DiagnosticStatusEnum::Warning, 'Skipped because the server is single threaded.')
-                : $this->checkBaseUrl($data),
+                : $this->checkBaseUrl($baseUrl),
         ];
     }
 
@@ -113,9 +117,11 @@ class RunDiagnosticsAction
         return $this->check('Guard', DiagnosticStatusEnum::Ok, sprintf('The guard `%s` and its provider are defined.', $guard));
     }
 
-    private function checkSingleThreadedServer(DiagnoseData $data): DiagnosticCheckData
-    {
-        if (! $this->singleThreadedServerDetector->isSameHostAndPort($data->pageUrl, $data->baseUrl)) {
+    private function checkSingleThreadedServer(
+        string $pageUrl,
+        string $baseUrl,
+    ): DiagnosticCheckData {
+        if (! $this->singleThreadedServerDetector->isSameHostAndPort($pageUrl, $baseUrl)) {
             return $this->check('Single threaded server', DiagnosticStatusEnum::Ok, 'The base URL points to another host or port.');
         }
 
@@ -133,15 +139,15 @@ class RunDiagnosticsAction
         );
     }
 
-    private function checkBaseUrl(DiagnoseData $data): DiagnosticCheckData
+    private function checkBaseUrl(string $baseUrl): DiagnosticCheckData
     {
         try {
-            Http::timeout(self::REACHABILITY_TIMEOUT_IN_SECONDS)->withOptions(['verify' => false])->get($data->baseUrl);
+            Http::timeout(self::REACHABILITY_TIMEOUT_IN_SECONDS)->withOptions(['verify' => false])->get($baseUrl);
         } catch (ConnectionException $connectionException) {
-            return $this->check('Base URL', DiagnosticStatusEnum::Failed, sprintf('%s is not reachable. %s', $data->baseUrl, $connectionException->getMessage()));
+            return $this->check('Base URL', DiagnosticStatusEnum::Failed, sprintf('%s is not reachable. %s', $baseUrl, $connectionException->getMessage()));
         }
 
-        return $this->check('Base URL', DiagnosticStatusEnum::Ok, $data->baseUrl.' is reachable.');
+        return $this->check('Base URL', DiagnosticStatusEnum::Ok, $baseUrl.' is reachable.');
     }
 
     private function check(string $name, DiagnosticStatusEnum $status, string $message): DiagnosticCheckData

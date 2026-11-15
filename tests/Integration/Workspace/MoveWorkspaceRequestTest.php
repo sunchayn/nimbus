@@ -10,8 +10,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\MoveWorkspaceRequestController;
 use Sunchayn\Nimbus\Http\Api\Workspace\Requests\MoveWorkspaceRequestRequest;
 use Sunchayn\Nimbus\Modules\Workspace\Actions\MoveWorkspaceRequestAction;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\MoveWorkspaceRequestData;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
+use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 use Sunchayn\Nimbus\Tests\Concerns\UsesTemporaryWorkspace;
 use Sunchayn\Nimbus\Tests\TestCase;
 
@@ -61,25 +61,25 @@ class MoveWorkspaceRequestTest extends TestCase
         $actionSpy
             ->shouldHaveReceived('execute')
             ->once()
-            ->withArgs(function (MoveWorkspaceRequestData $data): bool {
+            ->withArgs(function (string $id, ?FolderPath $folder, ?string $name, ?string $hash): bool {
                 $this->assertSame(
                     'request-1234',
-                    $data->id,
+                    $id,
                 );
 
                 $this->assertSame(
                     'archive',
-                    (string) $data->folder,
+                    (string) $folder,
                 );
 
                 $this->assertSame(
                     'Old user',
-                    $data->name,
+                    $name,
                 );
 
                 $this->assertSame(
                     'a1b2c3d4e5f6a7b8',
-                    $data->hash,
+                    $hash,
                 );
 
                 return true;
@@ -115,9 +115,9 @@ class MoveWorkspaceRequestTest extends TestCase
         $actionSpy
             ->shouldHaveReceived('execute')
             ->once()
-            ->withArgs(function (MoveWorkspaceRequestData $data): bool {
-                $this->assertNull($data->folder);
-                $this->assertNull($data->name);
+            ->withArgs(function (string $id, ?FolderPath $folder, ?string $name, ?string $hash): bool {
+                $this->assertNull($folder);
+                $this->assertNull($name);
 
                 return true;
             });
@@ -155,9 +155,9 @@ class MoveWorkspaceRequestTest extends TestCase
         $actionSpy
             ->shouldHaveReceived('execute')
             ->once()
-            ->withArgs(function (MoveWorkspaceRequestData $data): bool {
-                $this->assertNotNull($data->folder);
-                $this->assertTrue($data->folder->isRoot());
+            ->withArgs(function (string $id, ?FolderPath $folder, ?string $name, ?string $hash): bool {
+                $this->assertNotNull($folder);
+                $this->assertTrue($folder->isRoot());
 
                 return true;
             });

@@ -17,7 +17,10 @@ class MoveWorkspaceRequestController
     public function __invoke(MoveWorkspaceRequestRequest $request): JsonResponse
     {
         $savedRequest = $this->moveWorkspaceRequestAction->execute(
-            data: $request->toData(),
+            id: $request->requestId(),
+            folder: $request->requestedFolder(),
+            name: $request->newName(),
+            hash: $request->hash(),
         );
 
         return response()->json(

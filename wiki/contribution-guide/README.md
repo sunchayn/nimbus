@@ -500,6 +500,7 @@ The codebase distinguishes between **Actions** and **Services** based on their r
 - Composable - can be called by other actions, services, or controllers.
 - Stateless - only holds dependencies, no internal mutable state.
 - Returns results - produces DTOs, value objects, or collections.
+- Plain inputs - takes a few typed parameters, one per value, and the controller reads them from the request. A DTO is only for many fields, an input that several callers build, or an input that needs resolving.
 - Workflow-oriented - may orchestrate multiple steps internally.
 
 **Example:**
@@ -1417,7 +1418,7 @@ class SchemaExtractorService
 
 #### Value Objects and DTOs
 
-Use immutable value objects and DTOs for data transfer and manipulation.
+Use immutable value objects and DTOs for data transfer and manipulation. Do not add a DTO that only renames the two or three parameters of one action. Pass them as typed parameters instead, as `RenameWorkspaceFolderAction::execute(FolderPath $folder, FolderPath $newName)` does. Keep a DTO for an input with many fields, such as `SaveRequestFileData`.
 
 ```php
 // Immutable value object

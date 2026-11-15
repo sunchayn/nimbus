@@ -11,8 +11,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\SaveWorkspaceRequestController;
 use Sunchayn\Nimbus\Http\Api\Workspace\Requests\SaveWorkspaceRequestRequest;
 use Sunchayn\Nimbus\Modules\Workspace\Actions\SaveWorkspaceRequestAction;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SaveWorkspaceRequestData;
+use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SavedRequest;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
+use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 use Sunchayn\Nimbus\Tests\Concerns\UsesTemporaryWorkspace;
 use Sunchayn\Nimbus\Tests\TestCase;
 
@@ -60,50 +61,50 @@ class SaveWorkspaceRequestTest extends TestCase
         $actionSpy
             ->shouldHaveReceived('execute')
             ->once()
-            ->withArgs(function (SaveWorkspaceRequestData $data): bool {
+            ->withArgs(function (SavedRequest $savedRequest, ?string $hash, FolderPath $folder): bool {
                 $this->assertSame(
                     'request-1234',
-                    $data->savedRequest->id,
+                    $savedRequest->id,
                 );
 
                 $this->assertSame(
                     'Create user',
-                    $data->savedRequest->name,
+                    $savedRequest->name,
                 );
 
                 $this->assertSame(
                     'POST',
-                    $data->savedRequest->method,
+                    $savedRequest->method,
                 );
 
                 $this->assertSame(
                     '{{base_url}}/api/users',
-                    $data->savedRequest->endpoint,
+                    $savedRequest->endpoint,
                 );
 
                 $this->assertSame(
                     'users.store',
-                    $data->savedRequest->route,
+                    $savedRequest->route,
                 );
 
                 $this->assertSame(
                     'json',
-                    $data->savedRequest->bodyType,
+                    $savedRequest->bodyType,
                 );
 
                 $this->assertSame(
                     '{{token}}',
-                    $data->savedRequest->authorizationValue,
+                    $savedRequest->authorizationValue,
                 );
 
                 $this->assertSame(
                     'a1b2c3d4e5f6a7b8',
-                    $data->hash,
+                    $hash,
                 );
 
                 $this->assertSame(
                     'users',
-                    (string) $data->folder,
+                    (string) $folder,
                 );
 
                 return true;
@@ -142,9 +143,9 @@ class SaveWorkspaceRequestTest extends TestCase
         $actionSpy
             ->shouldHaveReceived('execute')
             ->once()
-            ->withArgs(function (SaveWorkspaceRequestData $data): bool {
-                $this->assertNull($data->hash);
-                $this->assertTrue($data->folder->isRoot());
+            ->withArgs(function (SavedRequest $savedRequest, ?string $hash, FolderPath $folder): bool {
+                $this->assertNull($hash);
+                $this->assertTrue($folder->isRoot());
 
                 return true;
             });

@@ -6,7 +6,6 @@ namespace Sunchayn\Nimbus\Http\Api\Workspace\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Sunchayn\Nimbus\Http\Api\Workspace\Requests\Concerns\ResolvesFolderPath;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\MoveWorkspaceRequestData;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 
 class MoveWorkspaceRequestRequest extends FormRequest
@@ -25,17 +24,22 @@ class MoveWorkspaceRequestRequest extends FormRequest
         ];
     }
 
-    public function toData(): MoveWorkspaceRequestData
+    public function requestId(): string
     {
-        return new MoveWorkspaceRequestData(
-            id: (string) $this->route('id'),
-            folder: $this->requestedFolder(),
-            name: $this->validated('name'),
-            hash: $this->validated('hash'),
-        );
+        return (string) $this->route('id');
     }
 
-    private function requestedFolder(): ?FolderPath
+    public function newName(): ?string
+    {
+        return $this->validated('name');
+    }
+
+    public function hash(): string
+    {
+        return $this->validated('hash');
+    }
+
+    public function requestedFolder(): ?FolderPath
     {
         // An empty folder is the root, but the request turns it into null.
         // Null means the request keeps its current folder.
