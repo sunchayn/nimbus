@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "allowJs": true,
+        "allowArbitraryExtensions": true,
         "module": "ESNext",
         "moduleResolution": "bundler",
         "jsx": "preserve",
@@ -17,8 +18,7 @@
             ]
         },
         "types": [
-            "./resources/types/global",
-            "./resources/types/vue-shims"
+            "./resources/types/global"
         ]
     },
     "include": [
