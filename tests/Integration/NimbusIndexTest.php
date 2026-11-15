@@ -186,6 +186,42 @@ class NimbusIndexTest extends TestCase
         $response->assertViewHas(['headers', 'currentUser', 'primaryProcessorName']);
     }
 
+    public function test_it_injects_the_application_name_when_display_is_enabled(): void
+    {
+        // Arrange
+
+        config(['nimbus.display_app_name' => true, 'app.name' => 'Host Application']);
+
+        // Act
+
+        $response = $this->get(route('nimbus.index'));
+
+        // Assert
+
+        $response->assertStatus(200);
+
+        // The name is embedded in the window.Nimbus config (Js::from output).
+        $response->assertSee('Host Application', false);
+    }
+
+    public function test_it_does_not_inject_the_application_name_when_display_is_disabled(): void
+    {
+        // Arrange
+
+        config(['nimbus.display_app_name' => false, 'app.name' => 'Host Application']);
+
+        // Act
+
+        $response = $this->get(route('nimbus.index'));
+
+        // Assert
+
+        $response->assertStatus(200);
+
+        // The page title still uses the name, so only the window.Nimbus config is checked.
+        $response->assertSee('\\u0022appName\\u0022:null', false);
+    }
+
     public function test_it_redirects_to_new_application(): void
     {
         // Arrange

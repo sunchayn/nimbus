@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Display Application Name
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, your application's name (config('app.name')) is shown
+    | next to the Nimbus brand in the top bar. It is hidden by default.
+    |
+    */
+
+    'display_app_name' => false,
+
+    /*
+    |--------------------------------------------------------------------------
     | Default Application
     |--------------------------------------------------------------------------
     |

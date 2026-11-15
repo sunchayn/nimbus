@@ -11,6 +11,7 @@ import ToolboxDialog from '@/components/domain/Toolbox/ToolboxDialog.vue';
 import { useEnvironmentSwitch } from '@/composables/environment/useEnvironmentSwitch';
 import { useCommandPalette } from '@/composables/ui/useCommandPalette';
 import { useExplorerVisibility } from '@/composables/ui/useExplorerVisibility';
+import { useConfigStore } from '@/stores/core/useConfigStore';
 import { useEnvironmentVariablesStore } from '@/stores/core/useEnvironmentVariablesStore';
 import { isProductionEnvironment } from '@/utils/environment';
 import { useEventListener } from '@vueuse/core';
@@ -24,6 +25,7 @@ import { useRoute, useRouter } from 'vue-router';
 const router = useRouter();
 const route = useRoute();
 const environmentStore = useEnvironmentVariablesStore();
+const configStore = useConfigStore();
 const { toggleExplorer } = useExplorerVisibility();
 const { isHelpOpen, isToolboxOpen } = useCommandPalette();
 
@@ -128,6 +130,8 @@ const settings = computed(() =>
         route.name === 'settings',
     ),
 );
+
+const appName = computed(() => configStore.appName);
 </script>
 
 <template>
@@ -138,8 +142,13 @@ const settings = computed(() =>
         <div class="gap-base flex min-w-0 items-center">
             <div class="gap-base flex items-center">
                 <AppBrandIcon class="size-icon-lg" />
-                <span class="text-highlighted text-sm font-semibold max-sm:hidden">
-                    Nimbus
+                <span class="flex items-center">
+                    <span class="text-highlighted text-sm font-semibold max-sm:hidden">
+                        Nimbus
+                    </span>
+                    <span v-if="appName" class="text-muted text-sm">
+                        &nbsp;/ {{ appName }}
+                    </span>
                 </span>
             </div>
 

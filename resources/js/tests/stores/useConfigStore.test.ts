@@ -81,5 +81,23 @@ describe('useConfigStore', () => {
             expect(store.defaultGuard).toBe('web');
             expect(store.tokenGuards).toEqual(['api']);
         });
+
+        it('reads the application name when it is displayed', () => {
+            window.Nimbus = {
+                ...window.Nimbus,
+                appName: 'Fliip',
+            };
+
+            expect(useConfigStore().appName).toBe('Fliip');
+        });
+
+        it('is null when the application name is not displayed', () => {
+            window.Nimbus = {
+                ...window.Nimbus,
+                appName: null,
+            };
+
+            expect(useConfigStore().appName).toBeNull();
+        });
     });
 });

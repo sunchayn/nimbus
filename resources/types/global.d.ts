@@ -1,6 +1,7 @@
 import { SharedState } from '../js/interfaces/share';
 
 interface NimbusConfig {
+    appName?: string | null;
     basePath: string;
     headers: string | null;
     apiBaseUrl: string;
