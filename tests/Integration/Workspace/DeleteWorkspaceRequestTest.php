@@ -32,7 +32,7 @@ class DeleteWorkspaceRequestTest extends TestCase
         // Act
 
         $response = $this->deleteJson(route(
-            'nimbus.api.workspace.requests.delete',
+            'nimbus.api.workspace.requests.destroy',
             'request-1234',
         ));
 
@@ -68,7 +68,7 @@ class DeleteWorkspaceRequestTest extends TestCase
         // Act
 
         $response = $this->deleteJson(route(
-            'nimbus.api.workspace.requests.delete',
+            'nimbus.api.workspace.requests.destroy',
             'request-9999',
         ));
 
@@ -95,7 +95,7 @@ class DeleteWorkspaceRequestTest extends TestCase
         // Act
 
         $response = $this->deleteJson(route(
-            'nimbus.api.workspace.requests.delete',
+            'nimbus.api.workspace.requests.destroy',
             'request-1234',
         ));
 

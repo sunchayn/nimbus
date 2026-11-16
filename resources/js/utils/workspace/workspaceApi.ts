@@ -85,7 +85,7 @@ export const moveWorkspaceRequest = async (
     hash: string,
 ): Promise<StoredWorkspaceRequest> =>
     (
-        await axios.patch<StoredWorkspaceRequest>(url(`/requests/${id}/move`), {
+        await axios.put<StoredWorkspaceRequest>(url(`/requests/${id}/location`), {
             ...changes,
             hash,
         })

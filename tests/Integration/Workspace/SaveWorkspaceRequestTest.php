@@ -50,7 +50,7 @@ class SaveWorkspaceRequestTest extends TestCase
 
         $this->putJson(
             route(
-                'nimbus.api.workspace.requests.save',
+                'nimbus.api.workspace.requests.update',
                 'request-1234',
             ),
             $this->requestPayload(['hash' => 'a1b2c3d4e5f6a7b8', 'folder' => 'users']),
@@ -129,7 +129,7 @@ class SaveWorkspaceRequestTest extends TestCase
 
         $this->putJson(
             route(
-                'nimbus.api.workspace.requests.save',
+                'nimbus.api.workspace.requests.update',
                 'request-1234',
             ),
             Arr::except(
@@ -174,7 +174,7 @@ class SaveWorkspaceRequestTest extends TestCase
 
         $response = $this->putJson(
             route(
-                'nimbus.api.workspace.requests.save',
+                'nimbus.api.workspace.requests.update',
                 'request-1234',
             ),
             $this->requestPayload(),
@@ -207,7 +207,7 @@ class SaveWorkspaceRequestTest extends TestCase
 
         $response = $this->putJson(
             route(
-                'nimbus.api.workspace.requests.save',
+                'nimbus.api.workspace.requests.update',
                 'request-1234',
             ),
             $payload,
@@ -343,7 +343,7 @@ class SaveWorkspaceRequestTest extends TestCase
 
         $response = $this->putJson(
             route(
-                'nimbus.api.workspace.requests.save',
+                'nimbus.api.workspace.requests.update',
                 'request-1234',
             ),
             $this->requestPayload(),
@@ -368,7 +368,7 @@ class SaveWorkspaceRequestTest extends TestCase
 
         $response = $this->putJson(
             route(
-                'nimbus.api.workspace.requests.save',
+                'nimbus.api.workspace.requests.update',
                 'request-1234',
             ),
             $this->requestPayload(['folder' => 'users']),
