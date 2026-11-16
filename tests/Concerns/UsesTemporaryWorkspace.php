@@ -34,7 +34,7 @@ trait UsesTemporaryWorkspace
 
     protected function enableWorkspace(): void
     {
-        $path = '.nimbus-test-'.uniqid();
+        $path = '.nimbus-test-'.Str::uuid();
 
         $this->workspacePath = base_path($path);
 

@@ -7,7 +7,11 @@ import { AppButton } from '@/components/base/button';
 import { AppPopover } from '@/components/base/popover';
 import { RequestBodyTypeEnum } from '@/interfaces/http';
 import { useLookupValuesStore } from '@/stores/request/useLookupValuesStore';
-import { collectLookupFields, setJsonPayloadField } from '@/utils/payload/lookups';
+import {
+    coerceToSchemaType,
+    collectLookupFields,
+    setJsonPayloadField,
+} from '@/utils/payload/lookups';
 import type { JSONSchema7 } from 'json-schema';
 import { computed } from 'vue';
 
@@ -55,12 +59,18 @@ const choose = (field: string, event: Event) => {
         return;
     }
 
-    const record = fields.value
-        .find(candidate => candidate.field === field)
-        ?.values.find(candidate => String(candidate) === value);
+    const candidate = fields.value.find(item => item.field === field);
+    const record = candidate?.values.find(item => String(item) === value);
 
     if (record !== undefined && typeof props.payload !== 'object') {
-        emit('update:payload', setJsonPayloadField(props.payload, field, record));
+        emit(
+            'update:payload',
+            setJsonPayloadField(
+                props.payload,
+                field,
+                coerceToSchemaType(record, candidate?.type),
+            ),
+        );
     }
 };
 </script>

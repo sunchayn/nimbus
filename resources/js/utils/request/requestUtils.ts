@@ -12,13 +12,13 @@ import type { JSONSchema7Definition } from 'json-schema';
 
 /**
  * Selects default payload type from route definition.
- * Routes that expect a file upload use form data body type.
+ * Routes that require a file upload use form data body type.
  * Other routes with a schema use JSON, and the rest use an empty payload.
  */
 export function getDefaultPayloadTypeForRoute(
     route: RouteDefinition,
 ): RequestBodyTypeEnum {
-    // A file can only be sent as multipart, so form data is the natural body.
+    // A required file can only be sent as multipart, so form data is the natural body.
     if (schemaExpectsFile(route.schema.shape)) {
         return RequestBodyTypeEnum.FORM_DATA;
     }
@@ -31,7 +31,8 @@ export function getDefaultPayloadTypeForRoute(
 }
 
 /**
- * Whether any property of the schema, at any depth, is a file upload.
+ * Whether the schema requires a file upload at any depth.
+ * An optional file does not count, since the request is still valid as JSON without it.
  */
 export function schemaExpectsFile(schema: JSONSchema7Definition | undefined): boolean {
     if (typeof schema !== 'object') {
@@ -42,8 +43,12 @@ export function schemaExpectsFile(schema: JSONSchema7Definition | undefined): bo
         return true;
     }
 
+    const requiredProperties = Object.entries(schema.properties ?? {})
+        .filter(([name]) => schema.required?.includes(name))
+        .map(([, property]) => property);
+
     const children = [
-        ...Object.values(schema.properties ?? {}),
+        ...requiredProperties,
         ...(Array.isArray(schema.items) ? schema.items : [schema.items]),
     ];
 

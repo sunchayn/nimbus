@@ -13,12 +13,14 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
+use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
 use Sunchayn\Nimbus\Modules\Magic\Actions\PullInsightAction;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\ResetRateLimiterListener;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\SandboxModeListener;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RedirectHopData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
 use Sunchayn\Nimbus\Modules\Relay\Responses\DumpAndDieResponse;
@@ -62,11 +64,12 @@ class RequestRelayAction
 
         $pendingRequest = $authorizationHandler->authorize($pendingRequest);
 
-        $sentRequest = null;
+        // Guzzle reports every transfer, so a followed redirect adds one entry per hop.
+        $transfers = [];
 
         $pendingRequest = $pendingRequest->withOptions([
-            'on_stats' => function (TransferStats $stats) use (&$sentRequest): void {
-                $sentRequest = SentRequest::fromPsrRequest($stats->getRequest());
+            'on_stats' => function (TransferStats $stats) use (&$transfers): void {
+                $transfers[] = $stats;
             },
         ]);
 
@@ -85,6 +88,8 @@ class RequestRelayAction
 
         $download = DownloadResponseBody::tryFromResponse($response, $requestRelayData->endpoint);
 
+        $finalTransfer = array_pop($transfers);
+
         return new RelayedRequestResponseData(
             statusCode: $response->status(),
             statusText: $this->getStatusTextFromCode($response->status()),
@@ -97,8 +102,40 @@ class RequestRelayAction
             timestamp: CarbonImmutable::now()->getTimestamp(),
             cookies: $this->processCookies($response->toPsrResponse()->getHeader('Set-Cookie'), $requestRelayData->isCurrentHost),
             download: $download,
-            sent: $sentRequest,
+            sent: $finalTransfer === null ? null : SentRequest::fromPsrRequest($finalTransfer->getRequest()),
             insight: $insightId === null ? null : $this->pullInsightAction->execute($insightId),
+            redirects: $this->listRedirectHops(transfers: $transfers),
+        );
+    }
+
+    /**
+     * Describes each hop that answered with a redirect before the final response.
+     *
+     * @param  TransferStats[]  $transfers
+     * @return RedirectHopData[]
+     */
+    private function listRedirectHops(array $transfers): array
+    {
+        return collect($transfers)
+            ->map(fn (TransferStats $transfer): ?RedirectHopData => $this->hydrateRedirectHop(transfer: $transfer))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    private function hydrateRedirectHop(TransferStats $transfer): ?RedirectHopData
+    {
+        $response = $transfer->getResponse();
+
+        if (! $response instanceof ResponseInterface) {
+            return null;
+        }
+
+        return new RedirectHopData(
+            request: SentRequest::fromPsrRequest($transfer->getRequest()),
+            statusCode: $response->getStatusCode(),
+            statusText: $this->getStatusTextFromCode($response->getStatusCode()),
+            headers: $response->getHeaders(),
         );
     }
 

@@ -739,6 +739,18 @@ describe('generateRandomPayload with a lookup picker', () => {
         expect(generateRandomPayload(shape, () => 42)).toEqual({ author_id: 42 });
     });
 
+    it('writes a picked number as a string when the field is a string', () => {
+        const stringShape = {
+            type: 'object',
+            properties: {
+                author_id: { type: 'string', lookup: { table: 'users', column: 'id' } },
+            },
+            required: ['author_id'],
+        } as JSONSchema7;
+
+        expect(generateRandomPayload(stringShape, () => 10)).toEqual({ author_id: '10' });
+    });
+
     it('generates a value when the picker has none', () => {
         const payload = generateRandomPayload(shape, () => undefined);
 

@@ -15,6 +15,7 @@ class RelayedRequestResponseData
     /**
      * @param  string[][]  $headers
      * @param  ResponseCookieValueObject[]  $cookies
+     * @param  RedirectHopData[]  $redirects  Hops that answered with a redirect, in the order they were followed.
      */
     public function __construct(
         public readonly int $statusCode,
@@ -27,5 +28,6 @@ class RelayedRequestResponseData
         public readonly ?DownloadResponseBody $download = null,
         public readonly ?SentRequest $sent = null,
         public readonly ?InsightData $insight = null,
+        public readonly array $redirects = [],
     ) {}
 }

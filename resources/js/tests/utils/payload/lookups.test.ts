@@ -1,4 +1,5 @@
 import {
+    coerceToSchemaType,
     collectLookupFields,
     collectLookups,
     setJsonPayloadField,
@@ -41,7 +42,7 @@ describe('lookups', () => {
 
     it('collects only top level fields for the picker', () => {
         expect(collectLookupFields(shape)).toEqual([
-            { field: 'author_id', table: 'users', column: 'id' },
+            { field: 'author_id', table: 'users', column: 'id', type: 'integer' },
         ]);
         expect(collectLookupFields(undefined)).toEqual([]);
     });
@@ -73,5 +74,24 @@ describe('lookups', () => {
     it('leaves a payload that is not a JSON object alone', () => {
         expect(setJsonPayloadField('not json', 'a', 1)).toBe('not json');
         expect(setJsonPayloadField('[1]', 'a', 1)).toBe('[1]');
+    });
+});
+
+describe('coerceToSchemaType', () => {
+    it('turns a number into a string for a string field', () => {
+        expect(coerceToSchemaType(10, 'string')).toBe('10');
+    });
+
+    it('turns a numeric string into a number for a numeric field', () => {
+        expect(coerceToSchemaType('10', 'integer')).toBe(10);
+    });
+
+    it('keeps the value when the type allows both or is unknown', () => {
+        expect(coerceToSchemaType(10, ['string', 'integer'])).toBe(10);
+        expect(coerceToSchemaType(10, undefined)).toBe(10);
+    });
+
+    it('keeps a string that is not numeric for a numeric field', () => {
+        expect(coerceToSchemaType('abc', 'integer')).toBe('abc');
     });
 });

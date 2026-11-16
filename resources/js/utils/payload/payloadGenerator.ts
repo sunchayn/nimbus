@@ -8,7 +8,7 @@ import type {
 import type { GeneratorContext } from '@/interfaces/ui';
 import { isComplexType, isPrimitiveType, SchemaType } from '@/types/schema';
 import { describeFileProperties, pickObjectFixture } from '@/utils/binaries/objectFile';
-import { type Lookup } from '@/utils/payload/lookups';
+import { type Lookup, coerceToSchemaType } from '@/utils/payload/lookups';
 import { generateFromPattern } from '@/utils/payload/patternGenerator';
 import { faker } from '@faker-js/faker/locale/en';
 import type { JSONSchema7 } from 'json-schema';
@@ -154,7 +154,7 @@ function generateValue(
             : undefined;
 
     if (existing !== undefined) {
-        return existing;
+        return coerceToSchemaType(existing, schema.type);
     }
 
     if (schema.enum && schema.enum.length > 0) {
