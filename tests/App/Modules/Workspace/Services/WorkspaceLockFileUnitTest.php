@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Sunchayn\Nimbus\Tests\App\Modules\Workspace\ValueObjects;
+namespace Sunchayn\Nimbus\Tests\App\Modules\Workspace\Services;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
-use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\WorkspaceLockFile;
+use Sunchayn\Nimbus\Modules\Workspace\Services\WorkspaceLockFile;
 
 #[CoversClass(WorkspaceLockFile::class)]
 #[CoversClass(WorkspaceException::class)]

@@ -20,16 +20,16 @@ use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
 use Sunchayn\Nimbus\Modules\Magic\Actions\PullInsightAction;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\ResetRateLimiterListener;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\SandboxModeListener;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\DownloadResponseBodyData;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\PrintableResponseBodyData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RedirectHopData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\ResponseCookieData;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\SentRequestData;
 use Sunchayn\Nimbus\Modules\Relay\Responses\DumpAndDieResponse;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\AuthorizationHandlerFactory;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\RevokesAfterResponse;
-use Sunchayn\Nimbus\Modules\Relay\ValueObjects\DownloadResponseBody;
-use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;
-use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
-use Sunchayn\Nimbus\Modules\Relay\ValueObjects\SentRequest;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Throwable;
 
@@ -86,7 +86,7 @@ class RequestRelayAction
 
         $durationInMs = $this->calculateDuration($start);
 
-        $download = DownloadResponseBody::tryFromResponse($response, $requestRelayData->endpoint);
+        $download = DownloadResponseBodyData::tryFromResponse($response, $requestRelayData->endpoint);
 
         $finalTransfer = array_pop($transfers);
 
@@ -94,15 +94,15 @@ class RequestRelayAction
             statusCode: $response->status(),
             statusText: $this->getStatusTextFromCode($response->status()),
             // The raw bytes of a download are forwarded separately and never printed.
-            body: $download instanceof DownloadResponseBody
-                ? new PrintableResponseBody('')
-                : PrintableResponseBody::fromResponse($response),
+            body: $download instanceof DownloadResponseBodyData
+                ? new PrintableResponseBodyData('')
+                : PrintableResponseBodyData::fromResponse($response),
             headers: $response->headers(),
             durationMs: $durationInMs,
             timestamp: CarbonImmutable::now()->getTimestamp(),
             cookies: $this->processCookies($response->toPsrResponse()->getHeader('Set-Cookie'), $requestRelayData->isCurrentHost),
             download: $download,
-            sent: $finalTransfer === null ? null : SentRequest::fromPsrRequest($finalTransfer->getRequest()),
+            sent: $finalTransfer === null ? null : SentRequestData::fromPsrRequest($finalTransfer->getRequest()),
             insight: $insightId === null ? null : $this->pullInsightAction->execute($insightId),
             redirects: $this->listRedirectHops(transfers: $transfers),
         );
@@ -132,7 +132,7 @@ class RequestRelayAction
         }
 
         return new RedirectHopData(
-            request: SentRequest::fromPsrRequest($transfer->getRequest()),
+            request: SentRequestData::fromPsrRequest($transfer->getRequest()),
             statusCode: $response->getStatusCode(),
             statusText: $this->getStatusTextFromCode($response->getStatusCode()),
             headers: $response->getHeaders(),
@@ -326,16 +326,16 @@ class RequestRelayAction
      *
      * @param  string[]  $setCookieHeaders
      * @param  bool  $decrypt  Decryption relies on the host app key, so it only applies to the current host.
-     * @return ResponseCookieValueObject[]
+     * @return ResponseCookieData[]
      */
     private function processCookies(array $setCookieHeaders, bool $decrypt): array
     {
         return Arr::map(
             $setCookieHeaders,
-            function (string $cookieString) use ($decrypt): ResponseCookieValueObject {
+            function (string $cookieString) use ($decrypt): ResponseCookieData {
                 $setCookie = SetCookie::fromString($cookieString);
 
-                return new ResponseCookieValueObject(
+                return new ResponseCookieData(
                     key: $setCookie->getName(),
                     rawValue: urldecode($setCookie->getValue() ?? ''),
                     prefix: CookieValuePrefix::create(

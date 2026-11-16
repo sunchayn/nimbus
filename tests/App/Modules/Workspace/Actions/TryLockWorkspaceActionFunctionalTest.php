@@ -8,8 +8,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use RuntimeException;
 use Sunchayn\Nimbus\Modules\Workspace\Actions\LockWorkspaceAction;
 use Sunchayn\Nimbus\Modules\Workspace\Actions\TryLockWorkspaceAction;
+use Sunchayn\Nimbus\Modules\Workspace\Services\WorkspaceLockFile;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\WorkspaceConfig;
-use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\WorkspaceLockFile;
 use Sunchayn\Nimbus\Tests\Concerns\UsesTemporaryWorkspace;
 use Sunchayn\Nimbus\Tests\TestCase;
 

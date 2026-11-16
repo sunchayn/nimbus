@@ -1,14 +1,14 @@
 <?php
 
-namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\ValueObjects;
+namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\DataTransferObjects;
 
 use Illuminate\Http\Client\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Sunchayn\Nimbus\Modules\Relay\ValueObjects\PrintableResponseBody;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\PrintableResponseBodyData;
 
-#[CoversClass(PrintableResponseBody::class)]
-class PrintableResponseBodyUnitTest extends TestCase
+#[CoversClass(PrintableResponseBodyData::class)]
+class PrintableResponseBodyDataUnitTest extends TestCase
 {
     public function test_it_constructs_with_array_body(): void
     {
@@ -18,7 +18,7 @@ class PrintableResponseBodyUnitTest extends TestCase
 
         // Act
 
-        $printable = new PrintableResponseBody($body);
+        $printable = new PrintableResponseBodyData($body);
 
         // Assert
 
@@ -42,7 +42,7 @@ EXPECTED,
 
         // Act
 
-        $printable = new PrintableResponseBody($body);
+        $printable = new PrintableResponseBodyData($body);
 
         // Assert
 
@@ -61,7 +61,7 @@ EXPECTED,
 
         // Act
 
-        $printable = PrintableResponseBody::fromResponse($response);
+        $printable = PrintableResponseBodyData::fromResponse($response);
 
         // Assert
 
@@ -82,7 +82,7 @@ EXPECTED,
 
         // Assert
 
-        $printable = PrintableResponseBody::fromResponse($response);
+        $printable = PrintableResponseBodyData::fromResponse($response);
 
         $this->assertSame($stringData, $printable->body);
         $this->assertSame($stringData, $printable->toPrettyJSON());

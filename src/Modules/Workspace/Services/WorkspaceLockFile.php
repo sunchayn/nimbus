@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Sunchayn\Nimbus\Modules\Workspace\ValueObjects;
+namespace Sunchayn\Nimbus\Modules\Workspace\Services;
 
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
 

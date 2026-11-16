@@ -1,10 +1,10 @@
 <?php
 
-namespace Sunchayn\Nimbus\Modules\Relay\ValueObjects;
+namespace Sunchayn\Nimbus\Modules\Relay\DataTransferObjects;
 
 use Illuminate\Support\Str;
 
-class ResponseCookieValueObject
+class ResponseCookieData
 {
     protected ?string $decryptedValue;
 

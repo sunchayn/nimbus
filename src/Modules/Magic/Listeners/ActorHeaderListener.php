@@ -5,7 +5,7 @@ namespace Sunchayn\Nimbus\Modules\Magic\Listeners;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Sunchayn\Nimbus\Modules\Magic\ValueObjects\NimbusHeaders;
+use Sunchayn\Nimbus\Modules\Magic\DataTransferObjects\NimbusHeadersData;
 use Throwable;
 
 /**
@@ -18,7 +18,7 @@ class ActorHeaderListener
 {
     public function handle(RouteMatched $routeMatched): void
     {
-        $nimbusHeaders = NimbusHeaders::fromRequest($routeMatched->request);
+        $nimbusHeaders = NimbusHeadersData::fromRequest($routeMatched->request);
 
         if (! $nimbusHeaders->hasActor()) {
             return;

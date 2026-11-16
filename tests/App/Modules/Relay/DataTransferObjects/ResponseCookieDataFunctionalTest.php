@@ -1,14 +1,14 @@
 <?php
 
-namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\ValueObjects;
+namespace Sunchayn\Nimbus\Tests\App\Modules\Relay\DataTransferObjects;
 
 use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\ResponseCookieData;
 use Sunchayn\Nimbus\Tests\TestCase;
 
-#[CoversClass(ResponseCookieValueObject::class)]
-class ResponseCookieValueObjectFunctionalTest extends TestCase
+#[CoversClass(ResponseCookieData::class)]
+class ResponseCookieDataFunctionalTest extends TestCase
 {
     public function test_it_computes_decrypted_value(): void
     {
@@ -22,7 +22,7 @@ class ResponseCookieValueObjectFunctionalTest extends TestCase
 
         // Act
 
-        $actual = new ResponseCookieValueObject('foobar', rawValue: $rawValue, prefix: $prefix);
+        $actual = new ResponseCookieData('foobar', rawValue: $rawValue, prefix: $prefix);
 
         // Assert
 
@@ -41,7 +41,7 @@ class ResponseCookieValueObjectFunctionalTest extends TestCase
         $rawValue = base64_encode($unencryptedValue); // <- Dummy value.
 
         // Mocked so that the __constructor is not called. We want to pretend it is already constructed.
-        $invadedInstance = invade(Mockery::mock(ResponseCookieValueObject::class)->makePartial());
+        $invadedInstance = invade(Mockery::mock(ResponseCookieData::class)->makePartial());
         $invadedInstance->key = $key = fake()->word();
         $invadedInstance->rawValue = $rawValue;
         $invadedInstance->decryptedValue = $unencryptedValue;

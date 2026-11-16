@@ -9,8 +9,8 @@ use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\CoversClass;
+use Sunchayn\Nimbus\Modules\Magic\Enums\NimbusHeaderEnum;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\ActorHeaderListener;
-use Sunchayn\Nimbus\Modules\Magic\ValueObjects\NimbusHeaders;
 use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(ActorHeaderListener::class)]
@@ -77,7 +77,7 @@ class ActorHeaderListenerFunctionalTest extends TestCase
     {
         // Act
 
-        $response = $this->getJson('/protected', [NimbusHeaders::ACTOR => 'custom:'.self::ULID]);
+        $response = $this->getJson('/protected', [NimbusHeaderEnum::Actor->value => 'custom:'.self::ULID]);
 
         // Assert
 
@@ -95,13 +95,13 @@ class ActorHeaderListenerFunctionalTest extends TestCase
     {
         // Act & Assert
 
-        $this->getJson('/protected', [NimbusHeaders::ACTOR => 'custom:missing'])->assertUnauthorized();
+        $this->getJson('/protected', [NimbusHeaderEnum::Actor->value => 'custom:missing'])->assertUnauthorized();
     }
 
     public function test_it_ignores_an_unknown_guard(): void
     {
         // Act & Assert
 
-        $this->getJson('/protected', [NimbusHeaders::ACTOR => 'nope:'.self::ULID])->assertUnauthorized();
+        $this->getJson('/protected', [NimbusHeaderEnum::Actor->value => 'nope:'.self::ULID])->assertUnauthorized();
     }
 }

@@ -25,6 +25,8 @@ use Sunchayn\Nimbus\Modules\Magic\Services\Insights\InsightStore;
 use Sunchayn\Nimbus\Modules\Relay\Actions\RequestRelayAction;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RelayedRequestResponseData;
 use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\ResponseCookieData;
+use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\SentRequestData;
 use Sunchayn\Nimbus\Modules\Relay\Responses\DumpAndDieResponse;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\DataTransferObjects\AuthorizationCredentials;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
@@ -33,8 +35,6 @@ use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\AuthorizationH
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Handlers\RevokesAfterResponse;
 use Sunchayn\Nimbus\Modules\Relay\Services\VarDumpParser\DataTransferObjects\ParseResultDto;
 use Sunchayn\Nimbus\Modules\Relay\Services\VarDumpParser\VarDumpParser;
-use Sunchayn\Nimbus\Modules\Relay\ValueObjects\ResponseCookieValueObject;
-use Sunchayn\Nimbus\Modules\Relay\ValueObjects\SentRequest;
 use Sunchayn\Nimbus\Tests\TestCase;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -1139,7 +1139,7 @@ class RequestRelayActionFunctionalTest extends TestCase
         );
 
         $this->assertContainsOnlyInstancesOf(
-            ResponseCookieValueObject::class,
+            ResponseCookieData::class,
             $actualCookies,
         );
 
@@ -1469,7 +1469,7 @@ class RequestRelayActionFunctionalTest extends TestCase
             endpoint: self::ENDPOINT,
             authorization: AuthorizationCredentials::none(),
             headers: [],
-            body: str_repeat('a', SentRequest::MAX_BODY_BYTES + 10),
+            body: str_repeat('a', SentRequestData::MAX_BODY_BYTES + 10),
             cookies: new ParameterBag,
         );
 
@@ -1485,7 +1485,7 @@ class RequestRelayActionFunctionalTest extends TestCase
 
         // Assert
 
-        $this->assertSame(SentRequest::MAX_BODY_BYTES, strlen($sent->body));
+        $this->assertSame(SentRequestData::MAX_BODY_BYTES, strlen($sent->body));
         $this->assertTrue($sent->bodyTruncated);
     }
 
