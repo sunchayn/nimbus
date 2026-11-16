@@ -28,7 +28,8 @@ Every test has the same shape so a reader sees setup, exercise, and assertion at
    - Fix the source, not the test. Drop `readonly` from the class and declare `public readonly` on each promoted property.
 10. Data providers return `Generator` with string keys and named values, one array item per line.
 11. `Http::preventStrayRequests()` is on. Fake every HTTP call.
-12. Iterate with `composer test -- --filter <name>`, finish with `composer test:parallel`.
+12. Request routes by name, `$this->getJson(route('nimbus.api.routes'))`, never by a literal URL. Give a route a name when the test defines it. A route created only to be registered or scanned may keep its URL.
+13. Iterate with `composer test -- --filter <name>`, finish with `composer test:parallel`.
 
 ## Example
 

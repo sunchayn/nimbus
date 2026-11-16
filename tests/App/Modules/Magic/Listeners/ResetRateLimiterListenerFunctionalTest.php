@@ -18,15 +18,15 @@ class ResetRateLimiterListenerFunctionalTest extends TestCase
     {
         // Arrange
 
-        Route::get('/_limited', fn (): string => 'ok')->middleware('throttle:2,1');
+        Route::get('/_limited', fn (): string => 'ok')->middleware('throttle:2,1')->name('limited');
 
-        $this->get('/_limited')->assertOk();
-        $this->get('/_limited')->assertOk();
-        $this->get('/_limited')->assertStatus(429);
+        $this->get(route('limited'))->assertOk();
+        $this->get(route('limited'))->assertOk();
+        $this->get(route('limited'))->assertStatus(429);
 
         // Act
 
-        $response = $this->get('/_limited', ['X-Nimbus-Reset-Limiter' => '1']);
+        $response = $this->get(route('limited'), ['X-Nimbus-Reset-Limiter' => '1']);
 
         // Assert
 
@@ -38,13 +38,13 @@ class ResetRateLimiterListenerFunctionalTest extends TestCase
     {
         // Arrange
 
-        Route::get('/_limited', fn (): string => 'ok')->middleware('throttle:1,1');
+        Route::get('/_limited', fn (): string => 'ok')->middleware('throttle:1,1')->name('limited');
 
-        $this->get('/_limited')->assertOk();
+        $this->get(route('limited'))->assertOk();
 
         // Act
 
-        $response = $this->get('/_limited');
+        $response = $this->get(route('limited'));
 
         // Assert
 
@@ -55,14 +55,14 @@ class ResetRateLimiterListenerFunctionalTest extends TestCase
     {
         // Arrange
 
-        Route::get('/_limited', fn (): string => 'ok')->middleware('throttle:3,1');
+        Route::get('/_limited', fn (): string => 'ok')->middleware('throttle:3,1')->name('limited');
 
         // Act
 
-        $first = $this->get('/_limited');
-        $second = $this->get('/_limited');
-        $third = $this->get('/_limited');
-        $fourth = $this->get('/_limited');
+        $first = $this->get(route('limited'));
+        $second = $this->get(route('limited'));
+        $third = $this->get(route('limited'));
+        $fourth = $this->get(route('limited'));
 
         // Assert
 
@@ -77,14 +77,14 @@ class ResetRateLimiterListenerFunctionalTest extends TestCase
     {
         // Arrange
 
-        Route::get('/_limited', fn (): string => 'ok')->middleware('throttle:3,1');
+        Route::get('/_limited', fn (): string => 'ok')->middleware('throttle:3,1')->name('limited');
 
-        $this->get('/_limited');
-        $this->get('/_limited');
+        $this->get(route('limited'));
+        $this->get(route('limited'));
 
         // Act
 
-        $response = $this->get('/_limited', ['X-Nimbus-Reset-Limiter' => '1']);
+        $response = $this->get(route('limited'), ['X-Nimbus-Reset-Limiter' => '1']);
 
         // Assert
 

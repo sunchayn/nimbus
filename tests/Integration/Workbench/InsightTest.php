@@ -62,7 +62,7 @@ class InsightTest extends TestCase
     {
         // Act
 
-        $this->getJson('demo/insight/activity', [InsightStore::HEADER => self::ID])->assertOk();
+        $this->getJson(route('demo.insight.activity'), [InsightStore::HEADER => self::ID])->assertOk();
 
         $insight = resolve(InsightStore::class)->pull(self::ID);
 
@@ -104,7 +104,7 @@ class InsightTest extends TestCase
     {
         // Act
 
-        $this->getJson('demo/insight/failure', [InsightStore::HEADER => self::ID])->assertStatus(500);
+        $this->getJson(route('demo.insight.failure'), [InsightStore::HEADER => self::ID])->assertStatus(500);
 
         $insight = resolve(InsightStore::class)->pull(self::ID);
 
@@ -119,7 +119,7 @@ class InsightTest extends TestCase
     {
         // Act
 
-        $this->getJson('demo/insight/activity')->assertOk();
+        $this->getJson(route('demo.insight.activity'))->assertOk();
 
         // Assert
 
@@ -130,7 +130,7 @@ class InsightTest extends TestCase
     {
         // Act
 
-        $this->getJson('demo/insight/activity', [InsightStore::HEADER => '../bad'])->assertOk();
+        $this->getJson(route('demo.insight.activity'), [InsightStore::HEADER => '../bad'])->assertOk();
 
         // Assert
 
@@ -141,7 +141,7 @@ class InsightTest extends TestCase
     {
         // Act
 
-        $this->getJson('demo/insight/sandbox', [
+        $this->getJson(route('demo.insight.sandbox'), [
             InsightStore::HEADER => self::ID,
             SandboxModeListener::HEADER => 'mail, notifications, queue',
         ])->assertOk();
@@ -166,7 +166,7 @@ class InsightTest extends TestCase
     {
         // Act
 
-        $this->getJson('demo/rate-limit', [
+        $this->getJson(route('demo.rate-limit'), [
             InsightStore::HEADER => self::ID,
             SandboxModeListener::HEADER => 'mail, queue',
         ])->assertOk();
@@ -183,7 +183,7 @@ class InsightTest extends TestCase
     {
         // Act
 
-        $this->getJson('demo/insight/activity', [InsightStore::HEADER => self::ID])->assertOk();
+        $this->getJson(route('demo.insight.activity'), [InsightStore::HEADER => self::ID])->assertOk();
 
         $insight = resolve(InsightStore::class)->pull(self::ID);
 
@@ -197,7 +197,7 @@ class InsightTest extends TestCase
     {
         // Act
 
-        $this->getJson('demo/insight/activity', [
+        $this->getJson(route('demo.insight.activity'), [
             InsightStore::HEADER => self::ID,
             SandboxModeListener::HEADER => 'events',
         ])->assertOk();

@@ -70,14 +70,14 @@ class ActorHeaderListenerFunctionalTest extends TestCase
             Auth::createUserProvider($config['provider']),
         ));
 
-        Route::middleware('auth:custom')->get('/protected', fn () => ['id' => auth()->id()]);
+        Route::middleware('auth:custom')->get('/protected', fn () => ['id' => auth()->id()])->name('protected');
     }
 
     public function test_it_authenticates_a_guarded_route_with_a_ulid_user(): void
     {
         // Act
 
-        $response = $this->getJson('/protected', [NimbusHeaderEnum::Actor->value => 'custom:'.self::ULID]);
+        $response = $this->getJson(route('protected'), [NimbusHeaderEnum::Actor->value => 'custom:'.self::ULID]);
 
         // Assert
 
@@ -88,20 +88,20 @@ class ActorHeaderListenerFunctionalTest extends TestCase
     {
         // Act & Assert
 
-        $this->getJson('/protected')->assertUnauthorized();
+        $this->getJson(route('protected'))->assertUnauthorized();
     }
 
     public function test_it_ignores_an_unknown_user(): void
     {
         // Act & Assert
 
-        $this->getJson('/protected', [NimbusHeaderEnum::Actor->value => 'custom:missing'])->assertUnauthorized();
+        $this->getJson(route('protected'), [NimbusHeaderEnum::Actor->value => 'custom:missing'])->assertUnauthorized();
     }
 
     public function test_it_ignores_an_unknown_guard(): void
     {
         // Act & Assert
 
-        $this->getJson('/protected', [NimbusHeaderEnum::Actor->value => 'nope:'.self::ULID])->assertUnauthorized();
+        $this->getJson(route('protected'), [NimbusHeaderEnum::Actor->value => 'nope:'.self::ULID])->assertUnauthorized();
     }
 }
