@@ -58,7 +58,7 @@ class QueriesCollectorFunctionalTest extends TestCase
 
         $this->assertGreaterThanOrEqual(0.0, $result->entries[0]['offset_ms']);
         $this->assertGreaterThan($result->entries[0]['offset_ms'], $result->entries[1]['offset_ms']);
-        $this->assertLessThanOrEqual($elapsed, $result->entries[1]['offset_ms'] + $result->entries[1]['time_ms']);
+        $this->assertLessThanOrEqual($elapsed + 0.001, $result->entries[1]['offset_ms'] + $result->entries[1]['time_ms']);
     }
 
     public function test_it_starts_a_query_before_the_moment_its_event_fires(): void

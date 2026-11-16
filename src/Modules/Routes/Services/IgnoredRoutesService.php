@@ -166,7 +166,7 @@ class IgnoredRoutesService
         $directory = dirname($filePath);
 
         if (! File::exists($directory)) {
-            File::makeDirectory($directory, 0755, true);
+            File::makeDirectory($directory, 0755, true, true);
         }
 
         File::put(
