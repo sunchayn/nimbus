@@ -25,7 +25,7 @@ const props = defineProps<PanelSubHeaderProps>();
     <div
         :class="
             cn(
-                'px-panel min-h-sub-toolbar md:h-sub-toolbar flex items-center justify-between',
+                'pl-panel pr-tight py-tight min-h-sub-toolbar md:h-sub-toolbar flex items-center justify-between',
                 props.class,
             )
         "
@@ -33,6 +33,8 @@ const props = defineProps<PanelSubHeaderProps>();
         <span class="text-muted text-xs">
             <slot></slot>
         </span>
-        <slot name="toolbox"></slot>
+        <div v-if="$slots.toolbox" class="sub-toolbox flex items-center self-stretch">
+            <slot name="toolbox"></slot>
+        </div>
     </div>
 </template>

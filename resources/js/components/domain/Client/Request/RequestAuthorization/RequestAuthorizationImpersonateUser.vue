@@ -8,7 +8,7 @@ import { AppButton } from '@/components/base/button';
 import { AppIcon } from '@/components/base/icons';
 import { AppPopover } from '@/components/base/popover';
 import { AppSelect } from '@/components/base/select';
-import GeneratorInput from '@/components/common/GeneratorInput.vue';
+import { AppInput } from '@/components/base/input';
 import { useActors, type Actor } from '@/composables/request/useActors';
 import { useConfigStore } from '@/stores/core/useConfigStore';
 import { useDebounceFn } from '@vueuse/core';
@@ -54,8 +54,7 @@ const configStore = useConfigStore();
 
 const isOpen = shallowRef(false);
 const query = shallowRef('');
-const searchInputRef =
-    useTemplateRef<InstanceType<typeof GeneratorInput>>('searchInputRef');
+const searchInputRef = useTemplateRef<InstanceType<typeof AppInput>>('searchInputRef');
 
 /*
  * Computed & Methods.
@@ -127,10 +126,10 @@ watch(
     <div>
         <div
             v-if="availableGuards.length > 1"
-            class="h-control-lg grid grid-cols-3 border-b"
+            class="h-control-field grid grid-cols-3 border-b"
         >
             <label
-                class="px-panel h-control-lg py-tight flex items-center border-r text-xs"
+                class="px-panel h-control-field py-tight flex items-center border-r text-xs"
                 for="actor-guard"
             >
                 Guard
@@ -146,15 +145,15 @@ watch(
                 @update:model-value="value => emit('update:guard', String(value))"
             />
         </div>
-        <div class="h-control-lg grid grid-cols-3 border-b">
+        <div class="h-control-field grid grid-cols-3 border-b">
             <label
-                class="px-panel h-control-lg py-tight flex items-center border-r text-xs"
+                class="px-panel h-control-field py-tight flex items-center border-r text-xs"
                 for="user-id"
             >
                 User
             </label>
             <div class="col-span-2 flex h-full items-center">
-                <GeneratorInput
+                <AppInput
                     id="user-id"
                     v-model="model"
                     placeholder="Pick a user, or type an ID, UUID, or ULID."
@@ -185,7 +184,7 @@ watch(
                         <div
                             class="border-default gap-tight p-tight flex items-center border-b"
                         >
-                            <GeneratorInput
+                            <AppInput
                                 ref="searchInputRef"
                                 v-model="query"
                                 variant="none"

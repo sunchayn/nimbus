@@ -21,7 +21,7 @@ describe('buildWorkspaceTree', () => {
     it('puts root requests on the root node', () => {
         const tree = buildWorkspaceTree([], [summary('a', '')]);
 
-        expect(tree.requests.map(request => request.id)).toEqual(['a']);
+        expect(tree.items.map(request => request.id)).toEqual(['a']);
         expect(tree.folders).toEqual([]);
     });
 
@@ -45,7 +45,7 @@ describe('buildWorkspaceTree', () => {
         const tree = buildWorkspaceTree([], [summary('a', 'users/admin')]);
 
         expect(tree.folders[0].path).toBe('users');
-        expect(tree.folders[0].folders[0].requests[0].id).toBe('a');
+        expect(tree.folders[0].folders[0].items[0].id).toBe('a');
     });
 });
 

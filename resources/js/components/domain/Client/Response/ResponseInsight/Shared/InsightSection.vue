@@ -18,7 +18,7 @@ defineProps<InsightSectionProps>();
         :data-testid="`insight-${name.toLowerCase().replaceAll(' ', '-')}`"
         class="gap-base flex flex-col text-sm"
     >
-        <p v-if="empty" class="text-muted py-loose text-center text-xs">
+        <p v-if="empty" class="text-muted px-hair text-xs">
             {{ empty }}
         </p>
         <slot v-else />

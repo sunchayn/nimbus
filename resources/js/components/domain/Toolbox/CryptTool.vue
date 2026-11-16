@@ -49,7 +49,7 @@ const submit = (mode: 'decrypt' | 'encrypt') => {
             placeholder="Cookie name (optional, checks the cookie prefix)"
             data-testid="crypt-cookie"
         />
-        <div class="gap-base flex">
+        <div class="gap-tight flex">
             <AppButton
                 label="Decrypt"
                 :loading="decryption.loading.value"

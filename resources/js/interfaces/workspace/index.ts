@@ -1,4 +1,5 @@
 import type { AuthorizationContract } from '@/interfaces/auth/authorization';
+import type { ExplorerNode } from '@/interfaces/explorer';
 import type { RequestBodyTypeEnum } from '@/interfaces/http';
 import type { ParameterContract } from '@/interfaces/ui';
 
@@ -70,9 +71,5 @@ export interface WorkspaceLink {
     saved: string;
 }
 
-export interface WorkspaceFolderNode {
-    name: string;
-    path: string;
-    folders: WorkspaceFolderNode[];
-    requests: WorkspaceSummary[];
-}
+/** A folder of the workspace tree. */
+export type WorkspaceFolderNode = ExplorerNode<WorkspaceSummary>;

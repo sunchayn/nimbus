@@ -24,7 +24,7 @@ defineProps<CopyButtonProps>();
 
 <template>
     <AppButton
-        size="xs"
+        size="sm"
         variant="ghost"
         square
         :aria-label="copied ? 'Copied' : 'Copy'"

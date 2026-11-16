@@ -24,7 +24,7 @@ const submit = (type: 'jwt' | 'sanctum') => run({ type, token: token.value });
             :rows="4"
             data-testid="token-value"
         />
-        <div class="gap-base flex">
+        <div class="gap-tight flex">
             <AppButton
                 label="Decode JWT"
                 :loading="loading"

@@ -4,10 +4,11 @@
  * @description A high-fidelity input component that supports environment variable highlighting
  * and individual tooltips for multiple env variable segments using a dual-layer mirrored approach.
  */
-import type { AppInputProps } from '@/components/base/input';
+import { AppInput, type AppInputProps } from '@/components/base/input';
 import { EnvVariableSegment } from '@/components/common/EnvVariableSegment';
 import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import VariableSuggestionList from '@/components/common/VariableSuggestionList.vue';
+import { DYNAMIC_PLACEHOLDER_PATTERN } from '@/config/dynamic-variables';
 import { useEnvVariablesAwareString } from '@/composables/request/useEnvVariablesAwareString';
 import { useVariableSuggestions } from '@/composables/request/useVariableSuggestions';
 import { useTabHorizontalScroll } from '@/composables/ui/useTabHorizontalScroll';
@@ -30,6 +31,8 @@ export interface Props {
     inputClass?: string;
     variant?: AppInputProps['variant'];
     size?: AppInputProps['size'];
+    // Opens the value generator when Shift is pressed twice.
+    generator?: boolean;
 }
 
 /*
@@ -43,6 +46,7 @@ const props = withDefaults(defineProps<Props>(), {
     inputClass: '',
     variant: 'outline',
     size: 'md',
+    generator: false,
 });
 
 const modelValue = defineModel<string>({ required: true });
@@ -54,11 +58,11 @@ const modelValue = defineModel<string>({ required: true });
 const internalRawValue = shallowRef('');
 const isInputActive = shallowRef(false);
 const activelyHoveredEnvVariableSegment = shallowRef<number | null>(null);
-const inputRef = useTemplateRef<InstanceType<typeof GeneratorInput>>('inputRef');
+const inputRef = useTemplateRef<{ inputRef: HTMLInputElement | null }>('inputRef');
 const mirrorRef = useTemplateRef<HTMLDivElement>('mirrorRef');
 
 const delegatedProps = computed(() => {
-    const { class: _, inputClass: __, ...rest } = props;
+    const { class: _, inputClass: __, generator: ___, ...rest } = props;
 
     return rest;
 });
@@ -79,8 +83,43 @@ const suggestions = useVariableSuggestions(
     internalRawValue,
 );
 
+// Plain text segments are split again, so a dynamic variable such as {$uuid} gets its own look.
+const displaySegments = computed(() =>
+    segments.value.flatMap(segment => {
+        if (segment.isEnvVariable) {
+            return [{ ...segment, isDynamic: false }];
+        }
+
+        const parts: ((typeof segments.value)[number] & { isDynamic: boolean })[] = [];
+        let lastIndex = 0;
+
+        for (const match of segment.text.matchAll(DYNAMIC_PLACEHOLDER_PATTERN)) {
+            if (match.index > lastIndex) {
+                parts.push({
+                    ...segment,
+                    text: segment.text.slice(lastIndex, match.index),
+                    isDynamic: false,
+                });
+            }
+
+            parts.push({ ...segment, text: match[0], isDynamic: true });
+            lastIndex = match.index + match[0].length;
+        }
+
+        if (lastIndex < segment.text.length) {
+            parts.push({
+                ...segment,
+                text: segment.text.slice(lastIndex),
+                isDynamic: false,
+            });
+        }
+
+        return parts;
+    }),
+);
+
 const keyedSegments = computed(() =>
-    withOccurrenceKeys(segments.value, segment => segment.text),
+    withOccurrenceKeys(displaySegments.value, segment => segment.text),
 );
 
 /*
@@ -186,9 +225,19 @@ defineExpose({
 </script>
 
 <template>
-    <div :class="cn('relative flex h-full min-w-0 flex-1 items-stretch', props.class)">
+    <div
+        :class="
+            cn(
+                'relative flex h-full min-w-0 flex-1 items-stretch',
+                // The text is drawn by the mirror layer, so it needs its own dimming.
+                props.disabled && 'opacity-disabled',
+                props.class,
+            )
+        "
+    >
         <!-- Actual Input (Transparent text) - TOP LAYER -->
-        <GeneratorInput
+        <component
+            :is="generator ? GeneratorInput : AppInput"
             ref="inputRef"
             v-model="internalRawValue"
             v-bind="{ ...delegatedProps, ...$attrs }"
@@ -244,7 +293,12 @@ defineExpose({
                 </EnvVariableSegment>
                 <span
                     v-else
-                    class="text-default inline leading-none"
+                    class="inline leading-none"
+                    :class="
+                        segment.isDynamic
+                            ? 'bg-secondary/15 text-highlighted'
+                            : 'text-default'
+                    "
                     :data-segment-index="index"
                 >
                     {{ segment.text }}

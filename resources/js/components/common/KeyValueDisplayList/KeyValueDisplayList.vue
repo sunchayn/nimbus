@@ -42,7 +42,7 @@ const columns = [
     {
         accessorKey: 'key',
         header: 'Key',
-        meta: { class: { th: 'w-1/4', td: 'font-medium' } },
+        meta: { class: { th: 'w-1/4', td: 'font-medium pl-panel' } },
     },
     { accessorKey: 'value', header: 'Value', meta: { class: { td: rowLine } } },
     { id: 'copy', header: 'Copy', meta: { class: { th: 'w-10', td: rowLine } } },
@@ -64,7 +64,7 @@ const copyValue = (index: number, value: unknown) => {
         :columns="columns"
         :ui="{
             thead: 'collapse',
-            td: 'px-panel py-base',
+            td: 'px-tight py-base',
         }"
     >
         <template #value-cell="{ row }">
@@ -73,10 +73,12 @@ const copyValue = (index: number, value: unknown) => {
             </slot>
         </template>
         <template #copy-cell="{ row }">
-            <CopyButton
-                :on-click="() => copyValue(row.index, row.original.value)"
-                :copied="copied && copiedRowIndex === row.index"
-            />
+            <div class="text-right">
+                <CopyButton
+                    :on-click="() => copyValue(row.index, row.original.value)"
+                    :copied="copied && copiedRowIndex === row.index"
+                />
+            </div>
         </template>
     </AppTable>
 </template>

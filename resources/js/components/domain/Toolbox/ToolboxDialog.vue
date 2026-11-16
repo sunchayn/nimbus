@@ -6,7 +6,7 @@
  */
 import { AppDialog } from '@/components/base/dialog';
 import { AppIcon } from '@/components/base/icons';
-import { AppTabs } from '@/components/base/tabs';
+import { AppSegmentedTabs } from '@/components/base/tabs';
 import CryptTool from '@/components/domain/Toolbox/CryptTool.vue';
 import HashTool from '@/components/domain/Toolbox/HashTool.vue';
 import SessionTool from '@/components/domain/Toolbox/SessionTool.vue';
@@ -80,7 +80,7 @@ const activeTool = computed(
         v-model:open="open"
         :unmount-on-hide="false"
         :description="activeTool.description"
-        :ui="{ content: 'max-w-3xl' }"
+        :ui="{ content: 'max-w-4xl' }"
     >
         <template #title>
             <AppIcon name="i-hugeicons-tools" class="size-icon-md" />
@@ -88,20 +88,19 @@ const activeTool = computed(
         </template>
 
         <template #body>
-            <div class="gap-loose flex items-stretch" data-testid="toolbox-dialog">
-                <AppTabs
+            <div
+                class="gap-loose flex min-h-72 items-stretch"
+                data-testid="toolbox-dialog"
+            >
+                <AppSegmentedTabs
                     v-model="selected"
                     :items="tabs"
                     :content="false"
                     orientation="vertical"
-                    variant="pill"
-                    color="neutral"
                     class="w-auto shrink-0"
                     :ui="{
-                        list: 'bg-muted p-tight w-44 h-full',
-                        trigger:
-                            'text-muted data-[state=active]:text-highlighted justify-start gap-base',
-                        indicator: 'bg-default border-inverted border shadow-none',
+                        list: 'w-44 h-full justify-start',
+                        trigger: 'justify-start gap-base',
                     }"
                     data-testid="toolbox-tabs"
                 />

@@ -79,7 +79,7 @@ const handleCategoryArrowNavigation = (event: KeyboardEvent) => {
         <div class="relative">
             <div
                 ref="scrollContainer"
-                class="no-scrollbar bg-muted gap-tight p-tight flex items-center overflow-x-auto rounded-md"
+                class="no-scrollbar bg-muted gap-tight p-tight flex items-center overflow-x-auto rounded-sm"
                 @scroll="updateScrollMasks"
                 @keydown="handleCategoryArrowNavigation"
             >

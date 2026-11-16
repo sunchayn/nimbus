@@ -27,6 +27,7 @@ import {
 } from '@/utils/request/pendingRequestBuilders';
 import { buildRequestUrl } from '@/utils/request/requestUrlBuilder';
 import { getDefaultPayloadTypeForRoute } from '@/utils/request/requestUtils';
+import { defaultRequestName } from '@/utils/request/tabTitle';
 import { findRouteByName, findRoutesByEndpoint } from '@/utils/routes';
 import { formDataSerializer } from '@/utils/stores/formDataSerializer';
 import { generateValue } from '@/utils/value-generator/generateValue';
@@ -259,7 +260,7 @@ export const useTabsStore = defineStore(
             const id = uuidv4();
             const newTab: Tab = {
                 id,
-                title: route.shortEndpoint || route.endpoint,
+                title: defaultRequestName(route.shortEndpoint || route.endpoint),
                 method: route.method,
                 request: createPendingRequest(route, availableRoutesForEndpoint),
                 response: null,
@@ -577,7 +578,7 @@ export const useTabsStore = defineStore(
             const id = uuidv4();
             const newTab: Tab = {
                 id,
-                title: route.shortEndpoint || route.endpoint,
+                title: defaultRequestName(route.shortEndpoint || route.endpoint),
                 method,
                 request: {
                     ...pendingRequest,
@@ -653,7 +654,7 @@ export const useTabsStore = defineStore(
             return {
                 request,
                 method: restored.method,
-                title: route.shortEndpoint || route.endpoint,
+                title: defaultRequestName(route.shortEndpoint || route.endpoint),
             };
         };
 

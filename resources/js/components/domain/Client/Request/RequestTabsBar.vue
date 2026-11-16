@@ -15,6 +15,7 @@ import { useScroll, useTimeoutFn } from '@vueuse/core';
 import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import draggable from 'vuedraggable';
 import ShareableLinkDialog from './RequestBuilder/ShareableLinkDialog.vue';
+import { shortTitle } from '@/utils/request/tabTitle';
 
 /*
  * Stores.
@@ -43,13 +44,6 @@ const tabsModel = computed({
 /*
  * Methods.
  */
-
-// Shows the route without its resource prefix.
-const shortTitle = (title: string) => {
-    const segments = title.split('/').filter(Boolean);
-
-    return segments.length > 1 ? segments.slice(1).join('/') : title;
-};
 
 const tabTitle = (tab: Tab) =>
     tab.customTitle ?? tab.workspace?.name ?? shortTitle(tab.title);
@@ -96,7 +90,7 @@ const menuItems = (tab: Tab, index: number): AppContextMenuItem[][] => {
     if (tabsStore.tabs.some(other => other.id !== tab.id && !other.pinned)) {
         closeActions.push({
             label: 'Close other tabs',
-            icon: 'i-hugeicons-cancel-circle',
+            icon: 'i-hugeicons-column-delete',
             onSelect: () => tabsStore.closeOtherTabs(tab.id),
         });
     }
@@ -104,7 +98,7 @@ const menuItems = (tab: Tab, index: number): AppContextMenuItem[][] => {
     if (tabsStore.tabs.some((other, i) => i < index && !other.pinned)) {
         closeActions.push({
             label: 'Close tabs to the left',
-            icon: 'i-hugeicons-arrow-left-double',
+            icon: 'i-hugeicons-flip-left',
             onSelect: () => tabsStore.closeTabsToLeft(tab.id),
         });
     }
@@ -112,7 +106,7 @@ const menuItems = (tab: Tab, index: number): AppContextMenuItem[][] => {
     if (tabsStore.tabs.some((other, i) => i > index && !other.pinned)) {
         closeActions.push({
             label: 'Close tabs to the right',
-            icon: 'i-hugeicons-arrow-right-double',
+            icon: 'i-hugeicons-flip-right',
             onSelect: () => tabsStore.closeTabsToRight(tab.id),
         });
     }
@@ -122,7 +116,7 @@ const menuItems = (tab: Tab, index: number): AppContextMenuItem[][] => {
         [
             {
                 label: 'Rename tab',
-                icon: 'i-hugeicons-pencil-edit-02',
+                icon: 'i-hugeicons-label',
                 afterClose: () => startRename(tab),
             },
             {
@@ -225,7 +219,7 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
                         <div
                             :ref="(el: unknown) => setTabElement(tab.id, el)"
                             :data-active="tab.id === tabsStore.activeTabId"
-                            class="bg-elevated border-default hover:bg-accented data-[active=true]:bg-default data-[active=true]:border-tab-active-border data-[active=true]:text-highlighted data-[active=true]:shadow-tab-active text-toned h-control-md gap-tight ps-base max-w-tab pe-tight relative flex cursor-pointer items-center rounded-md border text-sm"
+                            class="bg-elevated border-default hover:bg-accented data-[active=true]:bg-default data-[active=true]:border-tab-active-border data-[active=true]:text-highlighted data-[active=true]:shadow-tab-active text-toned h-control-md gap-tight ps-base max-w-tab pe-hair relative flex cursor-pointer items-center rounded-sm border text-sm"
                             data-testid="sidebar-tab"
                             @click="tabsStore.setActiveTab(tab.id)"
                             @dblclick="startRename(tab)"
@@ -254,7 +248,7 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
                             <button
                                 type="button"
                                 aria-label="Close tab"
-                                class="hover:bg-accented size-item-sm flex shrink-0 items-center justify-center rounded-sm opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100"
+                                class="hover:bg-inverted/10 h-control-xs w-control-xs flex shrink-0 items-center justify-center rounded-sm opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100"
                                 data-testid="sidebar-tab-close"
                                 @click.stop="closeTab(tab.id)"
                             >
@@ -267,6 +261,7 @@ watch(() => tabsStore.activeTabId, scrollIntoView, { immediate: true });
                                 v-model="renameDraft"
                                 :open="renamingTabId === tab.id"
                                 header="Label"
+                                leading-icon="i-hugeicons-label"
                                 placeholder="Tab label"
                                 test-id="tab-rename"
                                 @update:open="open => !open && (renamingTabId = null)"

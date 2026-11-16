@@ -311,7 +311,7 @@ test.describe('Rewind Functionality', () => {
         );
 
         // Assert - The previous tab is untouched
-        await tabs.filter({ hasText: /POST\s*nested-object$/ }).click();
+        await tabs.filter({ hasText: /POST\s*\/nested-object$/ }).click();
         await expect(page.getByRole('textbox', { name: '<endpoint>' })).toHaveValue(
             '_demo/shapes/nested-object',
         );

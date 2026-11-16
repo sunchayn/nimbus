@@ -42,7 +42,10 @@ const buttonProps = computed(() => {
 </script>
 
 <template>
-    <AppButton v-bind="buttonProps" :class="cn('group relative', props.class)">
+    <AppButton
+        v-bind="buttonProps"
+        :class="cn('group relative overflow-hidden', props.class)"
+    >
         <AppBorderBeam
             :size="beamSize"
             :duration="duration"

@@ -238,7 +238,7 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
                             },
                             {
                                 label: 'Save as...',
-                                icon: 'i-hugeicons-floppy-disk',
+                                icon: 'i-hugeicons-copy',
                                 testId: 'save-as-option',
                                 onSelect: () => workspaceStore.openSaveDialog(true),
                             },
@@ -246,7 +246,7 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
                       : [
                             {
                                 label: 'Save to workspace',
-                                icon: 'i-hugeicons-floppy-disk',
+                                icon: 'i-hugeicons-file-heart',
                                 disabled: !tabsStore.activeTab,
                                 testId: 'save-request-option',
                                 onSelect: () => workspaceStore.openSaveDialog(),
@@ -282,6 +282,7 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
 <template>
     <AppDropdownMenu :items="items" :content="{ align: 'end' }">
         <AppButton
+            class="h-control-pane! w-control-pane!"
             variant="outline"
             color="neutral"
             size="sm"
@@ -293,13 +294,11 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
         />
 
         <template #content-top="{ sub }">
-            <div
-                v-if="sub"
-                class="text-muted px-base py-tight w-48 border-b text-xs"
-                data-testid="sandbox-intro"
-            >
-                <strong>Sandbox</strong>
-                <p class="">Pick side effects to fake</p>
+            <div v-if="sub" class="px-menu w-48 border-b" data-testid="sandbox-intro">
+                <div class="text-muted px-control-sm py-base text-xs">
+                    <strong>Sandbox</strong>
+                    <p>Pick side effects to fake</p>
+                </div>
             </div>
         </template>
 
@@ -345,7 +344,7 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
                         </button>
 
                         <template #content>
-                            <div class="gap-base flex flex-col">
+                            <div class="gap-tight flex flex-col">
                                 <h4 class="text-sm leading-none font-medium">
                                     Transaction mode
                                 </h4>
@@ -464,7 +463,7 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
                 data-testid="time-travel-option"
             >
                 <span>{{ item.label }}</span>
-                <AppIcon name="i-hugeicons-clock-01" class="text-muted size-icon-sm" />
+                <AppIcon name="i-hugeicons-clock-05" class="text-muted size-icon-sm" />
             </div>
         </template>
     </AppDropdownMenu>

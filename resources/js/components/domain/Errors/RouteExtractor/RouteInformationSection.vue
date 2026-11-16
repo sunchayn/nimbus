@@ -25,7 +25,7 @@ defineProps<RouteInformationSectionProps>();
     <div class="gap-base flex flex-col">
         <h3 class="text-highlighted text-xs font-medium">Route Information</h3>
         <dl
-            class="gap-x-base gap-y-tight bg-muted p-base grid grid-cols-[auto_1fr] items-center rounded-md border text-xs"
+            class="gap-x-base gap-y-tight bg-muted p-base grid grid-cols-[auto_1fr] items-center rounded-sm border text-xs"
         >
             <template v-if="routeContext.uri">
                 <dt class="text-muted">URI</dt>

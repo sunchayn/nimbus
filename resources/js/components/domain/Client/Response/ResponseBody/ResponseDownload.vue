@@ -36,7 +36,7 @@ const details = computed(() => [
 </script>
 
 <template>
-    <div class="p-panel bg-muted h-full min-h-0 flex-1 overflow-y-auto">
+    <div class="p-tight bg-muted h-full min-h-0 flex-1 overflow-y-auto">
         <ResponseNotice label="Download forwarded" indicator-class="text-success">
             <div class="gap-base flex flex-col">
                 <p>

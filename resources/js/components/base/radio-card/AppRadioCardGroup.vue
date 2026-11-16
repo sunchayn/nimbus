@@ -44,7 +44,7 @@ defineSlots<{
             :key="item.value"
             :value="item.value"
             :data-testid="`radio-card-${item.value}`"
-            class="group border-default data-[state=checked]:border-inverted flex cursor-pointer flex-col overflow-hidden rounded-md border text-left"
+            class="group border-default data-[state=checked]:border-inverted flex cursor-pointer flex-col overflow-hidden rounded-sm border text-left"
             @keydown.enter="modelValue = item.value"
         >
             <div aria-hidden="true" class="border-default w-full border-b">

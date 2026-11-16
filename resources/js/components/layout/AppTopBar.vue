@@ -179,13 +179,13 @@ const appName = computed(() => configStore.appName);
         >
             <AppButton
                 :color="switcherColor"
-                :variant="switcherColor === 'neutral' ? 'ghost' : 'soft'"
-                size="sm"
+                variant="ghost"
+                size="xs"
                 :icon="environmentStore.isCurrentHost ? undefined : 'i-hugeicons-cloud'"
                 trailing-icon="i-hugeicons-arrow-down-01"
                 :label="environmentStore.activeEnvironment.name"
                 :ui="{ label: 'truncate' }"
-                class="max-w-64"
+                class="max-w-64 border-1 border-dashed"
                 data-testid="environment-switcher"
                 :data-environment-current-host="environmentStore.isCurrentHost"
             />

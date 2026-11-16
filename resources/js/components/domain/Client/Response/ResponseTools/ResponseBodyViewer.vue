@@ -21,6 +21,7 @@ import {
 import { EditorView } from '@codemirror/view';
 import { useElementHover, useEventListener } from '@vueuse/core';
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
+import PanelSubHeader from '@/components/layout/PanelSubHeader/PanelSubHeader.vue';
 
 /*
  * Types & Interfaces.
@@ -206,16 +207,13 @@ watch([searchText, displayed], () => {
 
 <template>
     <div ref="root" class="flex min-h-0 flex-1 flex-col">
-        <div
-            v-if="parsed.ok"
-            class="px-panel py-tight flex items-center justify-end border-b"
-        >
+        <PanelSubHeader v-if="parsed.ok" class="justify-end border-b">
             <AppSwitchButton
                 v-model="isPretty"
                 label="Pretty"
                 data-testid="pretty-switch"
             />
-        </div>
+        </PanelSubHeader>
 
         <div class="relative min-h-0 flex-1">
             <AppScrollArea class="h-full">
@@ -235,7 +233,7 @@ watch([searchText, displayed], () => {
 
             <div
                 v-if="searchOpen"
-                class="top-tight right-tight z-sticky bg-default/40 pr-hair py-tight gap-hair hover:bg-default focus-within:bg-default absolute flex w-80 max-w-full items-center rounded-md border shadow-xs backdrop-blur-sm transition"
+                class="top-tight right-tight z-sticky bg-default/40 pr-hair py-tight gap-hair hover:bg-default focus-within:bg-default absolute flex w-80 max-w-full items-center rounded-sm border shadow-xs backdrop-blur-sm transition"
                 role="search"
                 data-testid="response-search-overlay"
             >

@@ -31,7 +31,7 @@ defineProps<ToolResultProps>();
     />
     <pre
         v-else-if="result !== null"
-        class="bg-muted border-default p-base overflow-x-auto rounded-md border font-mono text-xs whitespace-pre"
+        class="bg-muted border-default p-base overflow-x-auto rounded-sm border font-mono text-xs whitespace-pre"
         data-testid="tool-result"
         >{{ JSON.stringify(result, null, 2) }}</pre>
 </template>

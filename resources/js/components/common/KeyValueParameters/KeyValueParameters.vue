@@ -4,13 +4,11 @@
  * @description An interactive editor for key-value parameter lists with integrated value generation.
  */
 import { AppButton } from '@/components/base/button';
-import { AppIcon } from '@/components/base/icons';
-import AppSwapIcon from '@/components/base/icons/AppSwapIcon.vue';
 import { AppSelect } from '@/components/base/select';
 import { AppSwitch } from '@/components/base/switch';
 import { AppTooltip } from '@/components/base/tooltip';
 import EnvironmentAwareInput from '@/components/common/EnvironmentAwareInput.vue';
-import GeneratorInput from '@/components/common/GeneratorInput.vue';
+import { AppInput } from '@/components/base/input';
 import { useKeyValueParameters } from '@/composables/ui/useKeyValueParameters';
 import { type ParameterContract } from '@/interfaces/ui';
 import { ParameterType } from '@/interfaces/ui/key-value-parameters';
@@ -181,10 +179,12 @@ const handleDeleteParameter = (index: number) => {
         data-testid="kv-container"
     >
         <!-- Header Actions -->
-        <div class="h-control-lg flex shrink-0 items-center overflow-hidden border-b p-0">
+        <div
+            class="h-control-field flex shrink-0 items-center overflow-hidden border-b p-0"
+        >
             <AppButton
                 variant="ghost"
-                size="xs"
+                size="sm"
                 icon="i-hugeicons-plus-sign"
                 label="Add"
                 class="px-panel h-full rounded-none"
@@ -194,7 +194,7 @@ const handleDeleteParameter = (index: number) => {
 
             <AppButton
                 variant="ghost"
-                size="xs"
+                size="sm"
                 :icon="
                     areAllParametersDisabled
                         ? 'i-hugeicons-view'
@@ -209,8 +209,8 @@ const handleDeleteParameter = (index: number) => {
 
             <AppButton
                 variant="ghost"
-                size="xs"
-                icon="i-hugeicons-delete-02"
+                size="sm"
+                icon="i-hugeicons-delete-01"
                 label="Delete All"
                 :color="deletingAll ? 'error' : undefined"
                 class="px-panel h-full rounded-none"
@@ -225,12 +225,12 @@ const handleDeleteParameter = (index: number) => {
             tag="div"
             name="kv-row"
             :css="animateRows"
-            class="min-h-control-lg flex-1 overflow-y-auto"
+            class="min-h-control-field flex-1 overflow-y-auto"
         >
             <div
                 v-for="(parameter, index) in parameters"
                 :key="parameter.id"
-                class="h-control-lg flex border-b"
+                class="h-control-field flex border-b"
                 data-testid="parameter-row"
             >
                 <!-- Parameter Inputs -->
@@ -251,7 +251,7 @@ const handleDeleteParameter = (index: number) => {
                     />
 
                     <!-- Key Input -->
-                    <GeneratorInput
+                    <AppInput
                         v-model="parameter.key"
                         placeholder="Key"
                         variant="none"
@@ -285,6 +285,7 @@ const handleDeleteParameter = (index: number) => {
                     <EnvironmentAwareInput
                         v-else
                         v-model="parameter.value"
+                        generator
                         placeholder="Value"
                         variant="none"
                         :disabled="!parameter.enabled"
@@ -304,6 +305,7 @@ const handleDeleteParameter = (index: number) => {
                     <AppTooltip text="Enable/Disable">
                         <AppSwitch
                             v-model="parameter.enabled"
+                            size="sm"
                             :aria-label="
                                 parameter.key
                                     ? `Enable ${parameter.key}`
@@ -315,50 +317,51 @@ const handleDeleteParameter = (index: number) => {
 
                 <!-- Action button, either the generator or delete -->
                 <Transition name="fade-fast" mode="out-in">
-                    <button
+                    <div
                         v-if="shouldShowGeneratorIcon(index, parameter)"
-                        type="button"
-                        aria-label="Generate value"
-                        aria-keyshortcuts="Control+Space"
-                        class="p-base flex cursor-pointer items-center justify-center"
-                        title="Generate value (Ctrl+Space)"
-                        data-testid="generator-button"
-                        @mousedown.prevent="handleGeneratorClick"
+                        class="w-control-field flex shrink-0 items-center justify-center"
                     >
-                        <AppIcon
-                            name="i-hugeicons-sparkles"
-                            class="text-muted hover:text-highlighted size-icon-md transition-colors"
+                        <AppButton
+                            variant="ghost"
+                            color="neutral"
+                            size="sm"
+                            square
+                            icon="i-hugeicons-sparkles"
+                            aria-label="Generate value"
+                            aria-keyshortcuts="Control+Space"
+                            title="Generate value (Ctrl+Space)"
+                            data-testid="generator-button"
+                            @mousedown.prevent="handleGeneratorClick"
                         />
-                    </button>
+                    </div>
 
                     <div
                         v-else
-                        class="px-tight flex items-center justify-center"
+                        class="w-control-field flex shrink-0 items-center justify-center"
                         data-testid="delete-button"
                     >
                         <AppTooltip text="Delete">
-                            <button
-                                type="button"
+                            <AppButton
+                                variant="ghost"
+                                :color="
+                                    isParameterMarkedForDeletion(index)
+                                        ? 'error'
+                                        : 'neutral'
+                                "
+                                size="sm"
+                                square
                                 :aria-label="
                                     isParameterMarkedForDeletion(index)
                                         ? 'Confirm delete'
                                         : 'Delete'
                                 "
-                                class="p-tight"
+                                :icon="
+                                    isParameterMarkedForDeletion(index)
+                                        ? 'i-hugeicons-tick-02'
+                                        : 'i-hugeicons-delete-01'
+                                "
                                 @click="handleDeleteParameter(index)"
-                            >
-                                <AppSwapIcon
-                                    :name="
-                                        isParameterMarkedForDeletion(index)
-                                            ? 'i-hugeicons-tick-02'
-                                            : 'i-hugeicons-delete-02'
-                                    "
-                                    class="size-icon-md"
-                                    :class="{
-                                        'text-error': isParameterMarkedForDeletion(index),
-                                    }"
-                                />
-                            </button>
+                            />
                         </AppTooltip>
                     </div>
                 </Transition>

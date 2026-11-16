@@ -5,10 +5,8 @@
  */
 import { AppButton } from '@/components/base/button';
 import { AppScrollArea } from '@/components/base/scroll-area';
-import GeneratorInput from '@/components/common/GeneratorInput.vue';
 import ApplicationSwitcher from '@/components/domain/RoutesExplorer/ApplicationSwitcher.vue';
 import RouteExplorerVersionSelector from '@/components/domain/RoutesExplorer/RouteExplorerVersionSelector.vue';
-import RoutesFilterDropdown from '@/components/domain/RoutesExplorer/RoutesFilterDropdown.vue';
 import RoutesList from '@/components/domain/RoutesExplorer/RoutesList/RoutesList.vue';
 import { showingSearchResultsKey } from '@/components/domain/RoutesExplorer/showingSearchResults';
 import RoutesListSkeleton from '@/components/layout/skeleton/RoutesListSkeleton.vue';
@@ -16,17 +14,13 @@ import { useTabVerticalScroll } from '@/composables/ui/useTabVerticalScroll';
 import { type RoutesFolder } from '@/interfaces/routes/routes';
 import { useConfigStore } from '@/stores/core/useConfigStore';
 import {
-    collectMethods,
-    collectMiddleware,
-    collectRoutes,
     emptyRouteFilters,
     filterFolders,
     hasActiveRouteFilters,
+    type RouteFilters,
     routeMatchesFilters,
 } from '@/utils/routes';
-import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
-import { useStorage } from '@vueuse/core';
-import { computed, provide, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, provide, useTemplateRef, watch } from 'vue';
 
 /*
  * Types & Interfaces.
@@ -36,8 +30,9 @@ export interface RouteExplorerProps {
     routes: { [_key in string]?: RoutesFolder[] } | null;
     loading?: boolean;
     error?: string | null;
-    // Unix seconds of the routes snapshot, the refresh button is hidden without it.
-    snapshotAt?: number | null;
+    // The keyword and filters come from the toolbar above the explorer.
+    search?: string;
+    filters?: RouteFilters;
 }
 
 /*
@@ -47,23 +42,21 @@ export interface RouteExplorerProps {
 const props = withDefaults(defineProps<RouteExplorerProps>(), {
     loading: false,
     error: null,
-    snapshotAt: null,
+    search: '',
+    filters: () => emptyRouteFilters(),
 });
 
 defineEmits<{
     retry: [];
-    refresh: [];
 }>();
+
+const currentVersion = defineModel<string>('version', { default: '' });
 
 const configStore = useConfigStore();
 
 /*
  * State.
  */
-
-const search = useStorage(singletonPersistenceKey('routes-explorer-search-keyword'), '');
-const currentVersion = shallowRef('');
-const filters = ref(emptyRouteFilters());
 
 const scrollAreaRef = useTemplateRef<InstanceType<typeof AppScrollArea>>('scrollAreaRef');
 
@@ -77,27 +70,10 @@ const {
 });
 
 /*
- * Watchers.
+ * Computed & Methods.
  */
 
 const versions = computed(() => Object.keys(props.routes || {}));
-
-// Initialize or update current version when versions list changes (e.g. after project switch)
-watch(
-    versions,
-    newVersions => {
-        if (newVersions.length > 0 && !newVersions.includes(currentVersion.value)) {
-            currentVersion.value = newVersions[0];
-        } else if (newVersions.length === 0) {
-            currentVersion.value = '';
-        }
-    },
-    { immediate: true },
-);
-
-/*
- * Computed & Methods.
- */
 
 const routesInVersion = computed(() => {
     if (props.routes === null) {
@@ -107,17 +83,14 @@ const routesInVersion = computed(() => {
     return props.routes[currentVersion.value] ?? [];
 });
 
-const allRoutes = computed(() => collectRoutes(routesInVersion.value));
-const availableMethods = computed(() => collectMethods(allRoutes.value));
-const availableMiddleware = computed(() => collectMiddleware(allRoutes.value));
-const filtersAreActive = computed(() => hasActiveRouteFilters(filters.value));
+const filtersAreActive = computed(() => hasActiveRouteFilters(props.filters));
 
 const filteredRoutes = computed(() => {
     if (props.routes === null) {
         return [];
     }
 
-    const searchTerm = search.value.trim().toLowerCase();
+    const searchTerm = props.search.trim().toLowerCase();
 
     if (!searchTerm && !filtersAreActive.value) {
         return routesInVersion.value;
@@ -126,7 +99,7 @@ const filteredRoutes = computed(() => {
     return filterFolders(
         routesInVersion.value,
         route =>
-            routeMatchesFilters(route, filters.value) &&
+            routeMatchesFilters(route, props.filters) &&
             (!searchTerm ||
                 (route.keywords?.some((keyword: string) =>
                     keyword.toLowerCase().includes(searchTerm),
@@ -139,14 +112,8 @@ const hasMultipleApplications = computed(
     () => Object.keys(configStore.applications).length > 1,
 );
 
-const snapshotTitle = computed(() =>
-    props.snapshotAt
-        ? `Refresh routes. Last updated ${new Date(props.snapshotAt * 1000).toLocaleString()}.`
-        : 'Refresh routes',
-);
-
 const showingSearchResults = computed(
-    () => search.value.trim().length > 0 || filtersAreActive.value,
+    () => props.search.trim().length > 0 || filtersAreActive.value,
 );
 
 watch(
@@ -164,36 +131,6 @@ provide(showingSearchResultsKey, showingSearchResults);
 
 <template>
     <div class="text-default flex h-full max-h-screen w-full flex-col">
-        <div class="pb-tight gap-tight flex shrink-0 items-center">
-            <GeneratorInput
-                v-model="search"
-                size="md"
-                variant="outline"
-                leading-icon="i-hugeicons-search-01"
-                placeholder="Type to search..."
-                :disabled="routesInVersion.length === 0"
-                class="min-w-0 flex-1"
-            />
-            <RoutesFilterDropdown
-                v-model="filters"
-                :routes="allRoutes"
-                :methods="availableMethods"
-                :middleware="availableMiddleware"
-                :disabled="routesInVersion.length === 0"
-            />
-            <AppButton
-                v-if="snapshotAt"
-                icon="i-hugeicons-reload"
-                color="neutral"
-                variant="outline"
-                size="md"
-                :loading="loading"
-                :title="snapshotTitle"
-                aria-label="Refresh routes"
-                data-testid="routes-refresh"
-                @click="$emit('refresh')"
-            />
-        </div>
         <div class="gap-base flex min-h-0 flex-1 flex-col overflow-hidden">
             <div
                 data-testid="routes-panel"
@@ -214,7 +151,7 @@ provide(showingSearchResultsKey, showingSearchResults);
                         class="h-full"
                         @scroll="updateRoutesScrollMasks"
                     >
-                        <ul class="gap-tight flex w-full min-w-0 flex-col">
+                        <div class="gap-tight flex w-full min-w-0 flex-col">
                             <RoutesListSkeleton v-if="loading" />
                             <RoutesList
                                 v-else-if="routes !== null"
@@ -243,7 +180,7 @@ provide(showingSearchResultsKey, showingSearchResults);
                                     the page.
                                 </p>
                             </div>
-                        </ul>
+                        </div>
                     </AppScrollArea>
                     <div
                         v-show="showRoutesBottomMask"

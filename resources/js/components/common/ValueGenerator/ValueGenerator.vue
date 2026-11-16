@@ -144,7 +144,7 @@ watch(
                 @click.stop
             >
                 <div
-                    class="border-default shadow-overlay overflow-hidden rounded-lg border"
+                    class="border-default shadow-overlay overflow-hidden rounded-sm border"
                     data-ValueGenerator-focus-hook
                     data-testid="value-generator-focus-hook"
                     @keydown.escape="store.closeCommand"

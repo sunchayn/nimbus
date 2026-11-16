@@ -103,7 +103,7 @@ const copyAll = () => {
     <PanelSubHeader class="border-b">
         Cookies ({{ normalizedCookies.length }})
         <template #toolbox>
-            <div class="gap-base flex translate-x-2 items-center">
+            <div class="gap-tight flex items-center">
                 <AppTooltip
                     text="Only available on the current host"
                     :disabled="isCurrentHost"
@@ -123,13 +123,11 @@ const copyAll = () => {
                         />
                     </span>
                 </AppTooltip>
-                <div class="px-panel flex-start flex w-10 items-center">
-                    <CopyButton
-                        :disabled="!hasCookies"
-                        :on-click="copyAll"
-                        :copied="copied"
-                    />
-                </div>
+                <CopyButton
+                    :disabled="!hasCookies"
+                    :on-click="copyAll"
+                    :copied="copied"
+                />
             </div>
         </template>
     </PanelSubHeader>

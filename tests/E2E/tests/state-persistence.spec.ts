@@ -60,10 +60,14 @@ test("State Persistence sanity checklist", async ({page}) => {
       - listitem:
         - button "inline-validation" [expanded]
         - list:
-          - button "POST /complex"
-          - button "POST /conditional"
-          - button "POST /enum"
-          - button "POST /simple"
+          - listitem:
+            - button "POST /complex"
+          - listitem:
+            - button "POST /conditional"
+          - listitem:
+            - button "POST /enum"
+          - listitem:
+            - button "POST /simple"
       - listitem:
         - button "request-parameters"
       - listitem:
@@ -73,8 +77,10 @@ test("State Persistence sanity checklist", async ({page}) => {
       - listitem:
         - button "shapes" [expanded]
         - list:
-          - button "POST /array-of-primitives"
-          - button "POST /nested-object"
+          - listitem:
+            - button "POST /array-of-primitives"
+          - listitem:
+            - button "POST /nested-object"
       - listitem:
         - button "spatie-data"
       - listitem:
@@ -108,7 +114,8 @@ test("State Persistence sanity checklist", async ({page}) => {
       - listitem:
         - button "authentication" [expanded]
         - list:
-          - button "GET /show-logged-in-user"
+          - listitem:
+            - button "GET /show-logged-in-user"
     `);
 
     await expect(page.getByTestId("response-content")).toMatchAriaSnapshot(`

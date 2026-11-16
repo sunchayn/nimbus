@@ -2,6 +2,7 @@ import { useAppToast } from '@/components/base/toast';
 import type { WorkspaceListing } from '@/interfaces/workspace';
 import { useConfigStore } from '@/stores/core/useConfigStore';
 import { useTabsStore } from '@/stores/request/useTabsStore';
+import { defaultRequestName } from '@/utils/request/tabTitle';
 import {
     createWorkspaceFolder,
     deleteWorkspaceFolder,
@@ -245,7 +246,9 @@ export const useWorkspaceStore = defineStore(
                 for (const tab of tabsStore.tabs.filter(
                     candidate => !candidate.workspace,
                 )) {
-                    const name = (tab.customTitle ?? tab.title ?? '').trim() || 'Request';
+                    const name =
+                        (tab.customTitle ?? defaultRequestName(tab.title)).trim() ||
+                        'Request';
 
                     try {
                         const payload = toRequestFile(tab.request, name);

@@ -15,16 +15,21 @@ const configStore = useConfigStore();
 <template>
     <div class="p-base flex h-full overflow-hidden" data-testid="skeleton-main">
         <aside
-            class="gap-tight flex shrink-0 flex-col overflow-hidden max-md:hidden"
+            class="flex shrink-0 flex-col overflow-hidden max-md:hidden"
             style="width: var(--shell-explorer-width, 20%)"
             data-testid="skeleton-sidebar"
         >
-            <AppSkeleton
+            <div class="gap-tight mb-base flex shrink-0 items-center">
+                <AppSkeleton class="h-control-md min-w-0 flex-1" />
+                <AppSkeleton class="h-control-md w-control-md shrink-0" />
+            </div>
+            <div
                 v-if="configStore.workspaceEnabled"
-                class="h-control-md w-full"
+                class="h-pane-header mb-tight shrink-0"
                 data-testid="skeleton-sidebar-tabs"
-            />
-            <AppSkeleton class="h-control-md w-full" />
+            >
+                <AppSkeleton class="h-full w-full" />
+            </div>
             <ul class="flex flex-col">
                 <RoutesListSkeleton />
             </ul>

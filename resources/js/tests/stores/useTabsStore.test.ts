@@ -102,7 +102,7 @@ describe('useTabsStoreUnitTest', () => {
             expect(store.tabs).toHaveLength(1);
             expect(store.tabs[0].id).toMatch(/^[0-9a-f-]{36}$/);
             expect(store.activeTabId).toBe(store.tabs[0].id);
-            expect(store.activeTab?.title).toBe('users');
+            expect(store.activeTab?.title).toBe('/users');
         });
 
         it('activates the existing tab when its request was not sent yet', () => {
@@ -611,7 +611,7 @@ describe('useTabsStoreUnitTest', () => {
             expect(store.tabs[1].request.endpoint).toBe('posts');
             expect(store.tabs[1].id).toBe(activeTabId);
             expect(store.activeTabId).toBe(store.tabs[2].id);
-            expect(store.activeTab?.title).toBe('users');
+            expect(store.activeTab?.title).toBe('/users');
             expect(store.activeTab?.method).toBe('GET');
             expect(store.activeRequest?.routeDefinition).toEqual(baseRoute);
             expect(store.activeRequest?.wasExecuted).toBe(true);

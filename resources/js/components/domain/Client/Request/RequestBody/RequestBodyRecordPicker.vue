@@ -76,7 +76,11 @@ const choose = (field: string, event: Event) => {
 </script>
 
 <template>
-    <AppPopover v-if="fields.length" :content="{ align: 'start' }">
+    <AppPopover
+        v-if="fields.length"
+        :content="{ align: 'start' }"
+        :ui="{ content: 'w-64 p-0' }"
+    >
         <AppButton
             size="sm"
             variant="outline"
@@ -88,24 +92,27 @@ const choose = (field: string, event: Event) => {
         />
 
         <template #content>
-            <div class="gap-base p-base flex w-72 flex-col text-sm">
-                <div class="gap-tight flex flex-col" data-testid="record-picker-title">
-                    <h4 class="text-sm leading-none font-medium">Existing records</h4>
-                    <p class="text-muted text-xs">
-                        Pick a value that already exists in your database for the fields
-                        with an exists rule.
-                    </p>
-                </div>
+            <p
+                class="px-control-sm py-tight text-menu-label border-b-line border-default text-muted font-semibold"
+                data-testid="record-picker-title"
+            >
+                Existing records
+            </p>
+            <div class="gap-base p-base flex flex-col">
+                <p class="text-muted text-xs">
+                    Pick a value that already exists in your database for the fields with
+                    an exists rule.
+                </p>
                 <label
                     v-for="field in fields"
                     :key="field.field"
-                    class="gap-tight flex flex-col"
+                    class="gap-hair flex flex-col"
                 >
-                    <span class="text-xs font-medium">
+                    <span class="text-muted font-mono text-xs">
                         {{ field.field }} ({{ field.table }}.{{ field.column }})
                     </span>
                     <select
-                        class="border-default bg-default px-tight py-tight rounded-sm border"
+                        class="border-default bg-default px-tight py-hair rounded-sm border text-xs"
                         :data-testid="`record-picker-${field.field}`"
                         @change="choose(field.field, $event)"
                     >

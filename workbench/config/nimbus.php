@@ -2,7 +2,7 @@
 
 return [
     'prefix' => 'demo',
-    'display_app_name' => true,
+    'display_app_name' => false,
     'default_application' => 'main',
     'allowed_envs' => ['testing', 'local', 'staging', 'production'],
     'nested_folders' => true,

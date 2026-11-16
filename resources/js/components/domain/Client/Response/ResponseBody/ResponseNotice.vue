@@ -22,7 +22,7 @@ defineProps<ResponseNoticeProps>();
 </script>
 
 <template>
-    <div class="border-muted bg-default rounded-md border text-sm">
+    <div class="border-muted bg-default rounded-sm border text-sm">
         <div class="px-panel gap-base py-tight flex items-center border-b">
             <AppRoundIndicator :class="indicatorClass" />
             {{ label }}

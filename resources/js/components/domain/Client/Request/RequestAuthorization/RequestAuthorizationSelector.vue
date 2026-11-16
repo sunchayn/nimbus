@@ -105,13 +105,13 @@ watch(
 
 <template>
     <div class="flex items-center">
-        <span class="text-muted w-30 text-xs">Authorization Type:</span>
+        <span class="text-muted shrink-0 text-xs whitespace-nowrap">Type:&nbsp;</span>
         <AppSelect
             v-model="model"
             :items="items"
             variant="ghost"
-            size="sm"
-            class="min-w-30 rounded-none"
+            size="xs"
+            class="w-fit"
         />
     </div>
 </template>

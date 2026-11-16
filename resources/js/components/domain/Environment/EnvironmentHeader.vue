@@ -166,7 +166,7 @@ watch(
                             :name="
                                 isConfirmingRemoval()
                                     ? 'i-hugeicons-tick-02'
-                                    : 'i-hugeicons-delete-02'
+                                    : 'i-hugeicons-delete-01'
                             "
                             class="size-icon-sm"
                         />

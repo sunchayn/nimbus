@@ -25,7 +25,9 @@
     body {
         background: var(--ui-bg);
         color: var(--ui-text);
-        -webkit-font-smoothing: antialiased;
+        /* Nuxt UI sets antialiased, which thins and fades text on macOS. */
+        -webkit-font-smoothing: auto;
+        -moz-osx-font-smoothing: auto;
         text-rendering: optimizeLegibility;
     }
 
@@ -58,6 +60,11 @@
     /* Line icons read their stroke from a token, so a theme can make them bolder. */
     .iconify--hugeicons [stroke-width] {
         stroke-width: var(--icon-stroke-w);
+    }
+
+    /* Menu icons are as tall as the capital letters of the label, and their stroke matches the text weight. */
+    .menu-icon {
+        --icon-stroke-w: 2;
     }
 
     button:disabled,
@@ -137,6 +144,10 @@
     padding-inline-end: --value(--control-inline-*);
 }
 
+@utility ps-field-leading-* {
+    padding-inline-start: --value(--field-leading-*);
+}
+
 @utility gap-control-* {
     gap: --value(--control-space-*);
 }
@@ -149,6 +160,19 @@
     border: var(--spacing-line) solid var(--ui-border);
     border-radius: var(--radius-pane);
     overflow: hidden;
+}
+
+/*
+ * Buttons in a sub header squeeze into the padding of the section.
+ * The height is the bar minus its vertical padding and its bottom border.
+ */
+@utility sub-toolbox {
+    & button {
+        height: calc(
+            var(--sub-toolbar-height) - 2 * var(--spacing-tight) - var(--spacing-line)
+        ) !important;
+        min-height: 0 !important;
+    }
 }
 
 @utility no-scrollbar {
@@ -211,6 +235,17 @@
 
     /* Inset, so a parent with hidden overflow never crops the ring. */
     outline-offset: calc(var(--focus-ring-w) * -1);
+}
+
+/* Tab panels are not tab stops, so the panel itself never shows a focus ring. */
+[role='tabpanel']:focus-visible {
+    outline: none;
+}
+
+/* The editor shows no focus ring, the caret already marks the focus. */
+.cm-editor.cm-focused,
+.cm-editor :focus-visible {
+    outline: none !important;
 }
 
 @utility mask-fade-start {

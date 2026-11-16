@@ -51,9 +51,11 @@ const items = computed<AppDropdownMenuItem[][]>(() => [
 <template>
     <AppDropdownMenu :items="items" :content="{ align: 'end' }">
         <AppButton
-            variant="ghost"
+            variant="outline"
             color="neutral"
-            size="sm"
+            size="xs"
+            square
+            class="h-control-pane! w-control-pane! shrink-0"
             icon="i-hugeicons-download-04"
             aria-label="Download"
             data-testid="download-dropdown-trigger"

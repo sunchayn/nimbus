@@ -61,8 +61,8 @@ const closeDialog = () => {
         @update:open="emits('update:open', $event)"
     >
         <template #body>
-            <div class="gap-base flex min-h-0 flex-1 flex-col">
-                <div class="gap-base flex items-center justify-between">
+            <div class="gap-dialog-gap flex min-h-0 flex-1 flex-col">
+                <div class="gap-dialog-gap flex items-center justify-between">
                     <AppSelect
                         :model-value="selectedLanguage"
                         :items="languages"
@@ -83,7 +83,7 @@ const closeDialog = () => {
                 </div>
 
                 <pre
-                    class="bg-muted text-default border-default p-base h-full min-h-0 flex-1 overflow-auto rounded-md border font-mono text-xs leading-relaxed whitespace-pre"
+                    class="bg-muted text-default border-default p-base h-full min-h-0 flex-1 overflow-auto rounded-sm border font-mono text-xs leading-relaxed whitespace-pre"
                     data-testid="code-sample"
                     >{{ content }}</pre>
             </div>

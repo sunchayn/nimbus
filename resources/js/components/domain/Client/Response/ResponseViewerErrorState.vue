@@ -55,7 +55,7 @@ const errorBody = computed({
 
         <div
             v-if="props.error.body"
-            class="border-muted bg-default z-sticky relative min-h-0 flex-1 overflow-hidden rounded-md border text-sm"
+            class="border-muted bg-default z-sticky relative min-h-0 flex-1 overflow-hidden rounded-sm border text-sm"
         >
             <CodeEditor
                 v-model="errorBody"

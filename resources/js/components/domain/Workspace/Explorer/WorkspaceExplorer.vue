@@ -4,21 +4,46 @@
  * @description The saved requests of the workspace, listed as a folder tree in the sidebar.
  */
 import { AppButton } from '@/components/base/button';
+import type { AppContextMenuItem } from '@/components/base/context-menu';
 import { AppInputPopover } from '@/components/base/popover';
 import { AppScrollArea } from '@/components/base/scroll-area';
 import WorkspaceConfirmDialog from '@/components/domain/Workspace/Dialogs/WorkspaceConfirmDialog.vue';
-import WorkspaceFolder from '@/components/domain/Workspace/Tree/WorkspaceFolder.vue';
+import ExplorerItemRow from '@/components/domain/Explorer/ExplorerItemRow.vue';
+import ExplorerTree from '@/components/domain/Explorer/ExplorerTree.vue';
+import WorkspaceSaveOverlay from '@/components/domain/Workspace/Tree/WorkspaceSaveOverlay.vue';
+import type { RouteDefinition } from '@/interfaces/routes';
 import type { WorkspaceFolderNode, WorkspaceSummary } from '@/interfaces/workspace';
 import { useTabsStore } from '@/stores/request/useTabsStore';
 import { useWorkspaceStore } from '@/stores/workspace/useWorkspaceStore';
 import {
+    emptyRouteFilters,
+    hasActiveRouteFilters,
+    type RouteFilters,
+} from '@/utils/routes';
+import {
     buildWorkspaceTree,
+    filterWorkspaceRequests,
     isTabDirty,
+    pruneEmptyFolders,
     reorderFolderPaths,
     reorderRequestIds,
 } from '@/utils/workspace';
 import { computed, onMounted, shallowRef } from 'vue';
 import WorkspaceEmptyState from './WorkspaceEmptyState.vue';
+
+const props = withDefaults(
+    defineProps<{
+        // The keyword and filters come from the toolbar above the explorer.
+        search?: string;
+        filters?: RouteFilters;
+        routes?: RouteDefinition[];
+    }>(),
+    {
+        search: '',
+        filters: () => emptyRouteFilters(),
+        routes: () => [],
+    },
+);
 
 const workspaceStore = useWorkspaceStore();
 const tabsStore = useTabsStore();
@@ -53,6 +78,34 @@ const tree = computed(() =>
         workspaceStore.listing?.folders ?? [],
         workspaceStore.listing?.requests ?? [],
     ),
+);
+
+const isFiltering = computed(
+    () => props.search.trim().length > 0 || hasActiveRouteFilters(props.filters),
+);
+
+// The full tree keeps serving the reordering, the shown one only has the matches.
+const shownTree = computed(() =>
+    isFiltering.value
+        ? pruneEmptyFolders(
+              buildWorkspaceTree(
+                  workspaceStore.listing?.folders ?? [],
+                  filterWorkspaceRequests(
+                      workspaceStore.listing?.requests ?? [],
+                      props.search,
+                      props.filters,
+                      props.routes,
+                  ),
+              ),
+          )
+        : tree.value,
+);
+
+const hasNoMatches = computed(
+    () =>
+        isFiltering.value &&
+        shownTree.value.items.length === 0 &&
+        shownTree.value.folders.length === 0,
 );
 
 const isEmpty = computed(
@@ -164,11 +217,31 @@ const confirmMigrate = async () => {
     await workspaceStore.migrateTabs();
 };
 
+const requestMenu = (request: WorkspaceSummary): AppContextMenuItem[][] => [
+    [
+        {
+            label: 'Delete',
+            icon: 'i-hugeicons-delete-01',
+            onSelect: () => askToDelete(request),
+        },
+    ],
+];
+
+const folderMenu = (folder: WorkspaceFolderNode): AppContextMenuItem[][] => [
+    [
+        {
+            label: 'Delete folder',
+            icon: 'i-hugeicons-delete-01',
+            onSelect: () => askToDeleteFolder(folder),
+        },
+    ],
+];
+
 const moveTo = (id: string, folder: string) => workspaceStore.move(id, { folder });
 </script>
 
 <template>
-    <div class="gap-tight flex min-h-0 flex-col" data-testid="workspace-panel">
+    <div class="gap-tight mt-hair flex min-h-0 flex-col" data-testid="workspace-panel">
         <div v-if="workspaceStore.error" class="px-base" data-testid="workspace-error">
             <p class="mb-base text-xs">The workspace could not be loaded.</p>
             <p class="text-muted mb-base text-xs">{{ workspaceStore.error }}</p>
@@ -191,7 +264,7 @@ const moveTo = (id: string, folder: string) => workspaceStore.move(id, { folder 
                     title="Move my tabs here"
                     color="neutral"
                     variant="outline"
-                    size="xs"
+                    size="sm"
                     square
                     :loading="workspaceStore.isMigrating"
                     data-testid="workspace-migrate"
@@ -210,7 +283,7 @@ const moveTo = (id: string, folder: string) => workspaceStore.move(id, { folder 
                         label="New folder"
                         color="neutral"
                         variant="outline"
-                        size="xs"
+                        size="sm"
                         data-testid="workspace-new-folder"
                     />
                 </AppInputPopover>
@@ -218,22 +291,50 @@ const moveTo = (id: string, folder: string) => workspaceStore.move(id, { folder 
 
             <WorkspaceEmptyState v-if="isEmpty" :is-loading="workspaceStore.isLoading" />
 
+            <p
+                v-else-if="hasNoMatches"
+                class="text-muted px-base text-xs"
+                data-testid="workspace-no-matches"
+            >
+                No saved request matches your search.
+            </p>
+
             <AppScrollArea v-else class="min-h-0 flex-1">
-                <WorkspaceFolder
-                    is-root
-                    :node="tree"
-                    :active-id="tabsStore.activeTab?.workspace?.id"
-                    :dirty-ids="dirtyIds"
-                    @open="workspaceStore.open"
-                    @rename="renameRequest"
-                    @save="saveChanges"
-                    @delete="askToDelete"
-                    @delete-folder="askToDeleteFolder"
+                <ExplorerTree
+                    :node="shownTree"
+                    :item-key="request => request.id"
+                    :item-label="request => request.name"
+                    :is-open="path => isFiltering || workspaceStore.isFolderOpen(path)"
+                    :item-menu="requestMenu"
+                    :folder-menu="folderMenu"
+                    :draggable="!isFiltering"
+                    renamable
+                    test-id="workspace"
+                    @toggle="workspaceStore.toggleFolder"
+                    @rename-item="renameRequest"
                     @rename-folder="renameFolder"
-                    @drop="moveTo"
-                    @reorder="reorderFolder"
-                    @reorder-request="reorderRequest"
-                />
+                    @move-item="moveTo"
+                    @reorder-folder="reorderFolder"
+                    @reorder-item="reorderRequest"
+                >
+                    <template #item="{ item }">
+                        <ExplorerItemRow
+                            :method="item.method"
+                            :is-active="tabsStore.activeTab?.workspace?.id === item.id"
+                            :title="item.file"
+                            @click="workspaceStore.open(item.id)"
+                        >
+                            {{ item.name }}
+                        </ExplorerItemRow>
+                    </template>
+                    <template #item-overlay="{ item }">
+                        <WorkspaceSaveOverlay
+                            v-if="dirtyIds.includes(item.id)"
+                            :request="item"
+                            @save="saveChanges"
+                        />
+                    </template>
+                </ExplorerTree>
             </AppScrollArea>
         </template>
 

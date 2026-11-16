@@ -7,6 +7,7 @@ import {
     fallbackExtensions,
     jsonExtensions,
 } from '@/components/domain/CodeEditor/extensions';
+import { CODE_EDITOR_INDENT } from '@/config/code-editor';
 import { singletonPersistenceKey } from '@/utils/stores/uniquePersistenceKey';
 import type { Extension } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
@@ -107,7 +108,7 @@ defineExpose({ view });
             :style="{ height: autoHeight ? 'auto' : '100%', minHeight: '100%' }"
             :extensions="extensions"
             :indent-with-tab="true"
-            :tab-size="4"
+            :tab-size="CODE_EDITOR_INDENT"
             :model-value="model"
             :disabled="disabled"
             @change="updateModel"
@@ -115,7 +116,7 @@ defineExpose({ view });
         />
         <label
             v-if="wrappable && (wrap || overflowing)"
-            class="top-tight right-tight z-sticky bg-default/40 px-base py-tight hover:bg-default has-focus-visible:bg-default absolute flex cursor-pointer items-center rounded-md border opacity-0 shadow-xs backdrop-blur-sm transition group-hover:opacity-60 hover:opacity-100 has-focus-visible:opacity-100"
+            class="top-tight right-tight z-sticky bg-default/40 px-base py-tight hover:bg-default has-focus-visible:bg-default absolute flex cursor-pointer items-center rounded-sm border opacity-0 shadow-xs backdrop-blur-sm transition group-hover:opacity-60 hover:opacity-100 has-focus-visible:opacity-100"
         >
             <UCheckbox v-model="wrap" size="xs" data-testid="code-editor-wrap-toggle" />
             <span class="ml-base text-xs font-medium">Soft-Wrap</span>

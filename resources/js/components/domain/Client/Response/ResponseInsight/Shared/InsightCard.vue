@@ -20,8 +20,8 @@ const open = defineModel<boolean>('open', { default: false });
 const slots = useSlots();
 
 const frameClass = computed(() => [
-    'border-muted bg-default @container relative overflow-hidden rounded-md border',
-    'after:ring-focus after:ring-primary after:z-raised after:pointer-events-none after:absolute after:inset-0 after:rounded-md after:ring-inset',
+    'border-muted bg-default @container relative overflow-hidden rounded-sm border',
+    'after:ring-focus after:ring-primary after:z-raised after:pointer-events-none after:absolute after:inset-0 after:rounded-sm after:ring-inset',
     'after:duration-base motion-safe:after:transition-opacity',
     props.highlighted ? 'after:opacity-100' : 'after:opacity-0',
 ]);

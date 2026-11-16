@@ -10,7 +10,7 @@ import {
     AppPanelHeader,
     AppPanelTitle,
 } from '@/components/base/panel';
-import GeneratorInput from '@/components/common/GeneratorInput.vue';
+import { AppInput } from '@/components/base/input';
 import { useConfigStore } from '@/stores/core/useConfigStore';
 import RequestAuthorizationImpersonateUser from './RequestAuthorizationImpersonateUser.vue';
 
@@ -55,14 +55,14 @@ const abilities = defineModel<string>('abilities', { default: () => '*' });
                 tokens-only
                 @update:guard="value => emit('update:guard', value)"
             />
-            <div class="h-control-lg grid grid-cols-3 border-b">
+            <div class="h-control-field grid grid-cols-3 border-b">
                 <label
-                    class="px-panel h-control-lg py-tight flex items-center border-r text-xs"
+                    class="px-panel h-control-field py-tight flex items-center border-r text-xs"
                     for="token-abilities"
                 >
                     Abilities
                 </label>
-                <GeneratorInput
+                <AppInput
                     id="token-abilities"
                     v-model="abilities"
                     placeholder="Comma separated, for example posts:read, posts:write"

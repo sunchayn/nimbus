@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * @component ExplorerRow
- * @description A clickable row used by the routes explorer lists.
+ * @description A clickable row used by the explorer trees.
  */
 
 /*

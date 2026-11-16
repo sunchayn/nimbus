@@ -500,6 +500,32 @@ describe('payloadGenerator', () => {
             }
         });
 
+        it('makes shorter arrays more likely than longer ones', () => {
+            // Arrange
+
+            const schema: JSONSchema7 = {
+                type: 'object',
+                properties: {
+                    tags: { type: 'array', items: { type: 'string' } },
+                },
+            };
+
+            const counts = new Map<number, number>();
+
+            // Act
+
+            for (let run = 0; run < 400; run++) {
+                const length = (generateRandomPayload(schema).tags as unknown[]).length;
+
+                counts.set(length, (counts.get(length) ?? 0) + 1);
+            }
+
+            // Assert
+
+            expect(counts.get(1)).toBeGreaterThan(counts.get(2) ?? 0);
+            expect(counts.get(2) ?? 0).toBeGreaterThan(counts.get(4) ?? 0);
+        });
+
         it('starts a placeholder at the minimum number of items', () => {
             // Arrange
 

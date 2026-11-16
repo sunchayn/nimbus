@@ -10,6 +10,7 @@ import { AppLabel } from '@/components/base/label';
 import { useTabsStore } from '@/stores/request/useTabsStore';
 import { useWorkspaceStore } from '@/stores/workspace/useWorkspaceStore';
 import { shallowRef, watch } from 'vue';
+import { defaultRequestName } from '@/utils/request/tabTitle';
 
 const open = defineModel<boolean>('open', { required: true });
 
@@ -24,7 +25,8 @@ watch(open, isOpen => {
     if (isOpen) {
         const tab = tabsStore.activeTab;
 
-        name.value = tab?.workspace?.name ?? tab?.customTitle ?? tab?.title ?? '';
+        name.value =
+            tab?.workspace?.name ?? tab?.customTitle ?? defaultRequestName(tab?.title);
         folder.value = '';
     }
 });
@@ -55,7 +57,7 @@ const submit = async () => {
         <template #body>
             <form
                 id="save-request-form"
-                class="gap-base flex flex-col"
+                class="gap-dialog-gap flex flex-col"
                 data-testid="save-request-form"
                 @submit.prevent="submit"
             >

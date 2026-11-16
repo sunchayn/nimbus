@@ -117,7 +117,7 @@ const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
 </script>
 
 <template>
-    <div class="h-toolbar flex min-w-0 flex-1 items-center">
+    <div class="flex min-w-0 flex-1 items-center">
         <!-- Endpoint Input with Rich Env Variables Highlighting -->
         <EnvironmentAwareInput
             v-model="endpoint"
@@ -137,6 +137,7 @@ const executeCurrentRequestWhenEnterIsPressed = (event: KeyboardEvent) => {
                 <template #anchor>
                     <AppTooltip text="Send (Enter)">
                         <AppButton
+                            class="h-control-pane!"
                             size="sm"
                             label="Send"
                             data-shortcut="send"

@@ -803,14 +803,14 @@ describe('useWorkspaceStore conflicts and migration', () => {
 
         expect(api.saveWorkspaceRequest).toHaveBeenCalledTimes(2);
         expect(tabsStore.tabs[0].workspace).toMatchObject({
-            name: 'users',
+            name: '/users',
             hash: 'hash-1',
         });
         expect(tabsStore.tabs[1].workspace).toBeUndefined();
         expect(toast.warning).toHaveBeenCalledWith(
             '1 tabs moved, 1 skipped',
             expect.objectContaining({
-                description: expect.stringContaining('posts: Use a variable.'),
+                description: expect.stringContaining('/posts: Use a variable.'),
             }),
         );
     });

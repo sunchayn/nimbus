@@ -6,10 +6,9 @@
 import { AppButton } from '@/components/base/button';
 import { AppIcon } from '@/components/base/icons';
 import { AppPopover } from '@/components/base/popover';
-import GeneratorInput from '@/components/common/GeneratorInput.vue';
+import { AppInput } from '@/components/base/input';
 import HistoryItem from '@/components/domain/Client/Response/ResponseStatus/History/HistoryItem.vue';
 import { useConfirmationAction } from '@/composables/ui/useConfirmationAction';
-import { useShortTimeAgo } from '@/composables/ui/useShortTimeAgo';
 import { type RequestLog } from '@/interfaces/history/logs';
 import { type Response } from '@/interfaces/http';
 import { useRequestsHistoryStore } from '@/stores/request/useRequestsHistoryStore';
@@ -36,8 +35,7 @@ const historyStore = useRequestsHistoryStore();
 const isOpen = shallowRef(false);
 const searchQuery = shallowRef('');
 const statusClasses = shallowRef<StatusClass[]>([]);
-const searchInputRef =
-    useTemplateRef<InstanceType<typeof GeneratorInput>>('searchInputRef');
+const searchInputRef = useTemplateRef<InstanceType<typeof AppInput>>('searchInputRef');
 const {
     isConfirming: isConfirmingClear,
     trigger: triggerClear,
@@ -49,24 +47,6 @@ const {
  */
 
 type LogWithResponse = RequestLog & { response: Response };
-
-const lastTimestamp = computed(() => {
-    const timestamp = historyStore.lastLog?.response?.timestamp;
-
-    return timestamp === undefined ? null : new Date(timestamp * 1000);
-});
-
-const timeAgo = useShortTimeAgo(computed(() => lastTimestamp.value ?? new Date()));
-
-const absoluteTime = computed(() =>
-    lastTimestamp.value?.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    }),
-);
 
 const logs = computed(() =>
     [...historyStore.allLogs]
@@ -136,22 +116,22 @@ watch(isOpen, async open => {
         }"
     >
         <AppButton
-            variant="ghost"
+            class="h-control-pane! w-control-pane!"
+            variant="outline"
             color="neutral"
-            size="sm"
+            size="xs"
+            square
             icon="i-hugeicons-history"
             aria-label="Request history"
             trailing
             data-testid="response-history-trigger"
-        >
-            <small class="text-muted text-xs @max-md:hidden" :title="absoluteTime">
-                {{ timeAgo }}
-            </small>
-        </AppButton>
+        />
 
         <template #content>
-            <div class="border-default gap-tight p-tight flex items-center border-b">
-                <GeneratorInput
+            <div
+                class="border-default gap-tight py-tight pe-tight flex items-center border-b"
+            >
+                <AppInput
                     ref="searchInputRef"
                     v-model="searchQuery"
                     variant="none"
@@ -162,10 +142,10 @@ watch(isOpen, async open => {
                     data-testid="history-search-input"
                 />
                 <AppButton
-                    variant="ghost"
-                    size="sm"
+                    variant="outline"
+                    size="xs"
                     :color="isConfirmingClear() ? 'error' : 'neutral'"
-                    icon="i-hugeicons-delete-02"
+                    icon="i-hugeicons-delete-01"
                     :label="isConfirmingClear() ? 'Confirm' : 'Clear'"
                     data-testid="clear-history-button"
                     @click="handleClearHistory"
@@ -180,7 +160,7 @@ watch(isOpen, async open => {
                     v-for="statusClass in STATUS_CLASSES"
                     :key="statusClass"
                     type="button"
-                    class="border-default px-tight py-tight rounded-sm border"
+                    class="border-default h-control-xs px-tight rounded-sm border"
                     :class="{
                         'bg-elevated text-highlighted':
                             statusClasses.includes(statusClass),
@@ -210,7 +190,7 @@ watch(isOpen, async open => {
                         />
                         <button
                             type="button"
-                            class="end-base text-muted hover:text-highlighted bottom-base absolute focus-visible:opacity-100"
+                            class="inset-e-base text-muted hover:text-highlighted bottom-base absolute focus-visible:opacity-100"
                             :class="
                                 log.pinned
                                     ? 'text-highlighted'
