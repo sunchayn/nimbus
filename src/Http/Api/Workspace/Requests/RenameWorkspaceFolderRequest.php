@@ -6,7 +6,6 @@ namespace Sunchayn\Nimbus\Http\Api\Workspace\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Sunchayn\Nimbus\Http\Api\Workspace\Requests\Concerns\ResolvesFolderPath;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\RenameFolderData;
 
 class RenameWorkspaceFolderRequest extends FormRequest
 {
@@ -24,13 +23,5 @@ class RenameWorkspaceFolderRequest extends FormRequest
                 isNested: false,
             ),
         ];
-    }
-
-    public function toData(): RenameFolderData
-    {
-        return new RenameFolderData(
-            folder: $this->folderPath(),
-            name: $this->folderPath('name'),
-        );
     }
 }

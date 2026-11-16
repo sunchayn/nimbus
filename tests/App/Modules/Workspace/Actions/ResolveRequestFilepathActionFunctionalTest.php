@@ -7,7 +7,6 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Workspace\Actions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Workspace\Actions\ResolveRequestFilepathAction;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\RequestFile;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\ResolveRequestFilepathData;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 use Sunchayn\Nimbus\Tests\Concerns\UsesTemporaryWorkspace;
 use Sunchayn\Nimbus\Tests\TestCase;
@@ -35,7 +34,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
     {
         // Arrange
 
-        $data = $this->resolveData(
+        $data = $this->resolveArguments(
             folder: null,
             name: 'Create User!',
         );
@@ -44,7 +43,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         // Act
 
-        $filepath = $action->execute(data: $data);
+        $filepath = $action->execute(...$data);
 
         // Assert
 
@@ -58,7 +57,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
     {
         // Arrange
 
-        $data = $this->resolveData(
+        $data = $this->resolveArguments(
             folder: 'users/admin',
             name: 'Create user',
         );
@@ -67,7 +66,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         // Act
 
-        $filepath = $action->execute(data: $data);
+        $filepath = $action->execute(...$data);
 
         // Assert
 
@@ -81,7 +80,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
     {
         // Arrange
 
-        $data = $this->resolveData(
+        $data = $this->resolveArguments(
             folder: null,
             name: '!!!',
         );
@@ -90,7 +89,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         // Act
 
-        $filepath = $action->execute(data: $data);
+        $filepath = $action->execute(...$data);
 
         // Assert
 
@@ -104,7 +103,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
     {
         // Arrange
 
-        $data = $this->resolveData(
+        $data = $this->resolveArguments(
             folder: null,
             name: null,
         );
@@ -113,7 +112,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         // Act
 
-        $filepath = $action->execute(data: $data);
+        $filepath = $action->execute(...$data);
 
         // Assert
 
@@ -127,7 +126,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
     {
         // Arrange
 
-        $data = $this->resolveData(
+        $data = $this->resolveArguments(
             folder: null,
             name: str_repeat('a', 200),
         );
@@ -136,7 +135,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         // Act
 
-        $filepath = $action->execute(data: $data);
+        $filepath = $action->execute(...$data);
 
         // Assert
 
@@ -162,7 +161,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
             hash: null,
         );
 
-        $data = $this->resolveData(
+        $data = $this->resolveArguments(
             folder: null,
             name: 'Create user',
         );
@@ -171,7 +170,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         // Act
 
-        $filepath = $action->execute(data: $data);
+        $filepath = $action->execute(...$data);
 
         // Assert
 
@@ -192,7 +191,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         $current = $this->findRequest('request-1234');
 
-        $data = $this->resolveData(
+        $data = $this->resolveArguments(
             folder: null,
             name: 'Create user',
             current: $current,
@@ -202,7 +201,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         // Act
 
-        $filepath = $action->execute(data: $data);
+        $filepath = $action->execute(...$data);
 
         // Assert
 
@@ -224,7 +223,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         $current = $this->findRequest('request-1234');
 
-        $data = $this->resolveData(
+        $data = $this->resolveArguments(
             folder: null,
             name: null,
             current: $current,
@@ -234,7 +233,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         // Act
 
-        $filepath = $action->execute(data: $data);
+        $filepath = $action->execute(...$data);
 
         // Assert
 
@@ -256,7 +255,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         $current = $this->findRequest('request-1234');
 
-        $data = $this->resolveData(
+        $data = $this->resolveArguments(
             folder: 'archive',
             name: null,
             current: $current,
@@ -266,7 +265,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         // Act
 
-        $filepath = $action->execute(data: $data);
+        $filepath = $action->execute(...$data);
 
         // Assert
 
@@ -288,7 +287,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         $current = $this->findRequest('request-1234');
 
-        $data = $this->resolveData(
+        $data = $this->resolveArguments(
             folder: null,
             name: 'Register user',
             current: $current,
@@ -298,7 +297,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         // Act
 
-        $filepath = $action->execute(data: $data);
+        $filepath = $action->execute(...$data);
 
         // Assert
 
@@ -320,7 +319,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         $current = $this->findRequest('request-1234');
 
-        $data = $this->resolveData(
+        $data = $this->resolveArguments(
             folder: '',
             name: null,
             current: $current,
@@ -330,7 +329,7 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
 
         // Act
 
-        $filepath = $action->execute(data: $data);
+        $filepath = $action->execute(...$data);
 
         // Assert
 
@@ -340,14 +339,14 @@ class ResolveRequestFilepathActionFunctionalTest extends TestCase
         );
     }
 
-    private function resolveData(?string $folder, ?string $name, ?RequestFile $current = null): ResolveRequestFilepathData
+    private function resolveArguments(?string $folder, ?string $name, ?RequestFile $current = null): array
     {
         $folderPath = $folder === null ? null : FolderPath::from($folder);
 
-        return new ResolveRequestFilepathData(
-            folder: $folderPath,
-            name: $name,
-            current: $current,
-        );
+        return [
+            'folder' => $folderPath,
+            'name' => $name,
+            'current' => $current,
+        ];
     }
 }

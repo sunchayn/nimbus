@@ -9,7 +9,6 @@ use Illuminate\Validation\Rule;
 use Sunchayn\Nimbus\Http\Api\Workspace\Requests\Concerns\ResolvesFolderPath;
 use Sunchayn\Nimbus\Modules\Relay\Services\Authorization\Enums\AuthorizationTypeEnum;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SavedRequest;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SaveWorkspaceRequestData;
 
 class SaveWorkspaceRequestRequest extends FormRequest
 {
@@ -44,16 +43,12 @@ class SaveWorkspaceRequestRequest extends FormRequest
         ];
     }
 
-    public function toData(): SaveWorkspaceRequestData
+    public function hash(): ?string
     {
-        return new SaveWorkspaceRequestData(
-            savedRequest: $this->toRequestData(),
-            hash: $this->validated('hash'),
-            folder: $this->folderPath(),
-        );
+        return $this->validated('hash');
     }
 
-    private function toRequestData(): SavedRequest
+    public function savedRequest(): SavedRequest
     {
         return SavedRequest::fromArray([
             ...$this->validated(),

@@ -8,7 +8,6 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Doctor\Actions\RunDiagnosticsAction;
-use Sunchayn\Nimbus\Modules\Doctor\DataTransferObjects\DiagnoseData;
 use Sunchayn\Nimbus\Modules\Doctor\DataTransferObjects\DiagnosticCheckData;
 use Sunchayn\Nimbus\Modules\Doctor\Enums\DiagnosticStatusEnum;
 use Sunchayn\Nimbus\Modules\Doctor\Services\SingleThreadedServerDetector;
@@ -28,7 +27,10 @@ class RunDiagnosticsActionFunctionalTest extends TestCase
 
         // Act
 
-        $checks = $action->execute(new DiagnoseData('http://localhost:8000', 'http://localhost:8001'));
+        $checks = $action->execute(
+            pageUrl: 'http://localhost:8000',
+            baseUrl: 'http://localhost:8001',
+        );
 
         // Assert
 
@@ -51,7 +53,10 @@ class RunDiagnosticsActionFunctionalTest extends TestCase
 
         // Act
 
-        $checks = $action->execute(new DiagnoseData('http://localhost:8000', 'http://localhost:8001'));
+        $checks = $action->execute(
+            pageUrl: 'http://localhost:8000',
+            baseUrl: 'http://localhost:8001',
+        );
 
         // Assert
 
@@ -76,7 +81,10 @@ class RunDiagnosticsActionFunctionalTest extends TestCase
 
         // Act
 
-        $checks = $action->execute(new DiagnoseData('http://localhost:8000', 'http://localhost:8001'));
+        $checks = $action->execute(
+            pageUrl: 'http://localhost:8000',
+            baseUrl: 'http://localhost:8001',
+        );
 
         // Assert
 
@@ -93,7 +101,10 @@ class RunDiagnosticsActionFunctionalTest extends TestCase
 
         // Act
 
-        $checks = $action->execute(new DiagnoseData('http://localhost:8000', 'http://localhost:8001'));
+        $checks = $action->execute(
+            pageUrl: 'http://localhost:8000',
+            baseUrl: 'http://localhost:8001',
+        );
 
         // Assert
 
@@ -114,7 +125,10 @@ class RunDiagnosticsActionFunctionalTest extends TestCase
 
         // Act
 
-        $checks = $action->execute(new DiagnoseData('http://localhost:8000', 'http://localhost:8000'));
+        $checks = $action->execute(
+            pageUrl: 'http://localhost:8000',
+            baseUrl: 'http://localhost:8000',
+        );
 
         // Assert
 
@@ -136,7 +150,10 @@ class RunDiagnosticsActionFunctionalTest extends TestCase
 
         // Act
 
-        $checks = $action->execute(new DiagnoseData('http://localhost:8000', 'http://localhost:8001'));
+        $checks = $action->execute(
+            pageUrl: 'http://localhost:8000',
+            baseUrl: 'http://localhost:8001',
+        );
 
         // Assert
 

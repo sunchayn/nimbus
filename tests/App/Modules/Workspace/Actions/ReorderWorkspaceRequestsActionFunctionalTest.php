@@ -6,7 +6,6 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Workspace\Actions;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Workspace\Actions\ReorderWorkspaceRequestsAction;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\ReorderRequestsData;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 use Sunchayn\Nimbus\Tests\Concerns\UsesTemporaryWorkspace;
@@ -63,7 +62,7 @@ class ReorderWorkspaceRequestsActionFunctionalTest extends TestCase
             folder: 'users',
         );
 
-        $data = $this->reorderData(
+        $data = $this->reorderArguments(
             folder: 'users',
             ids: ['c', 'unknown', 'a'],
         );
@@ -72,7 +71,7 @@ class ReorderWorkspaceRequestsActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -107,7 +106,7 @@ class ReorderWorkspaceRequestsActionFunctionalTest extends TestCase
             hash: null,
         );
 
-        $data = $this->reorderData(
+        $data = $this->reorderArguments(
             folder: '',
             ids: ['b', 'a'],
         );
@@ -116,7 +115,7 @@ class ReorderWorkspaceRequestsActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -147,7 +146,7 @@ class ReorderWorkspaceRequestsActionFunctionalTest extends TestCase
             hash: null,
         );
 
-        $data = $this->reorderData(
+        $data = $this->reorderArguments(
             folder: 'users',
             ids: ['b', 'a'],
         );
@@ -156,7 +155,7 @@ class ReorderWorkspaceRequestsActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -170,7 +169,7 @@ class ReorderWorkspaceRequestsActionFunctionalTest extends TestCase
     {
         // Arrange
 
-        $data = $this->reorderData(
+        $data = $this->reorderArguments(
             folder: 'missing',
             ids: ['a'],
         );
@@ -184,7 +183,7 @@ class ReorderWorkspaceRequestsActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
     }
 
     public function test_it_scans_only_after_taking_the_lock(): void
@@ -198,7 +197,7 @@ class ReorderWorkspaceRequestsActionFunctionalTest extends TestCase
 
         $scanSpy = $this->spyOnScanLockState();
 
-        $data = $this->reorderData(
+        $data = $this->reorderArguments(
             folder: '',
             ids: ['request-1234'],
         );
@@ -207,7 +206,7 @@ class ReorderWorkspaceRequestsActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -220,11 +219,11 @@ class ReorderWorkspaceRequestsActionFunctionalTest extends TestCase
     /**
      * @param  list<string>  $ids
      */
-    private function reorderData(string $folder, array $ids): ReorderRequestsData
+    private function reorderArguments(string $folder, array $ids): array
     {
-        return new ReorderRequestsData(
-            folder: FolderPath::from($folder),
-            ids: $ids,
-        );
+        return [
+            'folder' => FolderPath::from($folder),
+            'ids' => $ids,
+        ];
     }
 }

@@ -17,7 +17,9 @@ class SaveWorkspaceRequestController
     public function __invoke(SaveWorkspaceRequestRequest $request): JsonResponse
     {
         $savedRequest = $this->saveWorkspaceRequestAction->execute(
-            data: $request->toData(),
+            savedRequest: $request->savedRequest(),
+            hash: $request->hash(),
+            folder: $request->folderPath(),
         );
 
         return response()->json(

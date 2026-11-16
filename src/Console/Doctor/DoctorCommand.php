@@ -7,7 +7,6 @@ namespace Sunchayn\Nimbus\Console\Doctor;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Sunchayn\Nimbus\Modules\Doctor\Actions\RunDiagnosticsAction;
-use Sunchayn\Nimbus\Modules\Doctor\DataTransferObjects\DiagnoseData;
 use Sunchayn\Nimbus\Modules\Doctor\Enums\DiagnosticStatusEnum;
 
 class DoctorCommand extends Command
@@ -21,10 +20,8 @@ class DoctorCommand extends Command
         $pageUrl = (string) $config->get('app.url');
 
         $checks = $runDiagnosticsAction->execute(
-            data: new DiagnoseData(
-                pageUrl: $pageUrl,
-                baseUrl: (string) ($config->get('nimbus.base_url') ?? $pageUrl),
-            ),
+            pageUrl: $pageUrl,
+            baseUrl: (string) ($config->get('nimbus.base_url') ?? $pageUrl),
         );
 
         $hasFailure = false;

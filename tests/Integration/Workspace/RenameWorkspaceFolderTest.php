@@ -10,7 +10,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Http\Api\Workspace\Controllers\RenameWorkspaceFolderController;
 use Sunchayn\Nimbus\Http\Api\Workspace\Requests\RenameWorkspaceFolderRequest;
 use Sunchayn\Nimbus\Modules\Workspace\Actions\RenameWorkspaceFolderAction;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\RenameFolderData;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 use Sunchayn\Nimbus\Tests\Concerns\UsesTemporaryWorkspace;
@@ -58,15 +57,15 @@ class RenameWorkspaceFolderTest extends TestCase
         $actionSpy
             ->shouldHaveReceived('execute')
             ->once()
-            ->withArgs(function (RenameFolderData $data): bool {
+            ->withArgs(function (FolderPath $folder, FolderPath $newName): bool {
                 $this->assertSame(
                     'users/admin',
-                    (string) $data->folder,
+                    (string) $folder,
                 );
 
                 $this->assertSame(
                     'operators',
-                    (string) $data->name,
+                    (string) $newName,
                 );
 
                 return true;

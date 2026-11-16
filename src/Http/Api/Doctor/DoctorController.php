@@ -8,7 +8,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Doctor\Actions\RunDiagnosticsAction;
-use Sunchayn\Nimbus\Modules\Doctor\DataTransferObjects\DiagnoseData;
 use Sunchayn\Nimbus\Modules\Doctor\DataTransferObjects\DiagnosticCheckData;
 use Throwable;
 
@@ -28,7 +27,8 @@ class DoctorController
         }
 
         $checks = $runDiagnosticsAction->execute(
-            data: new DiagnoseData(pageUrl: $pageUrl, baseUrl: $baseUrl),
+            pageUrl: $pageUrl,
+            baseUrl: $baseUrl,
         );
 
         return response()->json(

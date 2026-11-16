@@ -6,7 +6,6 @@ namespace Sunchayn\Nimbus\Http\Api\Workspace\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Sunchayn\Nimbus\Http\Api\Workspace\Requests\Concerns\ResolvesFolderPath;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\ReorderRequestsData;
 
 class ReorderWorkspaceRequestsRequest extends FormRequest
 {
@@ -24,14 +23,14 @@ class ReorderWorkspaceRequestsRequest extends FormRequest
         ];
     }
 
-    public function toData(): ReorderRequestsData
+    /**
+     * @return list<string>
+     */
+    public function orderedIds(): array
     {
         /** @var list<string> $ids */
         $ids = array_values($this->validated('requests'));
 
-        return new ReorderRequestsData(
-            folder: $this->folderPath(),
-            ids: $ids,
-        );
+        return $ids;
     }
 }

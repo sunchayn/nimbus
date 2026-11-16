@@ -17,7 +17,8 @@ class RenameWorkspaceFolderController
     public function __invoke(RenameWorkspaceFolderRequest $request): JsonResponse
     {
         $folder = $this->renameWorkspaceFolderAction->execute(
-            data: $request->toData(),
+            folder: $request->folderPath(),
+            newName: $request->folderPath('name'),
         );
 
         return response()->json(

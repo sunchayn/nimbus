@@ -6,7 +6,6 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Workspace\Actions;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Workspace\Actions\MoveWorkspaceRequestAction;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\MoveWorkspaceRequestData;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 use Sunchayn\Nimbus\Tests\Concerns\UsesTemporaryWorkspace;
@@ -41,7 +40,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
             hash: null,
         );
 
-        $data = $this->moveData(
+        $data = $this->moveArguments(
             id: 'request-1234',
             folder: 'archive/old',
             name: null,
@@ -52,7 +51,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $moved = $action->execute(data: $data);
+        $moved = $action->execute(...$data);
 
         // Assert
 
@@ -80,7 +79,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
             folder: 'users',
         );
 
-        $data = $this->moveData(
+        $data = $this->moveArguments(
             id: 'request-1234',
             folder: '',
             name: null,
@@ -91,7 +90,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -108,7 +107,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
             folder: 'users',
         );
 
-        $data = $this->moveData(
+        $data = $this->moveArguments(
             id: 'request-1234',
             folder: null,
             name: 'Register user',
@@ -119,7 +118,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $moved = $action->execute(data: $data);
+        $moved = $action->execute(...$data);
 
         // Assert
 
@@ -147,7 +146,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
             hash: null,
         );
 
-        $data = $this->moveData(
+        $data = $this->moveArguments(
             id: 'request-0002',
             folder: 'users',
             name: null,
@@ -158,7 +157,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -177,7 +176,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
 
         $this->createFolder('users');
 
-        $data = $this->moveData(
+        $data = $this->moveArguments(
             id: 'request-1234',
             folder: 'users',
             name: null,
@@ -188,7 +187,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -218,7 +217,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
             hash: null,
         );
 
-        $data = $this->moveData(
+        $data = $this->moveArguments(
             id: 'request-aaaa',
             folder: null,
             name: 'Renamed',
@@ -229,7 +228,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -267,7 +266,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
             hash: null,
         );
 
-        $data = $this->moveData(
+        $data = $this->moveArguments(
             id: 'request-aaaa',
             folder: 'other',
             name: null,
@@ -278,7 +277,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -297,7 +296,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
             hash: null,
         );
 
-        $data = $this->moveData(
+        $data = $this->moveArguments(
             id: 'request-1234',
             folder: 'users',
             name: null,
@@ -309,7 +308,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
         // Act
 
         try {
-            $action->execute(data: $data);
+            $action->execute(...$data);
         } catch (WorkspaceException $exception) {
         }
 
@@ -327,7 +326,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
     {
         // Arrange
 
-        $data = $this->moveData(
+        $data = $this->moveArguments(
             id: 'request-9999',
             folder: 'users',
             name: null,
@@ -343,7 +342,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
     }
 
     public function test_it_scans_only_after_taking_the_lock(): void
@@ -357,7 +356,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
 
         $scanSpy = $this->spyOnScanLockState();
 
-        $data = $this->moveData(
+        $data = $this->moveArguments(
             id: 'request-1234',
             folder: 'users',
             name: null,
@@ -368,7 +367,7 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -378,15 +377,15 @@ class MoveWorkspaceRequestActionFunctionalTest extends TestCase
         );
     }
 
-    private function moveData(string $id, ?string $folder, ?string $name, ?string $hash): MoveWorkspaceRequestData
+    private function moveArguments(string $id, ?string $folder, ?string $name, ?string $hash): array
     {
         $folderPath = $folder === null ? null : FolderPath::from($folder);
 
-        return new MoveWorkspaceRequestData(
-            id: $id,
-            folder: $folderPath,
-            name: $name,
-            hash: $hash,
-        );
+        return [
+            'id' => $id,
+            'folder' => $folderPath,
+            'name' => $name,
+            'hash' => $hash,
+        ];
     }
 }

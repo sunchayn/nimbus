@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Sunchayn\Nimbus\Modules\Workspace\Actions;
 
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\RequestFile;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\ResolveRequestFilepathData;
+use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SavedRequest;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SaveRequestFileData;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SaveWorkspaceRequestData;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
+use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 
 /**
  * Creates a request file, or updates the file that already holds the request id.
@@ -27,47 +27,59 @@ class SaveWorkspaceRequestAction
     /**
      * @throws WorkspaceException
      */
-    public function execute(SaveWorkspaceRequestData $data): RequestFile
-    {
+    public function execute(
+        SavedRequest $savedRequest,
+        ?string $hash,
+        FolderPath $folder,
+    ): RequestFile {
         return $this->lockWorkspaceAction->execute(
-            fn (): RequestFile => $this->actuallySave($data),
+            fn (): RequestFile => $this->actuallySave(
+                savedRequest: $savedRequest,
+                hash: $hash,
+                folder: $folder,
+            ),
         );
     }
 
-    private function actuallySave(SaveWorkspaceRequestData $data): RequestFile
-    {
+    private function actuallySave(
+        SavedRequest $savedRequest,
+        ?string $hash,
+        FolderPath $folder,
+    ): RequestFile {
         $workspace = $this->scanWorkspaceAction->execute();
 
-        $previous = $workspace->entries->findRequest($data->savedRequest->id);
+        $previous = $workspace->entries->findRequest($savedRequest->id);
 
         $filepath = $this->findFilepath(
-            $data,
-            $previous,
+            savedRequest: $savedRequest,
+            folder: $folder,
+            previous: $previous,
         );
 
         return $this->saveRequestFileAction->execute(
             data: new SaveRequestFileData(
-                savedRequest: $data->savedRequest,
+                savedRequest: $savedRequest,
                 filepath: $filepath,
                 previous: $previous,
-                hash: $data->hash,
+                hash: $hash,
                 manifest: $workspace->manifest,
             ),
         );
     }
 
-    private function findFilepath(SaveWorkspaceRequestData $data, ?RequestFile $previous): string
-    {
+    private function findFilepath(
+        SavedRequest $savedRequest,
+        FolderPath $folder,
+        ?RequestFile $previous,
+    ): string {
         // An existing request stays where it is, so the folder only applies to a new one.
         if ($previous instanceof RequestFile) {
             return $previous->filepath;
         }
 
         return $this->resolveRequestFilepathAction->execute(
-            data: new ResolveRequestFilepathData(
-                folder: $data->folder,
-                name: $data->savedRequest->name,
-            ),
+            folder: $folder,
+            name: $savedRequest->name,
         );
     }
 }

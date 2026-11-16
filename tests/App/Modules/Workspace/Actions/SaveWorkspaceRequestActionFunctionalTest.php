@@ -7,7 +7,6 @@ namespace Sunchayn\Nimbus\Tests\App\Modules\Workspace\Actions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Sunchayn\Nimbus\Modules\Workspace\Actions\SaveWorkspaceRequestAction;
 use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SavedRequest;
-use Sunchayn\Nimbus\Modules\Workspace\DataTransferObjects\SaveWorkspaceRequestData;
 use Sunchayn\Nimbus\Modules\Workspace\Exceptions\WorkspaceException;
 use Sunchayn\Nimbus\Modules\Workspace\ValueObjects\FolderPath;
 use Sunchayn\Nimbus\Tests\Concerns\UsesTemporaryWorkspace;
@@ -37,7 +36,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
     {
         // Arrange
 
-        $data = $this->saveData(
+        $data = $this->saveArguments(
             savedRequest: $this->savedRequest(),
             hash: null,
         );
@@ -46,7 +45,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $requestFile = $action->execute(data: $data);
+        $requestFile = $action->execute(...$data);
 
         // Assert
 
@@ -67,7 +66,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
     {
         // Arrange
 
-        $data = $this->saveData(
+        $data = $this->saveArguments(
             savedRequest: $this->savedRequest(),
             hash: null,
         );
@@ -76,7 +75,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -107,7 +106,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
             hash: null,
         );
 
-        $data = $this->saveData(
+        $data = $this->saveArguments(
             savedRequest: $this->savedRequest(name: 'Register user'),
             hash: $saved->hash,
         );
@@ -116,7 +115,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $updated = $action->execute(data: $data);
+        $updated = $action->execute(...$data);
 
         // Assert
 
@@ -142,7 +141,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
             hash: null,
         );
 
-        $data = $this->saveData(
+        $data = $this->saveArguments(
             savedRequest: $this->savedRequest(id: 'request-5678'),
             hash: null,
         );
@@ -151,7 +150,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -162,7 +161,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
     {
         // Arrange
 
-        $data = $this->saveData(
+        $data = $this->saveArguments(
             savedRequest: $this->savedRequest(),
             hash: null,
             folder: 'Users',
@@ -172,7 +171,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $requestFile = $action->execute(data: $data);
+        $requestFile = $action->execute(...$data);
 
         // Assert
 
@@ -204,7 +203,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
             folder: 'users',
         );
 
-        $data = $this->saveData(
+        $data = $this->saveArguments(
             savedRequest: $this->savedRequest(),
             hash: $stored->hash,
             folder: 'elsewhere',
@@ -214,7 +213,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -234,7 +233,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
             hash: null,
         );
 
-        $data = $this->saveData(
+        $data = $this->saveArguments(
             savedRequest: $this->savedRequest(
                 'a',
                 'Alpha',
@@ -246,7 +245,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -267,7 +266,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         $process = $this->holdTheLockInAnotherProcess(milliseconds: 600);
 
-        $data = $this->saveData(
+        $data = $this->saveArguments(
             savedRequest: $this->savedRequest(),
             hash: null,
         );
@@ -278,7 +277,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $requestFile = $action->execute(data: $data);
+        $requestFile = $action->execute(...$data);
 
         // Assert
 
@@ -311,7 +310,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
             hash: null,
         );
 
-        $data = $this->saveData(
+        $data = $this->saveArguments(
             savedRequest: $this->savedRequest(name: 'Other'),
             hash: 'stale',
         );
@@ -325,7 +324,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
     }
 
     public function test_it_refuses_to_overwrite_an_existing_file_without_a_hash(): void
@@ -337,7 +336,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
             hash: null,
         );
 
-        $data = $this->saveData(
+        $data = $this->saveArguments(
             savedRequest: $this->savedRequest(name: 'Other'),
             hash: null,
         );
@@ -351,14 +350,14 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
     }
 
     public function test_it_refuses_a_hash_for_a_file_that_does_not_exist(): void
     {
         // Arrange
 
-        $data = $this->saveData(
+        $data = $this->saveArguments(
             savedRequest: $this->savedRequest(),
             hash: 'some-hash',
         );
@@ -372,7 +371,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
     }
 
     public function test_it_refuses_a_file_larger_than_one_megabyte(): void
@@ -381,7 +380,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         $savedRequest = $this->savedRequest(bodyContent: str_repeat('a', 1_100_000));
 
-        $data = $this->saveData(
+        $data = $this->saveArguments(
             savedRequest: $savedRequest,
             hash: null,
         );
@@ -391,7 +390,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
         // Act
 
         try {
-            $action->execute(data: $data);
+            $action->execute(...$data);
         } catch (WorkspaceException $exception) {
         }
 
@@ -411,7 +410,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         $scanSpy = $this->spyOnScanLockState();
 
-        $data = $this->saveData(
+        $data = $this->saveArguments(
             savedRequest: $this->savedRequest(),
             hash: null,
         );
@@ -420,7 +419,7 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
 
         // Act
 
-        $action->execute(data: $data);
+        $action->execute(...$data);
 
         // Assert
 
@@ -430,12 +429,12 @@ class SaveWorkspaceRequestActionFunctionalTest extends TestCase
         );
     }
 
-    private function saveData(SavedRequest $savedRequest, ?string $hash, ?string $folder = null): SaveWorkspaceRequestData
+    private function saveArguments(SavedRequest $savedRequest, ?string $hash, ?string $folder = null): array
     {
-        return new SaveWorkspaceRequestData(
-            savedRequest: $savedRequest,
-            hash: $hash,
-            folder: FolderPath::from($folder),
-        );
+        return [
+            'savedRequest' => $savedRequest,
+            'hash' => $hash,
+            'folder' => FolderPath::from($folder),
+        ];
     }
 }
