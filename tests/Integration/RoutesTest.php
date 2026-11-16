@@ -7,7 +7,7 @@ namespace Sunchayn\Nimbus\Tests\Integration;
 use Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Sunchayn\Nimbus\Http\Api\Routes\RoutesController;
+use Sunchayn\Nimbus\Http\Api\Routes\Controllers\RoutesController;
 use Sunchayn\Nimbus\Modules\Routes\Actions\ExtractApplicationRoutesAction;
 use Sunchayn\Nimbus\Modules\Routes\Collections\ExtractedRoutesCollection;
 use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteExtractionException;

@@ -1,8 +1,9 @@
 <?php
 
-namespace Sunchayn\Nimbus\Http\Api\Actors;
+namespace Sunchayn\Nimbus\Http\Api\Actors\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Sunchayn\Nimbus\Http\Api\Actors\Requests\ListActorsRequest;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Magic\Actions\ListActorsAction;
 use Sunchayn\Nimbus\Modules\Magic\DataTransferObjects\ActorData;

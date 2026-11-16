@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Sunchayn\Nimbus\Http\Api\Responses;
+namespace Sunchayn\Nimbus\Http\Api\Responses\Controllers;
 
+use Sunchayn\Nimbus\Http\Api\Responses\Requests\ResponseShapeRequest;
+use Sunchayn\Nimbus\Http\Api\Responses\Resources\ResponseShapeResource;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\DataTransferObjects\ExtractableResponseData;
 use Sunchayn\Nimbus\Modules\Extractor\Services\Response\ResponseSchemaExtractor;
 

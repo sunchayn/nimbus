@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Sunchayn\Nimbus\Http\Api\Actors;
+namespace Sunchayn\Nimbus\Http\Api\Actors\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;

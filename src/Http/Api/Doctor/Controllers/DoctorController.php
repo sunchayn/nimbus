@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Sunchayn\Nimbus\Http\Api\Doctor;
+namespace Sunchayn\Nimbus\Http\Api\Doctor\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

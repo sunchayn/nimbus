@@ -15,7 +15,7 @@ Add exactly the files the capability needs now, wired with explicit Laravel APIs
 1. Read the closest existing domain, `NimbusServiceProvider`, and the route files. Decide on subagent delegation first, per GUIDELINES.md.
 2. Prefer an existing module. Add a new PascalCase module only when no domain owns the behavior.
 3. Create only the subfolder the first class needs.
-4. Add an HTTP layer only if reachable over HTTP. Controller, request, and resource go in `src/Http/Api/<Domain>`, a browser page controller in `src/Http/Web/Controllers`. Register the route in `routes/api.php` or `routes/web.php`.
+4. Add an HTTP layer only if reachable over HTTP. Controllers, requests, and resources go in `src/Http/Api/<Domain>/Controllers`, `Requests`, and `Resources`, a browser page controller in `src/Http/Web/Controllers`. Register the route in `routes/api.php` or `routes/web.php`.
 5. Controller takes a Form Request, calls one Action with a DTO, returns a resource. No logic in it.
 6. Register through `NimbusServiceProvider`. Guard `commands()` with `runningInConsole()`. No `env()` outside `config/nimbus.php`.
 7. Test with `write-php-test`, update the wiki if behavior or architecture changed, finish with `task-finalization`.
@@ -34,7 +34,7 @@ One discrete operation returning a result is an Action. Reusable logic or state 
 ## Examples
 
 - Command: class in `src/Console`, registered in the provider inside `runningInConsole()`.
-- Endpoint for `Export`: `src/Http/Api/Export/*`, route in `routes/api.php`, logic in `src/Modules/Export/Actions`.
+- Endpoint for `Export`: `src/Http/Api/Export/{Controllers,Requests,Resources}`, route in `routes/api.php`, logic in `src/Modules/Export/Actions`.
 - New extraction approach: add a class in `Extractor/Services/Request/Strategies` implementing the strategy contract.
 
 ## Anti-Patterns

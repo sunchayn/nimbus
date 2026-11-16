@@ -3,7 +3,7 @@
 namespace Sunchayn\Nimbus\Modules\Relay\DataTransferObjects;
 
 use Illuminate\Support\Collection;
-use Sunchayn\Nimbus\Http\Api\Relay\NimbusRelayRequest;
+use Sunchayn\Nimbus\Http\Api\Relay\Requests\NimbusRelayRequest;
 use Sunchayn\Nimbus\Modules\Config\Enums\EnvironmentIdEnum;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\ResetRateLimiterListener;
 use Sunchayn\Nimbus\Modules\Magic\Listeners\SandboxModeListener;

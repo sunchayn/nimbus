@@ -6,7 +6,7 @@ namespace Sunchayn\Nimbus\Tests\Integration;
 
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Sunchayn\Nimbus\Http\Api\Doctor\DoctorController;
+use Sunchayn\Nimbus\Http\Api\Doctor\Controllers\DoctorController;
 use Sunchayn\Nimbus\Tests\TestCase;
 
 #[CoversClass(DoctorController::class)]

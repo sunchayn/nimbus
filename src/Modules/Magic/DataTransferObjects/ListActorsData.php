@@ -2,7 +2,7 @@
 
 namespace Sunchayn\Nimbus\Modules\Magic\DataTransferObjects;
 
-use Sunchayn\Nimbus\Http\Api\Actors\ListActorsRequest;
+use Sunchayn\Nimbus\Http\Api\Actors\Requests\ListActorsRequest;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 
 class ListActorsData

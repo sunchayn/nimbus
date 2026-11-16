@@ -6,8 +6,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Sunchayn\Nimbus\Http\Api\Actors\ListActorsController;
-use Sunchayn\Nimbus\Http\Api\Actors\ListActorsRequest;
+use Sunchayn\Nimbus\Http\Api\Actors\Controllers\ListActorsController;
+use Sunchayn\Nimbus\Http\Api\Actors\Requests\ListActorsRequest;
 use Sunchayn\Nimbus\Modules\Magic\Actions\ListActorsAction;
 use Sunchayn\Nimbus\Tests\TestCase;
 

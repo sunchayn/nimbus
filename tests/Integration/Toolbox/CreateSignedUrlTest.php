@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Sunchayn\Nimbus\Http\Api\Toolbox\ToolboxController;
+use Sunchayn\Nimbus\Http\Api\Toolbox\Controllers\ToolboxController;
 use Sunchayn\Nimbus\Modules\Magic\Toolbox\Actions\CreateSignedUrlAction;
 use Sunchayn\Nimbus\Modules\Magic\Toolbox\DataTransferObjects\CreateSignedUrlData;
 use Sunchayn\Nimbus\Modules\Magic\Toolbox\Exceptions\InvalidToolInputException;

@@ -8,8 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Sunchayn\Nimbus\Http\Api\Magic\SignedUrlController;
-use Sunchayn\Nimbus\Http\Api\Magic\SignedUrlRequest;
+use Sunchayn\Nimbus\Http\Api\Magic\Controllers\SignedUrlController;
+use Sunchayn\Nimbus\Http\Api\Magic\Requests\SignedUrlRequest;
 use Sunchayn\Nimbus\Modules\Magic\Actions\SignRouteUrlAction;
 use Sunchayn\Nimbus\Tests\TestCase;
 
