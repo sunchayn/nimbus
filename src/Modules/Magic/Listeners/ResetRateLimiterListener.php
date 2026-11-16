@@ -7,7 +7,7 @@ namespace Sunchayn\Nimbus\Modules\Magic\Listeners;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Sunchayn\Nimbus\Modules\Magic\Services\ResettingThrottleRequests;
+use Sunchayn\Nimbus\Modules\Magic\Middleware\ResettingThrottleRequests;
 
 class ResetRateLimiterListener
 {

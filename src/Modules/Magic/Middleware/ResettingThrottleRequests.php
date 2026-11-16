@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Sunchayn\Nimbus\Modules\Magic\Services;
+namespace Sunchayn\Nimbus\Modules\Magic\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
