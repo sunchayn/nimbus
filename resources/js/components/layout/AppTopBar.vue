@@ -140,7 +140,7 @@ const appName = computed(() => configStore.appName);
         data-testid="app-top-bar"
     >
         <div class="gap-base flex min-w-0 items-center">
-            <div class="gap-base flex items-center">
+            <div class="gap-tight flex items-center">
                 <AppBrandIcon class="size-icon-lg" />
                 <span class="flex items-center">
                     <span class="text-highlighted text-sm font-semibold max-sm:hidden">
