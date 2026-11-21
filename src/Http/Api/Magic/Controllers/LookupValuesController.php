@@ -20,32 +20,13 @@ class LookupValuesController
     {
         $route = $lookupValuesRequest->getTargetRoute();
 
-        $schema = $this->requestSchemaExtractor->extract($route)->toJsonSchema();
+        $schema = $this->requestSchemaExtractor->extract($route);
 
         return response()->json([
             'values' => (object) $this->readLookupValuesAction->execute(
-                allowed: $this->collectLookups($schema),
+                allowed: $schema->listLookups(),
                 requested: $lookupValuesRequest->getPairs(),
             ),
         ]);
-    }
-
-    /**
-     * @param  array<array-key, mixed>  $schema
-     * @return array<int, array{table: string, column: string}>
-     */
-    private function collectLookups(array $schema): array
-    {
-        $lookups = [];
-
-        foreach ($schema as $key => $value) {
-            if ($key === 'lookup' && is_array($value) && isset($value['table'], $value['column'])) {
-                $lookups[] = ['table' => (string) $value['table'], 'column' => (string) $value['column']];
-            } elseif (is_array($value)) {
-                $lookups = [...$lookups, ...$this->collectLookups($value)];
-            }
-        }
-
-        return $lookups;
     }
 }

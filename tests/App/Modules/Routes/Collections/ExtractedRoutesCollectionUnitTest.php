@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sunchayn\Nimbus\Modules\Routes\Collections\ExtractedRoutesCollection;
 use Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
+use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteNotFoundException;
 use Sunchayn\Nimbus\Modules\Routes\ValueObjects\Endpoint;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
@@ -251,7 +252,7 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
                                     'additionalProperties' => false,
                                 ],
                                 'extractionError' => '<b>[no error message]</b><br />
-<small>'.__FILE__.'::215</small>
+<small>'.__FILE__.'::216</small>
 <p class="text-xs">[trace]</p>',
                                 'metadata' => [],
                                 'keywords' => ['/api/users', '/users'],
@@ -450,6 +451,160 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
         ];
     }
 
+    public function test_it_finds_a_route_by_its_id_its_name_or_its_uri(): void
+    {
+        // Arrange
+
+        $collection = $this->usersCollection();
+
+        // Act
+
+        $byId = $collection->findRouteOrFail(reference: 'post API/users');
+
+        $byName = $collection->findRouteOrFail(reference: 'users.index');
+
+        // Assert
+
+        $this->assertSame(
+            'POST api/users',
+            $byId->id(),
+        );
+
+        $this->assertSame(
+            'GET api/users',
+            $byName->id(),
+        );
+    }
+
+    public function test_it_suggests_the_matching_routes_of_an_ambiguous_uri(): void
+    {
+        // Arrange
+
+        $collection = $this->usersCollection();
+
+        // Act
+
+        $exception = $this->catchNotFound(
+            collection: $collection,
+            reference: 'api/users',
+        );
+
+        // Assert
+
+        $this->assertSame(
+            ['POST api/users', 'GET api/users'],
+            $exception->suggestions,
+        );
+    }
+
+    public function test_it_suggests_the_nearest_ids_for_an_unknown_route(): void
+    {
+        // Arrange
+
+        $collection = $this->usersCollection();
+
+        // Act
+
+        $exception = $this->catchNotFound(
+            collection: $collection,
+            reference: 'POST api/user',
+        );
+
+        // Assert
+
+        $this->assertContains(
+            'POST api/users',
+            $exception->suggestions,
+        );
+    }
+
+    public function test_it_lists_one_route_per_method(): void
+    {
+        // Arrange
+
+        $collection = $this->usersCollection();
+
+        // Act
+
+        $ids = $collection
+            ->perMethod()
+            ->map(static fn (ExtractedRoute $extractedRoute): string => $extractedRoute->id())
+            ->all();
+
+        // Assert
+
+        $this->assertSame(
+            ['POST api/users', 'GET api/users'],
+            $ids,
+        );
+    }
+
+    public function test_it_lists_the_routes_a_reference_matches(): void
+    {
+        // Arrange
+
+        $collection = $this->usersCollection();
+
+        // Act
+
+        $byUri = $collection->matching(reference: ' /api/users/ ');
+
+        $byName = $collection->matching(reference: 'users.index');
+
+        $byNothing = $collection->matching(reference: 'api/posts');
+
+        // Assert
+
+        $this->assertCount(
+            2,
+            $byUri,
+        );
+
+        $this->assertSame(
+            ['GET api/users'],
+            $byName
+                ->map(static fn (ExtractedRoute $extractedRoute): string => $extractedRoute->id())
+                ->all(),
+        );
+
+        $this->assertTrue($byNothing->isEmpty());
+    }
+
+    /*
+     * Generators.
+     */
+
+    private function usersCollection(): ExtractedRoutesCollection
+    {
+        $postUsersRoute = new ExtractedRoute(
+            uri: Endpoint::fromRaw(
+                uri: 'api/users',
+                routesPrefix: 'api',
+                isVersioned: false,
+            ),
+            methods: ['POST'],
+            schema: Schema::empty(),
+        );
+
+        $getUsersRoute = new ExtractedRoute(
+            uri: Endpoint::fromRaw(
+                uri: 'api/users',
+                routesPrefix: 'api',
+                isVersioned: false,
+            ),
+            methods: ['GET', 'HEAD'],
+            schema: Schema::empty(),
+            metadata: ['name' => 'users.index'],
+        );
+
+        return new ExtractedRoutesCollection(
+            items: [
+                $postUsersRoute,
+                $getUsersRoute,
+            ],
+        );
+    }
+
     /*
      * Helpers.
      */
@@ -480,5 +635,16 @@ class ExtractedRoutesCollectionUnitTest extends TestCase
         $folder['children'] = Arr::map($folder['children'], fn (array $child) => $this->replaceTraceInFolder($child));
 
         return $folder;
+    }
+
+    private function catchNotFound(ExtractedRoutesCollection $collection, string $reference): RouteNotFoundException
+    {
+        try {
+            $collection->findRouteOrFail(reference: $reference);
+        } catch (RouteNotFoundException $routeNotFoundException) {
+            return $routeNotFoundException;
+        }
+
+        $this->fail('The route was found.');
     }
 }

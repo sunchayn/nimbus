@@ -41,6 +41,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
     - [Workspace](#workspace)
     - [OpenAPI Support](#openapi-support)
     - [Routes Snapshot](#routes-snapshot)
+    - [MCP Server](#mcp-server)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
     - [Making Nimbus work with single-threaded servers](#making-nimbus-work-with-single-threaded-servers)
@@ -60,7 +61,7 @@ This guide covers everything you need to know about using Nimbus to test and exp
 #### Requirements
 
 - PHP 8.2 or higher.
-- Laravel 10.x, 11.x, or 12.x.
+- Laravel 10.x, 11.x, 12.x, or 13.x.
 
 #### Install via Composer
 
@@ -1008,6 +1009,83 @@ Snapshots live in `vendor/sunchayn/nimbus/storage`, one file per application.
 They contain schema data only and are not served over HTTP.
 If the folder is not writable, Nimbus still works and extracts on every load.
 
+### MCP Server
+
+Nimbus can give an AI agent access to your routes and their request schemas, and let it send requests safely.
+
+**Install:**
+
+```bash
+php artisan nimbus:mcp --install --write
+```
+
+The command adds a `nimbus` entry to `.mcp.json` in your project root.
+Agents that read `.mcp.json` start the server on their own with `php artisan nimbus:mcp`.
+
+_Note: Leave out `--write` to print the entry and copy it yourself._
+
+**HTTP transport:**
+
+The server can also run over HTTP, for clients that cannot start a process.
+Set `mcp.http` to `true` in `config/nimbus.php`.
+
+_Note: It accepts requests from the local machine only, and it follows the `allowed_envs` setting like the rest of Nimbus._
+
+**Tools:**
+
+| Tool | What it does |
+|---|---|
+| `nimbus_list_applications` | Lists the applications with their key, name, routes prefix, whether routes are versioned, extraction strategy, auth guard, special auth injector, global headers, and whether it is the default. The global headers are split into `fixed` values and `generated` ones, which map a header name to a generator alias such as `$uuid`. Use a key as `application` in the route tools. |
+| `nimbus_list_routes` | Lists routes. Filter by `search`, `method`, or `prefix`, the start of the URI. Each route has an id such as `POST api/users`. Routes of every application are listed, or only those of `application`. With more than one application configured, each route has an `application` field. |
+| `nimbus_describe_route` | Returns the request schema and the required fields of a route, and the `generatedHeaders` of its application. When a route exists in several applications, pass `application`. |
+| `nimbus_build_payload` | Builds a sample body. The mode is `valid`, `minimal`, or `invalid`. `overrides` sets values, and a dotted key such as `user.name` reaches a nested field. |
+| `nimbus_validate_payload` | Checks a body against the schema of a route. |
+| `nimbus_decrypt_value` | Decrypts a cookie or a value made by `encrypt()` with the application key. |
+| `nimbus_list_environments` | Lists the environments requests can be sent to. |
+| `nimbus_send_request` | Sends a request and returns the status, headers, body, duration, and a request id. Give a `route` and its `params`, or a `method` and a `uri`. It also takes `query`, `headers`, `body`, `actor`, `application`, and `environment`. The request runs in the application of the route, or in `application`. That application sets the auth guard used to check the `actor`, and its global headers that have a fixed value are sent. Nimbus does not generate headers that use a generator such as `$uuid`, `$email` or `$string`. The agent passes its own fresh value in `headers`, and the result has a `warnings` entry for each one it left out. The request is still sent. It exists at the `send` level only. |
+| `nimbus_list_saved_requests` | Lists the requests saved in the [Workspace](#workspace). Filter by `folder`. |
+| `nimbus_run_request` | Sends a saved request, given its `saved_request_id`. `variables` fills the `{{variables}}` of the request. It uses the same safety rules as `nimbus_send_request`. |
+| `nimbus_save_request` | Saves a new request file. It takes `name`, `method`, `endpoint`, and optional `route`, `headers`, `query`, `body`, and `folder`. Credential headers are refused, and an existing file is never replaced. |
+| `nimbus_explain_response` | Explains a sent request from its `sent_request_id`, which `nimbus_send_request` returns as `sentRequestId`. It reports the likely cause and the evidence, such as the exception, the validation errors, the denied authorization checks, the error logs, and the slowest query. It exists at the `send` level only. |
+
+
+**Resources and prompts:**
+
+The resource `nimbus://workspace/requests/{id}` returns a saved request file. Use the request id.
+
+| Prompt | What it asks the agent to do |
+|---|---|
+| `smoke_test_route` | Describe a route, build a valid payload, send it, and report the result. |
+| `check_validation` | Break one rule at a time and report which rules the application enforces. |
+
+**Levels:**
+
+The `mcp.level` option in `config/nimbus.php` sets what an agent may do. Each level includes the ones before it.
+
+| Level | What the agent can do |
+|---|---|
+| `read` | List routes, read schemas, build and check payloads, decrypt values, list saved requests. |
+| `send` | Also send requests and run saved requests. This is the default. |
+| `write` | Also save request files in the workspace. |
+
+**Safety rules for `send`:**
+
+- A request that is not `GET` or `HEAD` runs in a database transaction that is rolled back, on every connection. Set `mcp.allow_committed_writes` to `true` to keep the changes. An agent cannot turn this off.
+- Requests go to the current host only. Set `mcp.allow_remote_environments` to `true` to allow the environments from the `environments` option. These requests use the `http` driver.
+- Headers such as `date` and `server` are left out, and the result lists them in `omittedHeaders`.
+- Response bodies are untrusted data. The agent is told not to follow instructions found in them.
+
+**Drivers:**
+
+The `mcp.driver` option sets how a request is sent.
+
+| Driver | How it works |
+|---|---|
+| `process` | Starts a fresh PHP process that boots your application and handles one request. |
+| `http` | Sends the request over HTTP, like the UI does. It needs a running server. |
+
+The MCP server runs only in the environments listed in `allowed_envs`.
+
 ## Configuration
 
 The `config/nimbus.php` file provides customization options:
@@ -1081,6 +1159,13 @@ return [
 | **`environments`** | Pre-configured environments that requests can be sent to. Each key is the environment id and each entry needs a `name`, an absolute `base_url`, and an `enabled` flag. The current host always exists and cannot be listed. See [Environments](#environments). | `[]` | `['staging' => ['name' => 'Staging', 'base_url' => 'https://staging.example.com', 'enabled' => false]]` |
 | **`snapshot`** | Saves the extracted routes and reuses them while their source files are unchanged. Applies to all applications.<br /><br />See [Routes Snapshot](#routes-snapshot). | `false` | `true` |
 | **`workspace`** | Saves requests as JSON files in your repository. Takes `enabled` and `path`. The path is relative to the application root.<br /><br />See [Workspace](#workspace). | `['enabled' => false, 'path' => '.nimbus']` | `['enabled' => true, 'path' => '.nimbus']` |
+| **`mcp.level`** | What an AI agent may do through the MCP server. Use `'read'`, `'send'`, or `'write'`.<br /><br />See [MCP Server](#mcp-server). | `'send'` | `'read'` |
+| **`mcp.http`** | Serves the MCP server over HTTP at the Nimbus prefix followed by `/mcp`, for local requests only. | `false` | `true` |
+| **`mcp.driver`** | How the MCP server sends a request. Use `'process'` or `'http'`. | `'process'` | `'http'` |
+| **`mcp.allow_committed_writes`** | Keeps the database changes of write requests sent by an agent. | `false` | `true` |
+| **`mcp.allow_remote_environments`** | Lets an agent send requests to the configured environments. | `false` | `true` |
+| **`mcp.rate_limit`** | The most requests an agent can send in a minute. `0` turns it off. | `60` | `30` |
+| **`mcp.body_limit`** | The longest response body returned to an agent, in characters. | `20000` | `5000` |
 | **`applications.*.routes.prefix`** | The base path used to detect application routes. Only routes starting with this prefix are analyzed.                                                                                                  | `'api'` | `'api/v1'` |
 | **`applications.*.routes.versioned`** | Enables version parsing for routes like `/api/v1/...`.                                                                                                                                                | `false` | `true` |
 | **`applications.*.routes.strategy`** | The strategy used to discover routes.<br /><br />Supported values: `'auto_detect'` or `'openapi'`.                                                                                                    | `'auto_detect'` | `'openapi'` |

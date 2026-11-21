@@ -20,8 +20,9 @@
     ],
     "require": {
         "php": "^8.2",
-        "illuminate/contracts": "^10.0||^11.0||^12.0||^13.0",
         "guzzlehttp/guzzle": "^7.8",
+        "illuminate/contracts": "^10.0||^11.0||^12.0||^13.0",
+        "mcp/sdk": "^0.10",
         "nesbot/carbon": "^3.8.4||^2.62.1",
         "spatie/invade": "^2.2"
     },
@@ -92,6 +93,7 @@
     "config": {
         "sort-packages": true,
         "allow-plugins": {
+            "php-http/discovery": true,
             "phpstan/extension-installer": true
         }
     },
