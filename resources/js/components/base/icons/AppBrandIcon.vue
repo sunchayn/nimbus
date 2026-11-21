@@ -21,23 +21,142 @@ export interface AppBrandIconProps {
 const props = defineProps<AppBrandIconProps>();
 </script>
 <template>
-    <svg :class="cn('size-item-md', props.class)" width="128" height="128" viewBox="0 0 128 128" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-<defs>
-<clipPath id="nimbus-c"><rect width="128" height="128" rx="30"/></clipPath>
-<radialGradient id="nimbus-bg" cx="50%" cy="30%" r="80%"><stop offset="0" stop-color="#0E0C0C"/><stop offset="1" stop-color="#040404"/></radialGradient>
-<radialGradient id="nimbus-halo" cx="64" cy="58" r="72" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FF8A2A" stop-opacity=".42"/><stop offset=".45" stop-color="#E8601A" stop-opacity=".16"/><stop offset="1" stop-color="#E8601A" stop-opacity="0"/></radialGradient>
-<radialGradient id="nimbus-disc" cx="64" cy="140" r="86" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#040404"/><stop offset=".86" stop-color="#060606"/><stop offset=".97" stop-color="#150A04"/><stop offset="1" stop-color="#2A1307"/></radialGradient>
-<linearGradient id="nimbus-rim" x1="0" y1="0" x2="128" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#E8722A" stop-opacity="0"/><stop offset=".22" stop-color="#F08A3C" stop-opacity=".85"/><stop offset=".5" stop-color="#FFD58A"/><stop offset=".78" stop-color="#F08A3C" stop-opacity=".85"/><stop offset="1" stop-color="#E8722A" stop-opacity="0"/></linearGradient>
-<linearGradient id="nimbus-metal" x1="-30" y1="0" x2="30" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFC890"/><stop offset=".35" stop-color="#FF7A22"/><stop offset=".7" stop-color="#E85A12"/><stop offset="1" stop-color="#9A3008"/></linearGradient>
-<linearGradient id="nimbus-edge" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".55"/><stop offset=".45" stop-color="#FFFFFF" stop-opacity=".14"/><stop offset="1" stop-color="#FF9A4A" stop-opacity=".6"/></linearGradient>
-<filter id="nimbus-blur" filterUnits="userSpaceOnUse" x="-40" y="0" width="210" height="130"><feGaussianBlur stdDeviation="3"/></filter>
-</defs>
-<g clip-path="url(#nimbus-c)"><rect width="128" height="128" fill="url(#nimbus-bg)"/>
-<rect width="128" height="128" fill="url(#nimbus-halo)"/>
-<circle cx="14" cy="22" r="0.7" fill="#FFD9A8" opacity="0.8"/><circle cx="30" cy="12" r="0.5" fill="#fff" opacity="0.6"/><circle cx="46" cy="26" r="0.6" fill="#fff" opacity="0.7"/><circle cx="58" cy="10" r="0.45" fill="#fff" opacity="0.5"/><circle cx="78" cy="18" r="0.7" fill="#FFD9A8" opacity="0.85"/><circle cx="96" cy="9" r="0.5" fill="#fff" opacity="0.6"/><circle cx="112" cy="24" r="0.8" fill="#fff" opacity="0.9"/><circle cx="22" cy="40" r="0.45" fill="#fff" opacity="0.5"/><circle cx="104" cy="42" r="0.5" fill="#FFD9A8" opacity="0.6"/><circle cx="88" cy="33" r="0.4" fill="#fff" opacity="0.5"/><circle cx="36" cy="34" r="0.4" fill="#fff" opacity="0.45"/><circle cx="120" cy="12" r="0.4" fill="#fff" opacity="0.5"/><circle cx="8" cy="54" r="0.5" fill="#FFD9A8" opacity="0.5"/><circle cx="118" cy="58" r="0.45" fill="#fff" opacity="0.5"/><circle cx="68" cy="28" r="0.35" fill="#fff" opacity="0.45"/><circle cx="52" cy="44" r="0.35" fill="#fff" opacity="0.4"/>
-<circle cx="64" cy="140" r="86" fill="none" stroke="url(#nimbus-rim)" stroke-width="5" opacity=".55" filter="url(#nimbus-blur)"/>
-<circle cx="64" cy="140" r="86" fill="url(#nimbus-disc)"/>
-<circle cx="64" cy="140" r="85.6" fill="none" stroke="url(#nimbus-rim)" stroke-width="1"/></g>
-<rect x=".75" y=".75" width="126.5" height="126.5" rx="29.25" fill="none" stroke="url(#nimbus-edge)" stroke-width="1.5"/>
+    <svg
+        :class="cn('size-item-md', props.class)"
+        width="128"
+        height="128"
+        viewBox="0 0 128 128"
+        fill="none"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <defs>
+            <clipPath id="nimbus-c"><rect width="128" height="128" rx="30" /></clipPath>
+            <radialGradient id="nimbus-bg" cx="50%" cy="30%" r="80%">
+                <stop offset="0" stop-color="#0E0C0C" />
+                <stop offset="1" stop-color="#040404" />
+            </radialGradient>
+            <radialGradient
+                id="nimbus-halo"
+                cx="64"
+                cy="58"
+                r="72"
+                gradientUnits="userSpaceOnUse"
+            >
+                <stop offset="0" stop-color="#FF8A2A" stop-opacity=".42" />
+                <stop offset=".45" stop-color="#E8601A" stop-opacity=".16" />
+                <stop offset="1" stop-color="#E8601A" stop-opacity="0" />
+            </radialGradient>
+            <radialGradient
+                id="nimbus-disc"
+                cx="64"
+                cy="140"
+                r="86"
+                gradientUnits="userSpaceOnUse"
+            >
+                <stop offset="0" stop-color="#040404" />
+                <stop offset=".86" stop-color="#060606" />
+                <stop offset=".97" stop-color="#150A04" />
+                <stop offset="1" stop-color="#2A1307" />
+            </radialGradient>
+            <linearGradient
+                id="nimbus-rim"
+                x1="0"
+                y1="0"
+                x2="128"
+                y2="0"
+                gradientUnits="userSpaceOnUse"
+            >
+                <stop offset="0" stop-color="#E8722A" stop-opacity="0" />
+                <stop offset=".22" stop-color="#F08A3C" stop-opacity=".85" />
+                <stop offset=".5" stop-color="#FFD58A" />
+                <stop offset=".78" stop-color="#F08A3C" stop-opacity=".85" />
+                <stop offset="1" stop-color="#E8722A" stop-opacity="0" />
+            </linearGradient>
+            <linearGradient
+                id="nimbus-metal"
+                x1="-30"
+                y1="0"
+                x2="30"
+                y2="0"
+                gradientUnits="userSpaceOnUse"
+            >
+                <stop offset="0" stop-color="#FFC890" />
+                <stop offset=".35" stop-color="#FF7A22" />
+                <stop offset=".7" stop-color="#E85A12" />
+                <stop offset="1" stop-color="#9A3008" />
+            </linearGradient>
+            <linearGradient
+                id="nimbus-edge"
+                x1="0"
+                y1="0"
+                x2="128"
+                y2="128"
+                gradientUnits="userSpaceOnUse"
+            >
+                <stop offset="0" stop-color="#FFFFFF" stop-opacity=".55" />
+                <stop offset=".45" stop-color="#FFFFFF" stop-opacity=".14" />
+                <stop offset="1" stop-color="#FF9A4A" stop-opacity=".6" />
+            </linearGradient>
+            <filter
+                id="nimbus-blur"
+                filterUnits="userSpaceOnUse"
+                x="-40"
+                y="0"
+                width="210"
+                height="130"
+            >
+                <feGaussianBlur stdDeviation="3" />
+            </filter>
+        </defs>
+        <g clip-path="url(#nimbus-c)">
+            <rect width="128" height="128" fill="url(#nimbus-bg)" />
+            <rect width="128" height="128" fill="url(#nimbus-halo)" />
+            <circle cx="14" cy="22" r="0.7" fill="#FFD9A8" opacity="0.8" />
+            <circle cx="30" cy="12" r="0.5" fill="#fff" opacity="0.6" />
+            <circle cx="46" cy="26" r="0.6" fill="#fff" opacity="0.7" />
+            <circle cx="58" cy="10" r="0.45" fill="#fff" opacity="0.5" />
+            <circle cx="78" cy="18" r="0.7" fill="#FFD9A8" opacity="0.85" />
+            <circle cx="96" cy="9" r="0.5" fill="#fff" opacity="0.6" />
+            <circle cx="112" cy="24" r="0.8" fill="#fff" opacity="0.9" />
+            <circle cx="22" cy="40" r="0.45" fill="#fff" opacity="0.5" />
+            <circle cx="104" cy="42" r="0.5" fill="#FFD9A8" opacity="0.6" />
+            <circle cx="88" cy="33" r="0.4" fill="#fff" opacity="0.5" />
+            <circle cx="36" cy="34" r="0.4" fill="#fff" opacity="0.45" />
+            <circle cx="120" cy="12" r="0.4" fill="#fff" opacity="0.5" />
+            <circle cx="8" cy="54" r="0.5" fill="#FFD9A8" opacity="0.5" />
+            <circle cx="118" cy="58" r="0.45" fill="#fff" opacity="0.5" />
+            <circle cx="68" cy="28" r="0.35" fill="#fff" opacity="0.45" />
+            <circle cx="52" cy="44" r="0.35" fill="#fff" opacity="0.4" />
+            <circle
+                cx="64"
+                cy="140"
+                r="86"
+                fill="none"
+                stroke="url(#nimbus-rim)"
+                stroke-width="5"
+                opacity=".55"
+                filter="url(#nimbus-blur)"
+            />
+            <circle cx="64" cy="140" r="86" fill="url(#nimbus-disc)" />
+            <circle
+                cx="64"
+                cy="140"
+                r="85.6"
+                fill="none"
+                stroke="url(#nimbus-rim)"
+                stroke-width="1"
+            />
+        </g>
+        <rect
+            x=".75"
+            y=".75"
+            width="126.5"
+            height="126.5"
+            rx="29.25"
+            fill="none"
+            stroke="url(#nimbus-edge)"
+            stroke-width="1.5"
+        />
     </svg>
 </template>
