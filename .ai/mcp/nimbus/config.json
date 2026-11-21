@@ -1,0 +1,11 @@
+{
+    "$schema": "https://unpkg.com/agenteq/dist/schema/mcp-config.schema.json",
+    "type": "stdio",
+    "config": {
+        "command": "php",
+        "args": [
+            "vendor/bin/testbench",
+            "nimbus:mcp"
+        ]
+    }
+}

@@ -31,7 +31,10 @@ class WorkbenchServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Testbench ignores the middleware callbacks of workbench/bootstrap/app.php, so the demo API group is set here.
-        EncryptCookies::except(['appearance', 'sidebar_state']);
+        // The static except method does not exist in Laravel 10.
+        if (method_exists(EncryptCookies::class, 'except')) {
+            EncryptCookies::except(['appearance', 'sidebar_state']);
+        }
 
         $router = $this->app->make(Router::class);
         $router->aliasMiddleware('workbench.token', WorkbenchToken::class);
