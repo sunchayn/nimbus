@@ -154,6 +154,9 @@ class NimbusRelayTest extends TestCase
     {
         // Arrange
 
+        // The page host is pinned, so a local .env with another APP_URL does not change the result.
+        url()->forceRootUrl('http://localhost');
+
         $requestRelayActionMock = $this->mock(RequestRelayAction::class);
 
         // Anticipate
@@ -164,10 +167,13 @@ class NimbusRelayTest extends TestCase
 
         // Act
 
-        $response = $this->postJson(route('nimbus.api.relay'), [
-            'method' => 'GET',
-            'endpoint' => 'http://localhost/api/users',
-        ]);
+        $response = $this->postJson(
+            route('nimbus.api.relay'),
+            [
+                'method' => 'GET',
+                'endpoint' => 'http://localhost/api/users',
+            ],
+        );
 
         // Assert
 
@@ -309,8 +315,8 @@ class NimbusRelayTest extends TestCase
     {
         // Arrange
 
-        $requestRelayActionSpy = $this->spy(RequestRelayAction::class);
-        $requestRelayActionSpy
+        $requestRelayActionMock = $this->mock(RequestRelayAction::class);
+        $requestRelayActionMock
             ->shouldReceive('execute')
             ->andReturn($this->makeRelayedRequestResponseDataObject(new InsightData(peakMemory: 99, durationMs: 1.5)));
 
@@ -334,8 +340,8 @@ class NimbusRelayTest extends TestCase
     {
         // Arrange
 
-        $requestRelayActionSpy = $this->spy(RequestRelayAction::class);
-        $requestRelayActionSpy
+        $requestRelayActionMock = $this->mock(RequestRelayAction::class);
+        $requestRelayActionMock
             ->shouldReceive('execute')
             ->andReturn($this->makeRelayedRequestResponseDataObject(null));
 
@@ -678,7 +684,7 @@ class NimbusRelayTest extends TestCase
     }
 
     /*
-     * Helpers.
+     * Generators.
      */
 
     private function makeRelayedRequestResponseDataObject(?InsightData $insight): RelayedRequestResponseData

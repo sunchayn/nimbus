@@ -6,9 +6,13 @@ use Illuminate\Container\Container;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Sunchayn\Nimbus\Console\Doctor\DoctorCommand;
+use Sunchayn\Nimbus\Console\Mcp\NimbusMcpCommand;
+use Sunchayn\Nimbus\Console\Mcp\NimbusMcpRequestCommand;
 use Sunchayn\Nimbus\Console\Snapshot\ClearRoutesSnapshotCommand;
+use Sunchayn\Nimbus\Http\Api\Mcp\Controllers\McpController;
 use Sunchayn\Nimbus\Modules\Ast\Events\ClassFileResolved;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
@@ -30,6 +34,9 @@ use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\NotificationsColl
 use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Collectors\QueriesCollector;
 use Sunchayn\Nimbus\Modules\Magic\Services\Insights\InsightsService;
 use Sunchayn\Nimbus\Modules\Magic\Services\Insights\Support\InsightClock;
+use Sunchayn\Nimbus\Modules\Mcp\Contracts\RequestExecutor;
+use Sunchayn\Nimbus\Modules\Mcp\Services\Executors\HttpRequestExecutor;
+use Sunchayn\Nimbus\Modules\Mcp\Services\Executors\ProcessRequestExecutor;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\AutoDetectRoutesProcessor;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\OpenAPISchemaRoutesProcessor;
@@ -96,6 +103,15 @@ class NimbusServiceProvider extends ServiceProvider
 
         $this->app->when(InsightsService::class)->needs('$collectors')->giveTagged(InsightsService::COLLECTORS_TAG);
 
+        $this->app->bind(RequestExecutor::class, function (Container $container): RequestExecutor {
+            $executor = match (config('nimbus.mcp.driver', 'process')) {
+                'http' => HttpRequestExecutor::class,
+                default => ProcessRequestExecutor::class,
+            };
+
+            return $container->make($executor);
+        });
+
         $this->app->bind(RoutesProcessorContract::class, function (Container $container) {
             $routesProcessingStrategyEnum = $container->make(ActiveApplicationResolver::class)->getRouteExtractionStrategy();
 
@@ -119,6 +135,8 @@ class NimbusServiceProvider extends ServiceProvider
         $this->commands([
             ClearRoutesSnapshotCommand::class,
             DoctorCommand::class,
+            NimbusMcpCommand::class,
+            NimbusMcpRequestCommand::class,
         ]);
 
         $this->registerPublishing();
@@ -129,6 +147,8 @@ class NimbusServiceProvider extends ServiceProvider
         Event::listen(RouteMatched::class, ResetRateLimiterListener::class);
         Event::listen(RouteMatched::class, InsightCollectorListener::class);
         Event::listen(RouteMatched::class, SandboxModeListener::class);
+
+        $this->registerMcpHttpEndpoint();
     }
 
     private function registerPublishing(): void
@@ -159,5 +179,19 @@ class NimbusServiceProvider extends ServiceProvider
     private function packagePath(string $path): string
     {
         return __DIR__.'/../'.$path;
+    }
+
+    /**
+     * The HTTP transport is optional. It needs the `nimbus.mcp.http` config.
+     */
+    private function registerMcpHttpEndpoint(): void
+    {
+        if (! config('nimbus.mcp.http', false)) {
+            return;
+        }
+
+        $prefix = trim((string) config('nimbus.prefix'), '/');
+
+        Route::any("/{$prefix}/mcp", McpController::class)->name('nimbus.mcp');
     }
 }

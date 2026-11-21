@@ -19,6 +19,9 @@ use Sunchayn\Nimbus\Modules\Relay\DataTransferObjects\RequestRelayData;
  */
 class NimbusRelayController
 {
+    /**
+     * @throws ConnectionException
+     */
     public function __invoke(
         NimbusRelayRequest $nimbusRelayRequest,
         RequestRelayAction $requestRelayAction,
