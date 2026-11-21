@@ -19,7 +19,7 @@
         class="h-toolbar px-base bg-default gap-base grid grid-cols-[1fr_auto_1fr] items-center border-b"
     >
         <div class="gap-base flex min-w-0 items-center">
-            <div class="gap-base flex items-center">
+            <div class="gap-tight flex items-center">
                 <img src="{{ asset('/vendor/nimbus/favicon/favicon.svg') }}" alt="" class="size-icon-lg" />
                 <span class="flex items-center">
                     <span class="text-highlighted text-sm font-semibold max-sm:hidden">Nimbus</span>
