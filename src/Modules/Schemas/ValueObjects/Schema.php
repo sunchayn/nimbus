@@ -100,6 +100,40 @@ class Schema implements Arrayable
         );
     }
 
+    /**
+     * The tables and columns the exists rules point at, without duplicates.
+     * A rule on a model class has no table to read, so it is left out.
+     *
+     * @return array<int, array{table: string, column: string}>
+     */
+    public function listLookups(): array
+    {
+        return $this->collectLookups(schema: $this->toJsonSchema());
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $schema
+     * @return array<int, array{table: string, column: string}>
+     */
+    private function collectLookups(array $schema): array
+    {
+        $lookups = [];
+
+        foreach ($schema as $key => $value) {
+            if ($key === 'lookup' && is_array($value) && isset($value['table'], $value['column'])) {
+                $lookups[] = ['table' => (string) $value['table'], 'column' => (string) $value['column']];
+
+                continue;
+            }
+
+            if (is_array($value)) {
+                $lookups = [...$lookups, ...$this->collectLookups(schema: $value)];
+            }
+        }
+
+        return array_values(array_unique($lookups, SORT_REGULAR));
+    }
+
     public function toArray(): array
     {
         return $this->toJsonSchema();

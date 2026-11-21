@@ -11,6 +11,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Sunchayn\Nimbus\Modules\Schemas\Contracts\SchemaPropertyInterface;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\IntegerSchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\ObjectSchemaProperty;
+use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\PropertyAnnotations;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\RulesExtractionError;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\Schema;
 use Sunchayn\Nimbus\Modules\Schemas\ValueObjects\StringSchemaProperty;
@@ -195,19 +198,6 @@ class SchemaUnitTest extends TestCase
                 'additionalProperties' => false,
             ],
         ];
-    }
-
-    /**
-     * Helper to create mock property for testing.
-     */
-    private static function createMockProperty(string $name, array $arrayData, bool $required = false): SchemaPropertyInterface
-    {
-        $mock = Mockery::mock(SchemaPropertyInterface::class);
-        $mock->shouldReceive('getName')->andReturn($name);
-        $mock->shouldReceive('isRequired')->andReturn($required);
-        $mock->shouldReceive('toJsonSchema')->andReturn($arrayData);
-
-        return $mock;
     }
 
     #[DataProvider('toJsonSchemaDataProvider')]
@@ -395,5 +385,57 @@ class SchemaUnitTest extends TestCase
                 'additionalProperties' => false,
             ],
         ];
+    }
+
+    public function test_it_lists_the_lookups_of_nested_properties_without_duplicates(): void
+    {
+        // Arrange
+
+        $lookup = new PropertyAnnotations(lookup: ['table' => 'users', 'column' => 'id']);
+
+        $schema = new Schema([
+            new IntegerSchemaProperty(name: 'owner_id', propertyAnnotations: $lookup),
+            new ObjectSchemaProperty(
+                name: 'team',
+                schema: new Schema([
+                    new IntegerSchemaProperty(name: 'lead_id', propertyAnnotations: $lookup),
+                    new IntegerSchemaProperty(
+                        name: 'plan_id',
+                        propertyAnnotations: new PropertyAnnotations(lookup: ['table' => 'plans', 'column' => 'id']),
+                    ),
+                ]),
+            ),
+        ]);
+
+        // Act
+
+        $lookups = $schema->listLookups();
+
+        // Assert
+
+        $this->assertSame(
+            [
+                ['table' => 'users', 'column' => 'id'],
+                ['table' => 'plans', 'column' => 'id'],
+            ],
+            $lookups,
+        );
+    }
+
+    /*
+     * Generators.
+     */
+
+    /**
+     * Helper to create mock property for testing.
+     */
+    private static function createMockProperty(string $name, array $arrayData, bool $required = false): SchemaPropertyInterface
+    {
+        $mock = Mockery::mock(SchemaPropertyInterface::class);
+        $mock->shouldReceive('getName')->andReturn($name);
+        $mock->shouldReceive('isRequired')->andReturn($required);
+        $mock->shouldReceive('toJsonSchema')->andReturn($arrayData);
+
+        return $mock;
     }
 }

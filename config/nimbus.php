@@ -153,6 +153,107 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | MCP Server
+    |--------------------------------------------------------------------------
+    |
+    | These options control what an AI agent can do through the Nimbus MCP
+    | server. They set the access level, how requests are sent, and thier limits.
+    |
+    */
+
+    'mcp' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Access Level
+        |--------------------------------------------------------------------------
+        | Tell what the agent can do. Each level includes all the ones before it.
+        |
+        | "read" lists routes and checks payloads.
+        | "send" also sends requests to the application.
+        | "write" also saves requests in the workspace.
+        |
+        */
+
+        'level' => 'send',
+
+        /*
+        |--------------------------------------------------------------------------
+        | Request Driver
+        |--------------------------------------------------------------------------
+        |
+        | Defines how a request is sent.
+        |
+        | "process" boots a fresh PHP process for each request.
+        | "http" sends it to a server that is already running.
+        |
+        */
+
+        'driver' => 'process',
+
+        /*
+        |--------------------------------------------------------------------------
+        | HTTP Transport
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, the MCP server is also served over HTTP at the Nimbus
+        | prefix followed by /mcp, for requests from the local machine only.
+        |
+        */
+
+        'http' => false,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Committed Writes
+        |--------------------------------------------------------------------------
+        |
+        | Requests other than GET and HEAD run inside a database transaction
+        | that is rolled back, so the agent does not change your data. When
+        | enabled, these requests are not rolled back and keep their changes.
+        |
+        */
+
+        'allow_committed_writes' => false,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Remote Environments
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, the agent may send requests to the environments you
+        | configured above. Otherwise requests only go to the current host.
+        |
+        */
+
+        'allow_remote_environments' => false,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Rate Limit
+        |--------------------------------------------------------------------------
+        |
+        | The most requests the agent may send in one minute. This stops an
+        | agent stuck in a loop from flooding your app. Use 0 for no limit.
+        |
+        */
+
+        'rate_limit' => 60,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Body Limit
+        |--------------------------------------------------------------------------
+        |
+        | The longest response body returned to the agent, in characters. A
+        | longer body is cut to this size. Use 0 to turn the limit off.
+        |
+        */
+
+        'body_limit' => 20000,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Configurations
     |--------------------------------------------------------------------------
     |

@@ -5,6 +5,7 @@ namespace Sunchayn\Nimbus\Modules\Routes\Collections;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Sunchayn\Nimbus\Modules\Routes\DataTransferObjects\ExtractedRoute;
+use Sunchayn\Nimbus\Modules\Routes\Exceptions\RouteNotFoundException;
 use Sunchayn\Nimbus\Modules\Routes\ValueObjects\Endpoint;
 
 /**
@@ -20,6 +21,90 @@ use Sunchayn\Nimbus\Modules\Routes\ValueObjects\Endpoint;
  */
 class ExtractedRoutesCollection extends Collection
 {
+    private const AMBIGUOUS_SUGGESTIONS_LIMIT = 5;
+
+    private const NEAREST_SUGGESTIONS_LIMIT = 3;
+
+    private const NEAREST_MIN_SIMILARITY = 50;
+
+    /**
+     * One route per method, so every route has a single id.
+     * Each route is split with `ExtractedRoute::splitByMethod`.
+     */
+    public function perMethod(): self
+    {
+        $routes = $this
+            ->flatMap(static fn (ExtractedRoute $extractedRoute): array => $extractedRoute->splitByMethod())
+            ->values()
+            ->all();
+
+        return new self($routes);
+    }
+
+    /**
+     * The routes, one per method, that a reference points to.
+     */
+    public function matching(string $reference): self
+    {
+        return $this
+            ->perMethod()
+            ->filter(static fn (ExtractedRoute $extractedRoute): bool => $extractedRoute->isReferencedBy(trim($reference)))
+            ->values();
+    }
+
+    /**
+     * Finds the route a reference points to, by its id, by its name, or by its URI when only one method uses it.
+     *
+     * @throws RouteNotFoundException
+     */
+    public function findRouteOrFail(string $reference): ExtractedRoute
+    {
+        $reference = trim($reference);
+
+        $routes = $this->perMethod();
+
+        $matches = $routes->matching($reference);
+
+        if ($matches->count() === 1) {
+            return $matches->firstOrFail();
+        }
+
+        throw RouteNotFoundException::becauseNoRouteMatches(
+            reference: $reference,
+            suggestions: $this->listSuggestions(matches: $matches, routes: $routes, reference: $reference),
+        );
+    }
+
+    /**
+     * An ambiguous reference suggests the routes it matches. An unknown one suggests the nearest ids.
+     *
+     * @param  Collection<int, ExtractedRoute>  $matches
+     * @return array<int, string>
+     */
+    private function listSuggestions(Collection $matches, self $routes, string $reference): array
+    {
+        if ($matches->isNotEmpty()) {
+            return $matches
+                ->take(self::AMBIGUOUS_SUGGESTIONS_LIMIT)
+                ->map(static fn (ExtractedRoute $extractedRoute): string => $extractedRoute->id())
+                ->values()
+                ->all();
+        }
+
+        return $routes
+            ->toBase()
+            ->mapWithKeys(static function (ExtractedRoute $extractedRoute) use ($reference): array {
+                similar_text(strtolower($reference), strtolower($extractedRoute->id()), $percent);
+
+                return [$extractedRoute->id() => $percent];
+            })
+            ->filter(static fn (float $percent): bool => $percent >= self::NEAREST_MIN_SIMILARITY)
+            ->sortDesc()
+            ->keys()
+            ->take(self::NEAREST_SUGGESTIONS_LIMIT)
+            ->all();
+    }
+
     /**
      * Routes are grouped by version, then into folders.
      * A folder is the route resource, or a path of URI segments when nested folders are enabled.

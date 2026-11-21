@@ -106,4 +106,214 @@ class ExtractedRouteUnitTest extends TestCase
             'expectedSignatureSuffix' => 'api/users/{}',
         ];
     }
+
+    public function test_it_splits_a_route_into_one_route_per_method_and_drops_the_implied_head(): void
+    {
+        // Arrange
+
+        $route = $this->createRoute(
+            uri: 'api/users',
+            methods: [
+                'GET',
+                'HEAD',
+                'POST',
+            ],
+        );
+
+        // Act
+
+        $splitRoutes = $route->splitByMethod();
+
+        // Assert
+
+        $splitRouteIds = array_map(
+            static fn (ExtractedRoute $splitRoute): string => $splitRoute->id(),
+            $splitRoutes,
+        );
+
+        $this->assertSame(
+            [
+                'GET api/users',
+                'POST api/users',
+            ],
+            $splitRouteIds,
+        );
+    }
+
+    public function test_it_keeps_head_when_it_is_the_only_method(): void
+    {
+        // Arrange
+
+        $route = $this->createRoute(
+            uri: 'api/ping',
+            methods: ['HEAD'],
+        );
+
+        // Act
+
+        $splitRoutes = $route->splitByMethod();
+
+        // Assert
+
+        $this->assertCount(
+            expectedCount: 1,
+            haystack: $splitRoutes,
+        );
+
+        $this->assertSame(
+            'HEAD api/ping',
+            $splitRoutes[0]->id(),
+        );
+    }
+
+    #[DataProvider('references')]
+    public function test_it_matches_a_reference(string $reference, bool $expected): void
+    {
+        // Arrange
+
+        $route = $this->createRoute(
+            uri: 'api/users',
+            methods: ['GET'],
+            metadata: ['name' => 'users.index'],
+        );
+
+        // Act
+
+        $isMatching = $route->isReferencedBy(reference: $reference);
+
+        // Assert
+
+        $this->assertSame(
+            $expected,
+            $isMatching,
+        );
+    }
+
+    public static function references(): Generator
+    {
+        yield 'the id' => [
+            'reference' => 'get API/users',
+            'expected' => true,
+        ];
+
+        yield 'the name' => [
+            'reference' => 'users.index',
+            'expected' => true,
+        ];
+
+        yield 'the uri' => [
+            'reference' => '/api/users/',
+            'expected' => true,
+        ];
+
+        yield 'another route' => [
+            'reference' => 'POST api/users',
+            'expected' => false,
+        ];
+    }
+
+    public function test_it_reads_the_name_of_a_route(): void
+    {
+        // Arrange
+
+        $route = $this->createRoute(
+            uri: 'api/users',
+            methods: ['GET'],
+            metadata: ['name' => 'users.index'],
+        );
+
+        // Act
+
+        $name = $route->name();
+
+        // Assert
+
+        $this->assertSame(
+            'users.index',
+            $name,
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $metadata
+     */
+    #[DataProvider('unnamedRoutesMetadata')]
+    public function test_it_has_no_name_without_a_usable_one(array $metadata): void
+    {
+        // Arrange
+
+        $route = $this->createRoute(
+            uri: 'api/users',
+            methods: ['GET'],
+            metadata: $metadata,
+        );
+
+        // Act
+
+        $name = $route->name();
+
+        // Assert
+
+        $this->assertNull($name);
+    }
+
+    public static function unnamedRoutesMetadata(): Generator
+    {
+        yield 'no name' => [
+            'metadata' => [],
+        ];
+
+        yield 'empty name' => [
+            'metadata' => ['name' => ''],
+        ];
+
+        yield 'non string name' => [
+            'metadata' => ['name' => 12],
+        ];
+    }
+
+    public function test_it_uppercases_the_method(): void
+    {
+        // Arrange
+
+        $route = $this->createRoute(
+            uri: 'api/users',
+            methods: ['post'],
+        );
+
+        // Act
+
+        $method = $route->method();
+
+        // Assert
+
+        $this->assertSame(
+            'POST',
+            $method,
+        );
+    }
+
+    /*
+     * Generators.
+     */
+
+    /**
+     * @param  array<int, string>  $methods
+     * @param  array<string, mixed>  $metadata
+     */
+    private function createRoute(string $uri, array $methods, array $metadata = []): ExtractedRoute
+    {
+        $endpoint = Endpoint::fromRaw(
+            uri: $uri,
+            routesPrefix: 'api',
+            isVersioned: false,
+        );
+
+        return new ExtractedRoute(
+            uri: $endpoint,
+            methods: $methods,
+            schema: Schema::empty(),
+            metadata: $metadata,
+        );
+    }
 }

@@ -2,14 +2,19 @@
 
 namespace Sunchayn\Nimbus\Tests\Integration;
 
+use Generator;
 use Illuminate\Config\Repository;
 use Illuminate\Foundation\Application;
 use Illuminate\Routing\Events\RouteMatched;
 use Mockery;
 use Orchestra\Testbench\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Sunchayn\Nimbus\Modules\Config\ActiveApplicationResolver;
 use Sunchayn\Nimbus\Modules\Config\Enums\RoutesProcessingStrategyEnum;
+use Sunchayn\Nimbus\Modules\Mcp\Contracts\RequestExecutor;
+use Sunchayn\Nimbus\Modules\Mcp\Services\Executors\HttpRequestExecutor;
+use Sunchayn\Nimbus\Modules\Mcp\Services\Executors\ProcessRequestExecutor;
 use Sunchayn\Nimbus\Modules\Routes\Services\IgnoredRoutesService;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\AutoDetectRoutesProcessor;
 use Sunchayn\Nimbus\Modules\Routes\Services\RoutesProcessors\Strategies\OpenAPISchemaRoutesProcessor;
@@ -104,5 +109,42 @@ class NimbusServiceProviderTest extends TestCase
         // Assert
 
         $this->assertInstanceOf(OpenAPISchemaRoutesProcessor::class, $processor);
+    }
+
+    /**
+     * @param  class-string<RequestExecutor>  $executor
+     */
+    #[DataProvider('mcpDrivers')]
+    public function test_it_binds_the_request_executor_of_the_configured_mcp_driver(?string $driver, string $executor): void
+    {
+        // Arrange
+
+        $this->app['config']->set('nimbus.mcp.driver', $driver);
+
+        // Act
+
+        $requestExecutor = $this->app->make(RequestExecutor::class);
+
+        // Assert
+
+        $this->assertInstanceOf($executor, $requestExecutor);
+    }
+
+    public static function mcpDrivers(): Generator
+    {
+        yield 'process driver' => [
+            'driver' => 'process',
+            'executor' => ProcessRequestExecutor::class,
+        ];
+
+        yield 'http driver' => [
+            'driver' => 'http',
+            'executor' => HttpRequestExecutor::class,
+        ];
+
+        yield 'unknown driver falls back to process' => [
+            'driver' => 'unknown',
+            'executor' => ProcessRequestExecutor::class,
+        ];
     }
 }
