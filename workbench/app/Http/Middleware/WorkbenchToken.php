@@ -10,6 +10,7 @@ use Workbench\App\Models\User;
 
 /**
  * Static bearer tokens. "user-token" is a regular user, "admin-token" is the admin.
+ * A user already authenticated, for example through Nimbus impersonation, is accepted too.
  */
 class WorkbenchToken
 {
@@ -20,6 +21,9 @@ class WorkbenchToken
             'admin-token' => User::where('role', 'admin')->first(),
             default => null,
         };
+
+        // A user set by Nimbus impersonation counts as authenticated.
+        $user ??= Auth::user();
 
         if (! $user) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
