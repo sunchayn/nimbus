@@ -50,7 +50,7 @@ Treat `record.mjs` as code that follows the UI. Read the diff of the UI change, 
 3. A new headline feature may deserve a new beat. Add a numbered block inside `play`, with a short pause after it, and add the beat to the storyline above.
 4. A removed feature needs its beat removed from both the script and the storyline.
 5. Always go through the `click` helper so the cursor glides to the target and the dot shows the press. Do not use `locator.click()`.
-6. The two tab lists are told apart by position, the response panel is `getByRole('tablist').nth(1)`. Update this when the layout changes.
+6. The two tab lists are told apart by position, the response panel is `getByRole('tablist').last()`. Update this when the layout changes.
 7. Prefer `getByRole` and `data-testid` selectors, the same ones the E2E specs use.
 8. Follow `write-comments` for any comment in the script.
 9. After any edit, record a draft and inspect it before replacing the GIF.

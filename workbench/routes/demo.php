@@ -2,9 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Workbench\App\Http\Controllers\Api\OrderController;
 use Workbench\App\Http\Controllers\Demo\AuthController;
 use Workbench\App\Http\Controllers\Demo\ContentController;
 use Workbench\App\Http\Controllers\Demo\DemoController;
+use Workbench\App\Http\Controllers\Demo\DemoOrderController;
 use Workbench\App\Http\Controllers\Demo\DumpAndDieController;
 use Workbench\App\Http\Controllers\Demo\EchoController;
 use Workbench\App\Http\Controllers\Demo\InsightController;
@@ -237,3 +239,15 @@ Route::prefix('insight')->group(function () {
     Route::get('/sandbox', [InsightController::class, 'sandbox'])
         ->name('demo.insight.sandbox');
 });
+
+Route::post('/orders', [DemoOrderController::class, 'store'])
+    ->middleware('workbench.token')
+    ->name('demo.orders.store');
+
+Route::get('/orders', [OrderController::class, 'index'])
+    ->middleware('workbench.token')
+    ->name('demo.orders.index');
+
+Route::get('/orders/{order}', [OrderController::class, 'show'])
+    ->middleware('workbench.token')
+    ->name('demo.orders.show');

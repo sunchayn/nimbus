@@ -2,7 +2,7 @@
  * Records the Nimbus demo against the running demo app and converts it to a GIF.
  *
  * Run it with `node .ai/skills/record-demo-video/record.mjs`.
- * Options are `--out <gif>`, `--base <url>`, and `--keep-video` to also save the raw webm next to the GIF.
+ * Options are `--out <gif>`, `--base <url>`, `--scheme <dark|light>` (dark by default), and `--keep-video` to also save the raw webm next to the GIF.
  * The storyline is the list of steps inside `play`, keep it in sync with SKILL.md.
  */
 import { chromium } from '@playwright/test';
@@ -23,6 +23,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../.
 const OUT = path.resolve(option('out', path.join(root, 'art/nimbus-demo-video.gif')));
 const BASE = option('base', 'http://127.0.0.1:8000/demo');
 const KEEP_VIDEO = args.includes('--keep-video');
+const SCHEME = option('scheme', 'dark');
 
 const VIEWPORT = { width: 1280, height: 800 };
 const FPS = 15;
@@ -31,11 +32,11 @@ const FPS = 15;
  * Playwright does not draw the pointer, so a dot follows the mouse events inside the page.
  * The dot shrinks while a button is pressed to give click feedback.
  */
-const CURSOR_SCRIPT = () => {
+const CURSOR_SCRIPT = (scheme) => {
     window.addEventListener('DOMContentLoaded', () => {
         const dot = document.createElement('div');
         dot.style.cssText =
-            'position:fixed;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:rgba(75,85,99,.65);z-index:2147483647;pointer-events:none;transition:transform .12s;transform:translate(640px,400px)';
+            'position:fixed;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:' + (scheme === 'dark' ? 'rgba(255,255,255,.85)' : 'rgba(75,85,99,.65)') + ';z-index:2147483647;pointer-events:none;transition:transform .12s;transform:translate(640px,400px)';
         document.body.appendChild(dot);
 
         let x = 640;
@@ -59,6 +60,8 @@ const CURSOR_SCRIPT = () => {
 const pause = (page, ms) => page.waitForTimeout(ms);
 
 const glideTo = async (page, locator) => {
+    await locator.scrollIntoViewIfNeeded();
+
     const box = await locator.boundingBox();
 
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 18 });
@@ -76,7 +79,7 @@ const click = async (page, locator) => {
  * The storyline. Each beat is one thing a viewer should notice, followed by a short pause to read it.
  */
 const play = async (page) => {
-    const responsePanel = page.getByRole('tablist').nth(1);
+    const responsePanel = page.getByRole('tablist').last();
 
     await pause(page, 700);
 
@@ -122,10 +125,11 @@ const workdir = mkdtempSync(path.join(tmpdir(), 'nimbus-demo-'));
 const browser = await chromium.launch();
 const context = await browser.newContext({
     viewport: VIEWPORT,
+    colorScheme: SCHEME,
     recordVideo: { dir: workdir, size: VIEWPORT },
 });
 
-await context.addInitScript(CURSOR_SCRIPT);
+await context.addInitScript(CURSOR_SCRIPT, SCHEME);
 
 const page = await context.newPage();
 const startedAt = Date.now();
