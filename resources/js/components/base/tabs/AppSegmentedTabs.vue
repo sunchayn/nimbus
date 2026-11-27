@@ -68,11 +68,14 @@ const ui = computed(() => ({
         props.orientation !== 'vertical' && 'h-full py-0',
         props.orientation === 'vertical' && 'flex-none',
         props.outlined &&
-            'border-default/60 data-[state=active]:border-transparent border',
+            'border-default/60 dark:border-accented data-[state=active]:border-transparent border',
         props.orientation !== 'vertical' && props.fill && 'flex-1',
         props.ui?.trigger,
     ),
-    indicator: join('bg-default border-inverted border shadow-none', props.ui?.indicator),
+    indicator: join(
+        'bg-default border-inverted dark:border-accented border shadow-none',
+        props.ui?.indicator,
+    ),
 }));
 </script>
 
