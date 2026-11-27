@@ -1,5 +1,77 @@
 # Changelog
 
+## [1.0.0](https://github.com/sunchayn/nimbus/compare/v0.9.0-alpha...v1.0.0) (2026-11-27)
+
+
+### Features
+
+* **client:** add a rate limit meter and a limiter reset ([#192](https://github.com/sunchayn/nimbus/issues/192)) ([4c203de](https://github.com/sunchayn/nimbus/commit/4c203de1dd3b238c2e3a832290a914fd59223dfc))
+* **client:** add a request and response `plain` tab ([#167](https://github.com/sunchayn/nimbus/issues/167)) ([9abd32a](https://github.com/sunchayn/nimbus/commit/9abd32ac36812342a576fd8a76bcf028b286f360))
+* **client:** add dynamic variables with suggestions ([#170](https://github.com/sunchayn/nimbus/issues/170)) ([d0b60ef](https://github.com/sunchayn/nimbus/commit/d0b60efefb1a2ad3ee044bb39f55540b76442efe))
+* **client:** add response search and a pretty toggle ([#171](https://github.com/sunchayn/nimbus/issues/171)) ([cffee0f](https://github.com/sunchayn/nimbus/commit/cffee0f33be5bb77365f979f0eb02311d44fdab8))
+* **client:** add route filters and history pinning ([#182](https://github.com/sunchayn/nimbus/issues/182)) ([c79938f](https://github.com/sunchayn/nimbus/commit/c79938f0dd10d9cab49f86959f7fd814c6cd1cfb))
+* **client:** add urlencoded, html, xml and binary body types ([#169](https://github.com/sunchayn/nimbus/issues/169)) ([76bad19](https://github.com/sunchayn/nimbus/commit/76bad19d732baf93ab592ef59aafd9b889287b95))
+* **client:** copy a request as code ([#172](https://github.com/sunchayn/nimbus/issues/172)) ([d46806e](https://github.com/sunchayn/nimbus/commit/d46806ead9aec729e79e716b008a052903483a33))
+* **doctor:** add the nimbus:doctor command and a diagnostics view ([#164](https://github.com/sunchayn/nimbus/issues/164)) ([f917047](https://github.com/sunchayn/nimbus/commit/f9170476daba22aa3bc017bc06852fae91cbff50))
+* **extractor:** add query parameters read by get controllers ([#179](https://github.com/sunchayn/nimbus/issues/179)) ([ef960de](https://github.com/sunchayn/nimbus/commit/ef960de061c91cad2070ebcbc16e88cb5f6f44c7))
+* **extractor:** cover more validation rules and label conditional fields ([#175](https://github.com/sunchayn/nimbus/issues/175)) ([ef52038](https://github.com/sunchayn/nimbus/commit/ef520387b87b3346eb98c56bb1862dc1b6d21391))
+* **extractor:** read pagination envelopes and optional keys ([#177](https://github.com/sunchayn/nimbus/issues/177)) ([8fc2654](https://github.com/sunchayn/nimbus/commit/8fc26541cb3ce89d51c1a099b847336a365d4e9e))
+* **extractor:** read rule objects and form request hooks ([#178](https://github.com/sunchayn/nimbus/issues/178)) ([9d95b20](https://github.com/sunchayn/nimbus/commit/9d95b20e26c22f1a0e7d131f09045154d062b689))
+* **insight:** collect what a relayed request did ([#195](https://github.com/sunchayn/nimbus/issues/195)) ([87f3d47](https://github.com/sunchayn/nimbus/commit/87f3d47769b50de8386f732fe97e2464b20c8264))
+* **insight:** show what a request did in an insight tab ([#196](https://github.com/sunchayn/nimbus/issues/196)) ([054c934](https://github.com/sunchayn/nimbus/commit/054c9344d258f3c44184178ea6b715653e03936e))
+* **magic:** add a sign and send action for signed routes ([#181](https://github.com/sunchayn/nimbus/issues/181)) ([f72f106](https://github.com/sunchayn/nimbus/commit/f72f10619b303d9b3a6bd979abe90a77dc5826b5))
+* **magic:** add sandbox mode for mail, notifications, jobs and events ([#197](https://github.com/sunchayn/nimbus/issues/197)) ([895440f](https://github.com/sunchayn/nimbus/commit/895440ff70db9c044ed39e415651573f2ece4f42))
+* **magic:** authorize with a personal access token for a user ([#190](https://github.com/sunchayn/nimbus/issues/190)) ([7be4ca6](https://github.com/sunchayn/nimbus/commit/7be4ca6756e42fa583715d2e36d8cd970ffabc52))
+* **magic:** impersonate through an unsigned actor header ([#187](https://github.com/sunchayn/nimbus/issues/187)) ([6ed0436](https://github.com/sunchayn/nimbus/commit/6ed0436a8d91435f3b0e018068e3b72adaa716b6))
+* **magic:** pick the impersonated user from a searchable list ([#188](https://github.com/sunchayn/nimbus/issues/188)) ([4eebeff](https://github.com/sunchayn/nimbus/commit/4eebeffe663bd9a1a26f3f0675a267e71d06f38e))
+* **magic:** prefetch existing values for exists rules ([#183](https://github.com/sunchayn/nimbus/issues/183)) ([391291f](https://github.com/sunchayn/nimbus/commit/391291f7c3952ddb79329ae297ed08efab468eec))
+* **magic:** roll back transactions on every connection ([#186](https://github.com/sunchayn/nimbus/issues/186)) ([f1982aa](https://github.com/sunchayn/nimbus/commit/f1982aaa2435f5827b39867f7198696ad22c2ce3))
+* **magic:** run a request at a chosen time ([#189](https://github.com/sunchayn/nimbus/issues/189)) ([e78f561](https://github.com/sunchayn/nimbus/commit/e78f56184edf43be4962032332bc39139fc6c92b))
+* **mcp:** add an MCP server ([#218](https://github.com/sunchayn/nimbus/issues/218)) ([991fe2b](https://github.com/sunchayn/nimbus/commit/991fe2b2b31ed26b6a8ab479273efb521cc4a362))
+* **routes:** keep route metadata and show auth and throttle hints ([#176](https://github.com/sunchayn/nimbus/issues/176)) ([ad08c6c](https://github.com/sunchayn/nimbus/commit/ad08c6c7fecd8f80113bc7dd4c5cae490e696274))
+* **toolbox:** add a dialog with Laravel helpers ([#191](https://github.com/sunchayn/nimbus/issues/191)) ([8112124](https://github.com/sunchayn/nimbus/commit/8112124507735cdd9d11010002cd99abadc2602d))
+* **ui:** add a command palette and keyboard shortcuts ([#165](https://github.com/sunchayn/nimbus/issues/165)) ([0bfdfcd](https://github.com/sunchayn/nimbus/commit/0bfdfcdb62cc9779e36a9fb08f8dd3b637c924d5))
+* **ui:** opt in for displaying the app name in the top bar ([#95](https://github.com/sunchayn/nimbus/issues/95)) ([0448216](https://github.com/sunchayn/nimbus/commit/0448216696e06bf685e05b644e2039660e9da47b))
+* **workspace:** introduce Workspaces for shared pre-saved requests ([#202](https://github.com/sunchayn/nimbus/issues/202)) ([369b95c](https://github.com/sunchayn/nimbus/commit/369b95c2e636e22a44f90efcccd1b821eb35b0d1))
+
+
+### Bug Fixes
+
+* **client:** keep browser storage within its quota ([#168](https://github.com/sunchayn/nimbus/issues/168)) ([e09109d](https://github.com/sunchayn/nimbus/commit/e09109d4e92103d4e0576c34fded49067b6fce24))
+* **client:** request&lt;&gt;response lifecycle UX ([#208](https://github.com/sunchayn/nimbus/issues/208)) ([5b4bee0](https://github.com/sunchayn/nimbus/commit/5b4bee0747d999909b3e4441a3aebf3270ecbd25))
+* exclude `staging` from default allowed envs ([#201](https://github.com/sunchayn/nimbus/issues/201)) ([a88a686](https://github.com/sunchayn/nimbus/commit/a88a686cde971e1a781f484a1a5d258bfc5b5308))
+* **intellisense:** skip unchanged files and fail CI on stale output ([#194](https://github.com/sunchayn/nimbus/issues/194)) ([a9391a4](https://github.com/sunchayn/nimbus/commit/a9391a4d6a816c24684f2226149c842429be72ca))
+* **relay:** add request options and match multipart by media type ([#166](https://github.com/sunchayn/nimbus/issues/166)) ([2f7d42d](https://github.com/sunchayn/nimbus/commit/2f7d42d9d0dca1ce333c91a1a7e2751300817d36))
+* **ui:** let menu items grow past the row height ([#174](https://github.com/sunchayn/nimbus/issues/174)) ([4a1a618](https://github.com/sunchayn/nimbus/commit/4a1a618cd544ae464e21e3409075e11548984bd6))
+
+
+### Code Refactoring
+
+* **actions:** take plain typed inputs instead of single-use DTOs ([#212](https://github.com/sunchayn/nimbus/issues/212)) ([3a1296e](https://github.com/sunchayn/nimbus/commit/3a1296e3eb8c6b59854c0ecbd1bb7c56b262ccae))
+* **api:** use resource-style names for the workspace routes ([#214](https://github.com/sunchayn/nimbus/issues/214)) ([6dfdc96](https://github.com/sunchayn/nimbus/commit/6dfdc966966ceae25c8a634ef66ce6005d33c8df))
+* **http:** properly structure the http application ([#213](https://github.com/sunchayn/nimbus/issues/213)) ([5144b2f](https://github.com/sunchayn/nimbus/commit/5144b2fa91fae87b958b0da257e89b9d00bdf9f2))
+* **magic:** move the throttle middleware out of services ([#210](https://github.com/sunchayn/nimbus/issues/210)) ([18e15d2](https://github.com/sunchayn/nimbus/commit/18e15d23ed5fcc331e5bb630f7ac7d9b3d87e5b8))
+* **magic:** move transaction listener and injectors into a magic module ([#180](https://github.com/sunchayn/nimbus/issues/180)) ([467d4a3](https://github.com/sunchayn/nimbus/commit/467d4a3644bac3bff90a9690d57e50a1563d77a1))
+* move data carriers out of the value object folders ([#211](https://github.com/sunchayn/nimbus/issues/211)) ([9a28a86](https://github.com/sunchayn/nimbus/commit/9a28a8697eb64f4be176fa35f213f00db09b8be5))
+* register the package with a plain service provider ([#215](https://github.com/sunchayn/nimbus/issues/215)) ([934951e](https://github.com/sunchayn/nimbus/commit/934951e6d9585cf4ddf2f1a4bb8efebb3c4f1b16))
+
+
+### Build System
+
+* auto deploy releases to the demo website ([#163](https://github.com/sunchayn/nimbus/issues/163)) ([aeb9556](https://github.com/sunchayn/nimbus/commit/aeb955649062ddcd0c716cfc40c148701f3d0f55))
+* bump dependencies ([#204](https://github.com/sunchayn/nimbus/issues/204)) ([ef7a718](https://github.com/sunchayn/nimbus/commit/ef7a7186168b66be70deae9620458c69a0fa2cd2))
+* bump invade package ([#200](https://github.com/sunchayn/nimbus/issues/200)) ([7867ec6](https://github.com/sunchayn/nimbus/commit/7867ec6b236a1e16b590ead523f8d46e0b018b07))
+* remove vue shims ([#206](https://github.com/sunchayn/nimbus/issues/206)) ([58a8df5](https://github.com/sunchayn/nimbus/commit/58a8df513ba682f67b0297d39794d3bca614c0db))
+
+
+### Maintenance
+
+* add laravel versions badge ([#160](https://github.com/sunchayn/nimbus/issues/160)) ([dd8a456](https://github.com/sunchayn/nimbus/commit/dd8a456143cbfa790813290c1ccc86e503313f8f))
+* demo improvements ([#221](https://github.com/sunchayn/nimbus/issues/221)) ([51defd5](https://github.com/sunchayn/nimbus/commit/51defd5890ff7fcab465647c3b4c67d09ddb436b))
+* improve JS file imports ([#203](https://github.com/sunchayn/nimbus/issues/203)) ([3fc9ed1](https://github.com/sunchayn/nimbus/commit/3fc9ed1f3f4b01d7d03462eeaded97755685ba49))
+* repo housekeeping after core deps update ([#199](https://github.com/sunchayn/nimbus/issues/199)) ([10a124e](https://github.com/sunchayn/nimbus/commit/10a124e40c7902d124647ec55cf5db071ccacfcc))
+* **ui:** fixes after client and extractor stacks merged ([#185](https://github.com/sunchayn/nimbus/issues/185)) ([2137abd](https://github.com/sunchayn/nimbus/commit/2137abd20dd62ff84106642c92a77aa1f4bafe17))
+
 ## [0.9.0-alpha](https://github.com/sunchayn/nimbus/compare/v0.8.0-alpha...v0.9.0-alpha) (2026-11-06)
 
 
