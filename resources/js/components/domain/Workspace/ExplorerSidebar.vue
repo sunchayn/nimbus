@@ -108,7 +108,7 @@ const items = [
                 :items="items"
                 :content="false"
                 outlined
-                :ui="{ list: 'h-full! border-0 bg-transaprent' }"
+                :ui="{ list: 'h-full! border-0 bg-transparent' }"
                 class="h-full shrink-0"
                 data-testid="explorer-sidebar-tabs"
             />

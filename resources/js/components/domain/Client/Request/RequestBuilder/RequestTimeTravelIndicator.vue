@@ -41,7 +41,7 @@ const change = () => {
 </script>
 
 <template>
-    <div v-if="timeTravel" class="shrink-0">
+    <div v-if="timeTravel" class="flex shrink-0 items-center">
         <AppPopover
             :open="showPopover"
             :content="{ align: 'end', sideOffset: 12, alignOffset: -6 }"

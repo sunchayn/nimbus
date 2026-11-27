@@ -51,6 +51,10 @@ export const editorTheme: Extension = EditorView.theme({
         color: 'var(--ui-text-dimmed)',
         border: 'none',
     },
+    // The response search opens an empty panel, so its default light border is removed.
+    '.cm-panels': { backgroundColor: 'transparent', color: 'inherit' },
+    '.cm-panels-bottom': { borderTop: 'none' },
+    '.cm-panels-top': { borderBottom: 'none' },
     '.cm-foldGutter .cm-gutterElement:hover': { color: 'var(--ui-text-highlighted)' },
 
     /*

@@ -70,12 +70,12 @@
     --ui-warning: var(--ui-color-warning-300);
     --ui-info: var(--ui-color-info-300);
 
-    --ui-bg: var(--color-zinc-950);
-    --ui-bg-muted: var(--color-zinc-900);
-    --ui-bg-elevated: var(--color-zinc-800);
-    --ui-bg-accented: var(--color-zinc-700);
-    --surface-overlay: var(--color-zinc-800);
-    --surface-overlay-hover: var(--color-zinc-700);
+    --ui-bg: oklch(17% 0.006 264);
+    --ui-bg-muted: oklch(19.5% 0.007 264);
+    --ui-bg-elevated: oklch(22.5% 0.008 264);
+    --ui-bg-accented: oklch(28% 0.009 264);
+    --surface-overlay: oklch(21% 0.008 264);
+    --surface-overlay-hover: oklch(26% 0.009 264);
     --surface-scrim: oklch(0% 0 0 / 0.6);
 
     --ui-text-highlighted: var(--color-zinc-50);
@@ -84,12 +84,12 @@
     --ui-text-muted: var(--color-zinc-300);
     --ui-text-dimmed: var(--color-zinc-400);
 
-    --ui-border: var(--color-zinc-800);
-    --ui-border-muted: var(--color-zinc-800);
-    --ui-border-accented: var(--color-zinc-700);
+    --ui-border: oklch(29% 0.009 264);
+    --ui-border-muted: oklch(25% 0.008 264);
+    --ui-border-accented: oklch(35% 0.01 264);
 
     --elevation-overlay: 0 8px 24px -4px rgb(0 0 0 / 0.5), 0 1px 3px rgb(0 0 0 / 0.4);
     --elevation-modal: 0 24px 64px -8px rgb(0 0 0 / 0.65), 0 2px 8px rgb(0 0 0 / 0.4);
 
-    --overlay-separator: var(--color-zinc-600);
+    --overlay-separator: oklch(31% 0.01 264);
 }
